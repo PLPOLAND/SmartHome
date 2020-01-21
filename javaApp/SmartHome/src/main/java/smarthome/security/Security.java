@@ -1,12 +1,13 @@
 package smarthome.security;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import smarthome.database.UsersDAO;
 import smarthome.model.Uprawnienia;
@@ -19,13 +20,14 @@ import smarthome.model.User;
  * @author Marek Pałdyna
  * @version 1.0
  */
-@Repository
+@Service
 public class Security {
     @Autowired
     UsersDAO database;
 
     HttpServletRequest request;
 
+    Logger logger = LoggerFactory.getLogger(UsersDAO.class);//logger
     /**
      * Konstruktor Inicjuje Klasę do działania
      * 
@@ -55,25 +57,20 @@ public class Security {
             return false;
         }
 
-        // TODO Odkomentować kiedy będzie wszystko gotowe do logowania z hashowaniem
-        // pass = Hash.hash(pass);
-
-        List<User> resultUsers = database.getUserLoginData(nickname, pass);
-        if (resultUsers.isEmpty()) {
+        User resultUsers = database.getUserLoginData(nickname, pass);
+        if (resultUsers == null) {
             return false;
         } else {
-            String name = resultUsers.get(0).getNick();
-            String nazwisko = resultUsers.get(0).getEmail();
-            Integer idU = resultUsers.get(0).getId();
-            // System.out.println("SECURITY" + resultUsers.get(0).getUprawnienia()); //DEBUG
-            //Uprawnienia uprawnienia = resultUsers.get(0).getUprawnienia();
-            // System.out.println(uprawnienia.toString()); // Debug
+            String name = resultUsers.getNick();
+            String nazwisko = resultUsers.getEmail();
+            Long idU = resultUsers.getId();
             HttpSession session = request.getSession();
             session.setAttribute("imie", name); // dodawanie pola do sesji
             session.setAttribute("nazwisko", nazwisko);
             session.setAttribute("id", idU);
-            // session.setAttribute("uprawnienia", uprawnienia);
             session.setMaxInactiveInterval(60 * 60); // usuniecie pol sesji po 60 minutach
+
+            logger.info("User: " + resultUsers.getNick() + " zalogwał się pomyślnie"); //log
 
             return true;
         }
@@ -175,16 +172,15 @@ public class Security {
     }
 
     /**
-     * Funkcja pobierająca dane użytkonika z bazy danych na podstawie ID (pobranego
-     * z danych sesji)
+     * Funkcja pobierająca dane użytkonika z bazy danych na podstawie ID 
+     * (pobranego z danych sesji)
      * 
-     * @version 1.0
      * @return Dane zalogowanego użytkownika
      */
     public User getFullUserData() {
         if (isLoged()) {
             HttpSession session = request.getSession();
-            User result = database.find_user_by_id((Integer) session.getAttribute("id"));
+            User result = database.find_user_by_id((Long) session.getAttribute("id"));
             if (result == null) {
                 return null;
             } else {
@@ -196,7 +192,8 @@ public class Security {
     }
 
     /**
-     * Funkcja usuwa dane sesji = wylogowanie użytkownika
+     * Wylogowanie usera.
+     * Usuwa dane usera z sesji.
      */
     public void logout() {
         if (isLoged()) {

@@ -1,22 +1,27 @@
 package smarthome.model;
 
 /**
- * User 
  * 
  * Klasa przetrzymująca dane o użytkowniku
  * 
  * @author Marek Pałdyna
+ * @version 1.0
  */
 public class User {
-    int id;
+    Long id;
     String imie;
     String nazwisko;
     String nick;
     String email;
     String password;
     String oldPassword;
+    Uprawnienia uprawnienia;
 
-    public User(int id, String imie, String nazwisko, String nick, String email, String password, String oldPassword) {
+    public User(){
+
+    }
+
+    public User(Long id, String imie, String nazwisko, String nick, String email, String password, String oldPassword, Uprawnienia uprawnienia) {
         this.id = id;
         this.imie = imie;
         this.nazwisko = nazwisko;
@@ -24,13 +29,14 @@ public class User {
         this.email = email;
         this.password = password;
         this.oldPassword = oldPassword;
+        this.uprawnienia = uprawnienia;
     }
 
-    public int getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -80,6 +86,14 @@ public class User {
 
     public void setOldPassword(String oldPassword) {
         this.oldPassword = oldPassword;
+    }
+
+    public Uprawnienia getUprawnienia() {
+        return this.uprawnienia;
+    }
+
+    public void setUprawnienia(Uprawnienia uprawnienia) {
+        this.uprawnienia = uprawnienia;
     }
     
 }

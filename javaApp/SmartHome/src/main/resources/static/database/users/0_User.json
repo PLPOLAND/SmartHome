@@ -1,0 +1,12 @@
+{
+  "id" : 0,
+  "imie" : "Marek",
+  "nazwisko" : "Pałdyna",
+  "nick" : "PLPOLAND",
+  "email" : "marekpaldyna@wp.pl",
+  "password" : "xxx",
+  "oldPassword" : "xxx",
+  "uprawnienia": {
+    "admin": true
+  }
+}

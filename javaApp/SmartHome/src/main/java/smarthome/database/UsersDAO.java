@@ -1,6 +1,7 @@
 package smarthome.database;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +12,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.stereotype.Repository;
 
 import smarthome.model.User;
+import smarthome.security.Hash;
 
 /**
  * UsersDAO
@@ -28,17 +27,33 @@ import smarthome.model.User;
 public class UsersDAO {
 
 	List<User> data = new ArrayList<User>();
-	
-	public UsersDAO(){
+
+	public UsersDAO() {
 		this.readDatabase();
 	}
 
-	
-	public List<User> getUserLoginData(String nickname, String pass) {
-		return null;
+	public User getUserLoginData(String nickname, String pass) {
+		User usr = null;
+		for (User user : data) {
+			if (user.getNick() != null) {
+				if (user.getNick().equals(nickname)) {
+					usr = user;
+				}
+			}
+
+		}
+		if (usr == null) {
+			return null;
+		} else {
+			if (usr.getPassword().equals(Hash.hash(pass))) {
+				return usr;
+			} else {
+				return null;
+			}
+		}
 	}
 
-	public User find_user_by_id(Integer ID) {
+	public User find_user_by_id(Long ID) {
 		for (User user : data) {
 			if (user.getId() == ID) {
 				return user;// znaleziony user
@@ -46,24 +61,23 @@ public class UsersDAO {
 		}
 		return null;// nie znaleziono usera
 	}
+
 	/**
 	 * Czyta bazę danych z plików
 	 */
 	public void readDatabase() {
 		ObjectMapper obj = new ObjectMapper();
-		int i = 1;
+		int i = 0;
 		while (true) {
 			User user = null;
 			try {
-				user = obj.readValue(
-						TypeReference.class.getResourceAsStream("/static/database/users/" + i + "_User.json"),
+				user = obj.readValue(new FileInputStream(new File("src/main/resources/static/database/users/" + i + "_User.json")),
 						User.class);
 				data.add(user);
 				i++;
 			} catch (Exception e) {
-				// System.out.println("Wczytano " + --i + " userow");
 				Logger logger = LoggerFactory.getLogger(UsersDAO.class);
-				logger.info("Wczytano " + --i + " userow");
+				logger.info("Wczytano " + i + " userow");
 				break;
 			}
 		}
@@ -79,15 +93,6 @@ public class UsersDAO {
 			this.readDatabase();
 		}
 		return this.data;
-	}
-    
-	/**
-	 * Zapisuje całą bazę danych do plików
-	 */
-	public void save() {
-		for (User user : data) {
-			this.save(user);
-		}
 	}
 
 	/**
@@ -130,6 +135,24 @@ public class UsersDAO {
 	public Long getNextID() {
 		return new Long(data.size() + 1);
 	}
+	/**
+	 * Tworzy nowego usera
+	 * 
+	 * @param user - user do stworzenia
+	 */
+	public void createUser(User user) {
+		user.setPassword(Hash.hash(user.getPassword()));//zahaszuj hasło
+		this.save(user);
+		this.data.add(user);
+	}
+	/**
+	 * Zapisuje całą bazę danych do plików
+	 */
+	public void save() {
+		for (User user : data) {
+			this.save(user);
+		}
+	}
 
 	/**
 	 * Zapisuje podany user do pliku
@@ -157,8 +180,7 @@ public class UsersDAO {
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-				File appFile = new File(TypeReference.class.getResource("/static/database/users/").getPath()
-						+ user.getId() + "_User.json");
+				File appFile = new File(TypeReference.class.getResource("/static/database/users/").getPath() + user.getId() + "_User.json");
 				appFile.createNewFile();// utworzenie pliku jeśli nie istnieje
 				objectMapper.writeValue(appFile, user);// plik aplikacji (target)
 			} catch (JsonGenerationException e) {

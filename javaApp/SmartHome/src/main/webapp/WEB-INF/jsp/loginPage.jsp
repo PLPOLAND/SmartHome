@@ -14,11 +14,11 @@
 </head>
 
 <body>
-
+    <div class="background-container"></div>
     <div class="login-container">
         <div class="login-form">
             <h3>Logowanie do systemu</h3>
-            <form action="login" method="POST">
+            <form id="loginform" action="#" method="post">
                 <div class="login-field">
                     <input type="text" class="form-control" placeholder="Twój Login *" value="" name="login" />
                 </div>
