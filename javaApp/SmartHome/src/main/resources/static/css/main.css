@@ -41,11 +41,30 @@ body{
 .banner-user{
 	display: block;
 	width: 100%;
-	height: 50px;
+	height: auto;
+	min-height: 50px;
 	transition: 500ms;
 }
-.banner-user:hover{
-	background-color: black; /*zmienić na coś sensownego*/
+.user-img{
+	width: 100%;
+	height: 50px;
+}
+.user-img img{
+	border-radius: 1em;
+}
+.user-icons{
+	display: block;
+}
+.user-icons-pos{
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+	background-color: black;
+	color: #ffffff;
+	transition: 250ms;
+}
+.user-icons-pos:hover{
+	background-color: #111111;
 }
 .menu{
 	display: block;
