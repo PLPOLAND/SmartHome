@@ -2,6 +2,8 @@ package smarthome.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,12 +21,13 @@ public class RESTController{
     UsersDAO users;
 
     @RequestMapping("/login")
-    boolean login(HttpServletRequest request){
+    String login(HttpServletRequest request){
         Security s = new Security(request, users);
+
         if (s.login())
-            return true;
+            return "/";
         else
-            return false;
+            return null;
     }
     
 }
