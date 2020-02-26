@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Repository;
 
-import smarthome.model.Temperature;
+import smarthome.model.Termometr;
 
 /**
  * TemperatureDAO
@@ -16,28 +16,28 @@ import smarthome.model.Temperature;
 @Repository
 public class TemperatureDAO {
 
-    List<Temperature> temps;
+    List<Termometr> temps;
 
     public TemperatureDAO(){
         temps = new ArrayList<>();
         Logger logger = LoggerFactory.getLogger(UsersDAO.class);
         logger.info("Init");
-        temps.add(new Temperature());
-        temps.get(0).setTemp(0);
+        temps.add(new Termometr());
+        // temps.get(0).setTemperatura(0.0);
     }
-    public void addTemp(Temperature temp){
+    public void addTemp(Termometr temp){
         temps.add(temp);
     }
     
-    public Temperature getTemp(int i){
+    public Termometr getTemp(int i){
         return temps.get(i);
     }
     
     public boolean setTemp(int i, Double temp){
-        temps.get(i).setTemp(temp);
+        temps.get(i).setTemperatura(temp);
         return true;
     }
-    public boolean setTemp(int i, Temperature temp){
+    public boolean setTemp(int i, Termometr temp){
         temps.set(i,temp);
         return true;
     }

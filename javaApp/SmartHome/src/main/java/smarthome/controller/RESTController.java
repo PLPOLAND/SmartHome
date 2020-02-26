@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import smarthome.database.TemperatureDAO;
 import smarthome.database.UsersDAO;
 import smarthome.model.Temperature;
+import smarthome.model.Termometr;
 import smarthome.security.Security;
 
 /**
@@ -35,7 +36,7 @@ public class RESTController {
     TemperatureDAO temp;
 
     @RequestMapping("/login")
-    String login(HttpServletRequest request){
+    String login(HttpServletRequest request) {
         Security s = new Security(request, users);
 
         if (s.login())
@@ -63,11 +64,11 @@ public class RESTController {
     }
 
     @GetMapping("/gettemp")
-    Temperature gettemp() {
+    Termometr gettemp() {
         return temp.getTemp(0);
     }
 
-    // @Scheduled(fixedRate = 1000)
+     @Scheduled(fixedRate = 1000)
     void test() {
         Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -79,9 +80,9 @@ public class RESTController {
         String result = restTemplate.getForObject(uri, String.class);
 
         try {
-            Temperature termometr = obj.readValue(result, Temperature.class);
-            logger.info("Temperatura 0: " + termometr.getTemp());
-            temp.setTemp(0, termometr);
+            Temperature termometr2 = obj.readValue(result, Temperature.class);
+            logger.info("Temperatura 0: " + termometr2.getTemp());
+            temp.setTemp(0, termometr2.getTemp());
         } catch (JsonParseException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
