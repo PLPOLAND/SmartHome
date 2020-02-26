@@ -10,6 +10,7 @@
 
 <head>
     <c:url value="/css/login.css" var="jstlCss" />
+    <c:url value="/js/"><!-- TODO -->
     <link href="${jstlCss}" rel="stylesheet" />
 </head>
 
