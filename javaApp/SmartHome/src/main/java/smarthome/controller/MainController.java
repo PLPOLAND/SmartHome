@@ -17,7 +17,11 @@ public class MainController {
 	UsersDAO users;
 
 	@RequestMapping("/")
-	public String mainpage(){
+	public String mainpage(HttpServletRequest request){
+		Security sec = new Security(request, users);
+		if(!sec.isLoged())
+			return "redirect:login";
+
 		return "mainpage";
 	}
 

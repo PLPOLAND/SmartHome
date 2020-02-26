@@ -110,3 +110,10 @@ body {
 	border: 1px solid #ced4da;
 	border-radius: .25rem;
 }
+#err-msg{
+	display: block;
+	width: 100%;
+	text-align: center;
+    padding: 0px 5px 5px 5px;
+    color: red;
+}

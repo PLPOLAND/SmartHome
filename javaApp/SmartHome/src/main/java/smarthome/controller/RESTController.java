@@ -1,9 +1,6 @@
 package smarthome.controller;
 
 import java.io.IOException;
-import java.time.LocalTime;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -70,7 +67,7 @@ public class RESTController {
         return temp.getTemp(0);
     }
 
-    @Scheduled(fixedRate = 1000)
+    // @Scheduled(fixedRate = 1000)
     void test() {
         Logger logger = LoggerFactory.getLogger(this.getClass());
 

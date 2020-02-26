@@ -24,10 +24,10 @@ import smarthome.model.User;
 public class Security {
     @Autowired
     UsersDAO database;
-
     HttpServletRequest request;
 
-    Logger logger = LoggerFactory.getLogger(UsersDAO.class);//logger
+    Logger logger = LoggerFactory.getLogger(Security.class);//logger
+    
     /**
      * Konstruktor Inicjuje Klasę do działania
      * 

@@ -6,7 +6,11 @@ package smarthome.security;
 public class Hash {
 
     static private String hashWord = "onomatopejakowalskiego";
-
+    /**
+     * Hashuje hasło
+     * @param word - hasło do zahashowania 
+     * @return zahashowane hasło
+     */
     static public String hash(String word) {
         String result = new String();
         int j = 0;
@@ -21,5 +25,10 @@ public class Hash {
         }
         return result;
     }
-
+    /**
+     * wypisuje zahashowane hasło
+     */
+    public static void main(String[] args) {
+        System.out.println(hash("xxx"));
+    }
 }

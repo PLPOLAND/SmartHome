@@ -22,11 +22,12 @@
         <div class="login-form">
             <h3>Logowanie do systemu</h3>
             <form id="loginform" action="javascript:void(0);" method="post">
+                <div id="err-msg"></div>
                 <div class="login-field">
-                    <input type="text" class="form-control" placeholder="Twój Login *" value="" name="login" />
+                    <input type="text" class="form-control" placeholder="Twój Login *" value="" name="login" id="login" />
                 </div>
                 <div class="login-field">
-                    <input type="password" class="form-control" placeholder="Twoje Hasło *" value="" name="pass" />
+                    <input type="password" class="form-control" placeholder="Twoje Hasło *" value="" name="pass" id="pass" />
                 </div>
                 <div class="login-field btn-field">
                     <input type="submit" id="subbutton" class="btnSubmit" value="Zaloguj" />
