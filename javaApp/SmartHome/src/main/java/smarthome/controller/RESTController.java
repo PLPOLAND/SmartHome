@@ -38,12 +38,13 @@ public class RESTController {
     TemperatureDAO temp;
 
     @RequestMapping("/login")
-    boolean login(HttpServletRequest request) {
+    String login(HttpServletRequest request){
         Security s = new Security(request, users);
+
         if (s.login())
-            return true;
+            return "/";
         else
-            return false;
+            return null;
     }
 
     @GetMapping("/setRGB")

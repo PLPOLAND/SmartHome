@@ -17,6 +17,11 @@ public class MainController {
 	UsersDAO users;
 
 	@RequestMapping("/")
+	public String mainpage(){
+		return "mainpage";
+	}
+
+	@RequestMapping("/login")
 	public String loadLoginPage() {
 		return "loginPage";
 	}

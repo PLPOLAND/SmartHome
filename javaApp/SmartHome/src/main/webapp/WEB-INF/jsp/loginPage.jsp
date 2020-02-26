@@ -9,8 +9,11 @@
 <html lang="pl">
 
 <head>
-    <c:url value="/css/login.css" var="jstlCss" />
-    <link href="${jstlCss}" rel="stylesheet" />
+    <c:url value="/css/login.css" var="loginCss" />
+    <c:url value="/js/login.js" var="loginJs" /><!-- TODO -->
+    <link href="${loginCss}" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="${loginJs}"></script>
 </head>
 
 <body>
@@ -18,7 +21,7 @@
     <div class="login-container">
         <div class="login-form">
             <h3>Logowanie do systemu</h3>
-            <form id="loginform" action="#" method="post">
+            <form id="loginform" action="javascript:void(0);" method="post">
                 <div class="login-field">
                     <input type="text" class="form-control" placeholder="Twój Login *" value="" name="login" />
                 </div>
@@ -26,7 +29,7 @@
                     <input type="password" class="form-control" placeholder="Twoje Hasło *" value="" name="pass" />
                 </div>
                 <div class="login-field btn-field">
-                    <input type="submit" class="btnSubmit" value="Zaloguj" />
+                    <input type="submit" id="subbutton" class="btnSubmit" value="Zaloguj" />
                 </div>
             </form>
         </div>
