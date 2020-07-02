@@ -27,7 +27,7 @@ public class MainController {
 
 	@RequestMapping("/login")
 	public String loadLoginPage() {
-		return "loginPage";
+		return "loginPage.html";
 	}
 
 	@RequestMapping("/logout")
@@ -35,6 +35,11 @@ public class MainController {
 		Security sec = new Security(request, users);
 		sec.logout();
 		return "redirect:/";
+	}
+
+	@RequestMapping("/tmp")
+	public String tmp(){
+		return "tmp.html";
 	}
 
 }

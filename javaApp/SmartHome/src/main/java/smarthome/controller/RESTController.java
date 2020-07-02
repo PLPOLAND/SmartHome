@@ -68,28 +68,28 @@ public class RESTController {
         return temp.getTemp(0);
     }
 
-     @Scheduled(fixedRate = 1000)
-    void test() {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
+    //  @Scheduled(fixedRate = 1000)
+    // void test() {
+    //     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        final String uri = "http://192.168.1.3/get";
+    //     final String uri = "http://192.168.1.3/get";
 
-        ObjectMapper obj = new ObjectMapper();
+    //     ObjectMapper obj = new ObjectMapper();
 
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(uri, String.class);
+    //     RestTemplate restTemplate = new RestTemplate();
+    //     String result = restTemplate.getForObject(uri, String.class);
 
-        try {
-            Temperature termometr2 = obj.readValue(result, Temperature.class);
-            logger.info("Temperatura 0: " + termometr2.getTemp());
-            temp.setTemp(0, termometr2.getTemp());
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    //     try {
+    //         Temperature termometr2 = obj.readValue(result, Temperature.class);
+    //         logger.info("Temperatura 0: " + termometr2.getTemp());
+    //         temp.setTemp(0, termometr2.getTemp());
+    //     } catch (JsonParseException e) {
+    //         e.printStackTrace();
+    //     } catch (JsonMappingException e) {
+    //         e.printStackTrace();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
 
-    }
+    // }
 }

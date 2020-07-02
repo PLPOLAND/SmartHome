@@ -1,19 +1,9 @@
-<!DOCTYPE html>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%
-    response.setCharacterEncoding("UTF-8");
-    request.setCharacterEncoding("UTF-8");
-%>
 <html lang="pl">
 
 <head>
-    <c:url value="/css/login.css" var="loginCss" />
-    <c:url value="/js/login.js" var="loginJs" /><!-- TODO -->
-    <link href="${loginCss}" rel="stylesheet" />
+    <link href="/css/login.css" rel="stylesheet" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="${loginJs}"></script>
+    <script src="/js/login.js"></script>
 </head>
 
 <body>
