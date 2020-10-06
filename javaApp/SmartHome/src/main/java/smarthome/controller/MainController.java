@@ -22,7 +22,7 @@ public class MainController {
 		if(!sec.isLoged())
 			return "redirect:login";
 
-		return "mainpage";
+		return "index";
 	}
 
 	@RequestMapping("/login")

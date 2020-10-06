@@ -26,7 +26,7 @@ import smarthome.security.Hash;
 @Repository
 public class UsersDAO {
 
-	List<User> data = new ArrayList<User>();
+	List<User> userzy = new ArrayList<User>();
 
 	public UsersDAO() {
 		this.readDatabase();
@@ -34,7 +34,7 @@ public class UsersDAO {
 
 	public User getUserLoginData(String nickname, String pass) {
 		User usr = null;
-		for (User user : data) {
+		for (User user : userzy) {
 			if (user.getNick() != null) {
 				if (user.getNick().equals(nickname)) {
 					usr = user;
@@ -54,7 +54,7 @@ public class UsersDAO {
 	}
 
 	public User find_user_by_id(Long ID) {
-		for (User user : data) {
+		for (User user : userzy) {
 			if (user.getId() == ID) {
 				return user;// znaleziony user
 			}
@@ -73,7 +73,7 @@ public class UsersDAO {
 			try {
 				user = obj.readValue(new FileInputStream(new File("src/main/resources/static/database/users/" + i + "_User.json")),
 						User.class);
-				data.add(user);
+				userzy.add(user);
 				i++;
 			} catch (Exception e) {
 				Logger logger = LoggerFactory.getLogger(UsersDAO.class);
@@ -89,10 +89,10 @@ public class UsersDAO {
 	 * @return List<User> - baza danych
 	 */
 	public List<User> getDatabase() {
-		if (data.isEmpty()) {
+		if (userzy.isEmpty()) {
 			this.readDatabase();
 		}
-		return this.data;
+		return this.userzy;
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class UsersDAO {
 	 */
 	public boolean contains(Long id) {
 		boolean czyZawiera = false;
-		for (User user : data) {
+		for (User user : userzy) {
 			if (user.getId() == id) {
 				czyZawiera = true;
 			}
@@ -118,7 +118,7 @@ public class UsersDAO {
 	 * @return true - jeśli znaleziono nick
 	 */
 	public boolean contains(String nick) {
-		for (User user : data) {
+		for (User user : userzy) {
 			if (user.getNick() != null) {
 				if (user.getNick().equals(nick)) {
 					return true;
@@ -133,7 +133,7 @@ public class UsersDAO {
 	 * @return Long - następne id
 	 */
 	public Long getNextID() {
-		return new Long(data.size() + 1);
+		return new Long(userzy.size() + 1);
 	}
 	/**
 	 * Tworzy nowego usera
@@ -143,13 +143,13 @@ public class UsersDAO {
 	public void createUser(User user) {
 		user.setPassword(Hash.hash(user.getPassword()));//zahaszuj hasło
 		this.save(user);
-		this.data.add(user);
+		this.userzy.add(user);
 	}
 	/**
 	 * Zapisuje całą bazę danych do plików
 	 */
 	public void save() {
-		for (User user : data) {
+		for (User user : userzy) {
 			this.save(user);
 		}
 	}

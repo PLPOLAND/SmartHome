@@ -16,7 +16,13 @@ public class Termometr extends Device{
     Double min;
 
     public Termometr(){
-        super();
+        super(DeviceTypes.TERMOMETR);
+        this.temperatura = Double.MAX_VALUE;
+        this.max = Double.MIN_VALUE;
+        this.min = Double.MAX_VALUE;
+    }
+    public Termometr(int pin){
+        super(DeviceTypes.TERMOMETR,pin);
         this.temperatura = Double.MAX_VALUE;
         this.max = Double.MIN_VALUE;
         this.min = Double.MAX_VALUE;
@@ -26,13 +32,13 @@ public class Termometr extends Device{
      * Konstruktor
      * @param ID - ID urządzenia w systemie
      * @param room - ID pokoju w którym jest urządzenie
-     * @param roomID - ID urządzenia na płytce drukowanej
+     * @param idPlytki - ID płytki w systemie
      * @param temperatura - Aktualna temperatura
      * @param max - max temperatura 
      * @param min - min temperatura 
      */
-    public Termometr(int ID, int room, int roomID, Double temperatura, Double max, Double min) {
-        super(ID ,room, roomID);
+    public Termometr(int ID, int room, int idPlytki, int pin, Double temperatura, Double max, Double min) {
+        super(ID ,room, idPlytki, DeviceTypes.TERMOMETR, pin);
         this.temperatura = temperatura;
         this.max = max;
         this.min = min;

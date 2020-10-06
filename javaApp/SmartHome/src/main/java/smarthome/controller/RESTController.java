@@ -1,15 +1,8 @@
 package smarthome.controller;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import smarthome.database.TemperatureDAO;
 import smarthome.database.UsersDAO;
-import smarthome.model.Temperature;
 import smarthome.model.Termometr;
 import smarthome.security.Security;
 
@@ -67,6 +59,8 @@ public class RESTController {
     Termometr gettemp() {
         return temp.getTemp(0);
     }
+
+    
 
     //  @Scheduled(fixedRate = 1000)
     // void test() {

@@ -1,0 +1,23 @@
+{
+  "nazwa" : "Marek",
+  "swiatla" : [ {
+    "@type" : "Light",
+    "id" : 2,
+    "room" : 0,
+    "pin" : 2,
+    "typ" : "SWIATLO",
+    "stan" : false,
+    "idplytki" : -1
+  } ],
+  "gniazdka" : [ {
+    "@type" : "Gniazdko",
+    "id" : 1,
+    "room" : 0,
+    "pin" : 2,
+    "typ" : "GNIAZDKO",
+    "stan" : false,
+    "idplytki" : -1
+  } ],
+  "termometry" : [ ],
+  "id" : 0
+}

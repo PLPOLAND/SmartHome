@@ -28,7 +28,7 @@ public class Hash {
     /**
      * wypisuje zahashowane hasło
      */
-    public static void main(String[] args) {
-        System.out.println(hash("xxx"));
-    }
+    // public static void main(String[] args) {
+    //     System.out.println(hash("xxx"));
+    // }
 }
