@@ -2,6 +2,8 @@ package smarthome.controller;
 
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,17 +11,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import smarthome.database.SystemDAO;
+import smarthome.database.UsersDAO;
 import smarthome.model.Gniazdko;
 import smarthome.model.Light;
 import smarthome.model.Response;
 import smarthome.model.Room;
 import smarthome.model.Termometr;
+import smarthome.security.Security;
 
 @RestController
 @RequestMapping("/admin/api")
 public class AdminRESTController {
     @Autowired
     SystemDAO system;
+    @Autowired
+    UsersDAO users;
 
     int roomsID = 0;// id nowego pokoju.
 
@@ -32,6 +38,20 @@ public class AdminRESTController {
     public Date main(){
         return new Date(System.currentTimeMillis());
     }
+
+
+    @RequestMapping("/login")
+    Response<String> login(HttpServletRequest request) {
+        Security s = new Security(request, users);
+        if (s.login())
+            return new Response<>("/admin/");
+        else
+            return new Response<String>("","Nie znaleziono dopasowania w bazie danych");
+    }
+
+
+
+
 
     @GetMapping("/addRoom")
     public Response<String> dodajPokoj(@RequestParam("name") String name){
@@ -76,4 +96,7 @@ public class AdminRESTController {
         return new Response<String>("Termometr: '" + t.toString() + "' dodany prawidłowo");
 
     }
+
+
+
 }

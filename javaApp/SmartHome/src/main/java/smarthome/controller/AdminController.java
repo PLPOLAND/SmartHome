@@ -14,15 +14,26 @@ import smarthome.security.Security;
 public class AdminController {
     @Autowired
     UsersDAO users;
-    
-    @RequestMapping("/main")
+    @RequestMapping("")
+    public String admin(){
+        return "redirect:/admin/";
+    }
+    @RequestMapping("/")
     public String adminHome(HttpServletRequest request){
         Security sec = new Security(request, users);
-        if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+        // if (!sec.isLoged() || !sec.isUserAdmin())
+        //     return "redirect:login";
 
-        return "index";
+        return "admin/index";
     }
 
+    @RequestMapping("/login")
+    public String adminLogin(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (sec.isLoged() && sec.isUserAdmin())
+            return "redirect:/admin/";
+
+        return "loginPage";
+    }
 
 }

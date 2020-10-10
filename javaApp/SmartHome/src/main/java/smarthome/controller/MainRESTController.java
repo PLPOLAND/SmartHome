@@ -21,11 +21,9 @@ import smarthome.security.Security;
  */
 @RestController
 @RequestMapping("/api")
-public class RESTController {
+public class MainRESTController {
     @Autowired
     UsersDAO users;
-    @Autowired
-    TemperatureDAO temp;
 
     @RequestMapping("/login")
     String login(HttpServletRequest request) {
@@ -35,29 +33,6 @@ public class RESTController {
             return "/";
         else
             return null;
-    }
-
-    @GetMapping("/setRGB")
-    void setRGB(@RequestParam("rgb") String rgb) {
-        String uri = "http://192.168.1.3/setRGB?" + rgb;
-
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(uri, String.class);
-
-    }
-
-    @GetMapping("/temp")
-    String temp(@RequestParam("t") Double temperatura) {
-        temp.setTemp(0, temperatura);
-        String wiadomosc = "Poszło ok " + temp.getTemp(0);
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        logger.info(temperatura.doubleValue() + "");
-        return wiadomosc;
-    }
-
-    @GetMapping("/gettemp")
-    Termometr gettemp() {
-        return temp.getTemp(0);
     }
 
     

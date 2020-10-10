@@ -45,7 +45,7 @@ public abstract class Device {
         this.pin = -1;
         this.typ = DeviceTypes.NONE;
         logger = LoggerFactory.getLogger(Device.class);
-        logger.info("Stworzono Device:" + this.toString());
+        logger.info("Stworzono pusty Device");
     }
     public Device(DeviceTypes type) {
         this.id = deviceId++;

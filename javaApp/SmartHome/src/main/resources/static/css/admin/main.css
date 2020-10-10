@@ -1,0 +1,121 @@
+﻿:root{
+	--background-color: #0b006d;
+	--background-image: url(../../img/lawenda.jpg);
+}
+body{
+	margin: 0;
+	background-color: var(--background-color);
+}
+.background-container{
+	position: fixed;
+	display: block;
+	z-index: -1;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	background-image: var(--background-image);
+	background-size: cover; 
+	background-position: center;
+	background-color: #000000;
+	background-attachment: fixed;
+	filter: blur(10px);
+	transform: scale(1.1);
+}
+.container{
+	margin: 0;
+	padding: 0;
+	
+}
+.banner{
+	display: block;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 50px;
+	background-color: red;
+}
+.banner-user{
+	display: block;
+	width: 100%;
+	height: auto;
+	min-height: 50px;
+	transition: 500ms;
+}
+.user-img{
+	width: 100%;
+	height: 50px;
+}
+.user-img img{
+	border-radius: 1em;
+}
+.user-icons{
+	display: block;
+}
+.user-icons-pos{
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+	background-color: black;
+	color: #ffffff;
+	transition: 250ms;
+}
+.user-icons-pos:hover{
+	background-color: #111111;
+}
+.menu{
+	display: block;
+	width: 100%;
+}
+
+.menu ul{
+	display: block;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	float: left;
+}
+.menu ul > li{
+	display: block;
+	float: left;
+	min-height: 50px;
+	line-height: 50px;
+	width: 200px;
+}
+.menu a{
+	width: 100%;
+	height: 100%;
+	display: block;
+	float: left;
+ 	background-color: blue;
+ 	text-align: center;
+ 	text-decoration: none;
+	color: #000000;
+	transition: 400ms;
+}
+.menu a:hover{
+	background-color: cadetblue;
+}
+.menu ul > li:hover ul{
+	display: block;
+}
+.menu ul>li>ul{
+	display: none;
+  	transition: 1s;
+	float: none;
+	position: relative;
+	height: auto;
+	margin: 0;
+	padding: 0;
+}
+
+.menu ul > li > ul > li{
+	min-height: 50px;
+	line-height: 50px;
+	width: 200px;
+}
+	

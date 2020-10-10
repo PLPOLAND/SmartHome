@@ -68,6 +68,7 @@ public class Security {
             session.setAttribute("imie", name); // dodawanie pola do sesji
             session.setAttribute("nazwisko", nazwisko);
             session.setAttribute("id", idU);
+            session.setAttribute("uprawnienia",resultUsers.getUprawnienia());
             session.setMaxInactiveInterval(60 * 60); // usuniecie pol sesji po 60 minutach
 
             logger.info("User: " + resultUsers.getNick() + " zalogwał się pomyślnie"); //log
