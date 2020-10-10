@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Repository;
 
-import smarthome.model.User;
+import smarthome.model.user.User;
 import smarthome.security.Hash;
 
 /**

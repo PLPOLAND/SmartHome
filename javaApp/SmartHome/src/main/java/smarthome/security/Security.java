@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import smarthome.database.UsersDAO;
 import smarthome.model.Uprawnienia;
-import smarthome.model.User;
+import smarthome.model.user.User;
 
 /**
  * Klasa odpowiedzialna za logowanie użytkownika, sprawdzanie czy już się

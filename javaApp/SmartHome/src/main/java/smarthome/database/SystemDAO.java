@@ -59,6 +59,16 @@ public class SystemDAO {
         this.pokoje.get(name).addUrzadzenie(d);
         save(this.pokoje.get(name));
     }
+    /**
+     * 
+     * @return true jeśli w systemie zarejestrowane są pokoje/pokój
+     */
+    public boolean haveRoom(){
+        if (pokoje != null && !pokoje.isEmpty())
+            return true;
+        else
+            return false;
+    }
 
 
     /**

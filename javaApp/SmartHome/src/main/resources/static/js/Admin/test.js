@@ -11,7 +11,11 @@ $(document).ready(function () {
                 console.log(response.obj);
                 var menu = $("#topMenu");
                 response.obj.forEach(element => {
-                    menu.append(createElement(element.zawartosc,element.link))
+                    if (element.dropdown == true) {
+                        menu.append(createRozwijaneMenu(element.dropdownMenu, element.zawartosc, element.link));
+                    } else {
+                        menu.append(createElement(element.zawartosc,element.link));
+                    }
                 });
             } else {
                 $("#err-msg").html(response.error);
@@ -23,6 +27,14 @@ $(document).ready(function () {
 });
 
 function createElement(opis, link) {
-    var element = $('<a href ="' + link + '"><li>' + opis +'</li>');
+    var element = $('<li><a href ="' + link + '">' + opis +'</a></li>'); 
     return element;
+}
+function createRozwijaneMenu(tab , opis, link) {
+    var menu = '<li><a href ="' + link + '">' + opis +'</a><ul>';
+    tab.forEach(element => {
+        menu += '<li><a href ="' + element.link + '">' + element.zawartosc +'</a></li>';
+    });
+    menu += "</ul></li>";
+    return $(menu);
 }
