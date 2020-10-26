@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({ 
-    @JsonSubTypes.Type(value = Gniazdko.class, name = "Gniazdko"),
+    @JsonSubTypes.Type(value = Przekaznik.class, name = "Gniazdko"),
     @JsonSubTypes.Type(value = Light.class, name = "Light"),
     @JsonSubTypes.Type(value = Termometr.class, name = "Termometr")
     })

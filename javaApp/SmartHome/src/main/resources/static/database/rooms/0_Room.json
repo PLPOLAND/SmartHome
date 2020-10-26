@@ -10,7 +10,7 @@
     "idplytki" : -1
   } ],
   "gniazdka" : [ {
-    "@type" : "Gniazdko",
+    "@type" : "Przekaznik",
     "id" : 1,
     "room" : 0,
     "pin" : 2,

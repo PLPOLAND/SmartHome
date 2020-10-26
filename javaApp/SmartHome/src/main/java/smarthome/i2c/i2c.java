@@ -9,24 +9,51 @@ import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
-public class i2c {
+import org.springframework.stereotype.Service;
 
-    public void findall() throws UnsupportedBusNumberException, IOException {
-        List<Integer> validAddresses = new ArrayList<Integer>();
-        final I2CBus bus = I2CFactory.getInstance(I2CBus.BUS_1);
-        for (int i = 1; i < 128; i++) {
+@Service
+public class I2C{
+
+    ArrayList<I2CDevice> devices;
+
+
+    public I2C() {
+        devices = new ArrayList<>();
         try {
-        I2CDevice device = bus.getDevice(i);
-        device.write((byte) 0);
-        byte[] buffer = new byte[8];
-        device.read(buffer, 0, 8);
-        for (byte b : buffer) {
-        System.out.print((char)b);
+            findAll();
+        } catch (UnsatisfiedLinkError e) {
+            System.err.println("platform does not support this driver");
+        } catch (Exception e) {
+            System.err.println("platform does not support this driver");
+
         }
-        validAddresses.add(i);
-        } catch (Exception ignore) {
+    }
+
+
+    public void findAll(){
+        List<Integer> validAddresses = new ArrayList<Integer>();
+        final I2CBus bus;
+        try {
+            bus = I2CFactory.getInstance(I2CBus.BUS_1);
+            for (int i = 1; i < 128; i++) {
+                try {
+                    I2CDevice device = bus.getDevice(i);
+                    device.write((byte) 0);
+                    byte[] buffer = new byte[8];
+                    device.read(buffer, 0, 8);
+                    for (byte b : buffer) {
+                        System.out.print((char) b);
+                        devices.add(device);
+                    }
+                    validAddresses.add(i);
+                } catch (Exception ignore) {
+                    //ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        }
+        
 
         System.out.println("Found: ---");
         for (int a : validAddresses) {
@@ -35,4 +62,34 @@ public class i2c {
         System.out.println("----------");
     }
     
+
+    public void writeTo(int adres, byte[] buffer) throws Exception{
+        I2CDevice tmp = null;
+        for (I2CDevice device : devices) {
+            if (device.getAddress() == adres) {
+                tmp = device;
+            }
+        }
+        if (tmp == null) {
+            throw new Exception("System nie znalazł urządzenia o takim adresie");
+        } else {
+            tmp.write(buffer);
+        }
+    }
+    public byte[] readFrom(int adres, int size) throws Exception{
+        byte[] buffer = new byte[size];
+        I2CDevice tmp = null;
+        for (I2CDevice device : devices) {
+            if(device.getAddress() == adres){
+                tmp = device;
+            }
+        }
+        if (tmp == null) {
+            throw new Exception("System nie znalazł urządzenia o takim adresie");
+        }
+        else{
+            tmp.read(buffer, 0, size);
+        }
+        return buffer;
+    }
 }

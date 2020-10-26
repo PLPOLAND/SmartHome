@@ -1,17 +1,17 @@
 package smarthome.model;
 
-public class Gniazdko extends Device{
+public class Przekaznik extends Device{
     boolean stan;
 
-    public Gniazdko(){
-        
+    public Przekaznik(){
+        super();
     }
-    public Gniazdko(boolean stan, int pin) {
+    public Przekaznik(boolean stan, int pin) {
         super(DeviceTypes.GNIAZDKO, pin);
         this.stan = stan;
     }
 
-    public Gniazdko(int id, int room, int roomID, int pin){
+    public Przekaznik(int id, int room, int roomID, int pin){
         super(id, room, roomID, DeviceTypes.GNIAZDKO, pin);
         stan = false;
     }

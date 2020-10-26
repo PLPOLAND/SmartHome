@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import smarthome.database.SystemDAO;
 import smarthome.database.UsersDAO;
-import smarthome.model.Gniazdko;
+import smarthome.i2c.JtAConverter;
+import smarthome.model.Przekaznik;
 import smarthome.model.Light;
 import smarthome.model.Response;
 import smarthome.model.Room;
@@ -27,11 +28,17 @@ public class AdminRESTController {
     @Autowired
     UsersDAO users;
 
+    @Autowired
+    JtAConverter converter;
+
     int roomsID = 0;// id nowego pokoju.
 
     @RequestMapping("/test")
     public Response test() {
         Response response = new Response<>(system.getRoomsArrayList(),"errortmp");
+        
+        converter.checkTemperature(new Termometr(1, 1, 8, 10, 0.0, 0.0, 0.0));
+        // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
         return response;
     }
     @RequestMapping("/")
@@ -62,9 +69,9 @@ public class AdminRESTController {
     }
     @GetMapping("/addGniazdko")
     public Response<String> dodajGniazdko(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
-        Gniazdko g;
+        Przekaznik g;
         try {
-            g = new Gniazdko(false, pin);
+            g = new Przekaznik(false, pin);
             system.addDeviceToRoom(nazwaPokoju, g);
         } catch (Exception e) {
             return new Response<>("",e.getMessage());
