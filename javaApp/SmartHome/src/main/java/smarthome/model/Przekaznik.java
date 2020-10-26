@@ -1,5 +1,9 @@
 package smarthome.model;
-
+/**
+ * Przekaźnik
+ * Stany - ON/OFF
+ * 
+ */
 public class Przekaznik extends Device{
     boolean stan;
 

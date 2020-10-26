@@ -101,13 +101,25 @@ public abstract class Device {
     public int getIDPlytki() {
         return this.IDPlytki;
     }
-
+    
     public void setIDPlytki(int IDPlytki) {
         this.IDPlytki = IDPlytki;
     }
-
+    
     public DeviceTypes getTyp() {
         return this.typ;
+    }
+    public byte getTypAsByte() {
+        switch (typ) {
+            case GNIAZDKO:
+                return 0;
+            case SWIATLO:
+                return 1;
+            case TERMOMETR:
+                return 2;
+            default:
+                return -1;
+        }
     }
 
     public void setTyp(DeviceTypes typ) {
@@ -132,6 +144,5 @@ public abstract class Device {
             ", typ='" + getTyp() + "'" +
             "}";
     }
-    
 }
 

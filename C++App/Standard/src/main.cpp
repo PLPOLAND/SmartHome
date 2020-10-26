@@ -22,8 +22,16 @@ void receiveEvent(int howMany)
 
 void requestEvent()
 {
-    double t = 9.1;
-    I2C_writeAnything(t);
+    float t = 9.1;
+    String tmp;
+    tmp = String(t,2);
+    
+    
+    for (byte i = 0; i < tmp.length(); i++)
+    {
+        Wire.write(tmp[i]);
+    }
+    
 }
 
 

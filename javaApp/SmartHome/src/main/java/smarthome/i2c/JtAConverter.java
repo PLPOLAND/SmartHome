@@ -7,8 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import smarthome.database.SystemDAO;
+import smarthome.model.Device;
+import smarthome.model.DeviceTypes;
 import smarthome.model.Przekaznik;
+import smarthome.model.Roleta;
 import smarthome.model.Termometr;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -19,15 +25,17 @@ import smarthome.model.Termometr;
 @Service
 public class JtAConverter {
 
-    //#region Komendy
-    final byte[] STATUSURZADZEN = {'S','U'};
-    final byte[] STATUSRGB = {'S', 'R'};
-    final byte[] CHECKTOWORK = {'W'};
-    final byte[] ZMIENSTANPRZEKAZNIKA = {'U'}; // + id + stan
-    final byte[] POBIERZTEMPERATURE = {'T'}; // + Id
-    final byte[] DODAJURZADZENIE = {'A'}; // + TYP + PIN    
-    //#endregion
-
+    // #region Komendy
+    final byte[] STATUSURZADZEN = { 'S', 'U' };
+    final byte[] STATUSRGB = { 'S', 'R' };
+    final byte[] CHECKTOWORK = { 'W' };
+    final byte[] ZMIENSTANPRZEKAZNIKA = { 'U' }; // + id + stan
+    final byte[] POBIERZTEMPERATURE = { 'T' }; // + Id
+    final byte[] DODAJURZADZENIE = { 'A', 'U' }; // + PIN
+    final byte[] DODAJROLETE = { 'A', 'R' }; // + PIN + PIN
+    final byte[] DODAJPRZYCISK = { 'A', 'P' }; // + PIN
+    final byte[] DODAJTERMOMETR = { 'A', 'T' }; // + NUMERTERMOMETRA
+    // #endregion
 
     @Autowired
     public I2C atmega;
@@ -35,22 +43,45 @@ public class JtAConverter {
     @Autowired
     SystemDAO system;
 
+    /** Logger Springa */
+    Logger logger;
+
+    JtAConverter() {
+        logger = LoggerFactory.getLogger(this.getClass());
+        logger.info("Stworzno JtAConverter");
+    }
+
+    /**
+     * Zmien stan przekaznika
+     * 
+     * @param przekaznik - przekaznik docelowy
+     * @param stan       - stan przekaznika
+     */
     public void changeSwitchState(Przekaznik przekaznik, boolean stan) {
         byte[] buffor = new byte[8];
         int i = 0;
         for (byte b : ZMIENSTANPRZEKAZNIKA) {
             buffor[i++] = b;
         }
-        buffor[i++] = (byte)przekaznik.getPin();
-        buffor[i++] = (byte)(stan == true ? 1:0);
+        buffor[i++] = (byte) przekaznik.getPin();
+        buffor[i++] = (byte) (stan == true ? 1 : 0);
         try {
-            atmega.writeTo(8, buffor);
+            atmega.writeTo(przekaznik.getIDPlytki(), buffor);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void checkTemperature(Termometr termometr){
+    public void changeBlindState(Roleta roleta, boolean stan) {
+        // TODO
+    }
+
+    /**
+     * Sprawdz i zaaktualizuj temperaturę dla podanego termometra
+     * 
+     * @param termometr - termometr docelowy
+     */
+    public void checkTemperature(Termometr termometr) {
         byte[] buffor = new byte[8];
         int i = 0;
         for (byte b : POBIERZTEMPERATURE) {
@@ -59,12 +90,16 @@ public class JtAConverter {
         buffor[i++] = (byte) termometr.getPin();
         try {
             atmega.writeTo(termometr.getIDPlytki(), buffor);
-            buffor = atmega.readFrom(termometr.getIDPlytki(), 8);//odpowiedz z temperaturą
-            System.out.println(Arrays.toString(buffor));
-            System.out.println(Arrays.toString(ByteBuffer.allocate(8).putDouble(9.1).array()));
-            if (buffor[0]!= termometr.getId()) {
-                double tempVal = ByteBuffer.wrap(buffor).getDouble();
-                System.out.println(tempVal);
+            buffor = atmega.readFrom(termometr.getIDPlytki(), 8);// odpowiedz z temperaturą
+            String bString = "";
+            for (byte b : buffor) {
+                if (b >= 48 && b <= 57 || b == '.') {
+                    bString += (char) b;
+                }
+            }
+            if (buffor[0] != termometr.getId()) {
+                float tempVal = Float.parseFloat(bString);
+                logger.info("Odebrano temperaturę \"" + tempVal + "\" z urzązenia" + termometr.toString());
                 termometr.setTemperatura(tempVal);
             }
         } catch (Exception e) {
@@ -72,5 +107,66 @@ public class JtAConverter {
         }
     }
 
+    public void addUrzadzenie(Device device) {
+        if (device.getTyp()==DeviceTypes.GNIAZDKO || device.getTyp() == DeviceTypes.SWIATLO) {
+            byte[] buffor = new byte[3];
+            int i = 0;
+            for (byte b : DODAJURZADZENIE) {
+                buffor[i++] = b;
+            }
+            buffor[i++] = (byte) device.getPin();
+
+            try {
+                atmega.writeTo(device.getIDPlytki(), buffor);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else if(device.getTyp()== DeviceTypes.TERMOMETR){
+            addTermometr(device);
+        }
+        else if (device.getTyp() == DeviceTypes.PRZYCISK){
+            addPrzycisk(device);
+        }
+    }
+    public void addTermometr(Device device){
+        if (device.getTyp() == DeviceTypes.TERMOMETR) {
+            byte[] buffor = new byte[3];
+            int i = 0;
+            for (byte b : DODAJTERMOMETR) {
+                buffor[i++] = b;
+            }
+            buffor[i++] = (byte) ((Termometr)device).getNumberOnBoard();
+            try {
+                atmega.writeTo(device.getIDPlytki(), buffor);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (device.getTyp() == DeviceTypes.GNIAZDKO || device.getTyp() == DeviceTypes.SWIATLO) {
+            addUrzadzenie(device);
+        } else if (device.getTyp() == DeviceTypes.PRZYCISK) {
+            addPrzycisk(device);
+        }
+    }
+
+    private void addPrzycisk(Device device) {
+        if (device.getTyp() == DeviceTypes.PRZYCISK) {
+            byte[] buffor = new byte[3];
+            int i = 0;
+            for (byte b : DODAJPRZYCISK) {
+                buffor[i++] = b;
+            }
+            buffor[i++] = (byte) device.getPin();
+            try {
+                atmega.writeTo(device.getIDPlytki(), buffor);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (device.getTyp() == DeviceTypes.GNIAZDKO || device.getTyp() == DeviceTypes.SWIATLO) {
+            addUrzadzenie(device);
+        } else if (device.getTyp() == DeviceTypes.TERMOMETR) {
+            addTermometr(device);
+        }
+    }
 
 }

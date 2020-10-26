@@ -9,23 +9,25 @@ package smarthome.model;
 public class Termometr extends Device{
 
     /**Aktualna Temperatura */
-    Double temperatura;
+    Float temperatura;
     /**Maxymalna Temperatura */
-    Double max;
+    Float max;
     /**Minimalna Temperaturna */
-    Double min;
+    Float min;
+    /**Numer na płytce*/
+    byte numberOnBoard;
 
     public Termometr(){
         super(DeviceTypes.TERMOMETR);
-        this.temperatura = Double.MAX_VALUE;
-        this.max = Double.MIN_VALUE;
-        this.min = Double.MAX_VALUE;
+        this.temperatura = Float.MAX_VALUE;
+        this.max = Float.MIN_VALUE;
+        this.min = Float.MAX_VALUE;
     }
     public Termometr(int pin){
         super(DeviceTypes.TERMOMETR,pin);
-        this.temperatura = Double.MAX_VALUE;
-        this.max = Double.MIN_VALUE;
-        this.min = Double.MAX_VALUE;
+        this.temperatura = Float.MAX_VALUE;
+        this.max = Float.MIN_VALUE;
+        this.min = Float.MAX_VALUE;
     }
 
     /**
@@ -37,7 +39,7 @@ public class Termometr extends Device{
      * @param max - max temperatura 
      * @param min - min temperatura 
      */
-    public Termometr(int ID, int room, int idPlytki, int pin, Double temperatura, Double max, Double min) {
+    public Termometr(int ID, int room, int idPlytki, int pin, Float temperatura, Float max, Float min) {
         super(ID ,room, idPlytki, DeviceTypes.TERMOMETR, pin);
         this.temperatura = temperatura;
         this.max = max;
@@ -45,11 +47,11 @@ public class Termometr extends Device{
     }
     
 
-    public Double getTemperatura() {
+    public Float getTemperatura() {
         return this.temperatura;
     }
 
-    public void setTemperatura(Double temperatura) {
+    public void setTemperatura(Float temperatura) {
         this.temperatura = temperatura;
         if (this.max < temperatura) {
             max = temperatura; // ustaw minimalną temperaturę
@@ -59,19 +61,27 @@ public class Termometr extends Device{
         }
     }
 
-    public Double getMax() {
+    public Float getMax() {
         return this.max;
     }
     public void clearMax(){
-        this.max=Double.MIN_VALUE;
+        this.max=Float.MIN_VALUE;
     }
 
-    public Double getMin() {
+    public Float getMin() {
         return this.min;
     }
 
     public void clearMin() {
-        this.min = Double.MAX_VALUE;
+        this.min = Float.MAX_VALUE;
+    }
+
+    public byte getNumberOnBoard() {
+        return this.numberOnBoard;
+    }
+
+    public void setNumberOnBoard(byte numberOnBoard) {
+        this.numberOnBoard = numberOnBoard;
     }
     
 

@@ -33,7 +33,7 @@ public class TemperatureDAO {
         return temps.get(i);
     }
     
-    public boolean setTemp(int i, Double temp){
+    public boolean setTemp(int i, Float temp){
         temps.get(i).setTemperatura(temp);
         return true;
     }

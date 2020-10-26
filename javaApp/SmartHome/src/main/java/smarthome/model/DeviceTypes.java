@@ -4,5 +4,6 @@ public enum DeviceTypes {
     NONE,
     GNIAZDKO, 
     SWIATLO,
-    TERMOMETR
+    TERMOMETR,
+    PRZYCISK
 }
