@@ -38,7 +38,7 @@ public:
         delete glowa;
     }
 
-    void push_back(T & dana){
+    void add(T & dana){
         if (glowa == nullptr) {
             glowa = new konwerter<T>(dana);
             ogon = glowa;
@@ -53,6 +53,22 @@ public:
         top++;//Podnieś ilość przetrzymywanych danych
         
     }
+
+    void add(T dana){
+        if (glowa == nullptr)
+        {
+            glowa = new konwerter<T>(dana);
+            ogon = glowa;
+        }
+        else
+        {
+            auto wsk = ogon;
+            wsk->next = new konwerter<T>(dana);
+            ogon = wsk->next;
+            wsk->next->back = wsk;
+        }
+        top++; //Podnieś ilość przetrzymywanych danych
+    }
     /// Pobierz ostatnią daną i ją usuń
     T pop_back(){
         auto wsk = ogon;
@@ -65,12 +81,17 @@ public:
     /// Pobierz daną na podanej pozycji
     T operator[] (int i){
         auto wks = glowa;
-        static_assert(i < this->top);
+        assert(i < this->top);//TODO:???
         while(i-- >0){
             wsk = wsk->next;
         }
         return wsk->dana;
     }
+    T getLast()
+    {
+        return ogon->dana;
+    }
+    
     void ticForEach(){
         auto wsk = glowa;
         while(wsk!=nullptr){
