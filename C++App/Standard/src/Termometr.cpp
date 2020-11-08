@@ -1,36 +1,44 @@
 #include <Termometr.h>
 byte Termometr::termometrowWSystemie = 0;
+DallasTemperature *Termometr::sensors = nullptr;
 
 Termometr::Termometr()
 {
-    if (sensors == nullptr)
+    if (this->sensors == nullptr)
     {
-        sensors = new DallasTemperature(new OneWire(ONEWIRE_BUS));
-        sensors->begin();
+        this->sensors = new DallasTemperature(new OneWire(ONEWIRE_BUS));
+        this->sensors->begin();
     }
-    if (termometrowWSystemie<sensors->getDeviceCount())
+    if (termometrowWSystemie<this->sensors->getDeviceCount())
     {
         this->id = termometrowWSystemie;//przypisanie id sensora
         termometrowWSystemie++;
+        Serial.println(F("Stworzono nowy termometr"));
 
     }
     else{
-        throw String(F("nie ma wiecej termometrow w systemie"));
+      this->id = -1;
     }
-    
 }
 
 Termometr::~Termometr()
 {
-    //delete sensors;
+    delete sensors;
 }
 
 //Zwraca temeraturę czujnika
 float Termometr::getTemperature(){
-    sensors->requestTemperaturesByIndex(id);
-    return sensors->getTempCByIndex(id);
+    this->sensors->requestTemperaturesByIndex(id);
+    Serial.println(this->sensors->getTempCByIndex(id));
+    return this->sensors->getTempCByIndex(id);
 }
 
 byte Termometr::getID(){
     return this->id;
+}
+bool Termometr::isCorrect(){
+    if (id== -1)
+        return false;
+    return true;
+    
 }

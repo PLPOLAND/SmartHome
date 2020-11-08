@@ -1,7 +1,7 @@
-#if !defined(KONTENER_H)
+#ifndef KONTENER_H
 #define KONTENER_H
 /*
-Autor 
+Autor
 Marek Padyna
 
 Konterner służący do przetrzymywania danych w liście.
@@ -12,77 +12,74 @@ Zapewnia... TODO
 ///Przetrzymuje dane
 ///Pozycja w kontenerze
 template<typename T>
-class konwerter
+class Konwerter
 {
-private:
-    T dana;//dana przetrzymywana w danej pozycji
-    konwerter * next;//wskaźnik na koleją pozycję
-    konwerter * back;//wskaźnik na poprzednia pozycję
 public:
-    konwerter(T & Dana):dana(Dana), next(nullptr) {};
-    ~konwerter( delete next; );
+    T dana;//dana przetrzymywana w danej pozycji
+    Konwerter<T>* next;//wskaźnik na koleją pozycję
+    Konwerter<T>* back;//wskaźnik na poprzednia pozycję
+
+    Konwerter(T& Dana) :dana(Dana), next(nullptr) {};
+    ~Konwerter() {
+        delete next;
+    }
 };
+// ///Przetrzymuje dane
+// ///Pozycja w kontenerze
+// template<typename T>
+// class Konwerter<T*>
+// {
+// public:
+//     T* dana;//dana przetrzymywana w danej pozycji
+//     Konwerter<T*> * next;//wskaźnik na koleją pozycję
+//     Konwerter<T*> * back;//wskaźnik na poprzednia pozycję
+
+//     Konwerter(T Dana):dana(Dana), next(nullptr) {};
+//     ~Konwerter(){
+//         delete next;
+//     }
+//     // template<typename E>
+//     // friend class Kontener;
+// };
 
 ///Przetrzymuje dane w liście
 template <typename T>
 class Kontener
 {
 private:
-    konwerter<T> * glowa;
-    konwerter<T> * ogon;
+    Konwerter<T>* glowa;
+    Konwerter<T>* ogon;
     int top;
 public:
-    Kontener(): glowa(nullptr),top(0) {};
-    Kontener(T & dana): glowa(new konwerter<T>(dana)), top(1) {};
-    ~Kontener(){
-        delete glowa;
+    Kontener() : glowa(nullptr), top(0) {};
+    Kontener(T dana) : glowa(new Konwerter<T>(dana)), top(1) {};
+    ~Kontener() {
+        delete (T)glowa;
     }
 
-    void add(T & dana){
-        if (glowa == nullptr) {
-            glowa = new konwerter<T>(dana);
-            ogon = glowa;
-        }
-        else
-        {
-            auto wsk = ogon;
-            wsk->next = new konwerter<T>(dana); 
-            ogon = wsk->next;
-            wsk->next->back = wsk;
-        }
-        top++;//Podnieś ilość przetrzymywanych danych
-        
-    }
-
-    void add(T dana){
+    void add(T dana)
+    {
         if (glowa == nullptr)
         {
-            glowa = new konwerter<T>(dana);
+            glowa = new Konwerter<T>(dana);
             ogon = glowa;
         }
         else
         {
-            auto wsk = ogon;
-            wsk->next = new konwerter<T>(dana);
+            Konwerter<T>* wsk = ogon;
+            wsk->next = new Konwerter<T>(dana);
             ogon = wsk->next;
             wsk->next->back = wsk;
         }
         top++; //Podnieś ilość przetrzymywanych danych
     }
-    /// Pobierz ostatnią daną i ją usuń
-    T pop_back(){
-        auto wsk = ogon;
-        ogon = wsk->back;
-        ogon->next = nullptr;
-        T dana = wsk->dana;
-        delete wsk;
-        return dana;
-    }
-    /// Pobierz daną na podanej pozycji
-    T operator[] (int i){
-        auto wks = glowa;
-        assert(i < this->top);//TODO:???
-        while(i-- >0){
+
+    T operator[](int i)
+    {
+        auto wsk = glowa;
+        //assert(i < this->top);//TODO:???
+        while (i-- > 0)
+        {
             wsk = wsk->next;
         }
         return wsk->dana;
@@ -91,13 +88,15 @@ public:
     {
         return ogon->dana;
     }
-    
-    void ticForEach(){
+    T get(int i)
+    {
         auto wsk = glowa;
-        while(wsk!=nullptr){
-            wsk->tic();///????????????????????????
+        //assert(i < this->top);//TODO:???
+        while (i-- > 0)
+        {
             wsk = wsk->next;
         }
+        return wsk->dana;
     }
 };
 

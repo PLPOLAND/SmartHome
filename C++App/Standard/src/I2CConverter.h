@@ -5,25 +5,55 @@
 #include <Przekaznik.h>
 #ifndef I2CCONVERTER_H
 #define I2CCONVERTER_H
+
+#define DEBUG //Wyswietl informacje debugowania
+
 #define PINOW_NA_ADRES 6
+//BUFFORY
+#define BUFFOR_IN_SIZE 5
+#define BUFFOR_OUT_SIZE 8
+
+enum class DoWyslania
+{
+    NIC,
+    REPLY,
+    STATUS,
+    TEMPERATURA
+};
+enum class Komendy {
+    NIC,
+    DODAJ_TERMOMETR,
+    TEMPERATURA
+ };
 
 class I2CConverter
 {
-public:
+protected:
     I2CConverter();
-    I2CConverter(I2CConverter &&) = default;
-    I2CConverter(const I2CConverter &) = default;
-    I2CConverter &operator=(I2CConverter &&) = default;
-    I2CConverter &operator=(const I2CConverter &) = default;
     ~I2CConverter();
+    static I2CConverter* singleton;
+public:
+    I2CConverter(I2CConverter &other) = delete;
+    void operator=(const I2CConverter &) = delete;
+    static I2CConverter* getInstance();
 
-    void static onRecieveEvent(int howManyBytes);
-    void static onRequestEvent();
+    static void onRecieveEvent(int howManyBytes);
+    static void onRequestEvent();
 
+    void RecieveEvent(int howManyBytes);
+    void RequestEvent();
 private:
+
+    DoWyslania coWyslac = DoWyslania::NIC;
     bool isWorkToDo = false;
-    Kontener<Termometr*> termometry;
-    Kontener<Przekaznik*> przekazniki;
+
+    byte buf[BUFFOR_IN_SIZE];
+    byte buf_out[BUFFOR_OUT_SIZE];
+    Kontener<Termometr*>* termometry;
+    Kontener<Przekaznik*>* przekazniki;
+
+    Komendy find_command(byte size);
+
     void printTemperature(byte id);
     void addTermometr();
 };

@@ -108,7 +108,7 @@ public class JtAConverter {
     }
 
     public void addUrzadzenie(Device device) {
-        if (device.getTyp()==DeviceTypes.GNIAZDKO || device.getTyp() == DeviceTypes.SWIATLO) {
+        if (device.getTyp() == DeviceTypes.GNIAZDKO || device.getTyp() == DeviceTypes.SWIATLO) {
             byte[] buffor = new byte[3];
             int i = 0;
             for (byte b : DODAJURZADZENIE) {
@@ -121,22 +121,21 @@ public class JtAConverter {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        else if(device.getTyp()== DeviceTypes.TERMOMETR){
+        } else if (device.getTyp() == DeviceTypes.TERMOMETR) {
             addTermometr(device);
-        }
-        else if (device.getTyp() == DeviceTypes.PRZYCISK){
+        } else if (device.getTyp() == DeviceTypes.PRZYCISK) {
             addPrzycisk(device);
         }
     }
-    public void addTermometr(Device device){
+
+    public void addTermometr(Device device) {
         if (device.getTyp() == DeviceTypes.TERMOMETR) {
             byte[] buffor = new byte[3];
             int i = 0;
             for (byte b : DODAJTERMOMETR) {
                 buffor[i++] = b;
             }
-            buffor[i++] = (byte) ((Termometr)device).getNumberOnBoard();
+            buffor[i++] = (byte) ((Termometr) device).getNumberOnBoard();
             try {
                 atmega.writeTo(device.getIDPlytki(), buffor);
             } catch (Exception e) {
@@ -149,7 +148,7 @@ public class JtAConverter {
         }
     }
 
-    private void addPrzycisk(Device device) {
+    public void addPrzycisk(Device device) {
         if (device.getTyp() == DeviceTypes.PRZYCISK) {
             byte[] buffor = new byte[3];
             int i = 0;
@@ -169,4 +168,20 @@ public class JtAConverter {
         }
     }
 
+    public void sentAnything(String msg, int adres) {
+        byte[] buff = new byte[msg.length()];
+        logger.debug(msg);
+        for (int i = 0; i < buff.length; i++) {
+            buff[i] = (byte) msg.charAt(i);
+        }
+        try {
+            atmega.writeTo(adres, buff);
+            logger.debug(new String(buff));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public byte[] getAnything(int adres) throws Exception {
+        return atmega.readFrom(adres, 8);
+    }
 }

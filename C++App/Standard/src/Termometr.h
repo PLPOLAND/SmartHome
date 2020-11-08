@@ -8,13 +8,14 @@ class Termometr
 private:
     static DallasTemperature* sensors;
     static byte termometrowWSystemie;
-    byte id;
+    int8_t id;
 public:
     Termometr();
     ~Termometr();
 
     float getTemperature();
     byte getID();
+    bool isCorrect();
 };
 
 #endif // !TERMOMETR_H

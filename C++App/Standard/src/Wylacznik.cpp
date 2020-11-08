@@ -36,7 +36,7 @@ void Wylacznik::updateStan(){
     }
     if (stan == PRZYCISNIETY && tmpStan == 1 && time.available()) //Wykrycie przytrzymania
     {
-        stan == PRZYTRZYMANY;
+        stan = PRZYTRZYMANY;
     }
     if (stan == PRZYTRZYMANY && tmpStan == 0)
     { //Puszczenie po przytrzymaniu

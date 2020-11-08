@@ -35,12 +35,32 @@ public class AdminRESTController {
 
     @RequestMapping("/test")
     public Response test() {
-        Response response = new Response<>(system.getRoomsArrayList(),"errortmp");
-        
-        converter.checkTemperature(new Termometr(1, 1, 8, 10, 0.0, 0.0, 0.0));
+        Response response = new Response<>(system.getRoomsArrayList(), "errortmp");
+
+        converter.checkTemperature(new Termometr(1, 1, 8, 10, 0.0f, 0.0f, 0.0f));
         // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
         return response;
     }
+
+    @RequestMapping("/sentAny")
+    public Response<String> sentAny(@RequestParam("msg") String msg, @RequestParam("adres") int adres) {
+        Response r = new Response<String>(msg);
+        converter.sentAnything(msg, adres);
+        return r;
+    }
+
+    @RequestMapping("/ReadAny")
+    public Response<String> readAny(@RequestParam("adres") int adres) {
+        Response r;
+        try {
+            r = new Response<String>(new String(converter.getAnything(adres)));
+        } catch (Exception e) {
+            r = new Response<String>(e.getMessage());
+        }
+        
+        return r;
+    }
+
     @RequestMapping("/")
     public Date main(){
         return new Date(System.currentTimeMillis());
