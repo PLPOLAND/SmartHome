@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #ifndef KONTENER_H
 #define KONTENER_H
 /*
@@ -90,10 +91,18 @@ public:
     }
     T get(int i)
     {
-        auto wsk = glowa;
+        Konwerter<T>* wsk = glowa;
+        Serial.print(F("GET c"));
+        Serial.println(i);
+        if (wsk!=nullptr)
+        {
+            Serial.println("wsk!=NULL");
+        }
+        
         //assert(i < this->top);//TODO:???
         while (i-- > 0)
         {
+            Serial.println("i "+i);
             wsk = wsk->next;
         }
         return wsk->dana;

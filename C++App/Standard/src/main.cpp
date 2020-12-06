@@ -8,7 +8,7 @@
 I2CConverter* comunication;
 void setup()
 {
-    Serial.begin(9600); // start serial for output
+    Serial.begin(115200); // start serial for output
     comunication = I2CConverter::getInstance();
     Wire.onReceive(I2CConverter::onRecieveEvent);
     Wire.onRequest(I2CConverter::onRequestEvent);
@@ -16,7 +16,7 @@ void setup()
 
 void loop()
 {
-    delay(100);
+    delay(1);
 }
 
 
