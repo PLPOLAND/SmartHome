@@ -3,6 +3,8 @@
 #include <Kontener.h>
 #include <Termometr.h>
 #include <Przekaznik.h>
+#include "LinkedList.h"
+
 #ifndef I2CCONVERTER_H
 #define I2CCONVERTER_H
 
@@ -42,15 +44,16 @@ public:
 
     void RecieveEvent(int howManyBytes);
     void RequestEvent();
-private:
+public:
 
     DoWyslania coWyslac = DoWyslania::NIC;
     bool isWorkToDo = false;
 
     byte buf[BUFFOR_IN_SIZE];
     byte buf_out[BUFFOR_OUT_SIZE];
-    Kontener<Termometr*>* termometry;
-    Kontener<Przekaznik*>* przekazniki;
+    LinkedList<Termometr*> termometry;
+    // Kontener<Termometr*>* termometry;
+    // Kontener<Przekaznik*>* przekazniki;
 
     Komendy find_command(byte size);
 

@@ -6,16 +6,19 @@
 class Termometr
 {
 private:
-    static DallasTemperature* sensors;
+    static OneWire oneWire;
     static byte termometrowWSystemie;
     int8_t id;
 public:
+    static DallasTemperature sensors;
     Termometr();
     ~Termometr();
-
+    float temperatura;
+    byte begin();
     float getTemperature();
     byte getID();
     bool isCorrect();
+    void updateTemperature();
 };
 
 #endif // !TERMOMETR_H

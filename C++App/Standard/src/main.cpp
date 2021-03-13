@@ -4,6 +4,7 @@
 #include <I2CAnything.h>
 #include <Wire.h>
 #include <I2CConverter.h>
+#include <Termometr.h>
 
 I2CConverter* comunication;
 void setup()
@@ -16,7 +17,12 @@ void setup()
 
 void loop()
 {
-    delay(1);
+    delay(10);
+    if (comunication->termometry.size()>0)
+    {
+        comunication->termometry.get(0)->updateTemperature();
+    }
+    
 }
 
 

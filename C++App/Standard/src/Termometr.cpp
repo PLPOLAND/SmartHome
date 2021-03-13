@@ -1,44 +1,69 @@
 #include <Termometr.h>
 byte Termometr::termometrowWSystemie = 0;
-DallasTemperature *Termometr::sensors = nullptr;
+OneWire Termometr::oneWire = OneWire(ONEWIRE_BUS);
+DallasTemperature Termometr::sensors = DallasTemperature(&oneWire);
 
 Termometr::Termometr()
 {
-    if (this->sensors == nullptr)
-    {
-        this->sensors = new DallasTemperature(new OneWire(ONEWIRE_BUS));
-        this->sensors->begin();
-    }
-    if (termometrowWSystemie<this->sensors->getDeviceCount())
-    {
-        this->id = termometrowWSystemie;//przypisanie id sensora
-        termometrowWSystemie++;
-        Serial.println(F("Stworzono nowy termometr"));
-
-    }
-    else{
-      this->id = -1;
-    }
+    // // if (sensors.getDeviceCount() == 0)
+    // // {
+    //     sensors.begin();
+    //     Serial.println("Termo_begin");
+    // // }
+    // if (termometrowWSystemie < sensors.getDeviceCount())
+    // {
+    //     id = termometrowWSystemie;//przypisanie id sensora
+    //     termometrowWSystemie++;
+    //     Serial.print("Stworzono nowy termometr \nid: ");
+    //     Serial.println(id);
+    // }
+    // else{
+    //     id = -1;
+    //     Serial.println("Błąd brak nowych termo");
+    // }
 }
 
 Termometr::~Termometr()
 {
-    delete sensors;
 }
 
 //Zwraca temeraturę czujnika
 float Termometr::getTemperature(){
-    this->sensors->requestTemperaturesByIndex(id);
-    Serial.println(this->sensors->getTempCByIndex(id));
-    return this->sensors->getTempCByIndex(id);
+    return temperatura;
 }
 
 byte Termometr::getID(){
-    return this->id;
+    return id;
 }
 bool Termometr::isCorrect(){
     if (id== -1)
         return false;
     return true;
     
+}
+byte Termometr::begin()
+{
+    // if (sensors.getDeviceCount() == 0)
+    // {
+    sensors.begin();
+    Serial.println("Termo_begin");
+    // }
+    if (termometrowWSystemie < sensors.getDeviceCount()) {
+        id = termometrowWSystemie; //przypisanie id sensora
+        termometrowWSystemie++;
+        Serial.println("Stworzono nowy termometr");
+
+    } else {
+        id = -1;
+        Serial.println("Błąd brak nowych termo");
+    }
+    return id;
+}
+void Termometr::updateTemperature(){
+    // Serial.println("getT");
+    // Serial.println(id);
+    sensors.requestTemperaturesByIndex(id);
+    // Serial.println("getTReq");
+    // Serial.println(sensors.getTempCByIndex(id));
+    temperatura=sensors.getTempCByIndex(id);
 }

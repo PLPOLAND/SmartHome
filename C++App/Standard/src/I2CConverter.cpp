@@ -41,13 +41,10 @@ I2CConverter::I2CConverter()
     Wire.begin(adress);
 }
 
-I2CConverter::~I2CConverter() { 
-  Wire.end(); 
-  if (termometry!=nullptr)
-  {
-    delete termometry;
-  }
-  
+I2CConverter::~I2CConverter()
+{
+    Wire.end();
+    termometry.clear();
 }
 
 I2CConverter* I2CConverter::getInstance()
@@ -150,32 +147,36 @@ Komendy I2CConverter::find_command(byte size)
 
 void I2CConverter::addTermometr()
 {
-    if (termometry == nullptr) {
-        termometry = new Kontener<Termometr*>();
-    }
-    Termometr* tmp = new Termometr();
+    Termometr* tmp = (Termometr*)malloc(sizeof(Termometr));
+    tmp->begin();
+    Serial.println("newTermometr");
+    // Serial.println(tmp->getID());
+    // tmp* = Termometr();
     if (!tmp->isCorrect()) {
         delete tmp;
         this->buf_out[0] = -1; // Zwróć ID termometru na płytce
         this->coWyslac = DoWyslania::REPLY;
     } else {
         Serial.println(tmp->getTemperature());
-        this->termometry->add(tmp);
-        this->buf_out[0] = termometry->getLast()->getID(); // Zwróć ID termometru na płytce
+        this->termometry.add(tmp);
+        this->buf_out[0] = termometry.get(termometry.size() - 1)->getID(); // Zwróć ID termometru na płytce
         this->coWyslac = DoWyslania::REPLY;
     }
 }
 /// Wysyła dane termometru
 void I2CConverter::printTemperature(byte id)
 {
-    Serial.println(freeMemory());
-    Serial.println("freeMemory()");
-    String* tmp;
-    tmp = new String(termometry->get(id)->getTemperature(), 2);
+    // Serial.print("freeMemory(): ");
     // Serial.println(freeMemory());
-    Serial.println(termometry->get(id)->getTemperature());
+    String* tmp;
+    // Serial.println("beforeString");
+    tmp = new String(termometry.get(id)->getTemperature(), 2);
+    // Serial.print("afterString: ");
+    // Serial.println(*tmp);
+    // Serial.println(termometry.get(id)->getTemperature());
     Wire.write(id);  // wyslij ID Termometru na płytce
     for (byte i = 0; i < tmp->length(); i++) {
         Wire.write(tmp->charAt(i));  // wyslij kolejne cyfry temperatury
     }
+    free(tmp);
 }

@@ -35,10 +35,10 @@ public class AdminRESTController {
 
     @RequestMapping("/test")
     public Response test() {
-        Response response = new Response<>(system.getRoomsArrayList(), "errortmp");
+        Response response = new Response<>(converter.atmega, "errortmp");
 
-        converter.checkTemperature(new Termometr(1, 1, 8, 10, 0.0f, 0.0f, 0.0f));
-        // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
+        // converter.checkTemperature(new Termometr(1, 1, 8, 10, 0.0f, 0.0f, 0.0f));
+        // // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
         return response;
     }
 
