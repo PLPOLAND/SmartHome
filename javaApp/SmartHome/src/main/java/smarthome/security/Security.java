@@ -71,7 +71,7 @@ public class Security {
             session.setAttribute("uprawnienia",resultUsers.getUprawnienia());
             session.setMaxInactiveInterval(60 * 60); // usuniecie pol sesji po 60 minutach
 
-            logger.info("User: " + resultUsers.getNick() + " zalogwał się pomyślnie"); //log
+            logger.info("User: " + resultUsers.getNick() + " zalogował się pomyślnie"); //log
 
             return true;
         }
