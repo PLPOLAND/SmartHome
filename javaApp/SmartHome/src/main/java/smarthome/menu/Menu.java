@@ -27,7 +27,7 @@ public class Menu {
                 if (this.getPozycja("Dodawanie")!=null) {
                     PozycjaMenu t = this.getPozycja("Dodawanie");
                     t.addDropDown(new PozycjaMenu("Dodaj pokoje", "./addRoom"));
-                    if (system.haveRoom()) {
+                    if (system.haveAnyRoom()) {
                         t.addDropDown(new PozycjaMenu("Dodaj żarówki", "./addLight"));
                         t.addDropDown(new PozycjaMenu("Dodaj przekaznik", "./addSwitch"));
                         t.addDropDown(new PozycjaMenu("Dodaj termometr", "./addTermometr"));

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 
 import smarthome.model.Device;
 import smarthome.model.Room;
+import smarthome.model.Termometr;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,10 +25,11 @@ import org.slf4j.LoggerFactory;
 public class SystemDAO {
 
     TreeMap<String,Room> pokoje; //Pokoje w systemie
+    Logger logger;
 
 
     public SystemDAO() {
-        Logger logger = LoggerFactory.getLogger(UsersDAO.class);
+        logger = LoggerFactory.getLogger(UsersDAO.class);
         logger.info("Init System DAO");
         pokoje = new TreeMap<>();
         this.readDatabase();
@@ -42,6 +44,15 @@ public class SystemDAO {
     }
     
     /**
+     * Zwraca pokoj o podanej nazwie 
+     * @param name - nazwa pokoju
+     * @return znaleziony pokoj / null jeśli takiego brak
+     */
+    public Room getRoom(String name) {
+        return this.pokoje.get(name);
+    }
+
+    /**
      * Zwraca pokoje w systemie w postaci ArrayList
      * 
      * @return ArrayList<Room>
@@ -49,6 +60,21 @@ public class SystemDAO {
     public ArrayList<Room> getRoomsArrayList(){
         return new ArrayList<Room>(pokoje.values());
     }
+
+    /**
+     * Zwraca listę wszystkich termometrów
+     * @return
+     */
+    public ArrayList<Termometr> getAllTermometers() {//TODO pomyśleć jak można to usprawnić np. przez robienie od razu takiej listy w momencie dodawania termometrów do systemu
+        ArrayList<Termometr> termometry = new ArrayList<>();
+        for (Room room : this.getRoomsArrayList()) {
+            for (Device termometr : room.getTermometry()) {
+                termometry.add((Termometr)termometr);
+            }
+        }
+        return termometry;
+    }
+
     /**
      * Dodaje urządzenie do wskazanego pokoju
      * @param name - klucz pokoju / nazwa w systemie
@@ -58,12 +84,13 @@ public class SystemDAO {
     public void addDeviceToRoom(String name, Device d) throws Exception{
         this.pokoje.get(name).addUrzadzenie(d);
         save(this.pokoje.get(name));
+        logger.debug("Dodano urzadzenie do pokoju i zapisano");
     }
     /**
      * 
      * @return true jeśli w systemie zarejestrowane są pokoje/pokój
      */
-    public boolean haveRoom(){
+    public boolean haveAnyRoom(){
         if (pokoje != null && !pokoje.isEmpty())
             return true;
         else

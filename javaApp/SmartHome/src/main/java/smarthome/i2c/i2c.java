@@ -76,6 +76,23 @@ public class I2C{
             tmp.write(buffer);
         }
     }
+    public void writeTo(int adres, byte[] buffer, int size) throws Exception{
+        I2CDevice tmp = null;
+        byte[] tmpbuff = new byte[size];
+        for (I2CDevice device : devices) {
+            if (device.getAddress() == adres) {
+                tmp = device;
+            }
+        }
+        if (tmp == null) {
+            throw new Exception("System nie znalazł urządzenia o takim adresie");
+        } else {
+            for (int i = 0; i < size; i++) {
+                tmpbuff[i] = buffer[i];
+            }
+            tmp.write(tmpbuff);
+        }
+    }
     public byte[] readFrom(int adres, int size) throws Exception{
         byte[] buffer = new byte[size];
         I2CDevice tmp = null;

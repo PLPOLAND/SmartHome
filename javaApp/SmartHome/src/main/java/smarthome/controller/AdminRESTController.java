@@ -35,9 +35,10 @@ public class AdminRESTController {
 
     @RequestMapping("/test")
     public Response test() {
-        Response response = new Response<>(converter.atmega, "errortmp");
+        Termometr t = (Termometr) system.getRoom("salon").getTermometry().get(0);
+        converter.checkTemperature(t);
+        Response response = new Response<>(t.getTemperatura(), "errortmp");
 
-        // converter.checkTemperature(new Termometr(1, 1, 8, 10, 0.0f, 0.0f, 0.0f));
         // // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
         return response;
     }
@@ -77,8 +78,10 @@ public class AdminRESTController {
     }
 
 
-
-
+    @RequestMapping("/getSystemData")
+    public Response<SystemDAO> getSystemData() {
+        return new Response<SystemDAO>(system);
+    }
 
     @GetMapping("/addRoom")
     public Response<String> dodajPokoj(@RequestParam("name") String name){
@@ -87,6 +90,12 @@ public class AdminRESTController {
 
         return new Response<String>("Pokój: '" + name +"' dodany");
     }
+
+    // public Response<String> setIdPlytkiRoom(@RequestParam("name") String name, @RequestParam("id") int id) {
+    //     system.getRoom(name).s
+
+    // }
+
     @GetMapping("/addGniazdko")
     public Response<String> dodajGniazdko(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
         Przekaznik g;
@@ -112,10 +121,12 @@ public class AdminRESTController {
 
     }
     @GetMapping("/addTermometr")
-    public Response<String> dodajTermometr(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
+    public Response<String> dodajTermometr(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin, @RequestParam("idPlytki") int idPlytki){
         Termometr t;
         try {
             t = new Termometr(pin);
+            t.setIDPlytki(idPlytki);
+            converter.addTermometr(t);
             system.addDeviceToRoom(nazwaPokoju, t);
         } catch (Exception e) {
             return new Response<>("",e.getMessage());

@@ -57,7 +57,7 @@ public abstract class Device {
         logger.info("Stworzono Device:" + this.toString());
     }
     public Device(DeviceTypes type, int pin) {
-        if (pin<2 || pin > 13) {//TODO Poprawić górną granicę przedziału 
+        if ((pin<2 || pin > 13 )&& pin != -1) {//TODO Poprawić górną granicę przedziału 
             throw new IllegalArgumentException("Wartość pinu po za granicami");
         }
         this.id = deviceId++;
@@ -102,8 +102,8 @@ public abstract class Device {
         return this.IDPlytki;
     }
     
-    public void setIDPlytki(int IDPlytki) {
-        this.IDPlytki = IDPlytki;
+    public void setIDPlytki(int idPlytki) {
+        this.IDPlytki = idPlytki;
     }
     
     public DeviceTypes getTyp() {

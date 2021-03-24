@@ -3,6 +3,8 @@ package smarthome.i2c;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import com.pi4j.io.serial.Serial;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -87,19 +89,28 @@ public class JtAConverter {
         for (byte b : POBIERZTEMPERATURE) {
             buffor[i++] = b;
         }
-        buffor[i++] = (byte) termometr.getPin();
+        buffor[i++] = (byte) termometr.getNumberOnBoard();
+        // System.out.println(new String(buffor));
+        logger.debug(buffor.toString());
         try {
-            atmega.writeTo(termometr.getIDPlytki(), buffor);
+            atmega.writeTo(termometr.getIDPlytki(), buffor,2);
             buffor = atmega.readFrom(termometr.getIDPlytki(), 8);// odpowiedz z temperaturą
             String bString = "";
             for (byte b : buffor) {
                 if (b >= 48 && b <= 57 || b == '.') {
                     bString += (char) b;
+                    // System.out.println((char)b);
                 }
             }
-            if (buffor[0] != termometr.getId()) {
+            logger.debug(bString);
+            String tmp ="";
+            for (int j = 0; j < buffor.length; j++) {
+                tmp+=(int)buffor[j];
+            }
+            logger.debug(tmp);
+            if (buffor[0] == termometr.getNumberOnBoard()) {
                 float tempVal = Float.parseFloat(bString);
-                logger.info("Odebrano temperaturę \"" + tempVal + "\" z urzązenia" + termometr.toString());
+                logger.info("Odebrano temperaturę \"" + tempVal + "\" z urządzenia" + termometr.toString());
                 termometr.setTemperatura(tempVal);
             }
         } catch (Exception e) {
@@ -130,14 +141,17 @@ public class JtAConverter {
 
     public void addTermometr(Device device) {
         if (device.getTyp() == DeviceTypes.TERMOMETR) {
-            byte[] buffor = new byte[3];
+            byte[] buffor = new byte[2];
             int i = 0;
             for (byte b : DODAJTERMOMETR) {
                 buffor[i++] = b;
             }
-            buffor[i++] = (byte) ((Termometr) device).getNumberOnBoard();
+            // buffor[i++] = (byte) ((Termometr) device).getNumberOnBoard();
             try {
-                atmega.writeTo(device.getIDPlytki(), buffor);
+                atmega.writeTo(device.getIDPlytki(), buffor);//Wyślij prośbę o dodanie nowego termometru na płytce
+                buffor = atmega.readFrom(device.getIDPlytki(), 1);
+                ((Termometr) device).setNumberOnBoard(buffor[0]);//ustaw id termometra na płytce na podstawie odpowiedzi od płytki
+                logger.debug(new String(buffor));
             } catch (Exception e) {
                 e.printStackTrace();
             }

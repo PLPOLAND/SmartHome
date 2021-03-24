@@ -1,24 +1,6 @@
 #include <I2CConverter.h>
 #include <Kontener.h>
-
-#ifdef __arm__
-// should use uinstd.h to define sbrk but Due causes a conflict
-extern "C" char* sbrk(int incr);
-#else // __ARM__
-extern char* __brkval;
-#endif // __arm__
-
-int freeMemory()
-{
-    char top;
-#ifdef __arm__
-    return &top - reinterpret_cast<char*>(sbrk(0));
-#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
-    return &top - __brkval;
-#else // __arm__
-    return __brkval ? &top - __brkval : &top - __malloc_heap_start;
-#endif // __arm__
-}
+#include <FreeMemory.h>
 
 // TODO poprawic odwołania do kontenerów
 I2CConverter* I2CConverter::singleton = nullptr;
@@ -100,9 +82,9 @@ void I2CConverter::RequestEvent()
 {
     switch (singleton->coWyslac) {
     case DoWyslania::TEMPERATURA:
-        Serial.println("PrintTEMP1");
-        printTemperature(0);
-        Serial.println("PrintTEMP");
+        // Serial.println("PrintTEMP1");
+        printTemperature(idTermometru);
+        // Serial.println("PrintTEMP");
         this->coWyslac = DoWyslania::NIC;
         break;
     case DoWyslania::REPLY: {
@@ -135,6 +117,7 @@ Komendy I2CConverter::find_command(byte size)
 
         } else if (buf[0] == 'T') {
             Serial.println(F("Temperatura"));
+            idTermometru = buf[1];
             return Komendy::TEMPERATURA;
         }
 
@@ -168,15 +151,12 @@ void I2CConverter::printTemperature(byte id)
 {
     // Serial.print("freeMemory(): ");
     // Serial.println(freeMemory());
-    String* tmp;
-    // Serial.println("beforeString");
-    tmp = new String(termometry.get(id)->getTemperature(), 2);
+    String tmp = String(termometry.get(id)->getTemperature(), 2);
     // Serial.print("afterString: ");
     // Serial.println(*tmp);
     // Serial.println(termometry.get(id)->getTemperature());
     Wire.write(id);  // wyslij ID Termometru na płytce
-    for (byte i = 0; i < tmp->length(); i++) {
-        Wire.write(tmp->charAt(i));  // wyslij kolejne cyfry temperatury
+    for (byte i = 0; i < tmp.length(); i++) {
+        Wire.write(tmp.charAt(i));  // wyslij kolejne cyfry temperatury
     }
-    free(tmp);
 }
