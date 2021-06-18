@@ -1,4 +1,4 @@
-#include <Termometr.h>
+#include <devices/Termometr.h>
 byte Termometr::termometrowWSystemie = 0;
 OneWire Termometr::oneWire = OneWire(ONEWIRE_BUS);
 DallasTemperature Termometr::sensors = DallasTemperature(&oneWire);

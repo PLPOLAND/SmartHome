@@ -1,4 +1,4 @@
-#include <Przekaznik.h>
+#include <devices/Przekaznik.h>
 
 Przekaznik::~Przekaznik()
 {

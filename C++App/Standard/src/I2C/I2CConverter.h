@@ -1,8 +1,8 @@
 #include "Arduino.h"
 #include "Wire.h"
 #include <Kontener.h>
-#include <Termometr.h>
-#include <Przekaznik.h>
+#include <devices/Termometr.h>
+#include <devices/Przekaznik.h>
 #include "LinkedList.h"
 
 #ifndef I2CCONVERTER_H

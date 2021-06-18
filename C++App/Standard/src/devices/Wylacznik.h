@@ -5,6 +5,7 @@
 
 enum StanWylacznika
 {
+    BRAK_AKCJI,
     PUSZCZONY,
     PRZYCISNIETY,
     PRZYTRZYMANY
@@ -16,10 +17,11 @@ private:
     byte pin;
     StanWylacznika stan;
     int klikniecia;
-    Timer time;
+    Timer* time;
 public:
     Wylacznik();
     ~Wylacznik();
+    Wylacznik(byte pin);
 
     byte getPin()
     {
@@ -28,7 +30,7 @@ public:
     void setPin(byte pin)
     {
         this->pin = pin;
-        digitalWrite(pin, stan == false ? LOW : HIGH);
+        pinMode(this->pin,INPUT_PULLUP);
     };
     StanWylacznika getStan()
     {
