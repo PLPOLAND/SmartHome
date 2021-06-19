@@ -1,27 +1,34 @@
 #include <Arduino.h>
 #include <Timers.h>
+#include "LinkedList.h"
 #ifndef Wylacznik_h
 #define Wylacznik_h
 
-enum StanWylacznika
+enum StanPrzycisku
 {
     BRAK_AKCJI,
     PUSZCZONY,
     PRZYCISNIETY,
     PRZYTRZYMANY
 };
-
-class Wylacznik
+/**
+ * 
+ * Klasa obsługująca przycisk/wyłącznik
+ * TODO: funkcje dla kliknięć.
+ */
+class Przycisk
 {
 private:
     byte pin;
-    StanWylacznika stan;
+    StanPrzycisku stan;
     int klikniecia;
     Timer* time;
+
+    // LinkedList<> funkcje; // TODO:funkcje
 public:
-    Wylacznik();
-    ~Wylacznik();
-    Wylacznik(byte pin);
+    Przycisk();
+    ~Przycisk();
+    Przycisk(byte pin);
 
     byte getPin()
     {
@@ -32,7 +39,7 @@ public:
         this->pin = pin;
         pinMode(this->pin,INPUT_PULLUP);
     };
-    StanWylacznika getStan()
+    StanPrzycisku getStan()
     {
         return stan;
     };

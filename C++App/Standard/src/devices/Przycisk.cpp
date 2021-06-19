@@ -1,23 +1,41 @@
-#include <devices/Wylacznik.h>
+#include <devices/Przycisk.h>
 
-Wylacznik::Wylacznik(/* args */)
+/**
+ * 
+ * Pusty konstruktor
+ * \warning Nie przypisuje pinu nasluchu, należy zrobić to samemu - \see this.setPin();
+ * 
+ * */
+Przycisk::Przycisk()
 {
     time = new Timer();
     time->time(STOP);
 }
 
-Wylacznik::~Wylacznik()
+Przycisk::~Przycisk()
 {
+    delete time;
 }
 
-Wylacznik::Wylacznik(byte pin)
+/**
+ * 
+ * Konstruktor 
+ * 
+ * \param pin pin nasłuchu stanu
+ * 
+ */
+Przycisk::Przycisk(byte pin)
 {
     this->setPin(pin);
     time = new Timer();
     time->time(STOP);
 }
 
-void Wylacznik::updateStan(){
+
+/**
+ * Aktualizuje stan przycisku
+ */
+void Przycisk::updateStan(){
     bool tmpStan = 0;
     if (digitalRead(pin)==LOW)
     {
@@ -87,4 +105,16 @@ void Wylacznik::updateStan(){
     // if (time->time() != 0) {
     //     Serial.println(time->time());
     // }
+}
+
+
+/**
+ * wywołuje rzeczy które powinny byc wywolywane w kazdym obrocie loop 
+ *  
+ * np: aktualizacja stanu
+ * \see Przycisk::updateStan();
+ * */
+void Przycisk::tic(){
+    this->updateStan(); //obsluga zmiany stanów przycisku
+
 }

@@ -4,9 +4,9 @@
 
 #ifdef TEST
 
-    #include <devices/Wylacznik.h>
+    #include <devices/Przycisk.h>
 
-    Wylacznik wylacznik(2);
+    Przycisk przycisk(2);
 
     void setup()
     {
@@ -16,8 +16,8 @@
 
     void loop()
     {
-        wylacznik.updateStan();
-        // Serial.println(wylacznik.getStan());
+        przycisk.updateStan();
+        // Serial.println(przycisk.getStan());
         // Serial.println(digitalRead(2));
     }
 
