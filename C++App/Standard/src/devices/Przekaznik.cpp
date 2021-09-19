@@ -1,5 +1,7 @@
 #include <devices/Przekaznik.h>
-
+Przekaznik::Przekaznik(){
+    
+}
 Przekaznik::~Przekaznik()
 {
 

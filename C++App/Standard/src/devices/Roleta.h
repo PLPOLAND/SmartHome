@@ -1,7 +1,10 @@
-#include <Arduino.h>
-#include <Timers.h>
 #ifndef Roleta_h
 #define Roleta_h
+
+#include <Arduino.h>
+#include <Timers.h>
+#include <devices/Przekaznik.h>
+
 
 #define CZAS_CALKOWITEJ_ZMIANY_POLOZENIA SECS(2) //TODO: kalibracja czasu!
 
@@ -17,13 +20,13 @@ enum StanRolety {
  */
 class Roleta {
 private:
-    byte pinUp;
-    byte pinDown;
+    Przekaznik p_up;
+    Przekaznik p_down;
     StanRolety stan;
     Timer* time;
 
-    void forceSetPinUpState(bool stan);
-    void forceSetPinDownState(bool stan);
+    void forcePinUpState(bool stan);
+    void forcePinDownState(bool stan);
     void setPinUpState(bool stan);
     void setPinDownState(bool stan);
 
@@ -33,19 +36,17 @@ public:
     ~Roleta();
     Roleta(byte pinUp, byte pinDown);
 
-    byte getPinUp() { return pinUp; };
+    byte getPinUp() { return this->p_up.getPin(); };
     void setPinUp(byte pin)
     {
-        this->pinUp = pin;
-        pinMode(this->pinUp, OUTPUT);
-        digitalWrite(this->pinUp, LOW); //TODO: Sprawdzić czy LOW!
+        this->p_up.setPin(pin);
+        this->p_up.setStan(false);
     };
-    byte getPinDown() { return pinDown; };
+    byte getPinDown() { return this->p_down.getPin(); };
     void setPinDown(byte pin)
     {
-        this->pinDown = pin;
-        pinMode(this->pinDown, OUTPUT);
-        digitalWrite(this->pinDown, LOW); //TODO: Sprawdzić czy LOW!
+        this->p_down.setPin(pin);
+        this->p_down.setStan(false);
     };
     StanRolety getStan() { return stan; };
 

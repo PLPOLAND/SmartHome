@@ -1,4 +1,5 @@
 #include <devices/Roleta.h>
+#include <devices/Przekaznik.h>
 
 /**
  * 
@@ -42,11 +43,20 @@ Roleta::Roleta(byte pinup, byte pindown)
  * */
 void Roleta::tic()
 {
-    // if (akcja == )
-    // {
-    //     /* code */
-    // }
+    if (akcja == Akcja::PODNOSZENIE_CALKOWITE && time->available())
+    {
+        this->stop();
+        this->stan = StanRolety::PODNIESIONA;
+        
+    }
+    else if (akcja == Akcja::OPUSZCZANIE_CALKOWITE && time->available())
+    {
+        this->stop();
+        this->stan = StanRolety::OPUSZCZONA;
+    }
+    
 }
+
 
 /**
  * Calkowite podniesienie rolety (z timerem)
@@ -94,34 +104,26 @@ void Roleta::stop()
 {
     akcja = Akcja::POSTOJ;
     time->time(STOP); //zeruj minutnik
-    forceSetPinDownState(false);
-    forceSetPinUpState(false);
+    forcePinDownState(false);
+    forcePinUpState(false);
 };
 
 /**
  * Konwertuje bool na stan niski/wysoki dla pinUp, NIE zmienia stanu drugiego pinu
  * TODO: Sprawdzić czy powinoo być LOW dla "wylaczenia"
  */
-void Roleta::forceSetPinUpState(bool stan)
+void Roleta::forcePinUpState(bool stan)
 {
-    if (stan == false) {
-        digitalWrite(this->pinUp, LOW);
-    } else {
-        digitalWrite(this->pinUp, HIGH);
-    }
+    this->p_up.setStan(stan);
 }
 
 /**
  * Konwertuje bool na stan niski/wysoki dla pinDown, NIE zmienia stanu drugiego pinu
  * TODO: Sprawdzić czy powinoo być LOW dla "wylaczenia"
  */
-void Roleta::forceSetPinDownState(bool stan)
+void Roleta::forcePinDownState(bool stan)
 {
-    if (stan == false) {
-        digitalWrite(this->pinDown, LOW);
-    } else {
-        digitalWrite(this->pinDown, HIGH);
-    }
+    this->p_down.setStan(stan);
 }
 
 /**
@@ -131,11 +133,12 @@ void Roleta::forceSetPinDownState(bool stan)
 void Roleta::setPinUpState(bool stan)
 {
     if (stan == false) {
-        digitalWrite(this->pinUp, LOW);
-        digitalWrite(this->pinDown, HIGH);
-    } else {
-        digitalWrite(this->pinUp, HIGH);
-        digitalWrite(this->pinDown, LOW);
+        this->p_up.setStan(false);
+        this->p_down.setStan(true);
+    } else
+    {
+        this->p_up.setStan(true);
+        this->p_down.setStan(false);
     }
 }
 
@@ -146,10 +149,12 @@ void Roleta::setPinUpState(bool stan)
 void Roleta::setPinDownState(bool stan)
 {
     if (stan == false) {
-        digitalWrite(this->pinUp, HIGH);
-        digitalWrite(this->pinDown, LOW);
-    } else {
-        digitalWrite(this->pinUp, LOW);
-        digitalWrite(this->pinDown, HIGH);
+        this->p_up.setStan(true);
+        this->p_down.setStan(false);
+    }
+    else
+    {
+        this->p_up.setStan(false);
+        this->p_down.setStan(true);
     }
 }
