@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "javaApp"
+		},
+		{
+			"name": "Standard",
+			"path": "C++App/Standard"
+		}
+	]
+}
