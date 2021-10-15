@@ -1,16 +1,19 @@
+#ifndef I2CCONVERTER_H
+#define I2CCONVERTER_H
+
 #include "Arduino.h"
 #include "Wire.h"
 #include <Kontener.h>
 #include <devices/Termometr.h>
 #include <devices/Przekaznik.h>
 #include "LinkedList.h"
+#include "System.h"
 
-#ifndef I2CCONVERTER_H
-#define I2CCONVERTER_H
 
-#define DEBUG //Wyswietl informacje debugowania
+#define DEBUG //Wyswietl informacje debugowania //NOT USED YET
 
 #define PINOW_NA_ADRES 6
+
 //BUFFORY
 #define BUFFOR_IN_SIZE 5
 #define BUFFOR_OUT_SIZE 8
@@ -22,11 +25,7 @@ enum class DoWyslania
     STATUS,
     TEMPERATURA//Odpowiedz z temperatura według szablonu
 };
-enum class Komendy {
-    NIC,
-    DODAJ_TERMOMETR,
-    TEMPERATURA
- };
+
 
 class I2CConverter
 {
@@ -34,6 +33,7 @@ protected:
     I2CConverter();
     ~I2CConverter();
     static I2CConverter* singleton;
+    System* system;
 public:
     I2CConverter(I2CConverter &other) = delete;
     void operator=(const I2CConverter &) = delete;
@@ -52,14 +52,14 @@ public:
     byte buf[BUFFOR_IN_SIZE];//buffor wejsciowy
     byte buf_out[BUFFOR_OUT_SIZE];//buffor wyjsciowy
 
-    byte idTermometru = 0;//Id termometru do wypisania
+    
 
-    LinkedList<Termometr*> termometry;
-    LinkedList<Przekaznik*> przekazniki;
-
-    Komendy find_command(byte size);
-
+    // Komendy find_command(byte size);
+    
+    /// Wysyła temperaturę z termometru
     void printTemperature(byte id);
+    ///Dodaje termometr do systemu o ile istnieje jakiś wolny, nie podłączony
+    ///Jeśli udało się dodać termometr dodaje do wysłania jego id na płytce w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
     void addTermometr();
 };
 
