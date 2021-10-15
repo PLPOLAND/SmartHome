@@ -5,6 +5,7 @@ DallasTemperature Termometr::sensors = DallasTemperature(&oneWire);
 
 Termometr::Termometr()
 {
+    Device(TYPE::TERMOMETR);
     // // if (sensors.getDeviceCount() == 0)
     // // {
     //     sensors.begin();

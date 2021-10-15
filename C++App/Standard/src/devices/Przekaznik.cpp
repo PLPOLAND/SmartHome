@@ -1,10 +1,9 @@
 #include <devices/Przekaznik.h>
 Przekaznik::Przekaznik(){
-    
+    Device(TYPE::PRZEKAZNIK);
 }
 Przekaznik::~Przekaznik()
 {
-
     digitalWrite(pin, LOW);
 }
 Przekaznik::Przekaznik(byte pin, bool stan = false)

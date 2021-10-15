@@ -1,23 +1,26 @@
+#ifndef Wylacznik_h
+#define Wylacznik_h
 #include <Arduino.h>
 #include <Timers.h>
 #include "LinkedList.h"
-#ifndef Wylacznik_h
-#define Wylacznik_h
+#include "devices/Device.h"
 
-enum StanPrzycisku
-{
-    BRAK_AKCJI,
-    PUSZCZONY,
-    PRZYCISNIETY,
-    PRZYTRZYMANY
-};
 /**
  * 
  * Klasa obsługująca przycisk/wyłącznik
  * TODO: funkcje dla kliknięć.
  */
-class Przycisk
+class Przycisk: public Device
 {
+public:
+    enum StanPrzycisku
+    {
+        BRAK_AKCJI,
+        PUSZCZONY,
+        PRZYCISNIETY,
+        PRZYTRZYMANY
+    };
+
 private:
     byte pin;
     StanPrzycisku stan;
@@ -47,6 +50,5 @@ public:
 
     void tic();
 };
-
 
 #endif // !Wylacznik_h

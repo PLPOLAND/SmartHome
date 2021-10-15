@@ -8,6 +8,7 @@
  * */
 Przycisk::Przycisk()
 {
+    Device(TYPE::PRZYCISK);
     time = new Timer();
     time->time(STOP);
 }

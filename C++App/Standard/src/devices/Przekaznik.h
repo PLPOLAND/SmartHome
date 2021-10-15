@@ -1,8 +1,10 @@
-#include <Arduino.h>
 #ifndef Przekaznik_h
 #define Przekaznik_h
+#include <Arduino.h>
+#include "devices/Device.h"
+
 //Obsługa przekaźnika
-class Przekaznik
+class Przekaznik : public Device
 {
 private:
     byte pin;

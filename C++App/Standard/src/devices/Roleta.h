@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include <Timers.h>
-#include <devices/Przekaznik.h>
-
+#include "devices/Przekaznik.h"
+#include "devices/Device.h"
 
 #define CZAS_CALKOWITEJ_ZMIANY_POLOZENIA SECS(2) //TODO: kalibracja czasu!
 
@@ -18,7 +18,7 @@ enum StanRolety {
  * 
  * Klasa obsługująca rolete
  */
-class Roleta {
+class Roleta :public Device{
 private:
     Przekaznik p_up;
     Przekaznik p_down;

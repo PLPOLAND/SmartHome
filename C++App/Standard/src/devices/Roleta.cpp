@@ -4,11 +4,12 @@
 /**
  * 
  * Pusty konstruktor
- * \warning Nie przypisuje pinu nasluchu, należy zrobić to samemu - \see this.setPin();
+ * @warning Nie przypisuje pinu nasluchu, należy zrobić to samemu - \see this.setPin();
  * 
  * */
 Roleta::Roleta()
 {
+    Device(Device::TYPE::ROLETA);
     akcja = Akcja::POSTOJ;
     time = new Timer();
     time->time(STOP);
@@ -23,8 +24,8 @@ Roleta::~Roleta()
  * 
  * Konstruktor 
  * 
- * \param pinup - pin przekaznika od ruchu w gore
- * \param pindown - pin przekaznika od ruchu w dol
+ * @param pinup pin przekaznika od ruchu w gore
+ * @param pindown pin przekaznika od ruchu w dol
  * 
  */
 Roleta::Roleta(byte pinup, byte pindown)
