@@ -1,11 +1,15 @@
 {
 	"folders": [
 		{
+			"name": "Master",
 			"path": "javaApp"
 		},
 		{
-			"name": "Standard",
+			"name": "Slave",
 			"path": "C++App/Standard"
 		}
-	]
+	],
+	"settings": {
+		"discord.enabled": true
+	}
 }
