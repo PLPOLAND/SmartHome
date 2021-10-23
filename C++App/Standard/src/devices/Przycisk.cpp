@@ -32,6 +32,20 @@ Przycisk::Przycisk(byte pin)
     time->time(STOP);
 }
 
+byte Przycisk::getPin()
+{
+    return pin;
+}
+void Przycisk::setPin(byte pin)
+{
+    this->pin = pin;
+    pinMode(this->pin, INPUT_PULLUP);
+}
+
+Przycisk::StanPrzycisku Przycisk::getStan()
+{
+    return stan;
+}
 
 /**
  * Aktualizuje stan przycisku

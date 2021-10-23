@@ -33,19 +33,10 @@ public:
     ~Przycisk();
     Przycisk(byte pin);
 
-    byte getPin()
-    {
-        return pin;
-    };
-    void setPin(byte pin)
-    {
-        this->pin = pin;
-        pinMode(this->pin,INPUT_PULLUP);
-    };
-    StanPrzycisku getStan()
-    {
-        return stan;
-    };
+    byte getPin();
+    void setPin(byte pin);
+    
+    StanPrzycisku getStan();
     void updateStan();
 
     void tic();

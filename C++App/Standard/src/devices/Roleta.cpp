@@ -38,6 +38,20 @@ Roleta::Roleta(byte pinup, byte pindown)
     time->time(STOP);
 }
 
+byte Roleta::getPinUp() { return this->p_up.getPin(); };
+void Roleta::setPinUp(byte pin)
+{
+    this->p_up.setPin(pin);
+    this->p_up.setStan(false);
+};
+byte Roleta::getPinDown() { return this->p_down.getPin(); };
+void Roleta::setPinDown(byte pin)
+{
+    this->p_down.setPin(pin);
+    this->p_down.setStan(false);
+};
+StanRolety Roleta::getStan() { return stan; };
+
 /**
  * wywołuje rzeczy które powinny byc wywolywane w kazdym obrocie loop 
  * TODO: logistyka

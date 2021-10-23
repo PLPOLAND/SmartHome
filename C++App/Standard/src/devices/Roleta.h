@@ -36,19 +36,11 @@ public:
     ~Roleta();
     Roleta(byte pinUp, byte pinDown);
 
-    byte getPinUp() { return this->p_up.getPin(); };
-    void setPinUp(byte pin)
-    {
-        this->p_up.setPin(pin);
-        this->p_up.setStan(false);
-    };
-    byte getPinDown() { return this->p_down.getPin(); };
-    void setPinDown(byte pin)
-    {
-        this->p_down.setPin(pin);
-        this->p_down.setStan(false);
-    };
-    StanRolety getStan() { return stan; };
+    byte getPinUp();
+    void setPinUp(byte pin);
+    byte getPinDown();
+    void setPinDown(byte pin);
+    StanRolety getStan();
 
 
 
