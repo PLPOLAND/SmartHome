@@ -1,27 +1,31 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 #include <Arduino.h>
+#include "devices/Device.h"
 
-enum class Komendy
-{
-    NIC,
-    DODAJ_TERMOMETR,
-    TEMPERATURA,
-    ZMIEN_STAN,
-};
 
 class Command
 {
 private:
-    //ID urządzenia
-    int id;
-    
+    byte id_slave;//wykorzystywane przy przesyłaniu komendy do innego urządzenia
+    Device *urzadzenie;//urządzenie docelowe
+    String parametry;//dodatkowe parametry
     
 public:
+    enum class KOMENDY
+    {
+        NIC,
+        ADD_THERMOMETR,
+        ADD_ROLETA,
+        ADD_PRZYCISK,
+        GET_TEMPERATURE,
+        ZMIEN_STAN,
+    };
+
     Command();
     ~Command();
-
-    static void convert(String command);
+    KOMENDY komenda;//TODO
+    void convert(const byte *c, byte size);
 };
 
 

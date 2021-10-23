@@ -10,24 +10,28 @@ Command::~Command()
 
 }
 
-void Command::convert(String command){
-    switch (command.length())
+void Command::convert(const byte *c, byte size)
+{
+    switch (size)
     {
     case 1:
         break;
     case 2:
-        if (command[0] == 'A')
+        if (c[0] == 'A')
         {
-            if (command[1] == 'T')
+            if (c[1] == 'T')
             {
-                // return Komendy::DODAJ_TERMOMETR;
+                this->komenda = Command::KOMENDY::ADD_THERMOMETR;
             }
         }
-        else if (command[0] == 'T')
+        else if (c[0] == 'T')
         {
             // Serial.println(F("Temperatura"));
-            // idTermometru = command[1];
-            // return Komendy::TEMPERATURA;
+            // idTermometru = c[1];
+            urzadzenie = new Device();
+            urzadzenie->setId(c[1]);
+            urzadzenie->setType(Device::TYPE::TERMOMETR);
+            this->komenda = Command::KOMENDY::GET_TEMPERATURE;
         }
 
         break;

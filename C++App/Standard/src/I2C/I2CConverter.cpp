@@ -1,6 +1,7 @@
 #include <I2C/I2CConverter.h>
 #include <Kontener.h>
 #include <FreeMemory.h>
+#include "Command.h"
 
 // TODO poprawic odwołania do kontenerów
 I2CConverter* I2CConverter::singleton = nullptr;
@@ -47,33 +48,35 @@ void I2CConverter::onRequestEvent() { singleton->RequestEvent(); }
 
 void I2CConverter::RecieveEvent(int howManyBytes)
 {
-    byte i = 0;
+    byte buffReadSize = 0;
     Serial.print(F("howmanybytes: "));
     Serial.println(howManyBytes);
     while (0 < Wire.available()) {
-        buf[i++] = Wire.read();
+        buf[buffReadSize++] = Wire.read();
         Serial.print("i:");
-        Serial.print(i-1);
+        Serial.print(buffReadSize-1);
         Serial.print("buf:");
-        Serial.println(buf[i - 1]);
-        if (!(i < BUFFOR_IN_SIZE)) {
-            i--;
+        Serial.println(buf[buffReadSize - 1]);
+        if (!(buffReadSize < BUFFOR_IN_SIZE)) {
+            buffReadSize--;
             break; // TODO: Obsługa błędu???
             while (0 < Wire.available())
                 ;
         }
     }
+    Command komenda;
+    komenda.convert(buf,buffReadSize);
     //TODO dodać obsługę
-    // switch (find_command(i)) {
-    // case Komendy::DODAJ_TERMOMETR:
-    //     this->addTermometr();
-    //     break;
-    // case Komendy::TEMPERATURA:
-    //     this->coWyslac = DoWyslania::TEMPERATURA;
-    //     break;
-    // default:
-    //     break;
-    // };
+    switch (komenda.komenda) {
+    case Command::KOMENDY::ADD_THERMOMETR:
+        this->addTermometr();
+        break;
+    case Command::KOMENDY::GET_TEMPERATURE:
+        this->coWyslac = DoWyslania::TEMPERATURA;//TODO PRZEROBIĆ NA COMMAND
+        break;
+    default:
+        break;
+    };
     for (byte i = 0; i < BUFFOR_IN_SIZE; i++) {
         buf[i] = 0;
     }
@@ -151,7 +154,7 @@ void I2CConverter::RequestEvent()
 // }
 void I2CConverter::addTermometr()
 {
-    this->buf_out[0] = system->addTermometr(); // Zwróć otrzymane id
+    this->buf_out[0] = system->addDevice(Device::TYPE::TERMOMETR); // Zwróć otrzymane id
     this->coWyslac = DoWyslania::REPLY;
 }
 
@@ -159,7 +162,7 @@ void I2CConverter::printTemperature(byte id)
 {
     // Serial.print("freeMemory(): ");
     // Serial.println(freeMemory());
-    String tmp = String(system->getTermometr(id)->getTemperature(), 2);
+    String tmp = String(((Termometr *)system->getDevice(id))->getTemperature(), 2);
     // Serial.print("afterString: ");
     // Serial.println(*tmp);
     // Serial.println(termometry.get(id)->getTemperature());
