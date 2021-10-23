@@ -23,7 +23,9 @@ protected:
     byte idPrzycisku = 0; //Id przycisku do wypisania
     byte idPrzekaznika = 0; //Id Przekaznika do wypisania
     byte idRolety = 0; //Id Rolety do wypisania
+    byte idDevice = 0;
 
+    LinkedList<Device *> devices;
     LinkedList<Termometr *> termometry;
     LinkedList<Przekaznik *> przekazniki;
     LinkedList<Przycisk *> przyciski;
@@ -37,47 +39,65 @@ public:
 
     //Główna funkcja obsługująca działanie systemu
     void tic();
-    ///Dodaje termometr do systemu
-    ///@return id na płytce
-    byte addTermometr();
-    ///Dodaje przycisk do systemu
-    ///@return id na płytce
-    byte addPrzycisk();
-    ///Dodaje przekaźnik do systemu
-    ///@return id na płytce
-    byte addPrzekaznik();
-    ///Dodaje roleta do systemu
-    ///@return id na płytce
-    byte addRoleta();
 
-    /// usuwa termometr
-    ///@param id - ID termometru do usunięcia na płytce
-    bool removeTermometr(byte id);
-    /// usuwa przycisk
-    ///@param id - ID przycisku do usunięcia na płytce
-    bool removePrzycisk(byte id);
-    /// usuwa przekaźnik
-    ///@param id - ID przekaźnika do usunięcia na płytce
-    bool removePrzekaznik(byte id);
-    /// usuwa roletę
-    ///@param id - ID rolety do usunięcia na płytce
-    bool removeRoleta(byte id);
+    ///Dodaje urządzenie o podanym typie do systemu
+    ///@return id na płytce
+    byte addDevice(Device::TYPE typeOfDevice);
+
+
+    // ///Dodaje termometr do systemu
+    // ///@return id na płytce
+    // byte addTermometr();
+    // ///Dodaje przycisk do systemu
+    // ///@return id na płytce
+    // byte addPrzycisk();
+    // ///Dodaje przekaźnik do systemu
+    // ///@return id na płytce
+    // byte addPrzekaznik();
+    // ///Dodaje roleta do systemu
+    // ///@return id na płytce
+    // byte addRoleta();
+
+    /// usuwa urządzenie
+    ///@param id ID urządzenia do usunięcia na płytce
+    bool removeDevice(byte id);
+
+
+    // /// usuwa termometr
+    // ///@param id - ID termometru do usunięcia na płytce
+    // bool removeTermometr(byte id);
+    // /// usuwa przycisk
+    // ///@param id - ID przycisku do usunięcia na płytce
+    // bool removePrzycisk(byte id);
+    // /// usuwa przekaźnik
+    // ///@param id - ID przekaźnika do usunięcia na płytce
+    // bool removePrzekaznik(byte id);
+    // /// usuwa roletę
+    // ///@param id - ID rolety do usunięcia na płytce
+    // bool removeRoleta(byte id);
     
-    ///@return Wskaźnik do termometru o podanym ID;
-    ///@param id - ID termometru do usunięcia na płytce
-    Termometr* getTermometr(byte id);
+    ///@return Wskaźnik do urządzenia o podanym ID;
+    ///@param id ID urządzenia do znalezienia
+    Device* getDevice(byte id);
+    
+    // ///@return Wskaźnik do termometru o podanym ID;
+    // ///@param id - ID termometru do usunięcia na płytce
+    // Termometr* getTermometr(byte id);
 
-    ///@return Wskaźnik do przycisku o podanym ID;
-    ///@param id - ID przycisku do usunięcia na płytce
-    Przycisk* getPrzycisk(byte id);
+    // ///@return Wskaźnik do przycisku o podanym ID;
+    // ///@param id - ID przycisku do usunięcia na płytce
+    // Przycisk* getPrzycisk(byte id);
 
-    ///@return Wskaźnik do przekaźnika o podanym ID;
-    ///@param id - ID przekaźnika do usunięcia na płytce
-    Przekaznik* getPrzekaznik(byte id);
+    // ///@return Wskaźnik do przekaźnika o podanym ID;
+    // ///@param id - ID przekaźnika do usunięcia na płytce
+    // Przekaznik* getPrzekaznik(byte id);
 
-    ///@return Wskaźnik do rolety o podanym ID;
-    ///@param id - ID rolety do usunięcia na płytce
-    Roleta* getRoleta(byte id);
+    // ///@return Wskaźnik do rolety o podanym ID;
+    // ///@param id - ID rolety do usunięcia na płytce
+    // Roleta* getRoleta(byte id);
+    
+    ///Zwraca listę adresów termometrów zarejestrowanych w systemie
+    LinkedList<byte*> getAdrOfThemp();
 
 };
 

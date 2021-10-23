@@ -35,6 +35,7 @@ public:
     Roleta();
     ~Roleta();
     Roleta(byte pinUp, byte pinDown);
+    Roleta(byte id, byte pinUp, byte pinDown);
 
     byte getPinUp();
     void setPinUp(byte pin);

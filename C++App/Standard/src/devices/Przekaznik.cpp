@@ -6,8 +6,9 @@ Przekaznik::~Przekaznik()
 {
     digitalWrite(pin, LOW);
 }
-Przekaznik::Przekaznik(byte pin, bool stan = false)
+Przekaznik::Przekaznik(byte id, byte pin, bool stan = false)
 {
+    Device(TYPE::PRZEKAZNIK,id);
     if (pin >= 2 && pin <= 16)
     {
         this->pin = pin;

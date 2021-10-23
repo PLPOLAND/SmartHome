@@ -30,6 +30,26 @@ Roleta::~Roleta()
  */
 Roleta::Roleta(byte pinup, byte pindown)
 {
+    Device(Device::TYPE::ROLETA);
+    this->setPinUp(pinup);
+    this->setPinDown(pindown);
+
+    akcja = Akcja::POSTOJ;
+    time = new Timer();
+    time->time(STOP);
+}
+/**
+ * 
+ * Konstruktor 
+ * 
+ * @param id id urzadzenia w systemie
+ * @param pinup pin przekaznika od ruchu w gore
+ * @param pindown pin przekaznika od ruchu w dol
+ * 
+ */
+Roleta::Roleta(byte id, byte pinup, byte pindown)
+{
+    Device(Device::TYPE::ROLETA, id);
     this->setPinUp(pinup);
     this->setPinDown(pindown);
 

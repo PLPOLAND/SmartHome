@@ -27,6 +27,20 @@ Przycisk::~Przycisk()
  */
 Przycisk::Przycisk(byte pin)
 {
+    Device(Device::TYPE::PRZYCISK);
+    this->setPin(pin);
+    time = new Timer();
+    time->time(STOP);
+}
+/**
+ * 
+ * Konstruktor 
+ * 
+ * \param id id urządzenia w systemie
+ * \param pin pin nasłuchu stanu
+ */
+Przycisk::Przycisk(byte id, byte pin)
+{
     this->setPin(pin);
     time = new Timer();
     time->time(STOP);

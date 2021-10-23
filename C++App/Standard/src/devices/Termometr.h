@@ -2,7 +2,9 @@
 #define TERMOMETR_H
 #include <Arduino.h>
 #include <DallasTemperature.h>
+#include <LinkedList.h>
 #include "devices/Device.h"
+#include "System.h"
 
 //pin komunikacji oneWire
 #define ONEWIRE_BUS 8 
@@ -10,19 +12,25 @@
 class Termometr : public Device
 {
 private:
+    //Zmienna statyczna przechowująca obiekt do obsługi komunikacji w standardzie OneWire
     static OneWire oneWire;
-    //ile termometrów jest podłączonych do systemu. // TODO czy dobry opis?
-    static byte termometrowWSystemie;
-    //id termometru
-    int8_t id;
-public:
     static DallasTemperature sensors;
-    Termometr();
-    ~Termometr();
+    static byte inSystem;//liczba termometrów dotychczas zarejestrowana w systemie
+    static byte lastSensorsCount;//ostatnia liczba termometrów wykrytych w systemie
+    static LinkedList<byte*> adressesOfFreeThermometrs;
+    static System* system;
+    byte* adress; //adres termometru (tablica[8])
     float temperatura;
-    byte begin();
+    bool compare2Adresses(byte* addr1, byte* addr2);
+public:
+    Termometr();
+    Termometr(byte id);
+    ~Termometr();
+    bool begin();
+
+    byte* getAddres();
+
     float getTemperature();
-    byte getID();
     bool isCorrect();
     void updateTemperature();
 };

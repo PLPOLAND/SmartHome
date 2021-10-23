@@ -32,6 +32,7 @@ public:
     Przycisk();
     ~Przycisk();
     Przycisk(byte pin);
+    Przycisk(byte id, byte pin);
 
     byte getPin();
     void setPin(byte pin);

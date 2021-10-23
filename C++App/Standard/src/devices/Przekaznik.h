@@ -12,7 +12,7 @@ private:
 
 public:
     Przekaznik();
-    Przekaznik(byte pin, bool stan);
+    Przekaznik(byte id, byte pin, bool stan);
     ~Przekaznik();
     
     byte getPin();
