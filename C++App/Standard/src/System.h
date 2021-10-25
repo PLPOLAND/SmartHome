@@ -4,18 +4,23 @@
 #include <Arduino.h>
 #include <Timers.h>
 #include <Wire.h>
+#include "FreeMemory.h"
 #include "Stale.h"
 #include "devices/Przekaznik.h"
 #include "devices/Przycisk.h"
 #include "devices/Roleta.h"
 #include "I2C/I2CConverter.h"
 #include "I2C/I2CAnything.h"
+
 //Główna klasa obsługująca "slave-a"
+class I2CConverter;
+class Termometr;
+
 class System
 {
 private:
     I2CConverter *comunication;
-    Timer timer;
+    static Timer timer;
     static System * system;
     System();
 protected:
@@ -35,6 +40,7 @@ public:
     System(const System&) = delete;
     void operator= (const System &) = delete;
     ~System();
+    void begin();
     static System* getSystem();
 
     //Główna funkcja obsługująca działanie systemu

@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.pi4j.jni.I2C;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,10 +44,18 @@ public class AdminRESTController {
         // // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
         return response;
     }
+    @RequestMapping("/find")
+    public Response find() {
+        new smarthome.i2c.I2C();
+        Response response = new Response<>("", "errortmp");
+
+        // // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
+        return response;
+    }
 
     @RequestMapping("/sentAny")
     public Response<String> sentAny(@RequestParam("msg") String msg, @RequestParam("adres") int adres) {
-        Response r = new Response<String>(msg);
+        Response r = new Response<String>(msg+" " + adres);
         converter.sentAnything(msg, adres);
         return r;
     }

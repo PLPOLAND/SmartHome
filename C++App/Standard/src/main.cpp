@@ -6,13 +6,14 @@
 
     #include <devices/Przycisk.h>
     #include <devices/Roleta.h>
-    Przycisk przycisk(2);
-    Roleta roleta(3,4);
+    Przycisk przycisk(10);
+    Roleta roleta(11,12);
 
     void setup()
     {
-        Serial.begin(9600); // start serial for output
-        
+        Serial.begin(115200); // start serial for output
+        Serial.println("START");
+        Serial.flush();
     }
 
     void loop()
@@ -60,16 +61,25 @@
 #endif // TEST
 #ifndef TEST
 
-    #include "System.h";
-    System* system;
+    #include "System.h"
+    
+    System* sys;
     void setup()
     {
-        system = System::getSystem();
+        Serial.begin(115200);
+        // Serial.println(freeMemory());
+        Serial.println(freeMemory());
+        Serial.println("setup()");
+        Serial.flush();
+        sys = System::getSystem();
+        sys->begin();
+        Serial.println(freeMemory());
+        Serial.flush();
     }
 
     void loop()
     {
-        system->tic();
+        sys->tic();
     }
 #endif
 

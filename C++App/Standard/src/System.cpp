@@ -1,20 +1,41 @@
 #include "System.h"
+
+System* System::system = nullptr;
+Timer System::timer = Timer();
+
 System *System::getSystem()
 {
     if (system == nullptr)
     {
         system = new System();
+        Serial.println("getSystem System()");
+        Serial.flush();
     }
 
+    Serial.println("getSystem()");
+    Serial.flush();
     return system;
 }
 System::System()
 {
     Serial.begin(115200); // start serial for output
-    comunication = I2CConverter::getInstance();
-    Wire.onReceive(I2CConverter::onRecieveEvent);
-    Wire.onRequest(I2CConverter::onRequestEvent);
-    timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
+    Serial.println(freeMemory());
+    Serial.println("SerialStarted");
+    // Serial.flush();
+    // comunication = I2CConverter::getInstance();
+    // comunication->begin();
+    // Serial.println("comunication->begin();");
+    // Serial.flush();
+    // Wire.onReceive(I2CConverter::onRecieveEvent);
+    // Serial.println("Wire.onReceive(I2CConverter::onRecieveEvent);");
+    // Serial.flush();
+    // Wire.onRequest(I2CConverter::onRequestEvent);
+    // Serial.println("Wire.onReceive(I2CConverter::onRequestEvent);");
+    // Serial.flush();
+    // timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
+    // Serial.println("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));");
+    // Serial.println(freeMemory());
+    // Serial.flush();
 }
 
 System::~System(){
@@ -23,52 +44,84 @@ System::~System(){
     przyciski.clear();
 }
 
+void System::begin(){
+    // Serial.begin(115200); // start serial for output
+    Serial.println(freeMemory());
+    Serial.println("SerialStarted");
+    Serial.flush();
+    comunication = I2CConverter::getInstance();
+    comunication->begin();
+    Serial.println("comunication->begin();");
+    Serial.flush();
+    Wire.onReceive(I2CConverter::onRecieveEvent);
+    Serial.println("Wire.onReceive(I2CConverter::onRecieveEvent);");
+    Serial.flush();
+    Wire.onRequest(I2CConverter::onRequestEvent);
+    Serial.println("Wire.onReceive(I2CConverter::onRequestEvent);");
+    Serial.flush();
+    timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
+    Serial.println("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));");
+    Serial.println(freeMemory());
+    Serial.flush();
+}
+
 void System::tic(){
     if (this->termometry.size() > 0 && timer.available()) //TODO ustawić częstotliwość sprawdzania!
     {
         for (byte i = 0; i < this->termometry.size(); i++)
         {
             this->termometry.get(i)->updateTemperature();
+            Serial.print("Termometr: ");
+            Serial.print(i);
+            Serial.print(" = ");
+            Serial.println(this->termometry.get(i)->getTemperature());
+            Serial.flush();
         }
         Serial.println("timer");
         timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     }
+
 }
 
 byte System::addDevice(Device::TYPE typeOfDevice){
     switch (typeOfDevice)
     {
-    case Device::TYPE::TERMOMETR:
-        Termometr *tmp = (Termometr *)malloc(sizeof(Termometr));
-        if (tmp->begin())
-        { //spr. skonfigurować kolejny termometr
-            tmp->setId(idDevice++);
-            this->devices.add(tmp);    //dodaj do głównej listy urządzeń
-            this->termometry.add(tmp); //dodaj do listy termometrów w systemie
-            return tmp->getId();
+        case Device::TYPE::BRAK:
+        break;
+
+        case Device::TYPE::TERMOMETR:{
+            Termometr *tmp = (Termometr *)malloc(sizeof(Termometr));
+            if (tmp->begin())
+            { //spr. skonfigurować kolejny termometr
+                tmp->setId(idDevice++);
+                this->devices.add(tmp);    //dodaj do głównej listy urządzeń
+                this->termometry.add(tmp); //dodaj do listy termometrów w systemie
+                return tmp->getId();
+            }
+            else
+            {
+                delete tmp;
+                return -1; //TODO Poprawić
+            }
+            break;
         }
-        else
-        {
-            delete tmp;
-            return -1; //TODO Poprawić
-        }
-        break;
-    case Device::TYPE::PRZEKAZNIK:
-    
-        break;
-    case Device::TYPE::PRZYCISK:
+        case Device::TYPE::PRZEKAZNIK:
         
-        break;
-    case Device::TYPE::PRZYCISK_ROLETA:
+            break;
+        case Device::TYPE::PRZYCISK:
+            
+            break;
+        case Device::TYPE::PRZYCISK_ROLETA:
+            
+            break;
+        case Device::TYPE::ROLETA:
+            
+            break;
         
-        break;
-    case Device::TYPE::ROLETA:
-        
-        break;
-    
-    default:
-        break;
+        default:
+            break;
     }
+    return -1;//TODO poprawić???
 }
 bool System::removeDevice(byte id){
     Device* tmp = devices.get(id);
@@ -129,6 +182,7 @@ bool System::removeDevice(byte id){
         }
         break;
     }
+    return true;
 }
 Device* System::getDevice(byte id){
     return devices.get(id);
@@ -138,7 +192,13 @@ LinkedList<byte*> System::getAdrOfThemp(){
     LinkedList<byte*> adresy;
     for (byte i = 0; i < termometry.size(); i++)
     {
-        adresy.add(termometry.get(i)->getAddres());    
+        byte* tmp = new byte[8];
+        for (byte i = 0; i < 8; i++)
+        {
+            tmp[i] = (int)((termometry.get(i)->getAddres())[i]);
+        }
+        
+        adresy.add(tmp);    
     }
     return adresy;
 };

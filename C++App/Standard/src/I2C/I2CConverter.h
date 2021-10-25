@@ -7,7 +7,7 @@
 #include <devices/Termometr.h>
 #include <devices/Przekaznik.h>
 #include "LinkedList.h"
-#include "System.h"
+// #include "System.h"6
 
 
 #define DEBUG //Wyswietl informacje debugowania //NOT USED YET
@@ -17,6 +17,9 @@
 //BUFFORY
 #define BUFFOR_IN_SIZE 5
 #define BUFFOR_OUT_SIZE 8
+
+
+// class System;
 
 enum class DoWyslania
 {
@@ -33,7 +36,7 @@ protected:
     I2CConverter();
     ~I2CConverter();
     static I2CConverter* singleton;
-    System* system;
+    // static System* system;
 public:
     I2CConverter(I2CConverter &other) = delete;
     void operator=(const I2CConverter &) = delete;
@@ -45,7 +48,7 @@ public:
     void RecieveEvent(int howManyBytes);//Funkcja wywyłwana przez onRecieveEvent(int howManyBytes);
     void RequestEvent();//Funkcja wywoływana przez onRequestEvent();
 public:
-
+    void begin();
     DoWyslania coWyslac = DoWyslania::NIC;//TODO: zrobić kolejkę do wysyłania danych
     bool isWorkToDo = false;
 

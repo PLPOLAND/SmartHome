@@ -1,4 +1,4 @@
-#include "Command.h";
+#include "Command.h"
 
 Command::Command()
 {

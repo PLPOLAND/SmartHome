@@ -5,9 +5,12 @@
 
 // TODO poprawic odwołania do kontenerów
 I2CConverter* I2CConverter::singleton = nullptr;
+// System *I2CConverter::system = nullptr;
 
 I2CConverter::I2CConverter()
 {
+    // Serial.println(freeMemory());
+    // Serial.println("I2CConverter()");
     static_assert(PINOW_NA_ADRES >= 1, "ZA MALO PINOW NA ADRESS");
     static_assert(ONEWIRE_BUS > (PINOW_NA_ADRES + 1), "BUS na zajetym pinie");
     for (byte i = 0; i < PINOW_NA_ADRES; i++) {
@@ -19,15 +22,20 @@ I2CConverter::I2CConverter()
         adress += tmp * digitalRead(2 + i);
         tmp *= 2;
     }
+
+    Serial.println(freeMemory());
     Serial.print(F("Wystartowano na:"));
     Serial.println((int)adress);
     Wire.begin(adress);
-    system = System::getSystem();
+    
 }
 
 I2CConverter::~I2CConverter()
 {
     Wire.end();
+}
+void I2CConverter::begin(){
+    // system = System::getSystem();
 }
 
 I2CConverter* I2CConverter::getInstance()
@@ -41,6 +49,8 @@ I2CConverter* I2CConverter::getInstance()
 
 void I2CConverter::onRecieveEvent(int howManyBytes)
 {
+    Serial.println("OnRecive");
+    Serial.flush();
     singleton->RecieveEvent(howManyBytes);
 }
 
@@ -154,7 +164,7 @@ void I2CConverter::RequestEvent()
 // }
 void I2CConverter::addTermometr()
 {
-    this->buf_out[0] = system->addDevice(Device::TYPE::TERMOMETR); // Zwróć otrzymane id
+    this->buf_out[0] = System::getSystem()->addDevice(Device::TYPE::TERMOMETR); // Zwróć otrzymane id
     this->coWyslac = DoWyslania::REPLY;
 }
 
@@ -162,7 +172,7 @@ void I2CConverter::printTemperature(byte id)
 {
     // Serial.print("freeMemory(): ");
     // Serial.println(freeMemory());
-    String tmp = String(((Termometr *)system->getDevice(id))->getTemperature(), 2);
+    String tmp = String(((Termometr *)System::getSystem()->getDevice(id))->getTemperature(), 2);
     // Serial.print("afterString: ");
     // Serial.println(*tmp);
     // Serial.println(termometry.get(id)->getTemperature());

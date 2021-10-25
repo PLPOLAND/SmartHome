@@ -9,6 +9,7 @@ class Device
 	public:
 		enum TYPE
 		{
+			BRAK,
 			PRZEKAZNIK,
 			ROLETA,
 			PRZYCISK,

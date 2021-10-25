@@ -10,6 +10,13 @@
 		}
 	],
 	"settings": {
-		"discord.enabled": true
+		"discord.enabled": true,
+		"files.associations": {
+			"*.tcc": "cpp",
+			"cstdlib": "cpp",
+			"system_error": "cpp",
+			"typeinfo": "cpp"
+		},
+		"java.configuration.updateBuildConfiguration": "automatic"
 	}
 }

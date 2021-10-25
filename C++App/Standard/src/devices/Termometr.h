@@ -9,6 +9,8 @@
 //pin komunikacji oneWire
 #define ONEWIRE_BUS 8 
 
+class System;
+
 class Termometr : public Device
 {
 private:
@@ -19,16 +21,16 @@ private:
     static byte lastSensorsCount;//ostatnia liczba termometrów wykrytych w systemie
     static LinkedList<byte*> adressesOfFreeThermometrs;
     static System* system;
-    byte* adress; //adres termometru (tablica[8])
+    byte adress[8]; //adres termometru (tablica[8])
     float temperatura;
-    bool compare2Adresses(byte* addr1, byte* addr2);
+    bool compare2Adresses(const byte* addr1,const byte* addr2);
 public:
     Termometr();
     Termometr(byte id);
     ~Termometr();
     bool begin();
 
-    byte* getAddres();
+    const byte* getAddres();
 
     float getTemperature();
     bool isCorrect();

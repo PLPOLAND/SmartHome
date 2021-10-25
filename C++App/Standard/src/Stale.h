@@ -1,2 +1,2 @@
 
-#define CZAS_ODSWIERZANIA_TEMPERATURY 1 //w minutach
+#define CZAS_ODSWIERZANIA_TEMPERATURY 0.1 //w minutach

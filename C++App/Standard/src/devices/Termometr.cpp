@@ -31,7 +31,7 @@ Termometr::~Termometr()
 {
 }
 //Returns byte[8]
-byte* Termometr::getAddres(){
+const byte* Termometr::getAddres(){
     return this->adress;
 }
 
@@ -92,10 +92,22 @@ bool Termometr::begin()
     }
     Serial.println("Termo_begin");
     if (this->inSystem < sensors.getDeviceCount()) {
-        this->adress = adressesOfFreeThermometrs.get(0);//przypisz pierwszy wolny adres
+        for (byte i = 0; i < 8; i++)
+        {
+            this->adress[i] = adressesOfFreeThermometrs.get(0)[i];
+        }
+        
+        // this->adress = adressesOfFreeThermometrs.get(0);//przypisz pierwszy wolny adres
         adressesOfFreeThermometrs.remove(0);//usuń ten adres z listy wolnych adresów
         this->inSystem++;//zwiększ liczbę termometrów w systemie
         Serial.println("Stworzono nowy termometr");
+        Serial.print("Adres:");
+        for (int i = 0; i < 8; i++)
+        {
+            Serial.print((int)this->adress[i]);
+        }
+        Serial.println();
+        
     } else {
         Serial.println("Błąd brak nowych termo");
         return false;
@@ -104,13 +116,19 @@ bool Termometr::begin()
 }
 //uaktualnij temperaturę termometru
 void Termometr::updateTemperature(){
-    // Serial.println("getT");
-    // Serial.println(id);
-    sensors.requestTemperaturesByAddress(this->getAddres());
-    // Serial.println("getTReq");
+    Serial.println("getT");
+    for (int i = 0; i < 8; i++)
+    {
+        Serial.print((int)(this->adress[i]));
+    }
+    // sensors.requestTemperaturesByAddress(this->getAddres());
+    sensors.requestTemperatures();
+    // delay(sensors.millisToWaitForConversion(sensors.getResolution(this->getAddres())));
     temperatura=sensors.getTempC(this->getAddres());
+    
+    Serial.println("getTReq");
 }
-bool Termometr::compare2Adresses(byte *addr1, byte *addr2){
+bool Termometr::compare2Adresses(const byte *addr1, const byte *addr2){
     for (int i = 0; i < 8; i++)
     {
         if (addr1[i] != addr2[i])
