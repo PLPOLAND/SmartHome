@@ -82,7 +82,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
         break;
     case Command::KOMENDY::GET_TEMPERATURE:
         this->coWyslac = DoWyslania::TEMPERATURA;//TODO PRZEROBIĆ NA COMMAND
-        break;
+        komenda.setUrzadzenie(System::getSystem()->getDevice(id));
+        komenda.komenda = Command::KOMENDY::REPLY;
+        doWyslania.add(0,new Command(komenda));//Dodaj komendę do wysłania na sam przód kolejki
     default:
         break;
     };
