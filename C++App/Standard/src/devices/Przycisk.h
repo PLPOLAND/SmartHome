@@ -2,6 +2,7 @@
 #define Wylacznik_h
 #include <Arduino.h>
 #include <Timers.h>
+#include <Stale.h>
 #include "LinkedList.h"
 #include "devices/Device.h"
 

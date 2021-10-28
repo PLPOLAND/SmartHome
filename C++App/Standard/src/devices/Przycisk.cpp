@@ -78,15 +78,15 @@ void Przycisk::updateStan(){
     if (tmpStan == 1 && stan == PUSZCZONY && !time->available()) //Przyciśniecie po raz kolejny
     {
 
-        Serial.print(F("next click "));
+        OUTPUT_LN(F("next click "));
         time->begin(SECS(1));
         stan = PRZYCISNIETY;
         klikniecia++;
-        Serial.println(klikniecia);
+        OUTPUT_LN(klikniecia);
     }
     else if (tmpStan == 1 && stan == BRAK_AKCJI) //Przyciśniecie po raz pierwszy
     {
-        Serial.println(F("first click"));
+        OUTPUT_LN(F("first click"));
         stan = PRZYCISNIETY;
         time->begin(SECS(1));
         klikniecia = 1;
@@ -94,7 +94,7 @@ void Przycisk::updateStan(){
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
     {
 
-        Serial.println(F("puszczony bez przytrzymania"));
+        OUTPUT_LN(F("puszczony bez przytrzymania"));
         stan = PUSZCZONY;
         //TODO::
 
@@ -103,13 +103,13 @@ void Przycisk::updateStan(){
     if (stan == PRZYCISNIETY && tmpStan == 1 && time->available()) //Wykrycie przytrzymania
     {
 
-        Serial.println(F("Wykrycie Przytrzymanie"));
+        OUTPUT_LN(F("Wykrycie Przytrzymanie"));
         stan = PRZYTRZYMANY;
     }
     if (stan == PRZYTRZYMANY && tmpStan == 0)
     { //Puszczenie po przytrzymaniu
 
-        Serial.println(F("Puszczony po przytrzymaniu"));
+        OUTPUT_LN(F("Puszczony po przytrzymaniu"));
 
         time->time(STOP);
         stan = BRAK_AKCJI;
@@ -119,20 +119,20 @@ void Przycisk::updateStan(){
     else if (stan == PRZYTRZYMANY && tmpStan == 1) //Przytrzymywanie
     {
 
-        Serial.println(F("Przytrzymanie"));
+        OUTPUT_LN(F("Przytrzymanie"));
         //TODO wykonanie podczas przytrzymania
     }
 
     if (time->available() && stan == PUSZCZONY) {
 
-        Serial.println(F("Koniec okresu klikniec"));
+        OUTPUT_LN(F("Koniec okresu klikniec"));
         time->time(STOP);
         stan = BRAK_AKCJI;
         //TODO:
     }
 
     // if (time->time() != 0) {
-    //     Serial.println(time->time());
+    //     OUTPUT_LN(time->time());
     // }
 }
 

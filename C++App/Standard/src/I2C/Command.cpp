@@ -26,7 +26,7 @@ void Command::convert(const byte *c, byte size)
         }
         else if (c[0] == 'T')
         {
-            // Serial.println(F("Temperatura"));
+            // OUTPUT_LN(F("Temperatura"));
             // idTermometru = c[1];
             urzadzenie = new Device();
             urzadzenie->setId(c[1]);

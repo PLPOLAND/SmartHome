@@ -8,34 +8,17 @@ System *System::getSystem()
     if (system == nullptr)
     {
         system = new System();
-        Serial.println("getSystem System()");
-        Serial.flush();
+        OUTPUT_LN("getSystem System()");
     }
 
-    Serial.println("getSystem()");
-    Serial.flush();
+    OUTPUT_LN("getSystem()");
     return system;
 }
 System::System()
 {
     Serial.begin(115200); // start serial for output
-    Serial.println(freeMemory());
-    Serial.println("SerialStarted");
-    // Serial.flush();
-    // comunication = I2CConverter::getInstance();
-    // comunication->begin();
-    // Serial.println("comunication->begin();");
-    // Serial.flush();
-    // Wire.onReceive(I2CConverter::onRecieveEvent);
-    // Serial.println("Wire.onReceive(I2CConverter::onRecieveEvent);");
-    // Serial.flush();
-    // Wire.onRequest(I2CConverter::onRequestEvent);
-    // Serial.println("Wire.onReceive(I2CConverter::onRequestEvent);");
-    // Serial.flush();
-    // timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
-    // Serial.println("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));");
-    // Serial.println(freeMemory());
-    // Serial.flush();
+    OUTPUT_LN(freeMemory());
+    OUTPUT_LN("SerialStarted");
 }
 
 System::~System(){
@@ -46,23 +29,18 @@ System::~System(){
 
 void System::begin(){
     // Serial.begin(115200); // start serial for output
-    Serial.println(freeMemory());
-    Serial.println("SerialStarted");
-    Serial.flush();
+    OUTPUT_LN(freeMemory());
+    OUTPUT_LN("SerialStarted");
     comunication = I2CConverter::getInstance();
     comunication->begin();
-    Serial.println("comunication->begin();");
-    Serial.flush();
+    OUTPUT_LN("comunication->begin();");
     Wire.onReceive(I2CConverter::onRecieveEvent);
-    Serial.println("Wire.onReceive(I2CConverter::onRecieveEvent);");
-    Serial.flush();
+    OUTPUT_LN("Wire.onReceive(I2CConverter::onRecieveEvent);");
     Wire.onRequest(I2CConverter::onRequestEvent);
-    Serial.println("Wire.onReceive(I2CConverter::onRequestEvent);");
-    Serial.flush();
+    OUTPUT_LN("Wire.onReceive(I2CConverter::onRequestEvent);");
     timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
-    Serial.println("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));");
-    Serial.println(freeMemory());
-    Serial.flush();
+    OUTPUT_LN("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));");
+    OUTPUT_LN(freeMemory());
 }
 
 void System::tic(){
@@ -71,13 +49,12 @@ void System::tic(){
         for (byte i = 0; i < this->termometry.size(); i++)
         {
             this->termometry.get(i)->updateTemperature();
-            Serial.print("Termometr: ");
-            Serial.print(i);
-            Serial.print(" = ");
-            Serial.println(this->termometry.get(i)->getTemperature());
-            Serial.flush();
+            OUTPUT("Termometr: ");
+            OUTPUT(i);
+            OUTPUT(" = ");
+            OUTPUT_LN(this->termometry.get(i)->getTemperature());
         }
-        Serial.println("timer");
+        OUTPUT_LN("timer");
         timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     }
 

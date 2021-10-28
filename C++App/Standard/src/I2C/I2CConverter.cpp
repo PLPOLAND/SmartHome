@@ -9,8 +9,8 @@ I2CConverter* I2CConverter::singleton = nullptr;
 
 I2CConverter::I2CConverter()
 {
-    // Serial.println(freeMemory());
-    // Serial.println("I2CConverter()");
+    // OUTPUT_LN(freeMemory());
+    // OUTPUT_LN("I2CConverter()");
     static_assert(PINOW_NA_ADRES >= 1, "ZA MALO PINOW NA ADRESS");
     static_assert(ONEWIRE_BUS > (PINOW_NA_ADRES + 1), "BUS na zajetym pinie");
     for (byte i = 0; i < PINOW_NA_ADRES; i++) {
@@ -23,9 +23,9 @@ I2CConverter::I2CConverter()
         tmp *= 2;
     }
 
-    Serial.println(freeMemory());
-    Serial.print(F("Wystartowano na:"));
-    Serial.println((int)adress);
+    OUTPUT_LN(freeMemory());
+    OUTPUT_LN(F("Wystartowano na:"));
+    OUTPUT_LN((int)adress);
     Wire.begin(adress);
     
 }
@@ -49,8 +49,7 @@ I2CConverter* I2CConverter::getInstance()
 
 void I2CConverter::onRecieveEvent(int howManyBytes)
 {
-    Serial.println("OnRecive");
-    Serial.flush();
+    OUTPUT_LN("OnRecive");
     singleton->RecieveEvent(howManyBytes);
 }
 
@@ -59,14 +58,14 @@ void I2CConverter::onRequestEvent() { singleton->RequestEvent(); }
 void I2CConverter::RecieveEvent(int howManyBytes)
 {
     byte buffReadSize = 0;
-    Serial.print(F("howmanybytes: "));
-    Serial.println(howManyBytes);
+    OUTPUT(F("howmanybytes: "));
+    OUTPUT_LN(howManyBytes);
     while (0 < Wire.available()) {
         buf[buffReadSize++] = Wire.read();
-        Serial.print("i:");
-        Serial.print(buffReadSize-1);
-        Serial.print("buf:");
-        Serial.println(buf[buffReadSize - 1]);
+        OUTPUT("i:");
+        OUTPUT(buffReadSize-1);
+        OUTPUT("buf:");
+        OUTPUT_LN(buf[buffReadSize - 1]);
         if (!(buffReadSize < BUFFOR_IN_SIZE)) {
             buffReadSize--;
             break; // TODO: Obsługa błędu???
@@ -90,33 +89,33 @@ void I2CConverter::RecieveEvent(int howManyBytes)
     for (byte i = 0; i < BUFFOR_IN_SIZE; i++) {
         buf[i] = 0;
     }
-    Serial.println(freeMemory());
+    OUTPUT_LN(freeMemory());
 }
 //TODO kolejka komend
 void I2CConverter::RequestEvent()
 {
     switch (singleton->coWyslac) {
     case DoWyslania::TEMPERATURA:
-        // Serial.println("PrintTEMP1");
+        // OUTPUT_LN("PrintTEMP1");
         printTemperature(0);//TODO wczytywanie ID z komendy??
-        // Serial.println("PrintTEMP");
+        // OUTPUT_LN("PrintTEMP");
         this->coWyslac = DoWyslania::NIC;
         break;
     case DoWyslania::REPLY: {
         byte i = 0;
         while (buf_out[i] != 0 && i < BUFFOR_OUT_SIZE) {
             Wire.write(buf_out[i]);
-            Serial.print((int)buf_out[i]);
+            OUTPUT((int)buf_out[i]);
             i++;
         }
-        Serial.println();
+        OUTPUT_LN();
     } break;
     case DoWyslania::STATUS:
         break;
     default:
         break;
     }
-    Serial.println(freeMemory());
+    OUTPUT_LN(freeMemory());
 }
 
 // Komendy I2CConverter::find_command(byte size)
@@ -170,12 +169,12 @@ void I2CConverter::addTermometr()
 
 void I2CConverter::printTemperature(byte id)
 {
-    // Serial.print("freeMemory(): ");
-    // Serial.println(freeMemory());
+    // OUTPUT_LN("freeMemory(): ");
+    // OUTPUT_LN(freeMemory());
     String tmp = String(((Termometr *)System::getSystem()->getDevice(id))->getTemperature(), 2);
-    // Serial.print("afterString: ");
-    // Serial.println(*tmp);
-    // Serial.println(termometry.get(id)->getTemperature());
+    // OUTPUT("afterString: ");
+    // OUTPUT_LN(*tmp);
+    // OUTPUT_LN(termometry.get(id)->getTemperature());
     Wire.write(id);  // wyslij ID Termometru na płytce
     for (byte i = 0; i < tmp.length(); i++) {
         Wire.write(tmp.charAt(i));  // wyslij kolejne cyfry temperatury
