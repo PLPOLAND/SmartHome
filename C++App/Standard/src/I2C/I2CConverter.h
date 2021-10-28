@@ -7,6 +7,7 @@
 #include <devices/Termometr.h>
 #include <devices/Przekaznik.h>
 #include "LinkedList.h"
+#include "Command.h"
 // #include "System.h"6
 
 
@@ -21,13 +22,6 @@
 
 // class System;
 
-enum class DoWyslania
-{
-    NIC,//Brak danych do wysłania
-    REPLY,//Odpowiedz z zapisanymi danymi w bufforze
-    STATUS,
-    TEMPERATURA//Odpowiedz z temperatura według szablonu
-};
 
 
 class I2CConverter
@@ -36,7 +30,8 @@ protected:
     I2CConverter();
     ~I2CConverter();
     static I2CConverter* singleton;
-    // static System* system;
+    static LinkedList<Command*> doWyslania;
+
 public:
     I2CConverter(I2CConverter &other) = delete;
     void operator=(const I2CConverter &) = delete;
@@ -47,9 +42,9 @@ public:
 
     void RecieveEvent(int howManyBytes);//Funkcja wywyłwana przez onRecieveEvent(int howManyBytes);
     void RequestEvent();//Funkcja wywoływana przez onRequestEvent();
-public:
+
+
     void begin();
-    DoWyslania coWyslac = DoWyslania::NIC;//TODO: zrobić kolejkę do wysyłania danych
     bool isWorkToDo = false;
 
     byte buf[BUFFOR_IN_SIZE];//buffor wejsciowy
@@ -61,9 +56,10 @@ public:
     
     /// Wysyła temperaturę z termometru
     void printTemperature(byte id);
-    ///Dodaje termometr do systemu o ile istnieje jakiś wolny, nie podłączony
-    ///Jeśli udało się dodać termometr dodaje do wysłania jego id na płytce w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
-    void addTermometr();
+    
+
+
+
 };
 
 #endif // !I2CCONVERTER_H

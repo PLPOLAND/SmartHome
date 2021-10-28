@@ -5,7 +5,7 @@
 
 // TODO poprawic odwołania do kontenerów
 I2CConverter* I2CConverter::singleton = nullptr;
-// System *I2CConverter::system = nullptr;
+LinkedList<Command*> I2CConverter::doWyslania = LinkedList<Command*>();
 
 I2CConverter::I2CConverter()
 {
@@ -62,9 +62,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
     OUTPUT_LN(howManyBytes);
     while (0 < Wire.available()) {
         buf[buffReadSize++] = Wire.read();
-        OUTPUT("i:");
+        OUTPUT("i:" );
         OUTPUT(buffReadSize-1);
-        OUTPUT("buf:");
+        OUTPUT("  buf:" );
         OUTPUT_LN(buf[buffReadSize - 1]);
         if (!(buffReadSize < BUFFOR_IN_SIZE)) {
             buffReadSize--;
@@ -73,112 +73,90 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 ;
         }
     }
-    Command komenda;
-    komenda.convert(buf,buffReadSize);
-    //TODO dodać obsługę
-    switch (komenda.komenda) {
-    case Command::KOMENDY::ADD_THERMOMETR:
-        this->addTermometr();
-        break;
-    case Command::KOMENDY::GET_TEMPERATURE:
-        this->coWyslac = DoWyslania::TEMPERATURA;//TODO PRZEROBIĆ NA COMMAND
-        komenda.setUrzadzenie(System::getSystem()->getDevice(id));
-        komenda.komenda = Command::KOMENDY::REPLY;
-        doWyslania.add(0,new Command(komenda));//Dodaj komendę do wysłania na sam przód kolejki
-    default:
-        break;
-    };
-    for (byte i = 0; i < BUFFOR_IN_SIZE; i++) {
-        buf[i] = 0;
+    if (!(howManyBytes == 1 && buf[0] == 0)) // 0 jest wysyłane w celu sprawdzenia czy urzadzenie o takim adresie jest podpięte do systemu
+    {
+        Command komenda;
+        komenda.convert(buf,buffReadSize);
+        //TODO dodać obsługę
+        switch (komenda.komenda) {
+        case Command::KOMENDY::RECEIVE_ADD_THERMOMETR:
+            //Dodaje termometr do systemu o ile istnieje jakiś wolny, nie podłączony
+            //Jeśli udało się dodać termometr dodaje do wysłania jego id na płytce w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
+            
+            byte id = System::getSystem()->addDevice(Device::TYPE::TERMOMETR); // Zwróć otrzymane id
+            komenda.setUrzadzenie(System::getSystem()->getDevice(id));
+            komenda.komenda = Command::KOMENDY::SEND_REPLY;
+            doWyslania.add(0,new Command(komenda));//Dodaj komendę do wysłania na sam przód kolejki.
+
+            OUTPUT_LN(F("RECEIVE_ADD_THERMOMETR"));
+            break;
+        case Command::KOMENDY::RECEIVE_GET_TEMPERATURE://TODO nie działa!!!
+            {
+                komenda.komenda = Command::KOMENDY::SEND_TEMPERATURA;
+                doWyslania.add(0,new Command(komenda));
+                OUTPUT_LN(F("RECEIVE_GET_TEMPERATURE"));
+            }
+            break;
+        default:
+            break;
+        };
+        for (byte i = 0; i < BUFFOR_IN_SIZE; i++) {//clear buff
+            buf[i] = 0;
+        }
+        OUTPUT_LN(freeMemory());
     }
-    OUTPUT_LN(freeMemory());
+    
 }
 //TODO kolejka komend
 void I2CConverter::RequestEvent()
 {
-    switch (singleton->coWyslac) {
-    case DoWyslania::TEMPERATURA:
-        // OUTPUT_LN("PrintTEMP1");
-        printTemperature(0);//TODO wczytywanie ID z komendy??
-        // OUTPUT_LN("PrintTEMP");
-        this->coWyslac = DoWyslania::NIC;
-        break;
-    case DoWyslania::REPLY: {
-        byte i = 0;
-        while (buf_out[i] != 0 && i < BUFFOR_OUT_SIZE) {
-            Wire.write(buf_out[i]);
-            OUTPUT((int)buf_out[i]);
-            i++;
+    if (doWyslania.size()>0)
+    {
+        Command *command = doWyslania.get(0);//pobierz z "kolejki"
+        doWyslania.remove(0);//usuń z kolejki
+        switch (command->komenda)
+        {
+            case Command::KOMENDY::SEND_TEMPERATURA:
+                {
+                    OUTPUT_LN(F("SEND_TEMPERATURA"));
+                    // OUTPUT_LN("freeMemory(): ");
+                    // OUTPUT_LN(freeMemory());
+                    String tmp = String(((Termometr *)command->urzadzenie)->getTemperature(), 2);
+                    // OUTPUT("afterString: ");
+                    // OUTPUT_LN(*tmp);
+                    // OUTPUT_LN(termometry.get(id)->getTemperature());
+                    Wire.write(command->urzadzenie->getId()); // wyslij ID Termometru na płytce
+                    for (byte i = 0; i < tmp.length(); i++)
+                    {
+                        Wire.write(tmp.charAt(i)); // wyslij kolejne cyfry temperatury
+                    }
+                    break;
+                }
+            case Command::KOMENDY::SEND_REPLY:
+            {
+                OUTPUT_LN(F("SEND_REPLY"));
+                byte i = 0;
+                while (buf_out[i] != 0 && i < BUFFOR_OUT_SIZE)
+                {
+                    Wire.write(buf_out[i]);
+                    OUTPUT((int)buf_out[i]);
+                    i++;
+                }
+                OUTPUT_LN();
+                break;
+            } 
+            case Command::KOMENDY::SEND_STATUS:
+                break;
+            default:
+                break;
         }
-        OUTPUT_LN();
-    } break;
-    case DoWyslania::STATUS:
-        break;
-    default:
-        break;
+            OUTPUT_LN(freeMemory());
+        
     }
-    OUTPUT_LN(freeMemory());
-}
-
-// Komendy I2CConverter::find_command(byte size)
-// {
-//     switch (size) {
-//     case 1:
-//         break;
-//     case 2:
-//         if (buf[0] == 'A') {
-//             if (buf[1] == 'T') {
-//                 return Komendy::DODAJ_TERMOMETR;
-//             }
-
-//         } else if (buf[0] == 'T') {
-//             Serial.println(F("Temperatura"));
-//             idTermometru = buf[1];
-//             return Komendy::TEMPERATURA;
-//         }
-
-//         break;
-//     default:
-//         break;
-//     }
-//     return Komendy::NIC;
-// }
-
-///Old version
-// void I2CConverter::addTermometr()
-// {
-//     Termometr* tmp = (Termometr*)malloc(sizeof(Termometr));
-//     tmp->begin();
-//     Serial.println("newTermometr");
-//     // Serial.println(tmp->getID());
-//     // tmp* = Termometr();
-//     if (!tmp->isCorrect()) {
-//         delete tmp;
-//         this->buf_out[0] = -1; // Zwróć ID termometru na płytce
-//         this->coWyslac = DoWyslania::REPLY;
-//     } else {
-//         Serial.println(tmp->getTemperature());
-//         this->termometry.add(tmp);
-//         this->buf_out[0] = termometry.get(termometry.size() - 1)->getID(); // Zwróć ID termometru na płytce
-//         this->coWyslac = DoWyslania::REPLY;
-//     }
-// }
-void I2CConverter::addTermometr()
-{
-    this->buf_out[0] = System::getSystem()->addDevice(Device::TYPE::TERMOMETR); // Zwróć otrzymane id
-    this->coWyslac = DoWyslania::REPLY;
-}
-
-void I2CConverter::printTemperature(byte id)
-{
-    // OUTPUT_LN("freeMemory(): ");
-    // OUTPUT_LN(freeMemory());
-    String tmp = String(((Termometr *)System::getSystem()->getDevice(id))->getTemperature(), 2);
-    // OUTPUT("afterString: ");
-    // OUTPUT_LN(*tmp);
-    // OUTPUT_LN(termometry.get(id)->getTemperature());
-    Wire.write(id);  // wyslij ID Termometru na płytce
-    for (byte i = 0; i < tmp.length(); i++) {
-        Wire.write(tmp.charAt(i));  // wyslij kolejne cyfry temperatury
+    else
+    {
+        Wire.write(0);
     }
+    
+    
 }
