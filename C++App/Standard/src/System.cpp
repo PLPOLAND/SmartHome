@@ -60,7 +60,7 @@ void System::tic(){
 
 }
 
-byte System::addDevice(Device::TYPE typeOfDevice){
+Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
     switch (typeOfDevice)
     {
         case Device::TYPE::BRAK:
@@ -73,12 +73,12 @@ byte System::addDevice(Device::TYPE typeOfDevice){
                 tmp->setId(idDevice++);
                 this->devices.add(tmp);    //dodaj do głównej listy urządzeń
                 this->termometry.add(tmp); //dodaj do listy termometrów w systemie
-                return tmp->getId();
+                return tmp;
             }
             else
             {
                 delete tmp;
-                return -1; //TODO Poprawić
+                return nullptr; //TODO Poprawić
             }
             break;
         }
@@ -98,7 +98,7 @@ byte System::addDevice(Device::TYPE typeOfDevice){
         default:
             break;
     }
-    return -1;//TODO poprawić???
+    return nullptr;//TODO poprawić???
 }
 bool System::removeDevice(byte id){
     Device* tmp = devices.get(id);

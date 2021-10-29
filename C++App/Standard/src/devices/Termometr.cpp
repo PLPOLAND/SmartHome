@@ -35,6 +35,17 @@ const byte* Termometr::getAddres(){
     return this->adress;
 }
 
+const String Termometr::getAddresAsString(){
+    String tmp;
+    for (byte i = 0; i < 8; i++)
+    {
+        tmp+= this->adress[i];
+    }
+    
+
+    return tmp;
+}
+
 //Zwraca temeraturę czujnika
 float Termometr::getTemperature(){
     return temperatura;
@@ -115,17 +126,17 @@ bool Termometr::begin()
 }
 //uaktualnij temperaturę termometru
 void Termometr::updateTemperature(){
-    OUTPUT_LN("getT");
-    for (int i = 0; i < 8; i++)
-    {
-        OUTPUT((int)(this->adress[i]));
-    }
+    // OUTPUT_LN("getT");
+    // for (int i = 0; i < 8; i++)
+    // {
+    //     OUTPUT((int)(this->adress[i]));
+    // }
     // sensors.requestTemperaturesByAddress(this->getAddres());
     sensors.requestTemperatures();
     // delay(sensors.millisToWaitForConversion(sensors.getResolution(this->getAddres())));
     temperatura=sensors.getTempC(this->getAddres());
     
-    OUTPUT_LN("getTReq");
+    // OUTPUT_LN("getTReq");
 }
 bool Termometr::compare2Adresses(const byte *addr1, const byte *addr2){
     for (int i = 0; i < 8; i++)

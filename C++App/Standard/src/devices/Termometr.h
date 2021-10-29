@@ -31,6 +31,7 @@ public:
     bool begin();
 
     const byte* getAddres();
+    const String getAddresAsString();
 
     float getTemperature();
     bool isCorrect();

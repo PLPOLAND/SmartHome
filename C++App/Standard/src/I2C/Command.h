@@ -8,6 +8,11 @@
 class Command
 {
 private:
+    enum class KOMENDY;
+    byte id_slave; //wykorzystywane przy przesyłaniu komendy do innego urządzenia
+    Device *urzadzenie;//urządzenie docelowe
+    byte parametry[8];//dodatkowe parametry
+    KOMENDY komenda;
     
 public:
     enum class KOMENDY
@@ -25,17 +30,25 @@ public:
         SEND_STATUS,
         SEND_TEMPERATURA //Odpowiedz z temperatura według szablonu
     };
-    byte id_slave;//wykorzystywane przy przesyłaniu komendy do innego urządzenia
-    Device *urzadzenie;//urządzenie docelowe
-    String parametry;//dodatkowe parametry
-    KOMENDY komenda;
 
     Command();
     Command(const Command * command);
     ~Command();
     
     void convert(const byte *c, byte size);
-    void setUrzadzenie(Device * u);
+
+
+    byte getSlaveID();
+    Device* getDevice();
+    byte* getParams();
+    KOMENDY getCommandType();
+    
+    void setSlaveID(byte sId);
+    void setDevice(Device * u);
+    void setParams(const byte* param);
+    void setCommandType(KOMENDY komenda);
+
+    void printParametry();
 };
 
 

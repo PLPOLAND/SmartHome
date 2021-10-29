@@ -47,9 +47,8 @@ public:
     void tic();
 
     ///Dodaje urządzenie o podanym typie do systemu
-    ///@return id na płytce
-    byte addDevice(Device::TYPE typeOfDevice);
-
+    ///@return utworzone urzadzenie
+    Device *addDevice(Device::TYPE typeOfDevice, byte pin1=0, byte pin2=0);
 
     // ///Dodaje termometr do systemu
     // ///@return id na płytce
