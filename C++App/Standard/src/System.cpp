@@ -83,10 +83,32 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         }
         case Device::TYPE::PRZEKAZNIK:
-        
+            {
+                Przekaznik * tmp = new Przekaznik();
+                if(tmp->begin(pin1, false)){//jeśli uda się poparawnie dodać przekaźnik do systemu
+                    tmp->setId(idDevice++);//nadaj mu id
+                    this->devices.add(tmp->getId(), tmp);//dodaj do listy urzadzen
+                    this->przekazniki.add(tmp);//dodaj do listy urzadzen
+                    return tmp;
+                }
+                else{
+                    return nullptr;
+                }
+            }
             break;
         case Device::TYPE::PRZYCISK:
-            
+            {
+                Przycisk * tmp = new Przycisk();
+                if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
+                    tmp->setId(idDevice++);//nadaj mu id
+                    this->devices.add(tmp->getId(), tmp);//dodaj do listy urzadzen
+                    this->przyciski.add(tmp);//dodaj do listy urzadzen
+                    return tmp;
+                }
+                else{
+                    return nullptr;
+                }
+            }
             break;
         case Device::TYPE::PRZYCISK_ROLETA:
             

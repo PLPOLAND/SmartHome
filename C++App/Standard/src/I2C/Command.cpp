@@ -26,12 +26,12 @@ void Command::convert(const byte *c, byte size)
     case 2:
         if (c[0] == 'A')
         {
-            if (c[1] == 'T')
+            if (c[1] == 'T')//Add Thermomentr
             {
                 this->komenda = Command::KOMENDY::RECEIVE_ADD_THERMOMETR;
             }
         }
-        else if (c[0] == 'T')
+        else if (c[0] == 'T')//GetTemperature
         {
             OUTPUT_LN(F("Command_convert:TX"));
             urzadzenie = new Device();//wskaźnik na urządzenie
@@ -41,6 +41,65 @@ void Command::convert(const byte *c, byte size)
         }
 
         break;
+    case 3:
+        {
+            if (c[0] == 'A')
+            {
+                if (c[1] == 'S')// Dodaj przekaźnik
+                {
+                    this->komenda == Command::KOMENDY::RECEIVE_ADD_PRZEKAZNIK;
+                    byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    parametry[0] = c[2];//nr pinu urzadzenia
+                    this->setParams(parametry);
+                }
+                else if (c[1] == 'P')//Dodaj Przycisk zwykły
+                {
+                    this->komenda == Command::KOMENDY::RECEIVE_ADD_PRZYCISK;
+                    byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    parametry[0] = c[2];//nr pinu urzadzenia
+                    this->setParams(parametry);
+                }
+                
+            }
+            
+        }
+        break;
+    case 4:
+        {
+            if (c[0] == 'A')
+            {
+                if (c[1] == 'R')// Dodaj roleta
+                {
+                    this->komenda == Command::KOMENDY::RECEIVE_ADD_ROLETA;
+                    byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    parametry[0] = c[2];//nr pinu up
+                    parametry[1] = c[3];//nr pinu down
+                    this->setParams(parametry);
+                }
+            }
+        }
+        break;
+    case 5:
+        {
+
+        }
+        break;
+    case 6:
+        {
+
+        }
+        break;
+    case 7:
+        {
+
+        }
+        break;
+    case 8:
+        {
+
+        }
+        break;
+    
     default:
         break;
     }

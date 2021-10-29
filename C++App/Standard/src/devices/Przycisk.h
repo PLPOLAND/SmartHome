@@ -32,8 +32,8 @@ private:
 public:
     Przycisk();
     ~Przycisk();
-    Przycisk(byte pin);
-    Przycisk(byte id, byte pin);
+    bool begin(byte pin);
+    
 
     byte getPin();
     void setPin(byte pin);

@@ -7,13 +7,6 @@
 
 class Command
 {
-private:
-    enum class KOMENDY;
-    byte id_slave; //wykorzystywane przy przesyłaniu komendy do innego urządzenia
-    Device *urzadzenie;//urządzenie docelowe
-    byte parametry[8];//dodatkowe parametry
-    KOMENDY komenda;
-    
 public:
     enum class KOMENDY
     {
@@ -22,6 +15,7 @@ public:
         RECEIVE_ADD_THERMOMETR,
         RECEIVE_ADD_ROLETA,
         RECEIVE_ADD_PRZYCISK,
+        RECEIVE_ADD_PRZEKAZNIK,
         RECEIVE_GET_TEMPERATURE,
         RECEIVE_ZMIEN_STAN,
 
@@ -30,6 +24,14 @@ public:
         SEND_STATUS,
         SEND_TEMPERATURA //Odpowiedz z temperatura według szablonu
     };
+
+private:
+    byte id_slave; //wykorzystywane przy przesyłaniu komendy do innego urządzenia
+    Device *urzadzenie;//urządzenie docelowe
+    byte parametry[8];//dodatkowe parametry
+    KOMENDY komenda;
+    
+public:
 
     Command();
     Command(const Command * command);

@@ -109,6 +109,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 break;
             case Command::KOMENDY::RECEIVE_ADD_PRZYCISK:
                 {
+                    OUTPUT_LN(F("RECEIVE_ADD_PRZYCISK"));
                     komenda.setDevice(System::getSystem()->addDevice(Device::TYPE::PRZYCISK, komenda.getParams()[0]));
                     komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
                     byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -117,6 +118,18 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     doWyslania.add(0, new Command(komenda));
                 }
                 break;
+            case Command::KOMENDY::RECEIVE_ADD_PRZEKAZNIK:
+                {
+                    OUTPUT_LN(F("RECEIVE_ADD_PRZEKAZNIK"));
+                    komenda.setDevice(System::getSystem()->addDevice(Device::TYPE::PRZEKAZNIK, komenda.getParams()[0]));
+                    komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
+                    byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    params[0] = komenda.getDevice()->getId();
+                    komenda.setParams(params);
+                    doWyslania.add(0, new Command(komenda));
+                }
+                break;
+
             case Command::KOMENDY::RECEIVE_GET_TEMPERATURE:
                 {
                     OUTPUT_LN(F("RECEIVE_GET_TEMPERATURE"));

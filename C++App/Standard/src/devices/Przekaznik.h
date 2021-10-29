@@ -12,14 +12,13 @@ private:
 
 public:
     Przekaznik();
-    Przekaznik(byte id, byte pin, bool stan);
     ~Przekaznik();
-    
     byte getPin();
     void setPin(byte pin); 
     bool getStan();
     void setStan(bool stan);
     void setStan(int stan);
+    bool begin(byte pin, bool stan = false);
 };
 
 #endif // !Przekaznik_h
