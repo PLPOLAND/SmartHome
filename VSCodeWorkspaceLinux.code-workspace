@@ -10,12 +10,18 @@
 		}
 	],
 	"settings": {
-		"discord.enabled": true,
 		"files.associations": {
 			"*.tcc": "cpp",
 			"cstdlib": "cpp",
 			"system_error": "cpp",
-			"typeinfo": "cpp"
+			"typeinfo": "cpp",
+			"array": "cpp",
+			"deque": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"string_view": "cpp",
+			"initializer_list": "cpp"
 		},
 		"java.configuration.updateBuildConfiguration": "automatic"
 	}
