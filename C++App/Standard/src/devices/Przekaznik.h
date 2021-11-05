@@ -2,6 +2,7 @@
 #define Przekaznik_h
 #include <Arduino.h>
 #include "devices/Device.h"
+#include "Stale.h"
 
 //Obsługa przekaźnika
 class Przekaznik : public Device

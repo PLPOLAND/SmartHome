@@ -4,7 +4,6 @@
 #include "devices/Device.h"
 #include "Stale.h"
 
-
 class Command
 {
 public:
@@ -12,47 +11,54 @@ public:
     {
         NIC,
         //Odbieranie
-        RECEIVE_ADD_THERMOMETR,
-        RECEIVE_ADD_ROLETA,
-        RECEIVE_ADD_PRZYCISK,
-        RECEIVE_ADD_PRZEKAZNIK,
-        RECEIVE_GET_TEMPERATURE,
-        RECEIVE_ZMIEN_STAN,
+        RECEIVE_ADD_THERMOMETR,  //Dodaj nowy termometr do systemu
+        RECEIVE_ADD_ROLETA,      //Dodaj nową roletę do systemu
+        RECEIVE_ADD_PRZYCISK,    //Dodaj nowy przycisk do systemu
+        RECEIVE_ADD_PRZEKAZNIK,  //Dodaj nowy przekaznik do systemu
+        RECEIVE_GET_TEMPERATURE, //Pobierz temperaturę z termometru
+        RECEIVE_ZMIEN_STAN,      //Zmien stan konkretnego urzadzenia
+        RECEIVE_IS_INIT,         //Czy urządzenie zostało zainicjowane
+        RECEIVE_INIT,            //reinicjalizuj system
+        RECEIVE_GET,             //Wczytaj następny z kolejki
 
         //Wysylanie
-        SEND_REPLY, //Odpowiedz z zapisanymi danymi w bufforze
-        SEND_STATUS,
+        SEND_REPLY,      //Odpowiedz z zapisanymi danymi w bufforze
+        SEND_STATUS,     //Wyślij status urządzenia
         SEND_TEMPERATURA //Odpowiedz z temperatura według szablonu
     };
 
 private:
-    byte id_slave; //wykorzystywane przy przesyłaniu komendy do innego urządzenia
-    Device *urzadzenie;//urządzenie docelowe
-    byte parametry[8];//dodatkowe parametry
+    byte id_slave;      //wykorzystywane przy przesyłaniu komendy do innego urządzenia
+    Device *urzadzenie; //urządzenie docelowe
+    byte parametry[8];  //dodatkowe parametry
     KOMENDY komenda;
-    
-public:
 
+public:
     Command();
-    Command(const Command * command);
+    Command(const Command *command);
     ~Command();
-    
+
+    /**
+    *   Konwertuje otrzymany ciąg byte-ów na Komendę. 
+    *
+    *@param c ciąg znaków do konwersji
+    *@param size ilość znaków do konwersjii
+     */
     void convert(const byte *c, byte size);
 
-
     byte getSlaveID();
-    Device* getDevice();
-    byte* getParams();
+    Device *getDevice();
+    byte *getParams();
     KOMENDY getCommandType();
-    
-    void setSlaveID(byte sId);
-    void setDevice(Device * u);
-    void setParams(const byte* param);
-    void setCommandType(KOMENDY komenda);
 
+    void setSlaveID(byte sId);
+    void setDevice(Device *u);
+    void setParams(const byte *param);
+    void setCommandType(KOMENDY komenda);
+    /**
+    *   
+     */
     void printParametry();
 };
-
-
 
 #endif // !COMMAND_H

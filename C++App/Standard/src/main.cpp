@@ -12,7 +12,7 @@
     void setup()
     {
         Serial.begin(115200); // start serial for output
-        OUTPUT_LN("START");
+        OUT_LN("START");
     }
 
     void loop()
@@ -26,34 +26,34 @@
             if (ch == '1')
             {
                 roleta.podnies();
-                OUTPUT_LN("Podnies");
+                OUT_LN("Podnies");
             }
             else if (ch == '2')
             {
                 roleta.opusc();
-                OUTPUT_LN("Opusc");
+                OUT_LN("Opusc");
             }
             else if (ch == '3')
             {
                 roleta.up();
-                OUTPUT_LN("up");
+                OUT_LN("up");
                 delay(500);
                 roleta.stop();
-                OUTPUT_LN("stop");
+                OUT_LN("stop");
             }
             else if(ch == '4')
             {
                 roleta.down();
-                OUTPUT_LN("down");
+                OUT_LN("down");
                 delay(500);
                 roleta.stop();
-                OUTPUT_LN("stop");
+                OUT_LN("stop");
             }
             
         }
 
-        // OUTPUT_LN(przycisk.getStan());
-        // OUTPUT_LN(digitalRead(2));
+        // OUT_LN(przycisk.getStan());
+        // OUT_LN(digitalRead(2));
     }
 
 #endif // TEST
@@ -66,11 +66,11 @@
     {
         Serial.begin(115200);
         // Serial.println(freeMemory());
-        OUTPUT_LN(freeMemory());
-        OUTPUT_LN("setup()");
+        OUT_LN(freeMemory());
+        OUT_LN("setup()");
         sys = System::getSystem();
         sys->begin();
-        OUTPUT_LN(freeMemory());
+        OUT_LN(freeMemory());
     }
 
     void loop()

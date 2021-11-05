@@ -26,19 +26,27 @@ Przycisk::~Przycisk()
 bool Przycisk::begin(byte pin)
 {
     Device(Device::TYPE::PRZYCISK);
-    this->setPin(pin);
-    time = new Timer();
-    time->time(STOP);
+    if(this->setPin(pin)){
+        time = new Timer();
+        time->time(STOP);
+        return true;
+    }
+    return false;
 }
 
 byte Przycisk::getPin()
 {
     return pin;
 }
-void Przycisk::setPin(byte pin)
+bool Przycisk::setPin(byte pin)
 {
-    this->pin = pin;
-    pinMode(this->pin, INPUT_PULLUP);
+    if (pin >= PINOW_NA_ADRES + 2 && pin <= 16)
+    {
+        this->pin = pin;
+        pinMode(this->pin, INPUT_PULLUP);
+        return true;
+    }
+    return false;
 }
 
 Przycisk::StanPrzycisku Przycisk::getStan()
@@ -63,15 +71,15 @@ void Przycisk::updateStan(){
     if (tmpStan == 1 && stan == PUSZCZONY && !time->available()) //Przyciśniecie po raz kolejny
     {
 
-        OUTPUT_LN(F("next click "));
+        OUT_LN(F("next click "));
         time->begin(SECS(1));
         stan = PRZYCISNIETY;
         klikniecia++;
-        OUTPUT_LN(klikniecia);
+        OUT_LN(klikniecia);
     }
     else if (tmpStan == 1 && stan == BRAK_AKCJI) //Przyciśniecie po raz pierwszy
     {
-        OUTPUT_LN(F("first click"));
+        OUT_LN(F("first click"));
         stan = PRZYCISNIETY;
         time->begin(SECS(1));
         klikniecia = 1;
@@ -79,7 +87,7 @@ void Przycisk::updateStan(){
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
     {
 
-        OUTPUT_LN(F("puszczony bez przytrzymania"));
+        OUT_LN(F("puszczony bez przytrzymania"));
         stan = PUSZCZONY;
         //TODO::
 
@@ -88,13 +96,13 @@ void Przycisk::updateStan(){
     if (stan == PRZYCISNIETY && tmpStan == 1 && time->available()) //Wykrycie przytrzymania
     {
 
-        OUTPUT_LN(F("Wykrycie Przytrzymanie"));
+        OUT_LN(F("Wykrycie Przytrzymanie"));
         stan = PRZYTRZYMANY;
     }
     if (stan == PRZYTRZYMANY && tmpStan == 0)
     { //Puszczenie po przytrzymaniu
 
-        OUTPUT_LN(F("Puszczony po przytrzymaniu"));
+        OUT_LN(F("Puszczony po przytrzymaniu"));
 
         time->time(STOP);
         stan = BRAK_AKCJI;
@@ -104,20 +112,20 @@ void Przycisk::updateStan(){
     else if (stan == PRZYTRZYMANY && tmpStan == 1) //Przytrzymywanie
     {
 
-        OUTPUT_LN(F("Przytrzymanie"));
+        OUT_LN(F("Przytrzymanie"));
         //TODO wykonanie podczas przytrzymania
     }
 
     if (time->available() && stan == PUSZCZONY) {
 
-        OUTPUT_LN(F("Koniec okresu klikniec"));
+        OUT_LN(F("Koniec okresu klikniec"));
         time->time(STOP);
         stan = BRAK_AKCJI;
         //TODO:
     }
 
     // if (time->time() != 0) {
-    //     OUTPUT_LN(time->time());
+    //     OUT_LN(time->time());
     // }
 }
 

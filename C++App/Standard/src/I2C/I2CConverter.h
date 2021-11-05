@@ -13,11 +13,7 @@
 
 #define DEBUG //Wyswietl informacje debugowania //NOT USED YET
 
-#define PINOW_NA_ADRES 6
 
-//BUFFORY
-#define BUFFOR_IN_SIZE 5
-#define BUFFOR_OUT_SIZE 8
 
 
 // class System;

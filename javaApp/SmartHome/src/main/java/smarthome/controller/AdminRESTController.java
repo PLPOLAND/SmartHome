@@ -37,10 +37,21 @@ public class AdminRESTController {
 
     @RequestMapping("/test")
     public Response test() {
-        Termometr t = (Termometr) system.getRoom("salon").getTermometry().get(0);
-        converter.checkTemperature(t);
-        Response response = new Response<>(t.getTemperatura(), "errortmp");
-
+        byte[] tmp = {'x'};
+        byte[] msg = {'A','P',11};
+        try {
+            converter.atmega.writeTo(3, msg, 3);
+        } catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        try {
+            tmp = converter.getAnything(3);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        Response response = new Response<>(tmp.toString(), "errortmp");
         // // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
         return response;
     }

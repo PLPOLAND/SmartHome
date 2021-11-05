@@ -2,23 +2,30 @@
 
 System* System::system = nullptr;
 Timer System::timer = Timer();
+bool System::is_initiated = false;
+
+LinkedList<Device *> System::devices = LinkedList<Device *>();
+LinkedList<Termometr *> System::termometry = LinkedList<Termometr*>();
+LinkedList<Przekaznik *> System::przekazniki = LinkedList<Przekaznik*>();
+LinkedList<Przycisk *> System::przyciski = LinkedList<Przycisk*>();
+LinkedList<Roleta *> System::rolety = LinkedList<Roleta*>();
 
 System *System::getSystem()
 {
     if (system == nullptr)
     {
         system = new System();
-        OUTPUT_LN("getSystem System()");
+        // OUT_LN("getSystem System()");
     }
 
-    OUTPUT_LN("getSystem()");
+    // OUT_LN("getSystem()");
     return system;
 }
 System::System()
 {
     Serial.begin(115200); // start serial for output
-    OUTPUT_LN(freeMemory());
-    OUTPUT_LN("SerialStarted");
+    OUT_LN(freeMemory());
+    OUT_LN("SerialStarted");
 }
 
 System::~System(){
@@ -29,18 +36,18 @@ System::~System(){
 
 void System::begin(){
     // Serial.begin(115200); // start serial for output
-    OUTPUT_LN(freeMemory());
-    OUTPUT_LN("SerialStarted");
+    OUT_LN(freeMemory());
+    OUT_LN("SerialStarted");
     comunication = I2CConverter::getInstance();
     comunication->begin();
-    OUTPUT_LN("comunication->begin();");
+    OUT_LN("comunication->begin();");
     Wire.onReceive(I2CConverter::onRecieveEvent);
-    OUTPUT_LN("Wire.onReceive(I2CConverter::onRecieveEvent);");
+    OUT_LN("Wire.onReceive(I2CConverter::onRecieveEvent);");
     Wire.onRequest(I2CConverter::onRequestEvent);
-    OUTPUT_LN("Wire.onReceive(I2CConverter::onRequestEvent);");
+    OUT_LN("Wire.onReceive(I2CConverter::onRequestEvent);");
     timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
-    OUTPUT_LN("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));");
-    OUTPUT_LN(freeMemory());
+    OUT_LN("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));");
+    OUT_LN(freeMemory());
 }
 
 void System::tic(){
@@ -49,12 +56,12 @@ void System::tic(){
         for (byte i = 0; i < this->termometry.size(); i++)
         {
             this->termometry.get(i)->updateTemperature();
-            OUTPUT("Termometr: ");
-            OUTPUT(i);
-            OUTPUT(" = ");
-            OUTPUT_LN(this->termometry.get(i)->getTemperature());
+            OUT("Termometr: ");
+            OUT(i);
+            OUT(" = ");
+            OUT_LN(this->termometry.get(i)->getTemperature());
         }
-        OUTPUT_LN("timer");
+        OUT_LN("timer");
         timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     }
 
@@ -98,14 +105,21 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::PRZYCISK:
             {
+                OUT_LN("-----Dodaj Przycisk-----")
+                OUT("pin1:")
+                OUT_LN(pin1);
                 Przycisk * tmp = new Przycisk();
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
+                    OUT_LN("Poprawnie dodano Przycisk")
                     tmp->setId(idDevice++);//nadaj mu id
+                    OUT("id:")
+                    OUT_LN(tmp->getId());
                     this->devices.add(tmp->getId(), tmp);//dodaj do listy urzadzen
                     this->przyciski.add(tmp);//dodaj do listy urzadzen
                     return tmp;
                 }
                 else{
+                    OUT_LN("Nie udało dodać Przycisku")
                     return nullptr;
                 }
             }
@@ -201,63 +215,27 @@ LinkedList<byte*> System::getAdrOfThemp(){
     }
     return adresy;
 };
-// byte System::addPrzekaznik(){
-    
-// }
-// byte System::addRoleta(){
 
-// }
-// byte System::addPrzycisk(){
+void System::reinit_system(){
+    for (byte i = 0; i < devices.size(); i++)
+    {
+        delete devices[i];//usuń wszystkie urządzenia w systemie
+    }
 
-// }
-// byte System::addTermometr(){
-//     Termometr *tmp = (Termometr *)malloc(sizeof(Termometr));
-//     tmp->begin();//TODO czy termometr nie powinien dostawać ID według miejsca w kontenerze?
-//     Serial.println("newTermometr");
-//     if (!tmp->isCorrect())
-//     {
-//         delete tmp;
-//         return -1;
-//     }
-//     else
-//     {
-//         Serial.println(tmp->getTemperature());
-//         this->termometry.add(tmp);
-//         return termometry.get(termometry.size() - 1)->getID(); // Zwróć ID termometru na płytce
-        
-//     }
-// }
+    //oczyść wszystkie listy urządzeń
+    devices.clear();
+    przekazniki.clear();
+    rolety.clear();
+    termometry.clear();
+    przyciski.clear();
+    init_system();
 
+}
 
-// bool System::removePrzekaznik(byte id){
-//     delete getPrzekaznik(id);
-//     przekazniki.remove(id);
-// }
-// bool System::removeRoleta(byte id){
-//     delete getRoleta(id);
-//     rolety.remove(id);
-// }
-// bool System::removePrzycisk(byte id){
-//     delete getPrzycisk(id);
-//     przyciski.remove(id);
-// }
-// bool System::removeTermometr(byte id){
-//     delete getTermometr(id);
-//     termometry.remove(id);
-// }
+void System::init_system(){
+    is_initiated = true;
+}
 
-// Termometr* System::getTermometr(byte id){
-//     return termometry.get(id);
-// }
-
-// Przycisk* System::getPrzycisk(byte id){
-//     return przyciski.get(id);
-// }
-
-// Przekaznik* System::getPrzekaznik(byte id){
-//     return przekazniki.get(id);
-// }
-
-// Roleta* System::getRoleta(byte id){
-//     return rolety.get(id);
-// }
+bool System::is_init(){
+    return is_initiated;
+}

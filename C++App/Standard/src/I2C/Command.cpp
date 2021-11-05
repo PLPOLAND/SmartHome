@@ -21,7 +21,14 @@ void Command::convert(const byte *c, byte size)
 {
     switch (size)
     {
-    case 1:
+    case 1:{
+        if (c[0] == 'I')
+            this->komenda = Command::KOMENDY::RECEIVE_IS_INIT;
+        if (c[0] == 'W')
+            this->komenda = Command::KOMENDY::RECEIVE_GET;
+        if (c[0] == 'R')
+            this->komenda = Command::KOMENDY::RECEIVE_INIT;
+        }
         break;
     case 2:
         if (c[0] == 'A')
@@ -33,7 +40,7 @@ void Command::convert(const byte *c, byte size)
         }
         else if (c[0] == 'T')//GetTemperature
         {
-            OUTPUT_LN(F("Command_convert:TX"));
+            OUT_LN(F("Command_convert:TX"));
             urzadzenie = new Device();//wskaźnik na urządzenie
             urzadzenie->setId(c[1]-'0');//ustawienie ID urządzenia którego dotyczy komenda
             urzadzenie->setType(Device::TYPE::TERMOMETR);//Ustawienie typu urządzenia którego dotyczy komenda
@@ -47,16 +54,22 @@ void Command::convert(const byte *c, byte size)
             {
                 if (c[1] == 'S')// Dodaj przekaźnik
                 {
-                    this->komenda == Command::KOMENDY::RECEIVE_ADD_PRZEKAZNIK;
+                    OUT_LN("case 3, AS")
+                    this->komenda = Command::KOMENDY::RECEIVE_ADD_PRZEKAZNIK;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2];//nr pinu urzadzenia
+                    OUT("pin = ")
+                    OUT_LN((int)c[2]);
                     this->setParams(parametry);
                 }
                 else if (c[1] == 'P')//Dodaj Przycisk zwykły
                 {
-                    this->komenda == Command::KOMENDY::RECEIVE_ADD_PRZYCISK;
+                    OUT_LN("case 3, AP")
+                    this->komenda = Command::KOMENDY::RECEIVE_ADD_PRZYCISK;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2];//nr pinu urzadzenia
+                    OUT("pin = ")
+                    OUT_LN((int)c[2]);
                     this->setParams(parametry);
                 }
                 
@@ -70,7 +83,7 @@ void Command::convert(const byte *c, byte size)
             {
                 if (c[1] == 'R')// Dodaj roleta
                 {
-                    this->komenda == Command::KOMENDY::RECEIVE_ADD_ROLETA;
+                    this->komenda = Command::KOMENDY::RECEIVE_ADD_ROLETA;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2];//nr pinu up
                     parametry[1] = c[3];//nr pinu down
@@ -108,13 +121,13 @@ void Command::convert(const byte *c, byte size)
 
 //Wypisuje kolejne byte zmiennej parametry na ekran
 void Command::printParametry(){
-    OUTPUT("PARAMETRY: ")
+    OUT("PARAMETRY: ")
     for (byte i = 0; i < 8; i++)
     {
-        OUTPUT(this->parametry[i]);
-        OUTPUT(" ");
+        OUT(this->parametry[i]);
+        OUT(" ");
     }
-    OUTPUT_LN("");
+    OUT_LN("");
     
 }
 

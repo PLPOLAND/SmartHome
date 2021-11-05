@@ -8,12 +8,15 @@ Przekaznik::~Przekaznik()
 }
 bool Przekaznik::begin(byte pin, bool stan = false)
 {
-    if (pin >= 2 && pin <= 16)
+    if (pin >= PINOW_NA_ADRES + 2 && pin <= 16)
     {
         this->pin = pin;
         pinMode(pin, OUTPUT);
     }
-    return false;
+    else
+    {
+        return false;
+    }
     this->stan = stan;
     if (stan)
     {
@@ -34,7 +37,7 @@ byte Przekaznik::getPin()
 //Ustawianie pinu uzywanego do sterowania przekaźnikiem
 void Przekaznik::setPin(byte pin)
 {
-    if (pin >= 2 && pin <= 16)
+    if (pin >= PINOW_NA_ADRES+2 && pin <= 16)
     {
         digitalWrite(pin, LOW); //resetowanie poprzedniego stanu wyjscia
         this->pin = pin;

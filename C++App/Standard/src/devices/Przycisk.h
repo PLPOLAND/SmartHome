@@ -36,7 +36,7 @@ public:
     
 
     byte getPin();
-    void setPin(byte pin);
+    bool setPin(byte pin);
     
     StanPrzycisku getStan();
     void updateStan();
