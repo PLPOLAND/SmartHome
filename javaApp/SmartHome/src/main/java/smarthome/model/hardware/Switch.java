@@ -1,23 +1,19 @@
-package smarthome.model;
+package smarthome.model.hardware;
 /**
  * Przekaźnik
- * Stany - ON/OFF
  * 
  */
-public class Przekaznik extends Device{
-    boolean stan;
-
-    public Przekaznik(){
-        super();
+public class Switch{
+    /** ON/OFF */
+    private boolean stan;
+    /** Numer pinu do sterowania przekaznikiem na Slavie*/ 
+    private int pin;
+    public Switch(){
+        this.pin = -1;
     }
-    public Przekaznik(boolean stan, int pin) {
-        super(DeviceTypes.GNIAZDKO, pin);
+    public Switch(boolean stan, int pin) {
+        this.pin = pin;
         this.stan = stan;
-    }
-
-    public Przekaznik(int id, int room, int roomID, int pin){
-        super(id, room, roomID, DeviceTypes.GNIAZDKO, pin);
-        stan = false;
     }
 
     public boolean isStan() {
@@ -31,6 +27,16 @@ public class Przekaznik extends Device{
     public void setStan(boolean stan) {
         this.stan = stan;
     }
+
+
+    public int getPin() {
+        return this.pin;
+    }
+
+    public void setPin(int pin) {
+        this.pin = pin;
+    }
+
 
     @Override
     public String toString() {

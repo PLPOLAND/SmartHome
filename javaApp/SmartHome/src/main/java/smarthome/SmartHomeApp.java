@@ -19,6 +19,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 	}
 
 	public static void main(String[] args) throws Exception{
+		
 		SpringApplication.run(SmartHomeApp.class, args);
 
 		

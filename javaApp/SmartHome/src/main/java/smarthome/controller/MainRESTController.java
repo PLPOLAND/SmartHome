@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import smarthome.database.TemperatureDAO;
 import smarthome.database.UsersDAO;
-import smarthome.model.Termometr;
+import smarthome.model.hardware.Termometr;
 import smarthome.security.Security;
 
 /**

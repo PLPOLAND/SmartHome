@@ -1,0 +1,13 @@
+{
+  "devices" : [ {
+    "@type" : "Light",
+    "id" : 0,
+    "room" : 0,
+    "typ" : "LIGHT",
+    "stan" : false,
+    "idplytki" : -1
+  } ],
+  "sensors" : [ ],
+  "id" : 0,
+  "nazwa" : "SypialniaMarek"
+}

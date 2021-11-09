@@ -2,9 +2,12 @@ package smarthome.database;
 
 import org.springframework.stereotype.Repository;
 
-import smarthome.model.Device;
 import smarthome.model.Room;
-import smarthome.model.Termometr;
+import smarthome.model.hardware.Device;
+import smarthome.model.hardware.DeviceTypes;
+import smarthome.model.hardware.Sensor;
+import smarthome.model.hardware.SensorsTypes;
+import smarthome.model.hardware.Termometr;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,11 +30,15 @@ public class SystemDAO {
     TreeMap<String,Room> pokoje; //Pokoje w systemie
     Logger logger;
 
+    ArrayList<Device> devices;
+    ArrayList<Sensor> sensors;
 
     public SystemDAO() {
         logger = LoggerFactory.getLogger(UsersDAO.class);
         logger.info("Init System DAO");
         pokoje = new TreeMap<>();
+        devices = new ArrayList<>();
+        sensors = new ArrayList<>();
         this.readDatabase();
     }
     /**
@@ -68,8 +75,9 @@ public class SystemDAO {
     public ArrayList<Termometr> getAllTermometers() {//TODO pomyśleć jak można to usprawnić np. przez robienie od razu takiej listy w momencie dodawania termometrów do systemu
         ArrayList<Termometr> termometry = new ArrayList<>();
         for (Room room : this.getRoomsArrayList()) {
-            for (Device termometr : room.getTermometry()) {
-                termometry.add((Termometr)termometr);
+            for (Sensor termometr : room.getSensors()) {
+                if(termometr.getTyp() == SensorsTypes.THERMOMETR)
+                    termometry.add((Termometr)termometr);
             }
         }
         return termometry;
@@ -82,10 +90,18 @@ public class SystemDAO {
      * @throws Exception
      */
     public void addDeviceToRoom(String name, Device d) throws Exception{
-        this.pokoje.get(name).addUrzadzenie(d);
+        this.pokoje.get(name).addDevice(d);
         save(this.pokoje.get(name));
         logger.debug("Dodano urzadzenie do pokoju i zapisano");
     }
+
+    public void addSensorToRoom(String name, Sensor s) throws Exception{
+        this.pokoje.get(name).addSensor(s);
+        save(this.pokoje.get(name));
+        logger.debug("Dodano sensor do pokoju i zapisano");
+    }
+
+
     /**
      * 
      * @return true jeśli w systemie zarejestrowane są pokoje/pokój

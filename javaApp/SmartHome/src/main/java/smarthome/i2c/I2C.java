@@ -23,14 +23,16 @@ public class I2C{
             findAll();
         } catch (UnsatisfiedLinkError e) {
             System.err.println("platform does not support this driver");
-        } catch (Exception e) {
+        } catch (UnsupportedBusNumberException e) {
+            System.err.println("platform does not support this driver");//TODO
+        }catch (Exception e) {
             System.err.println("platform does not support this driver");
 
         }
     }
 
 
-    public void findAll(){
+    public void findAll() throws UnsupportedBusNumberException{
         List<Integer> validAddresses = new ArrayList<Integer>();
         final I2CBus bus;
         try {
@@ -50,7 +52,9 @@ public class I2C{
                     //ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
                 }
             }
-        } catch (Exception e) {
+        } catch (UnsupportedBusNumberException e) {
+            throw e;
+        }catch (Exception e) {
             e.printStackTrace();
         }
         

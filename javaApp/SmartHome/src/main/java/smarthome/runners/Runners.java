@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 import smarthome.database.SystemDAO;
 import smarthome.i2c.JtAConverter;
-import smarthome.model.Temperature;
-import smarthome.model.Termometr;
+import smarthome.model.hardware.Temperature;
+import smarthome.model.hardware.Termometr;
 
 /**
  * 
@@ -41,7 +41,7 @@ public class Runners {
             termometrs = system.getAllTermometers();
         }
         for (Termometr termometr : termometrs) {
-            converter.checkTemperature(termometr);
+            // converter.checkTemperature(termometr);
             logger.debug("Zaaktualizowano temperature termometra id="+termometr.getId()+", t="+termometr.getTemperatura());
         }
     }

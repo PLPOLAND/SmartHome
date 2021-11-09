@@ -1,12 +1,12 @@
-package smarthome.model;
+package smarthome.model.hardware;
 
 /**
  * Termometr
- * Dziedziczy po Device.
- * @see Device
+ * Dziedziczy po Sensor.
+ * @see Sensor
  * @author Marek Pałdyna 
  */
-public class Termometr extends Device{
+public class Termometr extends Sensor{
 
     /**Aktualna Temperatura */
     Float temperatura;
@@ -18,13 +18,13 @@ public class Termometr extends Device{
     byte numberOnBoard;
 
     public Termometr(){
-        super(DeviceTypes.TERMOMETR);
+        super(SensorsTypes.THERMOMETR);
         this.temperatura = Float.MAX_VALUE;
         this.max = Float.MIN_VALUE;
         this.min = Float.MAX_VALUE;
     }
     public Termometr(int pin){
-        super(DeviceTypes.TERMOMETR,pin);
+        super(SensorsTypes.THERMOMETR);
         this.temperatura = Float.MAX_VALUE;
         this.max = Float.MIN_VALUE;
         this.min = Float.MAX_VALUE;
@@ -39,8 +39,8 @@ public class Termometr extends Device{
      * @param max - max temperatura 
      * @param min - min temperatura 
      */
-    public Termometr(int ID, int room, int idPlytki, int pin, Float temperatura, Float max, Float min) {
-        super(ID ,room, idPlytki, DeviceTypes.TERMOMETR, pin);
+    public Termometr(int ID, int room, int idPlytki, Float temperatura, Float max, Float min) {
+        super(ID ,room, idPlytki, SensorsTypes.THERMOMETR);
         this.temperatura = temperatura;
         this.max = max;
         this.min = min;

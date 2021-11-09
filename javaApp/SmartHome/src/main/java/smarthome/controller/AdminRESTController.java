@@ -4,8 +4,6 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.pi4j.jni.I2C;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import smarthome.database.SystemDAO;
 import smarthome.database.UsersDAO;
 import smarthome.i2c.JtAConverter;
-import smarthome.model.Przekaznik;
-import smarthome.model.Light;
 import smarthome.model.Response;
 import smarthome.model.Room;
-import smarthome.model.Termometr;
+import smarthome.model.hardware.Light;
+import smarthome.model.hardware.Switch;
+import smarthome.model.hardware.Termometr;
 import smarthome.security.Security;
 
 @RestController
@@ -117,18 +115,18 @@ public class AdminRESTController {
 
     // }
 
-    @GetMapping("/addGniazdko")
-    public Response<String> dodajGniazdko(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
-        Przekaznik g;
-        try {
-            g = new Przekaznik(false, pin);
-            system.addDeviceToRoom(nazwaPokoju, g);
-        } catch (Exception e) {
-            return new Response<>("",e.getMessage());
-        }
-        return new Response<String>("Gniazdko: '" + g.toString() + "' dodane prawidłowo");
+    // @GetMapping("/addGniazdko")
+    // public Response<String> dodajGniazdko(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
+    //     Switch g;
+    //     try {
+    //         g = new Switch(false, pin);
+    //         system.addDeviceToRoom(nazwaPokoju, g);
+    //     } catch (Exception e) {
+    //         return new Response<>("",e.getMessage());
+    //     }
+    //     return new Response<String>("Gniazdko: '" + g.toString() + "' dodane prawidłowo");
 
-    }
+    // }
     @GetMapping("/addSwiatlo")
     public Response<String> dodajSwiatlo(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
         Light l;
@@ -136,6 +134,7 @@ public class AdminRESTController {
             l = new Light(pin);
             system.addDeviceToRoom(nazwaPokoju, l);
         } catch (Exception e) {
+            e.printStackTrace();
             return new Response<>("",e.getMessage());
         }
         return new Response<String>("Swiatlo: '" + l.toString() + "' dodane prawidłowo");
@@ -147,8 +146,8 @@ public class AdminRESTController {
         try {
             t = new Termometr(pin);
             t.setIDPlytki(idPlytki);
-            converter.addTermometr(t);
-            system.addDeviceToRoom(nazwaPokoju, t);
+            // converter.addTermometr(t);//TODO  
+            system.addSensorToRoom(nazwaPokoju, t);
         } catch (Exception e) {
             return new Response<>("",e.getMessage());
         }
