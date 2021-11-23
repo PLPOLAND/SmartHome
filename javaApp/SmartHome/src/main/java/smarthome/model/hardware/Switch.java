@@ -38,13 +38,15 @@ public class Switch{
     }
 
 
+
     @Override
     public String toString() {
         return "{" +
-            " stan='" + isStan() + "' " +
-            super.toString()+
+            " stan='" + isStan() + "'" +
+            ", pin='" + getPin() + "'" +
             "}";
     }
+    
     
     
 }

@@ -1,7 +1,7 @@
 {
   "devices" : [ {
     "@type" : "Light",
-    "id" : 0,
+    "id" : 2,
     "room" : 0,
     "typ" : "LIGHT",
     "stan" : false,
@@ -9,5 +9,5 @@
   } ],
   "sensors" : [ ],
   "id" : 0,
-  "nazwa" : "SypialniaMarek"
+  "nazwa" : "Marek"
 }

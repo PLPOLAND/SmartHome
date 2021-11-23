@@ -33,4 +33,12 @@ public class Response<T> {
     }
 
 
+    @Override
+    public String toString() {
+        return "{" +
+            " error='" + getError() + "'" +
+            ", response='" + getObj() + "'" +
+            "}";
+    }
+
 }

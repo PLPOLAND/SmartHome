@@ -7,10 +7,6 @@
     Device::Device(TYPE type) : type_of_device(type), id(0)
     {
     }
-
-    Device::~Device()
-    {
-    }
     Device::Device(TYPE type, byte id) : type_of_device(type), id(id)
     {
     }

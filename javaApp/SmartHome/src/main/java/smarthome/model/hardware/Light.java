@@ -1,9 +1,6 @@
 package smarthome.model.hardware;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import smarthome.model.hardware.Device;
 
 public class Light extends Device{
     /** Przekaźnik który odpowiada za sterowanie światłem na slavie */
@@ -26,7 +23,13 @@ public class Light extends Device{
         logger = LoggerFactory.getLogger(this.getClass());
         this.swt = new Switch(stan,pin);
     }
-    
+
+    public Light(boolean stan, int pin, int slaveID) {
+        super(slaveID, DeviceTypes.LIGHT);
+        logger = LoggerFactory.getLogger(this.getClass());
+        this.swt = new Switch(stan, pin);
+    }
+
     public Light(int id, int room, int roomID, int pin){
         super(id, room, roomID, DeviceTypes.LIGHT);
         logger = LoggerFactory.getLogger(this.getClass());
@@ -45,11 +48,20 @@ public class Light extends Device{
         this.swt.setStan(stan);
     }
 
+    public void setPin(int pin){
+        swt.setPin(pin);
+    }
+    public int getPin(){
+        return swt.getPin();
+    }
+
+    
+
     @Override
     public String toString() {
         return "{" +
-            " stan='" + isStan() + "'" +
-            super.toString()+
+            " swt=" + swt.toString() + "" +
+            " super = "+ super.toString() +
             "}";
     }
     

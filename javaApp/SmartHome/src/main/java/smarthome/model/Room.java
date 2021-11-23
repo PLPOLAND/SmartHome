@@ -59,17 +59,17 @@ public class Room {
     public List<Sensor> getSensors() {
         return this.sensors;
     }
-    public void addDevice(Device urz) throws Exception {
-        if (urz.getId() < 0) {
+    public void addDevice(Device device) throws Exception {
+        if (device.getId() < 0) {
             throw new Exception("Błędne ID urządzenia");
         }
         // if (urz.roomID < 0) { //TODO po za implementowaniu pojęcia płytki odkommentować
         //     throw new Exception("Błędny adres płytki");
         // }
 
-        urz.setRoom(this.ID);//ustaw id tego pokoju w urządzeniu
-        devices.add(urz);
-        logger.info("Dodano urządzenie:" + urz.toString());
+        device.setRoom(this.ID);//ustaw id tego pokoju w urządzeniu
+        devices.add(device);
+        logger.info("Dodano urządzenie:" + device.toString());
     }
     public void delDevice(Device urz) throws Exception {
         if (urz.getRoom() != this.ID) {
@@ -91,6 +91,23 @@ public class Room {
             throw new Exception("Podane urządzenie nie należy do tego pokoju");
         }
         sensors.remove(sens);
+    }
+    public Device getDeviceById(int id){
+        for (Device device : devices) {
+            if(device.getId() == id){
+                return device;
+            }
+        }
+        return null;
+    }
+
+    public void safeDelate(){
+        for (Device device : devices) {
+            //TODO usuwanie urządzeń z systemu
+        }
+        for (Sensor sensor : sensors) {
+            //TODO usuwanie sensorów z systemu
+        }
     }
 
     @Override

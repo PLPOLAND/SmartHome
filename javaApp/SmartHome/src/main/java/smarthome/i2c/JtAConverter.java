@@ -12,7 +12,10 @@ import smarthome.database.SystemDAO;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Switch;
+import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Roleta;
+import smarthome.model.hardware.Sensor;
+import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Termometr;
 
 import org.slf4j.Logger;
@@ -28,15 +31,24 @@ import org.slf4j.LoggerFactory;
 public class JtAConverter {
 
     // #region Komendy
+    /**[S,U]*/
     final byte[] STATUSURZADZEN = { 'S', 'U' };
+    /**[S,R]*/
     final byte[] STATUSRGB = { 'S', 'R' };
+    /**[W]*/
     final byte[] CHECKTOWORK = { 'W' };
+    /**[U]*/
     final byte[] ZMIENSTANPRZEKAZNIKA = { 'U' }; // + id + stan
+    /**[T]*/
     final byte[] POBIERZTEMPERATURE = { 'T' }; // + Id
-    final byte[] DODAJURZADZENIE = { 'A', 'U' }; // + PIN
+    /**[A, S]*/
+    final byte[] DODAJURZADZENIE = { 'A', 'S' }; // + PIN
+    /**[A, R]*/
     final byte[] DODAJROLETE = { 'A', 'R' }; // + PIN + PIN
+    /**[A, P]*/
     final byte[] DODAJPRZYCISK = { 'A', 'P' }; // + PIN
-    final byte[] DODAJTERMOMETR = { 'A', 'T' }; // + NUMERTERMOMETRA
+    /**[A, T]*/
+    final byte[] DODAJTERMOMETR = { 'A', 'T' };
     // #endregion
 
     @Autowired
@@ -78,89 +90,97 @@ public class JtAConverter {
     //     // TODO
     // }
 
-    // /**
-    //  * Sprawdz i zaaktualizuj temperaturę dla podanego termometra
-    //  * 
-    //  * @param termometr - termometr docelowy
-    //  */
-    // public void checkTemperature(Termometr termometr) {
-    //     byte[] buffor = new byte[8];
-    //     int i = 0;
-    //     for (byte b : POBIERZTEMPERATURE) {
-    //         buffor[i++] = b;
-    //     }
-    //     buffor[i++] = (byte) termometr.getNumberOnBoard();
-    //     // System.out.println(new String(buffor));
-    //     logger.debug(buffor.toString());
-    //     try {
-    //         atmega.writeTo(termometr.getIDPlytki(), buffor,2);
-    //         buffor = atmega.readFrom(termometr.getIDPlytki(), 8);// odpowiedz z temperaturą
-    //         String bString = "";
-    //         for (byte b : buffor) {
-    //             if (b >= 48 && b <= 57 || b == '.') {
-    //                 bString += (char) b;
-    //                 // System.out.println((char)b);
-    //             }
-    //         }
-    //         logger.debug(bString);
-    //         String tmp ="";
-    //         for (int j = 0; j < buffor.length; j++) {
-    //             tmp+=(int)buffor[j];
-    //         }
-    //         logger.debug(tmp);
-    //         if (buffor[0] == termometr.getNumberOnBoard()) {
-    //             float tempVal = Float.parseFloat(bString);
-    //             logger.info("Odebrano temperaturę \"" + tempVal + "\" z urządzenia" + termometr.toString());
-    //             termometr.setTemperatura(tempVal);
-    //         }
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+    /**
+     * Sprawdz i zaaktualizuj temperaturę dla podanego termometra
+     * 
+     * @param termometr - termometr docelowy
+     */
+    public void checkTemperature(Termometr termometr) {//TODO dostosować implementację do nowego schematu komunikacji (identyfikacja przez adress)
+        // byte[] buffor = new byte[8];
+        // int i = 0;
+        // for (byte b : POBIERZTEMPERATURE) {
+        //     buffor[i++] = b;
+        // }
+        // buffor[i++] = (byte) termometr.getNumberOnBoard();
+        // // System.out.println(new String(buffor));
+        // logger.debug(buffor.toString());
+        // try {
+        //     atmega.writeTo(termometr.getSlaveID(), buffor,2);
+        //     buffor = atmega.readFrom(termometr.getSlaveID(), 8);// odpowiedz z temperaturą
+        //     String bString = "";
+        //     for (byte b : buffor) {
+        //         if (b >= 48 && b <= 57 || b == '.') {
+        //             bString += (char) b;
+        //             // System.out.println((char)b);
+        //         }
+        //     }
+        //     logger.debug(bString);
+        //     String tmp ="";
+        //     for (int j = 0; j < buffor.length; j++) {
+        //         tmp+=(int)buffor[j];
+        //     }
+        //     logger.debug(tmp);
+        //     if (buffor[0] == termometr.getNumberOnBoard()) {
+        //         float tempVal = Float.parseFloat(bString);
+        //         logger.info("Odebrano temperaturę \"" + tempVal + "\" z urządzenia" + termometr.toString());
+        //         termometr.setTemperatura(tempVal);
+        //     }
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
+    }
 
-    // public void addUrzadzenie(Device device) {
-    //     if (device.getTyp() == DeviceTypes.PRZEKAZNIK || device.getTyp() == DeviceTypes.SWIATLO) {
-    //         byte[] buffor = new byte[3];
-    //         int i = 0;
-    //         for (byte b : DODAJURZADZENIE) {
-    //             buffor[i++] = b;
-    //         }
-    //         buffor[i++] = (byte) device.getPin();
+    /**
+     * Wysyła komendę dodającą nowe urządzenia (LIGHT/GNIAZDKO)
+     * @param device urządzenie do dodania
+     * @return id na płytce (-1 jeśli nie powiodło się)
+     */
+    public int addUrzadzenie(Device device) {
+        if (device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO) {
+            byte[] buffor = new byte[3];
+            int i = 0;
+            for (byte b : DODAJURZADZENIE) {
+                buffor[i++] = b;
+            }
+            if(device.getTyp() == DeviceTypes.LIGHT){
+                buffor[i++] = (byte) (((Light) device).getPin());
+            }
+            else{
+                // buffor[i++] = (byte) ((() device).getPin());//TODO add Gniazdko
+            }
 
-    //         try {
-    //             atmega.writeTo(device.getIDPlytki(), buffor);
-    //         } catch (Exception e) {
-    //             e.printStackTrace();
-    //         }
-    //     } else if (device.getTyp() == DeviceTypes.TERMOMETR) {
-    //         addTermometr(device);
-    //     } else if (device.getTyp() == DeviceTypes.PRZYCISK) {
-    //         addPrzycisk(device);
-    //     }
-    // }
+            try {
+                System.out.println("Writing to addres "+ device.getSlaveID());
+                Thread.sleep(100);
+                atmega.writeTo(device.getSlaveID(), buffor);
+                byte[] response = atmega.readFrom(device.getSlaveID(), 8);
+                int OnBoardID = (int)response[0];
+                return OnBoardID;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
+    }
 
-    // public void addTermometr(Device device) {
-    //     if (device.getTyp() == DeviceTypes.TERMOMETR) {
-    //         byte[] buffor = new byte[2];
-    //         int i = 0;
-    //         for (byte b : DODAJTERMOMETR) {
-    //             buffor[i++] = b;
-    //         }
-    //         // buffor[i++] = (byte) ((Termometr) device).getNumberOnBoard();
-    //         try {
-    //             atmega.writeTo(device.getIDPlytki(), buffor);//Wyślij prośbę o dodanie nowego termometru na płytce
-    //             buffor = atmega.readFrom(device.getIDPlytki(), 1);
-    //             ((Termometr) device).setNumberOnBoard(buffor[0]);//ustaw id termometra na płytce na podstawie odpowiedzi od płytki
-    //             logger.debug(new String(buffor));
-    //         } catch (Exception e) {
-    //             e.printStackTrace();
-    //         }
-    //     } else if (device.getTyp() == DeviceTypes.PRZEKAZNIK || device.getTyp() == DeviceTypes.SWIATLO) {
-    //         addUrzadzenie(device);
-    //     } else if (device.getTyp() == DeviceTypes.PRZYCISK) {
-    //         addPrzycisk(device);
-    //     }
-    // }
+    public byte[] addTermometr(Sensor sens) {
+        if (sens.getTyp() == SensorsTypes.THERMOMETR) {
+            byte[] buffor = new byte[2];
+            int i = 0;
+            for (byte b : DODAJTERMOMETR) {
+                buffor[i++] = b;
+            }
+            try {
+                atmega.writeTo(sens.getSlaveID(), buffor);//Wyślij prośbę o dodanie nowego termometru na płytce
+                Thread.sleep(100);
+                buffor = atmega.readFrom(sens.getSlaveID(), 8);
+                return buffor;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } 
+        return null;
+    }
 
     // public void addPrzycisk(Device device) {
     //     if (device.getTyp() == DeviceTypes.PRZYCISK) {

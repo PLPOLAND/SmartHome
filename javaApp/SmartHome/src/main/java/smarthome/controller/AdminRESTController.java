@@ -1,8 +1,12 @@
 package smarthome.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
+
+import com.pi4j.io.i2c.I2CDevice;
+import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +19,8 @@ import smarthome.database.UsersDAO;
 import smarthome.i2c.JtAConverter;
 import smarthome.model.Response;
 import smarthome.model.Room;
+import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
-import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Termometr;
 import smarthome.security.Security;
 
@@ -24,7 +28,11 @@ import smarthome.security.Security;
 @RequestMapping("/admin/api")
 public class AdminRESTController {
     @Autowired
-    SystemDAO system;
+    SystemDAO systemDAO;
+
+    @Autowired
+    smarthome.system.System system;
+
     @Autowired
     UsersDAO users;
 
@@ -32,6 +40,20 @@ public class AdminRESTController {
     JtAConverter converter;
 
     int roomsID = 0;// id nowego pokoju.
+
+    @RequestMapping("/")
+    public Date main() {
+        return new Date(System.currentTimeMillis());
+    }
+
+    @RequestMapping("/login")
+    Response<String> login(HttpServletRequest request) {
+        Security s = new Security(request, users);
+        if (s.login())
+            return new Response<>("/admin/");
+        else
+            return new Response<String>("", "Nie znaleziono dopasowania w bazie danych");
+    }
 
     @RequestMapping("/test")
     public Response test() {
@@ -54,11 +76,13 @@ public class AdminRESTController {
         return response;
     }
     @RequestMapping("/find")
-    public Response find() {
-        new smarthome.i2c.I2C();
-        Response response = new Response<>("", "errortmp");
-
-        // // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
+    public Response<ArrayList<I2CDevice>> find() {
+        try {
+            converter.atmega.findAll();
+        } catch (UnsupportedBusNumberException e) {
+            e.printStackTrace();
+        }
+        Response<ArrayList<I2CDevice>> response = new Response<>(converter.atmega.getDevices(), "errortmp");
         return response;
     }
 
@@ -71,7 +95,7 @@ public class AdminRESTController {
 
     @RequestMapping("/ReadAny")
     public Response<String> readAny(@RequestParam("adres") int adres) {
-        Response r;
+        Response<String> r;
         try {
             r = new Response<String>(new String(converter.getAnything(adres)));
         } catch (Exception e) {
@@ -81,31 +105,18 @@ public class AdminRESTController {
         return r;
     }
 
-    @RequestMapping("/")
-    public Date main(){
-        return new Date(System.currentTimeMillis());
-    }
-
-
-    @RequestMapping("/login")
-    Response<String> login(HttpServletRequest request) {
-        Security s = new Security(request, users);
-        if (s.login())
-            return new Response<>("/admin/");
-        else
-            return new Response<String>("","Nie znaleziono dopasowania w bazie danych");
-    }
+    
 
 
     @RequestMapping("/getSystemData")
     public Response<SystemDAO> getSystemData() {
-        return new Response<SystemDAO>(system);
+        return new Response<SystemDAO>(systemDAO);
     }
 
     @GetMapping("/addRoom")
     public Response<String> dodajPokoj(@RequestParam("name") String name){
         Room r = new Room(roomsID++, name);
-        system.addRoom(r);
+        systemDAO.addRoom(r);
 
         return new Response<String>("Pokój: '" + name +"' dodany");
     }
@@ -128,29 +139,59 @@ public class AdminRESTController {
 
     // }
     @GetMapping("/addSwiatlo")
-    public Response<String> dodajSwiatlo(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
-        Light l;
-        try {
-            l = new Light(pin);
-            system.addDeviceToRoom(nazwaPokoju, l);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Response<>("",e.getMessage());
-        }
-        return new Response<String>("Swiatlo: '" + l.toString() + "' dodane prawidłowo");
+    public Response<String> dodajSwiatlo(@RequestParam("name") String nazwaPokoju,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
+        
+        
+        Light l = (Light) system.addLight(nazwaPokoju, boardID, pin);
+        if(l != null)
+            return new Response<String>("Żarówka: '" + l.toString() + "' dodana prawidłowo");
+        else
+            return new Response<String>("", "Nie udało dodać się Żarówki. Sprawdź konsolę programu w poszukiwaniu szczegółów");
 
     }
-    @GetMapping("/addTermometr")
-    public Response<String> dodajTermometr(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin, @RequestParam("idPlytki") int idPlytki){
-        Termometr t;
+
+    @GetMapping("/removeDevice")
+
+    public Response<String> removeDevice(@RequestParam("name") String nazwaPokoju,@RequestParam("id") int id){
+        
+        Device dev = null;
         try {
-            t = new Termometr(pin);
-            t.setIDPlytki(idPlytki);
-            // converter.addTermometr(t);//TODO  
-            system.addSensorToRoom(nazwaPokoju, t);
+            if((dev = systemDAO.getRoom(nazwaPokoju).getDeviceById(id)) == null)
+                throw new Exception("Brak urzadzenia o id: "+id+" w pokoju: "+nazwaPokoju);
+            systemDAO.getRoom(nazwaPokoju).delDevice(dev);
         } catch (Exception e) {
-            return new Response<>("",e.getMessage());
+            e.printStackTrace();
+            return new Response<>("", e.getMessage());
         }
+        return new Response<String>("Urzadzenie: '" + dev.toString() + "' usnięte prawidłowo z pokoju: " + nazwaPokoju);
+    }
+
+    @GetMapping("/removeRoom")
+    public Response<String> removeRoom(@RequestParam("name") String nazwaPokoju) {
+        Room room = null;
+        try {
+            if ((room = systemDAO.getRoom(nazwaPokoju)) == null)
+                throw new Exception("Brak pokoju o nazwie: "+ nazwaPokoju);
+            systemDAO.removeRoom(room);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<>("", e.getMessage());
+        }
+        return new Response<String>("Urzadzenie: '" + room.toString() + "' usnięte prawidłowo z pokoju: " + nazwaPokoju);
+    }
+
+    @GetMapping("/addTermometr")
+    public Response<String> dodajTermometr(@RequestParam("name") String nazwaPokoju, @RequestParam("idPlytki") int idPlytki){
+        Termometr t = system.addTermometr(nazwaPokoju, idPlytki);
+        // Termometr t;
+        // try {
+        //     t = new Termometr(pin);
+        //     t.setSlaveID(idPlytki);
+        //     converter.addTermometr(t);//TODO  
+        //     systemDAO.addSensorToRoom(nazwaPokoju, t);
+        // } catch (Exception e) {
+        //     return new Response<>("",e.getMessage());
+        // }
         return new Response<String>("Termometr: '" + t.toString() + "' dodany prawidłowo");
 
     }

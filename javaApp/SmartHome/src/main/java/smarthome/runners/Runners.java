@@ -35,7 +35,7 @@ public class Runners {
         
     }
 
-    @Scheduled(fixedRate = 1000)
+    // @Scheduled(fixedRate = 1000)
     void UpdateTemperature() {
         if (termometrs == null) {
             termometrs = system.getAllTermometers();

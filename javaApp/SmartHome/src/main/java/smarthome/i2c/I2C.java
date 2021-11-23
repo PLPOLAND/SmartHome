@@ -37,18 +37,22 @@ public class I2C{
         final I2CBus bus;
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
+            // for (int i = 1; i < 10; i++) {
             for (int i = 1; i < 128; i++) {
                 try {
                     I2CDevice device = bus.getDevice(i);
                     device.write((byte) 0);
                     byte[] buffer = new byte[8];
                     device.read(buffer, 0, 8);
-                    for (byte b : buffer) {
-                        System.out.print((char) b);
-                        devices.add(device);
-                    }
+                    // for (byte b : buffer) {
+                    //     System.out.print((char) b);
+                    // }
+                    System.out.println("Dodano Slave o adresie: "+i);
+                    devices.add(device);
                     validAddresses.add(i);
                 } catch (Exception ignore) {
+                    // System.out.println("Sprawdzono: "+i+" i nie jest to prawidłowy adres");
+                    // ignore.printStackTrace();
                     //ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
                 }
             }
@@ -112,5 +116,8 @@ public class I2C{
             tmp.read(buffer, 0, size);
         }
         return buffer;
+    }
+    public ArrayList<I2CDevice> getDevices() {
+        return this.devices;
     }
 }

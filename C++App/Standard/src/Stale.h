@@ -15,7 +15,7 @@
     #define PINOW_NA_ADRES 6
 
     //BUFFORY
-    #define BUFFOR_IN_SIZE 5
+    #define BUFFOR_IN_SIZE 8
     #define BUFFOR_OUT_SIZE 8
 
 #endif // !Stale

@@ -14,7 +14,11 @@ Command::Command(const Command * command)
 
 Command::~Command()
 {
-    delete this->urzadzenie;
+    if (this->urzadzenie != nullptr)
+    {
+        delete this->urzadzenie;
+    }
+    free(parametry);
 }
 
 void Command::convert(const byte *c, byte size)
@@ -28,6 +32,8 @@ void Command::convert(const byte *c, byte size)
             this->komenda = Command::KOMENDY::RECEIVE_GET;
         if (c[0] == 'R')
             this->komenda = Command::KOMENDY::RECEIVE_INIT;
+        if (c[0] == 0)
+            this->komenda = Command::KOMENDY::NIC;
         }
         break;
     case 2:

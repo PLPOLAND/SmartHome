@@ -4,7 +4,7 @@
 /**
  * 
  * Pusty konstruktor
- * @warning Nie przypisuje pinu nasluchu, należy zrobić to samemu - \see this.setPin();
+ * @warning Nie przypisuje pinów Przekaźnikom , należy zrobić to samemu!;
  * 
  * */
 Roleta::Roleta()

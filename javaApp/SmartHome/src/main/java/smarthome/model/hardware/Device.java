@@ -3,6 +3,7 @@ package smarthome.model.hardware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -20,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = Roleta.class, name = "Blind")
     })
 public abstract class Device {
+
+    @JsonIgnore
     /** Logger Springa */
     Logger logger;
 
@@ -27,8 +30,10 @@ public abstract class Device {
     private int id; 
     /** ID Pokoju w, którym jest urządzenie */
     private int room;
+    /** ID slave'a */
+    private int slaveID;
     /** ID urzadzenia na płytce drukowanej */
-    private int slave_ID;
+    private int onSlaveID;
     /** ID kolejnego urządzenia w systemie */
     protected static int nextDeviceID = 0;
     
@@ -38,7 +43,8 @@ public abstract class Device {
     public Device() {
         this.id = nextDeviceID++;
         this.room = -1;
-        this.slave_ID = -1;
+        this.slaveID = -1;
+        this.onSlaveID = -1;
         this.typ = DeviceTypes.NONE;
         logger = LoggerFactory.getLogger(Device.class);
         // logger.info("Stworzono pusty Device");
@@ -46,16 +52,27 @@ public abstract class Device {
     public Device(DeviceTypes type) {
         this.id = nextDeviceID++;
         this.room = -1;
-        this.slave_ID = -1;
+        this.slaveID = -1;
+        this.onSlaveID = -1;
         this.typ = type;
         logger = LoggerFactory.getLogger(Device.class);
         // logger.info("Stworzono Device:" + this.toString());
     }
+
+    public Device(int slaveID, DeviceTypes type){
+        this.id = nextDeviceID++;
+        this.room = -1;
+        this.slaveID = slaveID;
+        this.onSlaveID = -1;
+        this.typ = type;
+        logger = LoggerFactory.getLogger(Device.class);
+    }
     
-    public Device(int id, int room, int roomID,DeviceTypes type){
+    public Device(int id, int room, int slaveID,DeviceTypes type){
         this.id = id;
         this.room = room;
-        this.slave_ID = roomID;
+        this.slaveID = slaveID;
+        this.onSlaveID = -1;
         this.typ = type;
         logger = LoggerFactory.getLogger(Device.class);
         // logger.info("Stworzono Device:" + this.toString());
@@ -77,12 +94,12 @@ public abstract class Device {
         this.room = room;
     }
 
-    public int getIDPlytki() {
-        return this.slave_ID;
+    public int getSlaveID() {
+        return this.slaveID;
     }
     
-    public void setIDPlytki(int idPlytki) {
-        this.slave_ID = idPlytki;
+    public void setSlaveID(int idPlytki) {
+        this.slaveID = idPlytki;
     }
     
     public DeviceTypes getTyp() {
@@ -105,14 +122,25 @@ public abstract class Device {
         this.typ = typ;
     }
 
+    public int getOnSlaveID() {
+        return this.onSlaveID;
+    }
+
+    public void setOnSlaveID(int onSlaveID) {
+        this.onSlaveID = onSlaveID;
+    }
+
+
     @Override
     public String toString() {
         return "{" +
-            " id='" + getId() + "'" +
+            ", id='" + getId() + "'" +
             ", room='" + getRoom() + "'" +
-            ", IDPlytki='" + getIDPlytki() + "'" +
+            ", slave_ID='" + getSlaveID() + "'" +
+            ", onSlaveID='" + getOnSlaveID() + "'" +
             ", typ='" + getTyp() + "'" +
             "}";
     }
+    
 }
 

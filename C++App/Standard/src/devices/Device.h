@@ -19,7 +19,6 @@ class Device
 		Device();
 		Device(TYPE type);
 		Device(TYPE type, byte id);
-		~Device();
 
 		void setType(TYPE type);
 		TYPE getType();
@@ -27,8 +26,9 @@ class Device
 		byte getId();
 
 	private:
-	//typ konkretnego urządzenia
+	///typ urządzenia
 	TYPE type_of_device;
+	///id urzadzenia
 	byte id;
 };
 #endif
