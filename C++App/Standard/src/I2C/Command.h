@@ -35,7 +35,7 @@ private:
 
 public:
     Command();
-    Command(const Command *command);
+    // Command(Command *command);
     ~Command();
 
     /**
@@ -53,12 +53,21 @@ public:
 
     void setSlaveID(byte sId);
     void setDevice(Device *u);
-    void setParams(const byte *param);
+    void setParams(byte *param);
     void setCommandType(KOMENDY komenda);
+
+    void makeCopy(Command *command);
     /**
     *   
      */
     void printParametry();
+
+    // void operator delete(void* ptr){
+    //     OUT_LN("XXX")
+    //     ((Command*)ptr)->~Command();
+    //     free(ptr);
+    //     OUT_LN("|XXX")
+    // }
 };
 
 #endif // !COMMAND_H

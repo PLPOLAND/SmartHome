@@ -1,13 +1,5 @@
 {
-	"folders": [
-		{
-			"path": "javaApp\\SmartHome"
-		},
-		{
-			"name": "Standard",
-			"path": "C++App\\Standard"
-		}
-	],
+	"folders": [],
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "automatic"
 	}

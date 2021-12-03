@@ -49,13 +49,15 @@ I2CConverter* I2CConverter::getInstance()
 
 void I2CConverter::onRecieveEvent(int howManyBytes)
 {
-    OUT_LN("OnRecive");
+    // OUT_LN("OnRecive");
     singleton->RecieveEvent(howManyBytes);
 }
 
 void I2CConverter::onRequestEvent() { 
-    OUT_LN("onRequest")
-    singleton->RequestEvent(); }
+    // OUT_LN("onRequest")
+    singleton->RequestEvent();
+    // OUT_LN("END onRequest")
+}
 
 void I2CConverter::RecieveEvent(int howManyBytes)
 {
@@ -87,16 +89,17 @@ void I2CConverter::RecieveEvent(int howManyBytes)
         komenda.convert(buf, buffReadSize);
         OUT("Komenda: ");
         OUT_LN((int)komenda.getCommandType());
+        Command* komendaZwrotna = new Command();
         //TODO dodać obsługę
         switch (komenda.getCommandType())
         {
             case Command::KOMENDY::NIC:
                 {
-                    komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                     byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                    komenda.setParams(params);
-                    komenda.printParametry();
-                    doWyslania.add(0, new Command(komenda));
+                    komendaZwrotna->setParams(params);
+                    komendaZwrotna->printParametry();
+                    doWyslania.add(0, komendaZwrotna);
                 }
                 break;
             case Command::KOMENDY::RECEIVE_ADD_THERMOMETR:
@@ -104,46 +107,50 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 //Dodaje termometr do systemu o ile istnieje jakiś wolny, nie podłączony
                 //Jeśli udało się dodać termometr dodaje do wysłania jego id na płytce w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
                 OUT_LN(F("RECEIVE_ADD_THERMOMETR"));
-
-                komenda.setDevice(System::getSystem()->addDevice(Device::TYPE::TERMOMETR)); // Zwróć dodane urządzenie //TODO obsługa nullptr
-                komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
-                komenda.setParams(((Termometr *)System::getSystem()->getDevice(komenda.getDevice()->getId()))->getAddres());
-                komenda.printParametry();
-                doWyslania.add(0, new Command(komenda)); //Dodaj komendę do wysłania na sam przód kolejki.
+                Device *tmpDev = System::getSystem()->addDevice(Device::TYPE::TERMOMETR);
+                komendaZwrotna->setDevice(tmpDev); // Zwróć dodane urządzenie //TODO obsługa nullptr
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                komendaZwrotna->setParams(((Termometr *)tmpDev)->getAddres());
+                komendaZwrotna->printParametry();
+                doWyslania.add(0, komendaZwrotna); //Dodaj komendę do wysłania na sam przód kolejki.
 
             }
             break;
             case Command::KOMENDY::RECEIVE_ADD_ROLETA:
             {
                 OUT_LN(F("RECEIVE_ADD_ROLETA"));
-                komenda.setDevice(System::getSystem()->addDevice(Device::TYPE::ROLETA, komenda.getParams()[0], komenda.getParams()[1]));
-                komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
+                OUT(F("pinUp: "))
+                OUT_LN(komenda.getParams()[0]);
+                OUT(F("pinDown: "))
+                OUT_LN(komenda.getParams()[1]);
+                komendaZwrotna->setDevice(System::getSystem()->addDevice(Device::TYPE::ROLETA, komenda.getParams()[0], komenda.getParams()[1]));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                params[0] = komenda.getDevice()->getId();
-                komenda.setParams(params);
-                doWyslania.add(0, new Command(komenda));
+                params[0] = komendaZwrotna->getDevice()->getId();
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
             }
             break;
             case Command::KOMENDY::RECEIVE_ADD_PRZYCISK:
             {
                 OUT_LN(F("RECEIVE_ADD_PRZYCISK"));
-                komenda.setDevice(System::getSystem()->addDevice(Device::TYPE::PRZYCISK, komenda.getParams()[0]));
-                komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
+                komendaZwrotna->setDevice(System::getSystem()->addDevice(Device::TYPE::PRZYCISK, komenda.getParams()[0]));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                params[0] = komenda.getDevice()->getId();
-                komenda.setParams(params);
-                doWyslania.add(0, new Command(komenda));
+                params[0] = komendaZwrotna->getDevice()->getId();
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
             }
             break;
             case Command::KOMENDY::RECEIVE_ADD_PRZEKAZNIK:
             {
                 OUT_LN(F("RECEIVE_ADD_PRZEKAZNIK"));
-                komenda.setDevice(System::getSystem()->addDevice(Device::TYPE::PRZEKAZNIK, komenda.getParams()[0]));
-                komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
+                komendaZwrotna->setDevice(System::getSystem()->addDevice(Device::TYPE::PRZEKAZNIK, komenda.getParams()[0]));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                params[0] = komenda.getDevice()->getId();
-                komenda.setParams(params);
-                doWyslania.add(0, new Command(komenda));
+                params[0] = komendaZwrotna->getDevice()->getId();
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
                 OUT_LN(F("END OF RECEIVE_ADD_PRZEKAZNIK"))
             }
             break;
@@ -151,9 +158,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             case Command::KOMENDY::RECEIVE_GET_TEMPERATURE:
             {
                 OUT_LN(F("RECEIVE_GET_TEMPERATURE"));
-                komenda.setCommandType(Command::KOMENDY::SEND_TEMPERATURA);
-                komenda.setDevice((Termometr *)System::getSystem()->getDevice(komenda.getDevice()->getId()));
-                doWyslania.add(0, new Command(komenda));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_TEMPERATURA);
+                komendaZwrotna->setDevice((Termometr *)System::getSystem()->getDevice(komenda.getDevice()->getId()));
+                doWyslania.add(0, komendaZwrotna);
             }
             break;
             case Command::KOMENDY::RECEIVE_ZMIEN_STAN:
@@ -161,19 +168,19 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             case Command::KOMENDY::RECEIVE_IS_INIT:
             {
                 OUT_LN(F("RECEIVE_IS_INIT"));
-                komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = System::is_init();
-                komenda.setParams(params);
-                doWyslania.add(0, new Command(komenda));
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
             }
             break;
             case Command::KOMENDY::RECEIVE_INIT:
             {
                 OUT_LN(F("RECEIVE_INIT"));
-                komenda.setCommandType(Command::KOMENDY::SEND_REPLY);
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {1, 0, 0, 0, 0, 0, 0, 0};// potwierdź odebranie komendy
-                komenda.setParams(params);
+                komendaZwrotna->setParams(params);
 
                 for (int i = 0; i < doWyslania.size(); i++)//oczyść listę komend do wysłania jako że będą już nie aktualne
                 {
@@ -181,7 +188,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 }
                 doWyslania.clear();
 
-                doWyslania.add(0, new Command(komenda));//dodaj wysłanie potwierdzenia otrzymania komendy
+                doWyslania.add(0, komendaZwrotna);//dodaj wysłanie potwierdzenia otrzymania komendy
                 
                 System::reinit_system();//reinicjalizuj system!
 
@@ -204,11 +211,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
 //TODO kolejka komend
 void I2CConverter::RequestEvent()
 {
+    Command* command;
     if (doWyslania.size()>0)
     {
-        Command command(doWyslania.get(0));//pobierz z "kolejki"
-        doWyslania.remove(0);//usuń z kolejki
-        switch (command.getCommandType())
+        command = doWyslania.remove(0);//usuń z kolejki
+        switch (command->getCommandType())
         {
             case Command::KOMENDY::SEND_TEMPERATURA:
                 {
@@ -216,12 +223,12 @@ void I2CConverter::RequestEvent()
                     // OUT_LN("freeMemory(): ");
                     // OUT_LN(freeMemory());
                     OUT("Temperatura: ");
-                    OUT_LN(((Termometr *)command.getDevice())->getTemperature());
-                    String tmp = String(((Termometr *)command.getDevice())->getTemperature(), 2U);
+                    OUT_LN(((Termometr *)command->getDevice())->getTemperature());
+                    String tmp = String(((Termometr *)command->getDevice())->getTemperature(), 2U);
                     OUT("afterString: ");
                     OUT_LN(tmp);
-                    // OUT_LN(termometry.get(id)->getTemperature());
-                    Wire.write(command.getDevice()->getId()); // wyslij ID Termometru na płytce
+                    // OUT_LN(termometry->get(id)->getTemperature());
+                    Wire.write(command->getDevice()->getId()); // wyslij ID Termometru na płytce
                     for (byte i = 0; i < tmp.length(); i++)
                     {
                         Wire.write(tmp.charAt(i)); // wyslij kolejne cyfry temperatury
@@ -231,14 +238,10 @@ void I2CConverter::RequestEvent()
             case Command::KOMENDY::SEND_REPLY:
             {
                 OUT_LN(F("SEND_REPLY"));
-                    Wire.write(command.getParams(),8);
-                    Wire.clearWriteError();
-                for (byte i =0; i < BUFFOR_OUT_SIZE; i++)
-                {
-                        // Wire.write(command->getParams()[i]);
-                    OUT((int)command.getParams()[i]);
-                    OUT(" ");
-                }
+                Wire.write(command->getParams(), 8);
+                Wire.clearWriteError();
+                command->printParametry();
+                OUT_LN("END SEND_REPLY")
                 OUT_LN();
                 break;
             } 
@@ -248,11 +251,13 @@ void I2CConverter::RequestEvent()
                 break;
         }
         OUT_LN(freeMemory());
-        
+        // OUT_LN("END OF FREEMEMORY")
     }
     else
     {
         OUT_LN(F("Wire.write('0')"));
         Wire.write('0');
     }
+    delete command;
+    
 }

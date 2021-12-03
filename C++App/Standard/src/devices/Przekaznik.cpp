@@ -6,7 +6,7 @@ Przekaznik::~Przekaznik()
 {
     digitalWrite(pin, LOW);
 }
-bool Przekaznik::begin(byte pin, bool stan = false)
+bool Przekaznik::begin(byte pin, bool stan)
 {
     if (pin >= PINOW_NA_ADRES + 2 && pin <= 16)
     {

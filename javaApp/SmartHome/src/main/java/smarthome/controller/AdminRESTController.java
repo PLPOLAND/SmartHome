@@ -21,6 +21,7 @@ import smarthome.model.Response;
 import smarthome.model.Room;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
+import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Termometr;
 import smarthome.security.Security;
 
@@ -147,6 +148,17 @@ public class AdminRESTController {
             return new Response<String>("Żarówka: '" + l.toString() + "' dodana prawidłowo");
         else
             return new Response<String>("", "Nie udało dodać się Żarówki. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+
+    }
+    @GetMapping("/addRoleta")
+    public Response<String> dodajRoleta(@RequestParam("name") String nazwaPokoju,@RequestParam("boardID") int boardID, @RequestParam("pinUp") int pinUp, @RequestParam("pinDown") int pinDown){
+        
+        
+        Blind l = (Blind) system.addRoleta(nazwaPokoju, boardID, pinUp, pinDown);
+        if(l != null)
+            return new Response<String>("Roleta: '" + l.toString() + "' dodana prawidłowo");
+        else
+            return new Response<String>("", "Nie udało dodać się Rolety. Sprawdź konsolę programu w poszukiwaniu szczegółów");
 
     }
 

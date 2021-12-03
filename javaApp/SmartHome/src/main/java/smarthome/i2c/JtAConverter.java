@@ -13,7 +13,7 @@ import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Light;
-import smarthome.model.hardware.Roleta;
+import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Termometr;
@@ -151,8 +151,8 @@ public class JtAConverter {
 
             try {
                 System.out.println("Writing to addres "+ device.getSlaveID());
-                Thread.sleep(100);
                 atmega.writeTo(device.getSlaveID(), buffor);
+                Thread.sleep(100);//TODO czy jest potrzebne?
                 byte[] response = atmega.readFrom(device.getSlaveID(), 8);
                 int OnBoardID = (int)response[0];
                 return OnBoardID;
@@ -160,6 +160,27 @@ public class JtAConverter {
                 e.printStackTrace();
             }
         }
+        if(device.getTyp() == DeviceTypes.BLIND){
+            byte[] buffor = new byte[4];
+            int i = 0;
+            for (byte b : DODAJROLETE) {
+                buffor[i++] = b;
+            }
+            buffor[i++] = (byte) (((Blind) device).getPinUp());
+            buffor[i++] = (byte) (((Blind) device).getPinDown());
+            
+            try {
+                logger.debug("Writing to addres " + device.getSlaveID());
+                atmega.writeTo(device.getSlaveID(), buffor);
+                Thread.sleep(100);
+                byte[] response = atmega.readFrom(device.getSlaveID(), 8);
+                int OnBoardID = (int) response[0];
+                return OnBoardID;
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
         return -1;
     }
 
@@ -172,7 +193,7 @@ public class JtAConverter {
             }
             try {
                 atmega.writeTo(sens.getSlaveID(), buffor);//Wyślij prośbę o dodanie nowego termometru na płytce
-                Thread.sleep(100);
+                Thread.sleep(200);
                 buffor = atmega.readFrom(sens.getSlaveID(), 8);
                 return buffor;
             } catch (Exception e) {

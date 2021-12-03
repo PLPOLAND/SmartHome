@@ -31,15 +31,16 @@ Termometr::~Termometr()
 {
 }
 //Returns byte[8]
-const byte* Termometr::getAddres(){
+byte* Termometr::getAddres(){
     return this->adress;
 }
 
-const String Termometr::getAddresAsString(){
+String Termometr::getAddresAsString(){
     String tmp;
     for (byte i = 0; i < 8; i++)
     {
         tmp+= this->adress[i];
+        tmp+=" ";
     }
     
 
@@ -66,7 +67,7 @@ bool Termometr::begin()
     
     if (lastSensorsCount != sensors.getDeviceCount()){
         LinkedList<byte*> defined = system->getAdrOfThemp();
-        for (int i = 0; i < sensors.getDeviceCount(); i++)
+        for (int i = 0; i < sensors.getDeviceCount(); i++)// poszukaj nowych termometrów podlaczonych do sysytemu
         {
             bool found = false ;
             byte currentThempAddr[8];
@@ -115,7 +116,8 @@ bool Termometr::begin()
         OUT("Adres:");
         for (int i = 0; i < 8; i++)
         {
-            OUT((int)this->adress[i]);
+            OUT(this->adress[i]);
+            OUT(" ");
         }
         OUT_LN();
         } else {

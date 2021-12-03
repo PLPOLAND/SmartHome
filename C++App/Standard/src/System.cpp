@@ -12,10 +12,11 @@ LinkedList<Roleta *> System::rolety = LinkedList<Roleta*>();
 
 System *System::getSystem()
 {
-    if (system == nullptr)
+    if (system == NULL)
     {
+        Serial.begin(115200); // start serial for output
         system = new System();
-        // OUT_LN("getSystem System()");
+        OUT_LN(F("getSystem System()"));
     }
 
     // OUT_LN("getSystem()");
@@ -23,9 +24,9 @@ System *System::getSystem()
 }
 System::System()
 {
-    Serial.begin(115200); // start serial for output
-    OUT_LN(freeMemory());
-    OUT_LN("SerialStarted");
+    // Serial.begin(115200); // start serial for output
+    // OUT_LN(freeMemory());
+    // OUT_LN("SerialStarted");
 }
 
 System::~System(){
@@ -37,16 +38,16 @@ System::~System(){
 void System::begin(){
     // Serial.begin(115200); // start serial for output
     OUT_LN(freeMemory());
-    OUT_LN("SerialStarted");
+    OUT_LN(F("SerialStarted"));
     comunication = I2CConverter::getInstance();
     comunication->begin();
-    OUT_LN("comunication->begin();");
+    OUT_LN(F("comunication->begin();"));
     Wire.onReceive(I2CConverter::onRecieveEvent);
-    OUT_LN("Wire.onReceive(I2CConverter::onRecieveEvent);");
+    OUT_LN(F("Wire.onReceive(I2CConverter::onRecieveEvent);"));
     Wire.onRequest(I2CConverter::onRequestEvent);
-    OUT_LN("Wire.onReceive(I2CConverter::onRequestEvent);");
+    OUT_LN(F("Wire.onReceive(I2CConverter::onRequestEvent);"));
     timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
-    OUT_LN("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));");
+    OUT_LN(F("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));"));
     OUT_LN(freeMemory());
 }
 
@@ -61,7 +62,7 @@ void System::tic(){
             OUT(" = ");
             OUT_LN(this->termometry.get(i)->getTemperature());
         }
-        OUT_LN("timer");
+        OUT_LN(F("timer"));
         timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     }
 
@@ -105,12 +106,12 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::PRZYCISK:
             {
-                OUT_LN("-----Dodaj Przycisk-----")
+                OUT_LN(F("-----Dodaj Przycisk-----"))
                 OUT("pin1:")
                 OUT_LN(pin1);
                 Przycisk * tmp = new Przycisk();
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
-                    OUT_LN("Poprawnie dodano Przycisk")
+                    OUT_LN(F("Poprawnie dodano Przycisk"))
                     tmp->setId(idDevice++);//nadaj mu id
                     OUT("id:")
                     OUT_LN(tmp->getId());
@@ -119,7 +120,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                     return tmp;
                 }
                 else{
-                    OUT_LN("Nie udało dodać Przycisku")
+                    OUT_LN(F("Nie udało dodać Przycisku"))
                     return nullptr;
                 }
             }
@@ -128,7 +129,29 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             
             break;
         case Device::TYPE::ROLETA:
-            
+            {
+                OUT_LN(F("-----Dodaj Roleta-----"));
+                OUT("pin1:");
+                OUT_LN(pin1);
+                OUT("pin2:");
+                OUT_LN(pin2);
+                Roleta *tmp = new Roleta();
+                if (tmp->begin(pin1, pin2))
+                { //jeśli uda się poparawnie dodać przekaźnik do systemu
+                    OUT_LN(F("Poprawnie dodano Roletę"))
+                    tmp->setId(idDevice++); //nadaj mu id
+                    OUT("id:")
+                    OUT_LN(tmp->getId());
+                    this->devices.add(tmp->getId(), tmp); //dodaj do listy urzadzen
+                    this->rolety.add(tmp);                //dodaj do listy urzadzen
+                    return tmp;
+                }
+                else
+                {
+                    OUT_LN(F("Nie udało dodać Rolety"))
+                    return nullptr;
+                }
+            }
             break;
         
         default:
@@ -193,6 +216,8 @@ bool System::removeDevice(byte id){
                 break;                  //przestań szukać
             }
         }
+        break;
+    default:
         break;
     }
     return true;

@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({ 
     @JsonSubTypes.Type(value = Switch.class, name = "Switch"),
     @JsonSubTypes.Type(value = Light.class, name = "Light"),
-    @JsonSubTypes.Type(value = Roleta.class, name = "Blind")
+    @JsonSubTypes.Type(value = Blind.class, name = "Blind")
     })
 public abstract class Device {
 

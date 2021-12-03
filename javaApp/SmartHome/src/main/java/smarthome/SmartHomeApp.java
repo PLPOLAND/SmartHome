@@ -64,6 +64,19 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							System.out.println(adminController.dodajSwiatlo(nazwaPokoju,3, pin).getObj().toString());
 						}
 					}
+				} 
+				else if(in.equals("addRoleta")){
+					if (scanner.hasNext()) {
+						String nazwaPokoju = scanner.next();
+						if (scanner.hasNext()) {
+							int pinUp= scanner.nextInt();
+							if (scanner.hasNext()) {
+								int pinDown= scanner.nextInt();
+
+								System.out.println(adminController.dodajRoleta(nazwaPokoju,3, pinUp, pinDown).getObj().toString());
+							}
+						}
+					}
 				} else if (in.equals("addTermometr")) {
 					if (scanner.hasNext()) {
 						String nazwaPokoju = scanner.next();

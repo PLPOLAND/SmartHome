@@ -19,25 +19,6 @@ Roleta::~Roleta()
 {
     delete time;
 }
-
-/**
- * 
- * Konstruktor 
- * 
- * @param pinup pin przekaznika od ruchu w gore
- * @param pindown pin przekaznika od ruchu w dol
- * 
- */
-Roleta::Roleta(byte pinup, byte pindown)
-{
-    Device(Device::TYPE::ROLETA);
-    this->setPinUp(pinup);
-    this->setPinDown(pindown);
-
-    akcja = Akcja::POSTOJ;
-    time = new Timer();
-    time->time(STOP);
-}
 /**
  * 
  * Konstruktor 
@@ -90,6 +71,23 @@ void Roleta::tic()
         this->stan = StanRolety::OPUSZCZONA;
     }
     
+}
+
+bool Roleta::begin(byte pinUp, byte pinDown){
+    if (pinUp >= PINOW_NA_ADRES + 2 && pinUp <= 16 && pinDown >= PINOW_NA_ADRES + 2 && pinDown <= 16)
+    {
+        this->setPinUp(pinUp);
+        this->setPinDown(pinDown);
+
+        akcja = Akcja::POSTOJ;
+        time = new Timer();
+        time->time(STOP);
+    }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 

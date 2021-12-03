@@ -12,6 +12,7 @@ import smarthome.i2c.JtAConverter;
 import smarthome.model.Room;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
+import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Termometr;
 
 /**
@@ -60,6 +61,34 @@ public class System {
         return light;
     }
 
+    /**
+     * Dodaje roletę do systemu, na masterze i na slavie
+     * @param roomName
+     * @param boardID
+     * @param pinUp
+     * @param pinDown
+     * @return
+     */
+    public Device addRoleta(String roomName, int boardID, int pinUp, int pinDown){
+        Room room = systemDAO.getRoom(roomName);
+        if (room == null) {
+            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
+            return null;
+        }
+        Blind roleta = new Blind(false, boardID, pinUp, pinDown);
+        try {
+            roleta.setOnSlaveID(arduino.addUrzadzenie(roleta));// dodaj urzadzenie do slavea i zapisz jego id w slavie
+            if (roleta.getOnSlaveID() == -1) {
+                throw new Exception("Nie udało się dodać urządzenia na slavie");
+            }
+            systemDAO.getRoom(roomName).addDevice(roleta);
+            systemDAO.save();
+        } catch (Exception e) {
+            roleta = null;
+            log.error(e.getMessage(), e);
+        }
+        return roleta;
+    }
     /**
      * Dodaj "Termometr" do systemu
      * @return 

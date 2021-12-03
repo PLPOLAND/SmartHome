@@ -43,7 +43,7 @@ public:
     void setPinDown(byte pin);
     StanRolety getStan();
 
-
+    bool begin(byte pinUp, byte pinDown);
 
     void podnies();
     void opusc();

@@ -30,8 +30,8 @@ public:
     ~Termometr();
     bool begin();
 
-    const byte* getAddres();
-    const String getAddresAsString();
+    byte* getAddres();
+    String getAddresAsString();
 
     float getTemperature();
     bool isCorrect();

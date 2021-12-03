@@ -2,25 +2,41 @@
 
 Command::Command()
 {
-
+    this->urzadzenie = nullptr;
+    this->komenda = KOMENDY::NIC;
 }
-Command::Command(const Command * command)
+// Command::Command(Command * command)
+// {
+//     this->id_slave = command->id_slave;
+//     this->komenda = command->komenda;
+//     this->urzadzenie = new Device(*(command->urzadzenie));
+//     memcpy(this->parametry, command->parametry, 8*sizeof(byte));
+// }
+
+Command::~Command()
+{
+    // OUT_LN(F("START ~Command()"))
+    if (this->urzadzenie != nullptr)
+    {
+        // OUT_LN(F("delete urzadzenie"))
+        delete this->urzadzenie;
+        // OUT_LN(F("END delete urzadzenie"))
+    }
+
+    // OUT_LN(F("END OF ~Command()"))
+}
+
+void Command::makeCopy(Command *command)
 {
     this->id_slave = command->id_slave;
     this->komenda = command->komenda;
     this->urzadzenie = new Device(*(command->urzadzenie));
-    memcpy(this->parametry, command->parametry, 8*sizeof(byte));
-}
-
-Command::~Command()
-{
-    if (this->urzadzenie != nullptr)
+    for (int i = 0; i < 8; i++)
     {
-        delete this->urzadzenie;
+        parametry[i] = command->parametry[i];
     }
-    free(parametry);
-}
 
+}
 void Command::convert(const byte *c, byte size)
 {
     switch (size)
@@ -60,7 +76,7 @@ void Command::convert(const byte *c, byte size)
             {
                 if (c[1] == 'S')// Dodaj przekaźnik
                 {
-                    OUT_LN("case 3, AS")
+                    OUT_LN(F("case 3, AS"))
                     this->komenda = Command::KOMENDY::RECEIVE_ADD_PRZEKAZNIK;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2];//nr pinu urzadzenia
@@ -70,7 +86,7 @@ void Command::convert(const byte *c, byte size)
                 }
                 else if (c[1] == 'P')//Dodaj Przycisk zwykły
                 {
-                    OUT_LN("case 3, AP")
+                    OUT_LN(F("case 3, AP"))
                     this->komenda = Command::KOMENDY::RECEIVE_ADD_PRZYCISK;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2];//nr pinu urzadzenia
@@ -120,6 +136,7 @@ void Command::convert(const byte *c, byte size)
         break;
     
     default:
+        this->komenda = Command::KOMENDY::NIC;
         break;
     }
     // return Komendy::NIC;
@@ -131,9 +148,9 @@ void Command::printParametry(){
     for (byte i = 0; i < 8; i++)
     {
         OUT(this->parametry[i]);
-        OUT(" ");
+        OUT(" ")
     }
-    OUT_LN("");
+    OUT_LN(F(""))
     
 }
 
@@ -156,12 +173,12 @@ Command::KOMENDY Command::getCommandType(){
 void Command::setDevice(Device * u){
     this->urzadzenie = new Device(*(u));
 }
-void Command::setParams(const byte *param){
+void Command::setParams(byte *param){
     for (byte i = 0; i < 8; i++)
     {
         this->parametry[i] = param[i];
     }
-    
+    OUT_LN()
 }
 void Command::setSlaveID(byte sId){
     this->id_slave = sId;

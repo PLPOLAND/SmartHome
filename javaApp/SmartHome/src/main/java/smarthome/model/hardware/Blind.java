@@ -1,7 +1,7 @@
 package smarthome.model.hardware;
 
 
-public class Roleta extends Device{//TODO do przerobienia na używanie 2x przekaźnik
+public class Blind extends Device{//TODO do przerobienia na używanie 2x przekaźnik
     enum RoletaStan{
         DOWN,
         NOTKNOW,
@@ -12,19 +12,19 @@ public class Roleta extends Device{//TODO do przerobienia na używanie 2x przeka
     Switch swtUp;
     Switch swtDown;
 
-    Roleta(){
+    Blind(){
         super(DeviceTypes.BLIND);
     }
     
-    public Roleta(boolean stan, int pinUp, int pinDown) {//TODO
-        super(DeviceTypes.BLIND);
+    public Blind(boolean stan, int boardID, int pinUp, int pinDown) {//TODO
+        super(boardID, DeviceTypes.BLIND);
         this.stan = stan == true ? RoletaStan.UP : RoletaStan.DOWN;
         swtUp = new Switch(false, pinUp);
         swtDown = new Switch(false, pinDown);
     }
 
-    public Roleta(int id, int room, int roomID, int pinUp, int pinDown){//TODO
-        super(id, room, roomID, DeviceTypes.BLIND);
+    public Blind(int id, int room, int boardID, int pinUp, int pinDown){//TODO
+        super(id, room, boardID, DeviceTypes.BLIND);
         stan = RoletaStan.DOWN;
         swtUp = new Switch(false, pinUp);
         swtDown = new Switch(false, pinDown);
@@ -54,4 +54,10 @@ public class Roleta extends Device{//TODO do przerobienia na używanie 2x przeka
         this.changeState(stan2);
     }
 
+    public int getPinUp(){
+        return swtUp.getPin();
+    }
+    public int getPinDown(){
+        return swtDown.getPin();
+    }
 }
