@@ -16,7 +16,7 @@ public:
         RECEIVE_ADD_PRZYCISK,    //Dodaj nowy przycisk do systemu
         RECEIVE_ADD_PRZEKAZNIK,  //Dodaj nowy przekaznik do systemu
         RECEIVE_GET_TEMPERATURE, //Pobierz temperaturę z termometru
-        RECEIVE_ZMIEN_STAN,      //Zmien stan konkretnego urzadzenia
+        RECEIVE_ZMIEN_STAN_PRZEKAZNIKA,      //Zmien stan konkretnego urzadzenia
         RECEIVE_IS_INIT,         //Czy urządzenie zostało zainicjowane
         RECEIVE_INIT,            //reinicjalizuj system
         RECEIVE_GET,             //Wczytaj następny z kolejki
@@ -53,7 +53,7 @@ public:
 
     void setSlaveID(byte sId);
     void setDevice(Device *u);
-    void setParams(byte *param);
+    void setParams(const byte *param);
     void setCommandType(KOMENDY komenda);
 
     void makeCopy(Command *command);

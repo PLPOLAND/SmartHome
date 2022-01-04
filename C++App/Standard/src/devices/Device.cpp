@@ -1,14 +1,25 @@
 #include "Device.h"
 
-    Device::Device() : type_of_device(Device::TYPE::BRAK), id(0)
+    Device::Device()
     {
+        this->setType(Device::TYPE::BRAK);
+        this->id = 0;
     }
 
-    Device::Device(TYPE type) : type_of_device(type), id(0)
+    Device::Device(TYPE type)
     {
+        this->setType(type);
+        this->id = 0;
     }
-    Device::Device(TYPE type, byte id) : type_of_device(type), id(id)
+    Device::Device(TYPE type, byte id)
     {
+        this->setType(type);
+        this->id = id;
+    }
+
+    Device::Device(const Device &d){
+        this->setType(d.type_of_device);
+        this->id = d.id;
     }
 
     void Device::setType(TYPE type)

@@ -1,13 +1,27 @@
 {
-  "devices" : [ {
-    "@type" : "Light",
-    "id" : 2,
-    "room" : 0,
-    "typ" : "LIGHT",
-    "stan" : false,
-    "idplytki" : -1
-  } ],
-  "sensors" : [ ],
-  "id" : 0,
-  "nazwa" : "Marek"
+  "devices": [],
+  "sensors": [
+    {
+      "@type": "Termometr",
+      "id": 2,
+      "room": 1,
+      "slaveID": 3,
+      "addres": [
+        40,
+        255,
+        30,
+        49,
+        0,
+        22,
+        2,
+        171
+      ],
+      "typ": "THERMOMETR",
+      "temperatura": 3.4028235E38,
+      "max": 1.4E-45,
+      "min": 3.4028235E38
+    }
+  ],
+  "nazwa": "Marek",
+  "id": 1
 }

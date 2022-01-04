@@ -75,7 +75,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         break;
 
         case Device::TYPE::TERMOMETR:{
-            Termometr *tmp = (Termometr *)malloc(sizeof(Termometr));
+            Termometr *tmp = new Termometr();
             if (tmp->begin())
             { //spr. skonfigurować kolejny termometr
                 tmp->setId(idDevice++);
@@ -224,6 +224,27 @@ bool System::removeDevice(byte id){
 }
 Device* System::getDevice(byte id){
     return devices.get(id);
+}
+
+Termometr* System::getTermometr(const byte* adress){
+
+    for (int i = 0; i < termometry.size(); i++)
+    {
+        if (termometry[i]->compare2Adresses(termometry[i]->getAddres(), adress)){
+            OUT(F("FOUND ADRESS : "));
+            for (int j = 0; j < 8; j++)
+            {
+                OUT(termometry[i]->getAddres()[j])
+                OUT(" ")
+            }
+            OUT_LN(" ")
+            OUT("FOUND DEV TYPE:") OUT_LN(termometry[i]->getType()== Device::TERMOMETR);
+            return termometry[i];
+        }
+            
+    }
+    return nullptr;    
+
 }
 
 LinkedList<byte*> System::getAdrOfThemp(){

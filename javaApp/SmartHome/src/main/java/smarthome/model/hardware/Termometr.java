@@ -79,5 +79,8 @@ public class Termometr extends Sensor{
         this.min = Float.MAX_VALUE;
     }
     
+    public void update(){
+        
+    }
 
 }

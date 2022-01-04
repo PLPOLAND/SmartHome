@@ -1,4 +1,5 @@
 #include "Command.h"
+#include "devices/Termometr.h"
 
 Command::Command()
 {
@@ -39,6 +40,25 @@ void Command::makeCopy(Command *command)
 }
 void Command::convert(const byte *c, byte size)
 {
+    // OUT(F("Rozmiar wejscia Komendy:"))
+    // OUT_LN(size);
+    // OUT(F("c[0] = "))
+    // OUT_LN(c[0]);
+    // for (size_t i = 0; i < size ; i++)
+    // {
+    //     OUT("i: ");
+    //     OUT(i)
+    //     OUT(" buf: ")
+    //     if (c[i]>='A' && c[i] <='Z')
+    //     {
+    //         OUT_LN((char)c[i])
+    //     }
+    //     else{
+    //         OUT_LN(c[i])
+    //     }
+        
+    // }
+    
     switch (size)
     {
     case 1:{
@@ -59,14 +79,6 @@ void Command::convert(const byte *c, byte size)
             {
                 this->komenda = Command::KOMENDY::RECEIVE_ADD_THERMOMETR;
             }
-        }
-        else if (c[0] == 'T')//GetTemperature
-        {
-            OUT_LN(F("Command_convert:TX"));
-            urzadzenie = new Device();//wskaźnik na urządzenie
-            urzadzenie->setId(c[1]-'0');//ustawienie ID urządzenia którego dotyczy komenda
-            urzadzenie->setType(Device::TYPE::TERMOMETR);//Ustawienie typu urządzenia którego dotyczy komenda
-            this->komenda = Command::KOMENDY::RECEIVE_GET_TEMPERATURE;
         }
 
         break;
@@ -112,6 +124,19 @@ void Command::convert(const byte *c, byte size)
                     this->setParams(parametry);
                 }
             }
+            else if (c[0] == 'U')
+            {
+                if (c[1] == 'S')
+                {
+                    this->komenda = Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA;
+                    byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    parametry[0] = c[2]; //ID switcha
+                    parametry[1] = c[3]; //stan do ustawienia
+                    this->setParams(parametry);
+                }
+                
+            }
+            
         }
         break;
     case 5:
@@ -134,7 +159,31 @@ void Command::convert(const byte *c, byte size)
 
         }
         break;
-    
+    case 9:
+        {
+            if (c[0] == 'T')
+            {
+                this->komenda = Command::KOMENDY::RECEIVE_GET_TEMPERATURE;
+                byte parametry[8] = {0,0,0,0,0,0,0,0};
+                for (byte i = 0; i < 8; i++)
+                {
+                    parametry[i] = c[i+1];
+                }
+                this->setParams(parametry);
+                String tmp = String(System::getSystem()->getTermometr(parametry)->getTemperature(),2U);
+                for (byte i = 0; i < 8; i++)
+                {
+                    parametry[i] = 0;
+                }
+                for (byte i = 0; i < tmp.length(); i++)
+                {
+                    parametry[i] = tmp.charAt(i);
+                }
+                this->setParams(parametry);
+            }
+            
+        }
+        break;
     default:
         this->komenda = Command::KOMENDY::NIC;
         break;
@@ -171,9 +220,21 @@ Command::KOMENDY Command::getCommandType(){
 }
 
 void Command::setDevice(Device * u){
+
+    if (u->getType() == Device::TERMOMETR)
+    {
+        OUT_LN("BEGIN OF COPY TEMP")
+        this->urzadzenie = new Termometr(*(Termometr*)u);
+    }
+    else
+    {
+        this->urzadzenie = new Device(*u);
+    }
+    
+
     this->urzadzenie = new Device(*(u));
 }
-void Command::setParams(byte *param){
+void Command::setParams(const byte *param){
     for (byte i = 0; i < 8; i++)
     {
         this->parametry[i] = param[i];

@@ -5,9 +5,8 @@
 #include <LinkedList.h>
 #include "devices/Device.h"
 #include "System.h"
+#include "Stale.h"
 
-//pin komunikacji oneWire
-#define ONEWIRE_BUS 8 
 
 class System;
 
@@ -23,19 +22,20 @@ private:
     static System* system;
     byte adress[8]; //adres termometru (tablica[8])
     float temperatura;
-    bool compare2Adresses(const byte* addr1,const byte* addr2);
 public:
     Termometr();
     Termometr(byte id);
+    Termometr(const Termometr &t);
     ~Termometr();
     bool begin();
 
-    byte* getAddres();
+    const byte* getAddres();
     String getAddresAsString();
 
     float getTemperature();
     bool isCorrect();
     void updateTemperature();
+    bool compare2Adresses(const byte* addr1,const byte* addr2);
 };
 
 #endif // !TERMOMETR_H

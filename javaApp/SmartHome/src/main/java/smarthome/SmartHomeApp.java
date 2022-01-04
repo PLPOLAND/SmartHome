@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import smarthome.controller.AdminRESTController;
 import smarthome.database.SystemDAO;
+import smarthome.model.hardware.Termometr;
 
 
 
@@ -39,7 +40,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 		system = app.getAutowireCapableBeanFactory().getBean(smarthome.system.System.class);
 		String in = "";
 
-		while(!in.equals("end")){
+		while(!in.equals("end") && !in.equals("stop") && ! in.equals("exit")){
 			in = scanner.next();
 			try{
 				if(in.equals("print")){
@@ -99,6 +100,33 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						String nazwaPokoju = scanner.next();
 						System.out.println(adminController.removeRoom(nazwaPokoju).getObj().toString());
 					}
+				}
+				else if(in.equals("removeTermometr")){
+
+				}
+				else if(in.equals("getTemperature")){
+					int[] adress = new int[8];
+					for (int i = 0; i < adress.length; i++) {
+						if(scanner.hasNext()){
+							adress[i] = scanner.nextInt();
+						}
+					}
+					System.out.println(adminController.getTemperatura(adress).getObj());
+				}
+				else if(in.equals("updateTemperature")){
+					for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
+						system.updateTemperature(termometr);
+					}
+				}
+				else if(in.equals("test")){
+					system.getSystemDAO().removeRoom("Marek");
+					adminController.dodajPokoj("Marek");
+					System.out.println(adminController.dodajTermometr("Marek", 3).getObj());
+					for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
+						system.updateTemperature(termometr);
+					}
+					int [] tmp = {40,255,30,49,0,22,2,171};
+					System.out.println(adminController.getTemperatura(tmp).getObj());
 				}
 			}
 			catch(Exception e){

@@ -40,7 +40,7 @@ public class JtAConverter {
     /**[U]*/
     final byte[] ZMIENSTANPRZEKAZNIKA = { 'U' }; // + id + stan
     /**[T]*/
-    final byte[] POBIERZTEMPERATURE = { 'T' }; // + Id
+    final byte[] POBIERZTEMPERATURE = { 'T' }; // + ADRESS (8byte)
     /**[A, S]*/
     final byte[] DODAJURZADZENIE = { 'A', 'S' }; // + PIN
     /**[A, R]*/
@@ -95,39 +95,40 @@ public class JtAConverter {
      * 
      * @param termometr - termometr docelowy
      */
-    public void checkTemperature(Termometr termometr) {//TODO dostosować implementację do nowego schematu komunikacji (identyfikacja przez adress)
-        // byte[] buffor = new byte[8];
-        // int i = 0;
-        // for (byte b : POBIERZTEMPERATURE) {
-        //     buffor[i++] = b;
-        // }
-        // buffor[i++] = (byte) termometr.getNumberOnBoard();
-        // // System.out.println(new String(buffor));
-        // logger.debug(buffor.toString());
-        // try {
-        //     atmega.writeTo(termometr.getSlaveID(), buffor,2);
-        //     buffor = atmega.readFrom(termometr.getSlaveID(), 8);// odpowiedz z temperaturą
-        //     String bString = "";
-        //     for (byte b : buffor) {
-        //         if (b >= 48 && b <= 57 || b == '.') {
-        //             bString += (char) b;
-        //             // System.out.println((char)b);
-        //         }
-        //     }
-        //     logger.debug(bString);
-        //     String tmp ="";
-        //     for (int j = 0; j < buffor.length; j++) {
-        //         tmp+=(int)buffor[j];
-        //     }
-        //     logger.debug(tmp);
-        //     if (buffor[0] == termometr.getNumberOnBoard()) {
-        //         float tempVal = Float.parseFloat(bString);
-        //         logger.info("Odebrano temperaturę \"" + tempVal + "\" z urządzenia" + termometr.toString());
-        //         termometr.setTemperatura(tempVal);
-        //     }
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
+    public Float checkTemperature(Termometr termometr) {//TODO dostosować implementację do nowego schematu komunikacji (identyfikacja przez adress)
+        byte[] buffor = new byte [9];
+        String bufString = "";
+
+        int i =0;
+        for (byte b : POBIERZTEMPERATURE) {
+            buffor[i++] = b;
+            bufString += (int)b + " ";
+        }
+        for (int adr : termometr.getAddres()) {
+            buffor[i++] = (byte) adr;
+            bufString += adr + " ";
+        }
+        try {
+            logger.debug("Writing to addres " + termometr.getSlaveID() + " command: " + buffor.toString());
+            atmega.writeTo(termometr.getSlaveID(), buffor);
+            Thread.sleep(100);
+            byte[] response = atmega.readFrom(termometr.getSlaveID(), 8);
+            String tmp ="";
+            for (byte b : response) {
+                if (b >= 48 && b<= 57 || b == '.') {
+                    tmp += (char) b;
+                }
+            }
+            Float temperatura = Float.parseFloat(tmp);
+
+            termometr.setTemperatura(temperatura);
+
+            return temperatura;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return -128.f;
+        }
+
     }
 
     /**

@@ -3,11 +3,10 @@
 
 #include "Arduino.h"
 #include "Wire.h"
-#include <Kontener.h>
-#include <devices/Termometr.h>
-#include <devices/Przekaznik.h>
-#include "LinkedList.h"
 #include "Command.h"
+#include "devices/Termometr.h"
+#include "devices/Przekaznik.h"
+#include "LinkedList.h"
 // #include "System.h"6
 
 

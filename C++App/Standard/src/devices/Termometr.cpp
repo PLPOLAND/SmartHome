@@ -9,29 +9,22 @@ LinkedList<byte *> Termometr::adressesOfFreeThermometrs = LinkedList<byte*>();
 Termometr::Termometr()
 {
     Device(TYPE::TERMOMETR);
-    // // if (sensors.getDeviceCount() == 0)
-    // // {
-    //     sensors.begin();
-    //     Serial.println("Termo_begin");
-    // // }
-    // if (termometrowWSystemie < sensors.getDeviceCount())
-    // {
-    //     id = termometrowWSystemie;//przypisanie id sensora
-    //     termometrowWSystemie++;
-    //     Serial.print("Stworzono nowy termometr \nid: ");
-    //     Serial.println(id);
-    // }
-    // else{
-    //     id = -1;
-    //     Serial.println("Błąd brak nowych termo");
-    // }
 }
 
 Termometr::~Termometr()
 {
 }
+
+Termometr::Termometr(const Termometr &t){
+    Device((Device)t); 
+    OUT_LN("COPY TERMO")
+    memcpy(this->adress,t.adress,8);
+    this->temperatura = t.temperatura;
+
+}
+
 //Returns byte[8]
-byte* Termometr::getAddres(){
+const byte* Termometr::getAddres(){
     return this->adress;
 }
 
@@ -145,9 +138,10 @@ bool Termometr::compare2Adresses(const byte *addr1, const byte *addr2){
     {
         if (addr1[i] != addr2[i])
         {
+            // OUT(addr1[i]) OUT(" != ") OUT(addr2[i]) OUT_LN()
             return false;
         }
-        
+        // OUT(addr1[i]) OUT(" = ") OUT(addr2[i]) OUT_LN()
     }
     return true;
     

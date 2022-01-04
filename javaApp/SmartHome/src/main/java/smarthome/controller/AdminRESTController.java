@@ -208,6 +208,12 @@ public class AdminRESTController {
 
     }
 
+    @GetMapping("getTemperatura")
+    public Response<Float> getTemperatura(@RequestParam("adres") int[] adress){
+        
+
+        return new Response<>(system.getTemperature(adress));
+    }
 
 
 }

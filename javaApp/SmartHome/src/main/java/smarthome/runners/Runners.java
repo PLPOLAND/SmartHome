@@ -24,7 +24,7 @@ public class Runners {
     Logger logger;
     
     @Autowired
-    SystemDAO system;
+    smarthome.system.System system;
     @Autowired
     JtAConverter converter;
 
@@ -36,14 +36,14 @@ public class Runners {
     }
 
     // @Scheduled(fixedRate = 1000)
-    void UpdateTemperature() {
-        if (termometrs == null) {
-            termometrs = system.getAllTermometers();
-        }
-        for (Termometr termometr : termometrs) {
-            // converter.checkTemperature(termometr);
-            logger.debug("Zaaktualizowano temperature termometra id="+termometr.getId()+", t="+termometr.getTemperatura());
-        }
-    }
+    // void updateTemperature() {
+    //     if (termometrs == null) {
+    //         termometrs = system.getSystemDAO().getAllTermometers();
+    //     }
+    //     for (Termometr termometr : termometrs) {
+    //         system.updateTemperature(termometr);
+    //         logger.debug("Zaaktualizowano temperature termometra id="+termometr.getId()+", t="+termometr.getTemperatura());
+    //     }
+    // }
 
 }

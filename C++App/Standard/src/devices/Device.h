@@ -19,6 +19,7 @@ class Device
 		Device();
 		Device(TYPE type);
 		Device(TYPE type, byte id);
+		Device(const Device & d);
 
 		void setType(TYPE type);
 		TYPE getType();

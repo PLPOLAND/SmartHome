@@ -14,12 +14,12 @@ I2CConverter::I2CConverter()
     static_assert(PINOW_NA_ADRES >= 1, "ZA MALO PINOW NA ADRESS");
     static_assert(ONEWIRE_BUS > (PINOW_NA_ADRES + 1), "BUS na zajetym pinie");
     for (byte i = 0; i < PINOW_NA_ADRES; i++) {
-        pinMode(2 + i, INPUT);
+        pinMode(2 + i, INPUT_PULLUP);
     }
     byte tmp = 1;
     byte adress = 0;
     for (byte i = 0; i < PINOW_NA_ADRES; i++) {
-        adress += tmp * digitalRead(2 + i);
+        adress += tmp * (digitalRead(2 + i) == HIGH ? 0:1);
         tmp *= 2;
     }
 
@@ -75,7 +75,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
         OUT(buffReadSize-1);
         OUT("  buf:" );
         OUT_LN(buf[buffReadSize - 1]);
-        if (!(buffReadSize < BUFFOR_IN_SIZE)) {
+        if (!(buffReadSize <= BUFFOR_IN_SIZE)) {
             buffReadSize--;
             break; // TODO: Obsługa błędu???
             while (0 < Wire.available())
@@ -159,11 +159,23 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             {
                 OUT_LN(F("RECEIVE_GET_TEMPERATURE"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_TEMPERATURA);
-                komendaZwrotna->setDevice((Termometr *)System::getSystem()->getDevice(komenda.getDevice()->getId()));
+                komendaZwrotna->setParams(komenda.getParams());
+
+                
                 doWyslania.add(0, komendaZwrotna);
             }
             break;
-            case Command::KOMENDY::RECEIVE_ZMIEN_STAN:
+            case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
+            {
+                OUT_LN(F("RECEIVE_ZMIEN_STAN_PRZEKAZNIKA"));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+
+                Przekaznik* p = (Przekaznik*) System::getSystem()->getDevice(komenda.getParams()[0]);
+                p->setStan(komenda.getParams()[1] == 1 ? true : false);
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                params[0]= 1;
+                komendaZwrotna->setParams(params);
+            }
                 break;
             case Command::KOMENDY::RECEIVE_IS_INIT:
             {
@@ -223,16 +235,32 @@ void I2CConverter::RequestEvent()
                     // OUT_LN("freeMemory(): ");
                     // OUT_LN(freeMemory());
                     OUT("Temperatura: ");
-                    OUT_LN(((Termometr *)command->getDevice())->getTemperature());
-                    String tmp = String(((Termometr *)command->getDevice())->getTemperature(), 2U);
-                    OUT("afterString: ");
-                    OUT_LN(tmp);
-                    // OUT_LN(termometry->get(id)->getTemperature());
-                    Wire.write(command->getDevice()->getId()); // wyslij ID Termometru na płytce
-                    for (byte i = 0; i < tmp.length(); i++)
+                    for (byte i = 0; i < 8; i++)
                     {
-                        Wire.write(tmp.charAt(i)); // wyslij kolejne cyfry temperatury
+                        
+                        OUT(command->getParams()[i])
+                        OUT(" ")
                     }
+                    Wire.write(0); // wyslij ID Termometru na płytce
+                    for (byte i = 0; i < 7; i++)
+                    {
+                        
+                        Wire.write(command->getParams()[i]);
+                        // OUT(" ")
+                    }
+                    
+
+
+                    // OUT_LN(((Termometr *)command->getDevice())->getTemperature());
+                    // String tmp = String(((Termometr *)command->getDevice())->getTemperature(), 2U);
+                    // OUT("afterString: ");
+                    // OUT_LN(tmp);
+                    // // OUT_LN(termometry->get(id)->getTemperature());
+                    // Wire.write(0); // wyslij ID Termometru na płytce
+                    // for (byte i = 0; i < tmp.length(); i++)
+                    // {
+                    //     Wire.write(tmp.charAt(i)); // wyslij kolejne cyfry temperatury
+                    // }
                     break;
                 }
             case Command::KOMENDY::SEND_REPLY:
@@ -261,3 +289,13 @@ void I2CConverter::RequestEvent()
     delete command;
     
 }
+
+/*
+
+addRoom Marek
+addTermometr Marek
+
+updateTemperature 40 255 30 49 0 22 2 171
+
+
+*/

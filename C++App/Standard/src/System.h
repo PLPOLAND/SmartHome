@@ -6,11 +6,11 @@
 #include <Wire.h>
 #include "FreeMemory.h"
 #include "Stale.h"
+#include "I2C/I2CConverter.h"
+#include "I2C/I2CAnything.h"
 #include "devices/Przekaznik.h"
 #include "devices/Przycisk.h"
 #include "devices/Roleta.h"
-#include "I2C/I2CConverter.h"
-#include "I2C/I2CAnything.h"
 
 //Główna klasa obsługująca "slave-a"
 class I2CConverter;
@@ -65,7 +65,13 @@ public:
     ///@return Wskaźnik do urządzenia o podanym ID;
     ///@param id ID urządzenia do znalezienia
     Device* getDevice(byte id);
-    
+    /**
+     * @brief Zwraca termometr o adresie podanym w argumencie.
+     * 
+     * @param adress adres szukanego termometru
+     * @return Device* - termometr o podanym adresie
+     */
+    Termometr *getTermometr(const byte *adress);
 
     ///Zwraca listę adresów termometrów zarejestrowanych w systemie
     LinkedList<byte*> getAdrOfThemp();

@@ -1,6 +1,8 @@
 package smarthome.system;
 
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import smarthome.i2c.JtAConverter;
 import smarthome.model.Room;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
+import smarthome.model.hardware.Sensor;
+import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Termometr;
 
@@ -34,6 +38,13 @@ public class System {
     System(){
         log = LoggerFactory.getLogger(System.class);
     }
+
+
+
+    public SystemDAO getSystemDAO() {
+        return this.systemDAO;
+    }
+
 
     /**
      * Dodaj "żarówkę" do systemu
@@ -116,5 +127,90 @@ public class System {
         return termometr;
     }
 
+    /**
+     * Przeszkuje listę sensorów  w poszukianiu termometru o podanym id
+     * @param roomName
+     * @param idTermometru
+     * @return
+     */
+    private Termometr getTermometr(String roomName, int idTermometru){
+        Room room = systemDAO.getRoom(roomName);
+        if (room == null) {
+            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
+            return null;
+        }
+        for (Sensor termometr : room.getSensors()) {
+            if (termometr.getId() == idTermometru && (termometr.getTyp() == SensorsTypes.THERMOMETR || termometr.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR)) {
+                return (Termometr) termometr;
+            }
+        }
+        return null;
 
+    }
+    
+    /**
+     * Przeszkuje listę sensorów w poszukiwaniu termometru o podanym adresie
+     * 
+     * @param roomName
+     * @param adress
+     * @return
+     */
+    private Termometr getTermometr(String roomName, int[] adress){
+        Room room = systemDAO.getRoom(roomName);
+        if (room == null) {
+            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
+            return null;
+        }
+        for (Sensor termometr : room.getSensors()) {
+            if (Arrays.equals(termometr.getAddres(), adress) && (termometr.getTyp() == SensorsTypes.THERMOMETR || termometr.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR)) {
+                return (Termometr) termometr;
+            }
+        }
+        return null;
+
+    }
+    
+    /**
+     * Przeszkuje listę sensorów w poszukiwaniu termometru o podanym adresie
+     * 
+     * @param roomName
+     * @param adress
+     * @return
+     */
+    private Termometr getTermometr(int[] adress) {
+        for (Room room : this.systemDAO.getRoomsArrayList()) {
+            Termometr tmp = getTermometr(room.getNazwa(), adress);
+            if(tmp != null){
+                return tmp;
+            }
+        }
+        return null;
+
+    }
+    
+    public Float getTemperature(String roomName, int[] adress){
+        Room room = systemDAO.getRoom(roomName);
+        if (room == null) {
+            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
+            return -128.f;
+        }
+
+        Termometr tmp = this.getTermometr(roomName, adress);
+        if (tmp!= null) {
+            return tmp.getTemperatura();
+        }
+        else
+            return -128.f;
+    }
+    public Float getTemperature(int[] adress){
+        Termometr tmp = this.getTermometr(adress);
+        if (tmp != null) {
+            return tmp.getTemperatura();
+        }
+        return -128.f;
+    }
+
+    public void updateTemperature(Termometr termometr){
+        arduino.checkTemperature(termometr);
+    }
 }
