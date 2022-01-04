@@ -171,6 +171,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
 
                 Przekaznik* p = (Przekaznik*) System::getSystem()->getDevice(komenda.getParams()[0]);
+                OUT_LN(F("Przekaznik: "))
+                OUT_LN(p->toString())
                 p->setStan(komenda.getParams()[1] == 1 ? true : false);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0]= 1;

@@ -4,53 +4,58 @@
 
 #ifdef TEST
 
-    #include <devices/Przycisk.h>
-    #include <devices/Roleta.h>
-    Przycisk przycisk(10);
-    Roleta roleta(11,12);
-
+    #include "System.h"
+    #include "Stale.h"
+    #include "devices/Przycisk.h"
+    #include "devices/Roleta.h"
+    Przycisk przycisk;
+    // Roleta roleta(11,12);
+    Przekaznik przekaznik;
     void setup()
     {
         Serial.begin(115200); // start serial for output
+        // przycisk.begin(10);
+        przekaznik.begin(11);
         OUT_LN("START");
     }
 
     void loop()
     {
-        przycisk.updateStan();
-        roleta.tic();
+        przekaznik.setStan(1);
+        // przycisk.updateStan();
+        // roleta.tic();
 
-        while (Serial.available())
-        {
-            char ch = Serial.read();
-            if (ch == '1')
-            {
-                roleta.podnies();
-                OUT_LN("Podnies");
-            }
-            else if (ch == '2')
-            {
-                roleta.opusc();
-                OUT_LN("Opusc");
-            }
-            else if (ch == '3')
-            {
-                roleta.up();
-                OUT_LN("up");
-                delay(500);
-                roleta.stop();
-                OUT_LN("stop");
-            }
-            else if(ch == '4')
-            {
-                roleta.down();
-                OUT_LN("down");
-                delay(500);
-                roleta.stop();
-                OUT_LN("stop");
-            }
+        // while (Serial.available())
+        // {
+        //     char ch = Serial.read();
+        //     if (ch == '1')
+        //     {
+        //         roleta.podnies();
+        //         OUT_LN("Podnies");
+        //     }
+        //     else if (ch == '2')
+        //     {
+        //         roleta.opusc();
+        //         OUT_LN("Opusc");
+        //     }
+        //     else if (ch == '3')
+        //     {
+        //         roleta.up();
+        //         OUT_LN("up");
+        //         delay(500);
+        //         roleta.stop();
+        //         OUT_LN("stop");
+        //     }
+        //     else if(ch == '4')
+        //     {
+        //         roleta.down();
+        //         OUT_LN("down");
+        //         delay(500);
+        //         roleta.stop();
+        //         OUT_LN("stop");
+        //     }
             
-        }
+        // }
 
         // OUT_LN(przycisk.getStan());
         // OUT_LN(digitalRead(2));

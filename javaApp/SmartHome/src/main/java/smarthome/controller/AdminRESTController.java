@@ -58,23 +58,13 @@ public class AdminRESTController {
 
     @RequestMapping("/test")
     public Response test() {
-        byte[] tmp = {'x'};
-        byte[] msg = {'A','P',11};
-        try {
-            converter.atmega.writeTo(3, msg, 3);
-        } catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        try {
-            tmp = converter.getAnything(3);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        Response response = new Response<>(tmp.toString(), "errortmp");
-        // // converter.changeSwitchState(new Przekaznik(1,1,1,4), true);
-        return response;
+        system.getSystemDAO().removeRoom("Marek");
+        this.dodajPokoj("Marek");
+
+        System.out.println(this.dodajSwiatlo("Marek", 3, 11));
+        
+
+        return this.zmienStanSwiatla("Marek",system.getSystemDAO().getRoom("Marek").getDevices().size() - 1, true);
     }
     @RequestMapping("/find")
     public Response<ArrayList<I2CDevice>> find() {
@@ -204,7 +194,7 @@ public class AdminRESTController {
         // } catch (Exception e) {
         //     return new Response<>("",e.getMessage());
         // }
-        return new Response<String>("Termometr: '" + t.toString() + "' dodany prawidłowo");
+        return new Response<>("Termometr: '" + t.toString() + "' dodany prawidłowo");
 
     }
 
@@ -215,5 +205,19 @@ public class AdminRESTController {
         return new Response<>(system.getTemperature(adress));
     }
 
+    @GetMapping("changetLightState")
+    public Response<String> zmienStanSwiatla(@RequestParam("name") String nazwaPokoju, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("stan") boolean stan) {
+        
+        try {
+            Device d =system.changeLightState( nazwaPokoju, idUrzadzenia, stan);
+            return new Response<>("Zmieniono stan Swiatla :" +((Light)d).toString()+" na stan: " + (stan == true ? "ON" : "OFF"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<>("", e.getMessage());
+        }
+
+
+
+    }
 
 }

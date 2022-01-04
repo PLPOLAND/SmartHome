@@ -93,7 +93,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         case Device::TYPE::PRZEKAZNIK:
             {
                 Przekaznik * tmp = new Przekaznik();
-                if(tmp->begin(pin1, false)){//jeśli uda się poparawnie dodać przekaźnik do systemu
+                if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     tmp->setId(idDevice++);//nadaj mu id
                     this->devices.add(tmp->getId(), tmp);//dodaj do listy urzadzen
                     this->przekazniki.add(tmp);//dodaj do listy urzadzen
@@ -223,6 +223,13 @@ bool System::removeDevice(byte id){
     return true;
 }
 Device* System::getDevice(byte id){
+    OUT(F("szukanie urzadzenia o id:"))
+    OUT_LN(id);
+    if (devices.get(id) == nullptr)
+    {
+        OUT_LN("NIE MA TAKIEGO URZADZENIA!")
+    }
+    
     return devices.get(id);
 }
 

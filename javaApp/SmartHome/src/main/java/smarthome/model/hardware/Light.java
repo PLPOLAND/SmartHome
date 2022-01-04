@@ -55,6 +55,10 @@ public class Light extends Device{
         return swt.getPin();
     }
 
+
+    public Switch getSwt() {
+        return this.swt;
+    }
     
 
     @Override

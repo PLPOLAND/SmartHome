@@ -38,7 +38,7 @@ public class JtAConverter {
     /**[W]*/
     final byte[] CHECKTOWORK = { 'W' };
     /**[U]*/
-    final byte[] ZMIENSTANPRZEKAZNIKA = { 'U' }; // + id + stan
+    final byte[] ZMIENSTANPRZEKAZNIKA = { 'U' , 'S'}; // + id + stan
     /**[T]*/
     final byte[] POBIERZTEMPERATURE = { 'T' }; // + ADRESS (8byte)
     /**[A, S]*/
@@ -71,16 +71,16 @@ public class JtAConverter {
      * @param przekaznik - przekaznik docelowy
      * @param stan       - stan przekaznika
      */
-    public void changeSwitchState(Switch przekaznik, boolean stan) {
-        byte[] buffor = new byte[8];
+    public void changeSwitchState(int idPrzekaznika, int idPlytki, boolean stan) {
+        byte[] buffor = new byte[4];
         int i = 0;
         for (byte b : ZMIENSTANPRZEKAZNIKA) {
             buffor[i++] = b;
         }
-        buffor[i++] = (byte) przekaznik.getPin();
+        buffor[i++] = (byte) idPrzekaznika;
         buffor[i++] = (byte) (stan == true ? 1 : 0);
         try {
-            // atmega.writeTo(przekaznik.getIDPlytki(), buffor);
+            atmega.writeTo(idPlytki, buffor);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -109,7 +109,7 @@ public class JtAConverter {
             bufString += adr + " ";
         }
         try {
-            logger.debug("Writing to addres " + termometr.getSlaveID() + " command: " + buffor.toString());
+            logger.debug("Writing to addres " + termometr.getSlaveID() + " command: " + Arrays.toString(buffor));
             atmega.writeTo(termometr.getSlaveID(), buffor);
             Thread.sleep(100);
             byte[] response = atmega.readFrom(termometr.getSlaveID(), 8);

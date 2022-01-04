@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "devices/Device.h"
 #include "Stale.h"
+#include "FreeMemory.h"
 
 //Obsługa przekaźnika
 class Przekaznik : public Device
@@ -20,6 +21,7 @@ public:
     void setStan(bool stan);
     void setStan(int stan);
     bool begin(byte pin, bool stan = false);
+    String toString();
 };
 
 #endif // !Przekaznik_h

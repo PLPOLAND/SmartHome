@@ -16,6 +16,7 @@ import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
+import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Termometr;
 
@@ -212,5 +213,24 @@ public class System {
 
     public void updateTemperature(Termometr termometr){
         arduino.checkTemperature(termometr);
+    }
+
+
+
+    public Device changeLightState(String roomName, int deviceID, boolean stan ) {
+
+        Room room = systemDAO.getRoom(roomName);
+        if (room == null) {
+            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
+            return null;
+        }
+        Light sw = (Light) room.getDeviceById(deviceID);
+        sw.setStan(stan);
+        systemDAO.save();
+        arduino.changeSwitchState(sw.getOnSlaveID(), sw.getSlaveID(), sw.getStan());
+
+        
+        return sw;
+
     }
 }

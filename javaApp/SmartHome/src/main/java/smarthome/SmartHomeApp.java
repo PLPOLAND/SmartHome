@@ -121,12 +121,17 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				else if(in.equals("test")){
 					system.getSystemDAO().removeRoom("Marek");
 					adminController.dodajPokoj("Marek");
-					System.out.println(adminController.dodajTermometr("Marek", 3).getObj());
-					for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
-						system.updateTemperature(termometr);
-					}
-					int [] tmp = {40,255,30,49,0,22,2,171};
-					System.out.println(adminController.getTemperatura(tmp).getObj());
+
+					System.out.println(adminController.dodajSwiatlo("Marek", 3, 11));
+					System.out.println("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
+					System.out.println(adminController.zmienStanSwiatla("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true));
+
+					// System.out.println(adminController.dodajTermometr("Marek", 3).getObj());
+					// for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
+					// 	system.updateTemperature(termometr);
+					// }
+					// int [] tmp = {40,255,30,49,0,22,2,171};
+					// System.out.println(adminController.getTemperatura(tmp).getObj());
 				}
 			}
 			catch(Exception e){
