@@ -1,8 +1,11 @@
 package smarthome.model.hardware;
 
+import org.slf4j.LoggerFactory;
+import org.springframework.context.support.BeanDefinitionDsl.Role;
 
-public class Blind extends Device{//TODO do przerobienia na używanie 2x przekaźnik
-    enum RoletaStan{
+
+public class Blind extends Device{
+    public enum RoletaStan{
         DOWN,
         NOTKNOW,
         UP
@@ -14,34 +17,42 @@ public class Blind extends Device{//TODO do przerobienia na używanie 2x przeka�
 
     Blind(){
         super(DeviceTypes.BLIND);
+        logger = LoggerFactory.getLogger(Blind.class);
     }
     
-    public Blind(boolean stan, int boardID, int pinUp, int pinDown) {//TODO
+    public Blind(boolean stan, int boardID, int pinUp, int pinDown) {
         super(boardID, DeviceTypes.BLIND);
         this.stan = stan == true ? RoletaStan.UP : RoletaStan.DOWN;
         swtUp = new Switch(false, pinUp);
         swtDown = new Switch(false, pinDown);
+        logger = LoggerFactory.getLogger(Blind.class);
     }
 
-    public Blind(int id, int room, int boardID, int pinUp, int pinDown){//TODO
+    public Blind(int id, int room, int boardID, int pinUp, int pinDown){
         super(id, room, boardID, DeviceTypes.BLIND);
         stan = RoletaStan.DOWN;
         swtUp = new Switch(false, pinUp);
         swtDown = new Switch(false, pinDown);
+        logger = LoggerFactory.getLogger(Blind.class);
     }
 
     public void changeState(RoletaStan stan){
-        if(!this.stan.equals(stan)){
+        if(this.stan != stan){
             switch (stan) {
                 case DOWN:
+                    logger.debug("Zmieniam stan na: DOWN");
                     swtDown.setStan(true);
                     swtUp.setStan(false);
+                    this.stan = RoletaStan.DOWN;
                     break;
                 case UP:
+                    logger.debug("Zmieniam stan na: UP");
                     swtDown.setStan(false);
                     swtUp.setStan(true);
+                    this.stan = RoletaStan.UP;
                     break;
                 case NOTKNOW://TODO Co w tedy?
+                    this.stan = RoletaStan.NOTKNOW;
                     break;
                 default:
                     break;
@@ -50,7 +61,13 @@ public class Blind extends Device{//TODO do przerobienia na używanie 2x przeka�
     }
 
     public void changeState(boolean stan){
-        RoletaStan stan2 = stan == true ? RoletaStan.UP : RoletaStan.DOWN;
+        logger.debug("Zmieniam się na stan: " + (stan?"UP":"DOWN"));
+        RoletaStan stan2;
+        if (stan) {
+            stan2 = RoletaStan.UP;
+        } else {
+            stan2 = RoletaStan.DOWN;
+        }
         this.changeState(stan2);
     }
 
@@ -59,5 +76,9 @@ public class Blind extends Device{//TODO do przerobienia na używanie 2x przeka�
     }
     public int getPinDown(){
         return swtDown.getPin();
+    }
+
+    public RoletaStan getStan(){
+        return this.stan;
     }
 }

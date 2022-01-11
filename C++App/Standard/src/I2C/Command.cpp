@@ -134,6 +134,15 @@ void Command::convert(const byte *c, byte size)
                     parametry[1] = c[3]; //stan do ustawienia
                     this->setParams(parametry);
                 }
+                if (c[1] == 'B')
+                {
+                    this->komenda = Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY;
+                    byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    parametry[0] = c[2];
+                    parametry[1] = c[3];
+                    this->setParams(parametry);
+                }
+                
                 
             }
             
@@ -239,7 +248,6 @@ void Command::setParams(const byte *param){
     {
         this->parametry[i] = param[i];
     }
-    OUT_LN()
 }
 void Command::setSlaveID(byte sId){
     this->id_slave = sId;

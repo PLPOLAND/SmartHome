@@ -118,13 +118,37 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						system.updateTemperature(termometr);
 					}
 				}
+				else if(in.equals("blindUP")){
+					if (scanner.hasNext()) {
+						String nazwaPokoju = scanner.next();
+						if (scanner.hasNext()) {
+							int idUrzadzenia = scanner.nextInt();
+							System.out.println(adminController.zmienStanRolety(nazwaPokoju, idUrzadzenia, true));
+					
+						}
+					}
+				}
+				else if(in.equals("blindDOWN")){
+					if (scanner.hasNext()) {
+						String nazwaPokoju = scanner.next();
+						if (scanner.hasNext()) {
+							int idUrzadzenia = scanner.nextInt();
+							System.out.println(adminController.zmienStanRolety(nazwaPokoju, idUrzadzenia, false));
+						}
+					}
+				}
 				else if(in.equals("test")){
 					system.getSystemDAO().removeRoom("Marek");
 					adminController.dodajPokoj("Marek");
 
-					System.out.println(adminController.dodajSwiatlo("Marek", 3, 11));
+					System.out.println(adminController.dodajRoleta("Marek", 3, 11,12));
 					System.out.println("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
-					System.out.println(adminController.zmienStanSwiatla("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true));
+					System.out.println(adminController.zmienStanRolety("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true));
+					
+					
+					// System.out.println(adminController.dodajSwiatlo("Marek", 3, 11));
+					// System.out.println("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
+					// System.out.println(adminController.zmienStanSwiatla("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true));
 
 					// System.out.println(adminController.dodajTermometr("Marek", 3).getObj());
 					// for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {

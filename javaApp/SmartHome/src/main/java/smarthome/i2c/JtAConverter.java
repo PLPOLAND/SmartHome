@@ -37,8 +37,10 @@ public class JtAConverter {
     final byte[] STATUSRGB = { 'S', 'R' };
     /**[W]*/
     final byte[] CHECKTOWORK = { 'W' };
-    /**[U]*/
+    /**[U,S]*/
     final byte[] ZMIENSTANPRZEKAZNIKA = { 'U' , 'S'}; // + id + stan
+    /**[U,B] */
+    final byte[] ZMIENSTANROLETY = { 'U' , 'B'}; // + id + stan
     /**[T]*/
     final byte[] POBIERZTEMPERATURE = { 'T' }; // + ADRESS (8byte)
     /**[A, S]*/
@@ -81,21 +83,43 @@ public class JtAConverter {
         buffor[i++] = (byte) (stan == true ? 1 : 0);
         try {
             atmega.writeTo(idPlytki, buffor);
+            byte[] response = atmega.readFrom(idPlytki, 8);//TODO obsluga bledu
+            logger.debug(Arrays.toString(response));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // public void changeBlindState(Roleta roleta, boolean stan) {
-    //     // TODO
-    // }
+    public void changeBlindState(Blind roleta, boolean stan) {
+        byte[] buffor = new byte[4];
+        int i = 0;
+        for (byte b : ZMIENSTANROLETY) {
+            buffor[i++] = b;
+        }
+        buffor[i++] = (byte) roleta.getOnSlaveID();
+        if (stan == true) {
+            buffor[i++] = 'U';
+            logger.debug("Wysyłanie komendy podniesienia Rolety");
+        }
+        else{
+            buffor[i++] = 'D';
+            logger.debug("Wysyłanie komendy opuszczenia Rolety");
+        }
+        try {
+            atmega.writeTo(roleta.getSlaveID(), buffor);
+            byte[] response = atmega.readFrom(roleta.getSlaveID(), 8);//TODO obsluga bledu
+            logger.debug(Arrays.toString(response));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Sprawdz i zaaktualizuj temperaturę dla podanego termometra
      * 
      * @param termometr - termometr docelowy
      */
-    public Float checkTemperature(Termometr termometr) {//TODO dostosować implementację do nowego schematu komunikacji (identyfikacja przez adress)
+    public Float checkTemperature(Termometr termometr) {
         byte[] buffor = new byte [9];
         String bufString = "";
 

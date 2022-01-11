@@ -65,6 +65,15 @@ void System::tic(){
         OUT_LN(F("timer"));
         timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     }
+    if (this->rolety.size() > 0) 
+    {
+        for (byte i = 0; i < this->rolety.size(); i++)
+        {
+            this->rolety.get(i)->tic();
+            // OUT("tic: Roleta: ");
+            // OUT_LN(i);
+        }
+    }
 
 }
 
@@ -205,7 +214,7 @@ bool System::removeDevice(byte id){
         }
         break;
     case Device::TYPE::ROLETA:
-        for (byte i = 0; i < rolety.size(); i++) //przeszukaj kontener z przyciskami
+        for (byte i = 0; i < rolety.size(); i++) //przeszukaj kontener z roletami
         {
             if (rolety.get(i)->getId() == id) //jeśli id obecnie sprawdzanego przycisku zgadza się z poszukiwanym to:
             {

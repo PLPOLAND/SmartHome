@@ -19,6 +19,7 @@ import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Termometr;
+import smarthome.model.hardware.Blind.RoletaStan;
 
 /**
  * Główna klasa zarządzająca systemem
@@ -233,4 +234,27 @@ public class System {
         return sw;
 
     }
+
+    public Device changeBlindState(String roomName, int deviceID, boolean pozycja){
+        Room room = systemDAO.getRoom(roomName);
+        if (room == null) {
+            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
+            return null;
+        }
+        Blind bl = (Blind) room.getDeviceById(deviceID);
+        
+        log.debug("Zmieniam pozycje rolety na: " + (pozycja?"UP":"DOWN"));
+        log.debug("Aktualna pozycja rolety:" + (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
+        bl.changeState(pozycja);
+        log.debug("Pozycja rolety po zmianie:" + (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
+        if (bl.getStan() == RoletaStan.UP) {
+            arduino.changeBlindState(bl, true);
+        }
+        else if (bl.getStan() == RoletaStan.DOWN){
+            arduino.changeBlindState(bl, false);
+        }
+
+        return bl;
+    }
+
 }

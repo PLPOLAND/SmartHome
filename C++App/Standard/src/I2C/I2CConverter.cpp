@@ -175,10 +175,36 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 OUT_LN(p->toString())
                 p->setStan(komenda.getParams()[1] == 1 ? true : false);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                params[0]= 1;
+                params[0]= 'O';
                 komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
             }
                 break;
+            case Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY:
+            {
+                OUT_LN(F("RECEIVE_ZMIEN_STAN_ROLETY"));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+                Roleta *r = (Roleta *)System::getSystem()->getDevice(komenda.getParams()[0]);
+                if (komenda.getParams()[1] == 'U')
+                {
+                    r->podnies();
+                    params[0] = 'O';
+                }
+                else if (komenda.getParams()[1]== 'D')
+                {
+                    r->opusc();
+                    params[0] = 'O';
+                }
+                else
+                {
+                    params[0] = 'E';
+                }
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
+            }
+            break;
             case Command::KOMENDY::RECEIVE_IS_INIT:
             {
                 OUT_LN(F("RECEIVE_IS_INIT"));

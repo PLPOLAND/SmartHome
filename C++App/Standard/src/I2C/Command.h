@@ -17,6 +17,7 @@ public:
         RECEIVE_ADD_PRZEKAZNIK,  //Dodaj nowy przekaznik do systemu
         RECEIVE_GET_TEMPERATURE, //Pobierz temperaturę z termometru
         RECEIVE_ZMIEN_STAN_PRZEKAZNIKA,      //Zmien stan konkretnego urzadzenia
+        RECEIVE_ZMIEN_STAN_ROLETY, // Podnies opuść konkretną roletę.
         RECEIVE_IS_INIT,         //Czy urządzenie zostało zainicjowane
         RECEIVE_INIT,            //reinicjalizuj system
         RECEIVE_GET,             //Wczytaj następny z kolejki

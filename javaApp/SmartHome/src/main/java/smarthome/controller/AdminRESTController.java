@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,11 +25,15 @@ import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Termometr;
+import smarthome.model.hardware.Blind.RoletaStan;
 import smarthome.security.Security;
 
 @RestController
 @RequestMapping("/admin/api")
 public class AdminRESTController {
+    /** Logger Springa */
+    Logger logger;
+
     @Autowired
     SystemDAO systemDAO;
 
@@ -41,6 +47,10 @@ public class AdminRESTController {
     JtAConverter converter;
 
     int roomsID = 0;// id nowego pokoju.
+
+    AdminRESTController(){
+        logger = LoggerFactory.getLogger(this.getClass());
+    }
 
     @RequestMapping("/")
     public Date main() {
@@ -219,5 +229,18 @@ public class AdminRESTController {
 
 
     }
+
+    @GetMapping("changeBlindState")
+    public Response<String> zmienStanRolety(@RequestParam("name") String nazwaPokoju, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("pozycja") boolean pozycja) {
+        logger.debug("Zmien Stan Rolety w pokoju: "+ nazwaPokoju+ "; id Rolety: " + idUrzadzenia + "; do stanu: " +(pozycja ? "UP":"DOWN"));
+        try {
+            Device d =system.changeBlindState( nazwaPokoju, idUrzadzenia, pozycja);
+            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getStan() == RoletaStan.UP ? "UP" : "DOWN"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<>("", e.getMessage());
+        }
+    }
+    
 
 }

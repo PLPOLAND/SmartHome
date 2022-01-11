@@ -59,6 +59,8 @@ void Przekaznik::setStan(bool stan)
     OUT_LN(F("SET STAN"))
     OUT(F("STAN: "))
     OUT_LN(stan);
+    OUT(F("PIN: "))
+    OUT_LN(pin);
     this->stan = stan;
     digitalWrite(pin, stan == false ? LOW : HIGH);
     OUT(F("PIN STAN: "))
