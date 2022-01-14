@@ -65,6 +65,7 @@
 #ifndef TEST
 
     #include "System.h"
+    #include "devices/Przycisk.h"
     
     System* sys;
     void setup()

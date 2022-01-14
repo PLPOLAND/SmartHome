@@ -178,7 +178,7 @@ public class JtAConverter {
                 System.out.println("Writing to addres "+ device.getSlaveID());
                 atmega.writeTo(device.getSlaveID(), buffor);
                 Thread.sleep(100);//TODO czy jest potrzebne?
-                byte[] response = atmega.readFrom(device.getSlaveID(), 8);
+                byte[] response = atmega.readFrom(device.getSlaveID(), 8);//
                 int OnBoardID = (int)response[0];
                 return OnBoardID;
             } catch (Exception e) {
@@ -198,8 +198,10 @@ public class JtAConverter {
                 logger.debug("Writing to addres " + device.getSlaveID());
                 atmega.writeTo(device.getSlaveID(), buffor);
                 Thread.sleep(100);
-                byte[] response = atmega.readFrom(device.getSlaveID(), 8);
+                byte[] response = atmega.readFrom(device.getSlaveID(), 8);//TODO: dodawanie przekaźników o id podanym w odpowiedzi!
                 int OnBoardID = (int) response[0];
+                
+
                 return OnBoardID;
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);

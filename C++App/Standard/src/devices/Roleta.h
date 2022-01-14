@@ -42,6 +42,8 @@ public:
     byte getPinDown();
     void setPinDown(byte pin);
     StanRolety getStan();
+    Przekaznik* getSwitchUp();
+    Przekaznik* getSwitchDown();
 
     bool begin(byte pinUp, byte pinDown);
 

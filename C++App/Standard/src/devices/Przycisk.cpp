@@ -16,6 +16,13 @@ Przycisk::Przycisk()
 Przycisk::~Przycisk()
 {
     delete time;
+
+    for (int i = 0; i < funkcje_kliknieca.size(); i++) //TODO doać usuwanie komend przy desturkcji 
+    {
+        
+    }
+    
+
 }
 
 /**
@@ -58,6 +65,7 @@ Przycisk::StanPrzycisku Przycisk::getStan()
  * Aktualizuje stan przycisku
  */
 void Przycisk::updateStan(){
+    ///stan wejscia
     bool tmpStan = 0;
     if (digitalRead(pin)==LOW)
     {
@@ -89,7 +97,8 @@ void Przycisk::updateStan(){
 
         OUT_LN(F("puszczony bez przytrzymania"));
         stan = PUSZCZONY;
-        //TODO::
+
+        
 
     }
     
@@ -99,34 +108,31 @@ void Przycisk::updateStan(){
         OUT_LN(F("Wykrycie Przytrzymanie"));
         stan = PRZYTRZYMANY;
     }
-    if (stan == PRZYTRZYMANY && tmpStan == 0)
-    { //Puszczenie po przytrzymaniu
+    if (stan == PRZYTRZYMANY && tmpStan == 0) //Puszczenie po przytrzymaniu
+    { 
 
         OUT_LN(F("Puszczony po przytrzymaniu"));
 
         time->time(STOP);
         stan = BRAK_AKCJI;
-        //TODO WYkonanie po puszczeniu przytrzymania
+        this->wykonaj();//dla BRAK_AKCJI
         klikniecia = 0;
     }
     else if (stan == PRZYTRZYMANY && tmpStan == 1) //Przytrzymywanie
     {
 
         OUT_LN(F("Przytrzymanie"));
-        //TODO wykonanie podczas przytrzymania
+        this->wykonaj();//dla PRZYTRZYMANY
     }
 
     if (time->available() && stan == PUSZCZONY) {
 
         OUT_LN(F("Koniec okresu klikniec"));
         time->time(STOP);
+        this->wykonaj();//dla PUSZCZONY
         stan = BRAK_AKCJI;
-        //TODO:
     }
 
-    // if (time->time() != 0) {
-    //     OUT_LN(time->time());
-    // }
 }
 
 
@@ -139,4 +145,94 @@ void Przycisk::updateStan(){
 void Przycisk::tic(){
     this->updateStan(); //obsluga zmiany stanów przycisku
 
+}
+
+/**
+ * @brief Wykonuje komendy po wciścnięciu / przytrzymaniu / puszczeniu
+ * 
+ * @return true 
+ * @return false 
+ */
+bool Przycisk::wykonaj(){
+    switch (stan)
+    {
+    case PRZYTRZYMANY://Przycisk jest przytrzymywany
+        {
+
+        }
+        break;
+    case PUSZCZONY:// Przycisk nie był przytrzymywany i skończył się czas na kolejne przyciśnięcie
+        {
+            Command* command = funkcje_kliknieca.get(klikniecia);
+            this->runCommand(command);
+        // System::getSystem()->runCommand(command);
+        }
+        break;
+    case BRAK_AKCJI://Przycisk był przytrzymany i został właśnie puszczony
+        {
+            
+        }
+        break;
+    default:
+        break;
+    }
+    return true; //TODO obsluga bledow?
+}
+
+bool Przycisk::dodajFunkcjeKlikniecia(Command* command){//TODO
+    return true;
+}
+
+bool Przycisk::dodajFunkcjePrzytrzymania(Command* command){//TODO
+    return true;
+}
+
+bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command){//TODO
+    return true;
+}
+
+bool Przycisk::runCommand(Command *command)
+{
+    switch (command->getCommandType())
+    {
+    case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
+    {
+        if (command->getDevice()->getType() == Device::TYPE::PRZEKAZNIK)
+        {
+            if (((Przekaznik *)command->getDevice())->getStan())
+            {
+                ((Przekaznik *)command->getDevice())->setStan(0);
+            }
+            else
+            {
+                ((Przekaznik *)command->getDevice())->setStan(1);
+            }
+        }
+        else{
+            return false;
+        }
+    }
+    break;
+    case Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY:
+    {
+        if (command->getDevice()->getType() == Device::TYPE::ROLETA)
+        {
+            if (((Roleta *)command->getDevice())->getStan() == StanRolety::NIEOKRESLONY || ((Roleta *)command->getDevice())->getStan() == StanRolety::OPUSZCZONA)
+            {
+                ((Roleta *)command->getDevice())->podnies();
+            }
+            else
+            {
+                ((Roleta *)command->getDevice())->opusc();
+            }
+        }
+        else{
+            return false;
+        }
+    }
+    break;
+    default:
+        break;
+    }
+    return true;
 }

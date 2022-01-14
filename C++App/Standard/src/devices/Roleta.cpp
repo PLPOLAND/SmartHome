@@ -191,3 +191,9 @@ void Roleta::setPinDownState(bool stan)
         this->p_down.setStan(true);
     }
 }
+Przekaznik* Roleta::getSwitchUp(){
+    return &(this->p_up);
+}
+Przekaznik* Roleta::getSwitchDown(){
+    return &(this->p_down);
+}

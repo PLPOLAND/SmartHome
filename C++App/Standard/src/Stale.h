@@ -18,7 +18,7 @@
     #define BUFFOR_IN_SIZE 9
     #define BUFFOR_OUT_SIZE 9
     //pin komunikacji oneWire
-#define ONEWIRE_BUS 8
+#define ONEWIRE_BUS 11
 
 #endif // !Stale
 

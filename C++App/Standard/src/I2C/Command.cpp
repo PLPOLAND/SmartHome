@@ -216,7 +216,7 @@ byte Command::getSlaveID(){
     return this->id_slave;
 }
 
-Device *Command::getDevice(){
+Device* Command::getDevice(){
     return this->urzadzenie;
 }
 

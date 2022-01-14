@@ -11,9 +11,9 @@ bool Przekaznik::begin(byte pin, bool stan)
     if (pin >= PINOW_NA_ADRES + 2 && pin <= 16)
     {
         this->pin = pin;
-        OUT(F("PIN: "))
-        OUT((int)pin)
-        OUT_LN(F(" PIN OUTPUT"))
+        // OUT(F("PIN: "))
+        // OUT((int)pin)
+        // OUT_LN(F(" PIN OUTPUT"))
         pinMode(pin, OUTPUT);
     }
     else

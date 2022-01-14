@@ -127,6 +127,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = komendaZwrotna->getDevice()->getId();
+                params[1] = ((Roleta *)komendaZwrotna->getDevice())->getSwitchUp()->getId();
+                params[2] = ((Roleta *)komendaZwrotna->getDevice())->getSwitchDown()->getId();
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
             }

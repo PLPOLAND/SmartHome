@@ -5,6 +5,10 @@
 #include <Stale.h>
 #include "LinkedList.h"
 #include "devices/Device.h"
+#include "I2C/Command.h"
+#include "Przekaznik.h"
+#include "Roleta.h"
+// #include "System.h"
 
 /**
  * 
@@ -28,7 +32,20 @@ private:
     int klikniecia;
     Timer* time;
 
-    // LinkedList<> funkcje; // TODO:funkcje
+    /**
+     *  Przechowuje Komendy wykonywane po odpowiedniej liczbie klikniec
+     */
+    LinkedList<Command*> funkcje_kliknieca;
+    /**
+     * Przechowuje Komendy wykonywane po przytrzymaniach. 
+     * 
+     */
+    LinkedList<Command*> funkcje_przytrzymania;
+    /**
+     * Przechowuje Komendy wykonywane po puszczeniu przycisku po przytrzymaniu.
+     * 
+     */
+    LinkedList<Command*> funkcje_przytrzymania_puszczenie;
 public:
     Przycisk();
     ~Przycisk();
@@ -42,6 +59,21 @@ public:
     void updateStan();
 
     void tic();
+
+    bool wykonaj();
+
+    bool dodajFunkcjeKlikniecia(Command* command);
+    bool dodajFunkcjePrzytrzymania(Command* command);
+    bool dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command);
+    
+    /**
+     * @brief Wykonuje komendę dostarczoną w argumencie.
+     *
+     * @param command
+     * @return true
+     * @return false
+     */
+    bool runCommand(Command *command);
 };
 
 #endif // !Wylacznik_h

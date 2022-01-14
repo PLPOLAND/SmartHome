@@ -1,7 +1,6 @@
 package smarthome.model.hardware;
 
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.BeanDefinitionDsl.Role;
 
 
 public class Blind extends Device{

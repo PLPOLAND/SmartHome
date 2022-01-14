@@ -76,6 +76,14 @@ public:
     ///Zwraca listę adresów termometrów zarejestrowanych w systemie
     LinkedList<byte*> getAdrOfThemp();
 
+    // /**
+    //  * @brief Wykonuje komendę dostarczoną w argumencie.
+    //  * 
+    //  * @param command 
+    //  * @return true 
+    //  * @return false 
+    //  */
+    // bool runCommand(Command *command);
 };
 
 
