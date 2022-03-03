@@ -17,7 +17,7 @@ I2CConverter::I2CConverter()
         pinMode(2 + i, INPUT_PULLUP);
     }
     byte tmp = 1;
-    byte adress = 0;
+    byte adress = 7;
     for (byte i = 0; i < PINOW_NA_ADRES; i++) {
         adress += tmp * (digitalRead(2 + i) == HIGH ? 0:1);
         tmp *= 2;

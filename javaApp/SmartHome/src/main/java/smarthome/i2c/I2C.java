@@ -38,7 +38,7 @@ public class I2C{
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
             // for (int i = 1; i < 10; i++) {
-            for (int i = 1; i < 128; i++) {
+            for (int i = 7; i < 128; i++) {
                 try {
                     I2CDevice device = bus.getDevice(i);
                     device.write((byte) 0);
