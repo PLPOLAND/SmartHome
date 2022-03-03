@@ -232,9 +232,14 @@ public class AdminRESTController {
             return new Response<>("", e.getMessage());
         }
     }
-
+    @GetMapping("checkReinitBoard")
     public Response<String> sprawdzZainicjowaniePlytki(@RequestParam("boardID") int boardID) {
         boolean tmp = system.checkInitOfBoard(boardID);
+        return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
+    }
+    @GetMapping("reinitBoard")
+    public Response<String> reainicjowaniePlytki(@RequestParam("boardID") int boardID) {
+        boolean tmp = system.initOfBoard(boardID);
         return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
     }
     

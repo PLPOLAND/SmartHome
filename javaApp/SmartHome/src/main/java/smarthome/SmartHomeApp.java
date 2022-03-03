@@ -2,7 +2,11 @@ package smarthome;
 
 import java.util.Scanner;
 
+import com.pi4j.io.i2c.I2CDevice;
+
 import org.apache.catalina.core.ApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
@@ -38,22 +42,26 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 			;
 		adminController = app.getAutowireCapableBeanFactory().getBean(AdminRESTController.class);
 		system = app.getAutowireCapableBeanFactory().getBean(smarthome.system.System.class);
+
+		// system.getArduino().atmega.findAll();
+		Logger log = LoggerFactory.getLogger("SmartHomeApp");
+		
 		String in = "";
 
 		while(!in.equals("end") && !in.equals("stop") && ! in.equals("exit")){
 			in = scanner.next();
 			try{
 				if(in.equals("print")){
-					System.out.println(adminController.getSystemData().getObj().toString());
+					log.info(adminController.getSystemData().getObj().toString());
 				}
 				else if(in.equals("find")){
-					System.out.println(adminController.find().getObj().toString());
+					log.info(adminController.find().getObj().toString());
 				}
 				else if(in.equals("addRoom")){
 					if(scanner.hasNext()){
 						in = scanner.next();
 						String nazwaPokoju = in;
-						System.out.println(adminController.dodajPokoj(nazwaPokoju).getObj().toString());
+						log.info(adminController.dodajPokoj(nazwaPokoju).getObj().toString());
 					}
 				}
 				else if(in.equals("addSwiatlo")){
@@ -64,7 +72,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							if (scanner.hasNext()) {
 								int pin= scanner.nextInt();
 								
-								System.out.println(adminController.dodajSwiatlo(nazwaPokoju,idPlytki, pin).getObj().toString());
+								log.info(adminController.dodajSwiatlo(nazwaPokoju,idPlytki, pin).getObj().toString());
 							}
 						}
 					}
@@ -77,7 +85,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							if (scanner.hasNext()) {
 								int pinDown= scanner.nextInt();
 
-								System.out.println(adminController.dodajRoleta(nazwaPokoju,3, pinUp, pinDown).getObj().toString());
+								log.info(adminController.dodajRoleta(nazwaPokoju,3, pinUp, pinDown).getObj().toString());
 							}
 						}
 					}
@@ -87,7 +95,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						if (scanner.hasNext()) {
 							int adress = scanner.nextInt();
 							
-							System.out.println(adminController.dodajTermometr(nazwaPokoju, adress).getObj().toString());
+							log.info(adminController.dodajTermometr(nazwaPokoju, adress).getObj().toString());
 							
 						}
 					}
@@ -98,14 +106,14 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						if (scanner.hasNext()) {
 							int id = scanner.nextInt();
 
-							System.out.println(adminController.removeDevice(nazwaPokoju,id).getObj().toString());
+							log.info(adminController.removeDevice(nazwaPokoju,id).getObj().toString());
 						}
 					}
 				}
 				else if(in.equals("removeRoom")){
 					if (scanner.hasNext()) {
 						String nazwaPokoju = scanner.next();
-						System.out.println(adminController.removeRoom(nazwaPokoju).getObj().toString());
+						log.info(adminController.removeRoom(nazwaPokoju).getObj().toString());
 					}
 				}
 				else if(in.equals("removeTermometr")){
@@ -118,7 +126,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							adress[i] = scanner.nextInt();
 						}
 					}
-					System.out.println(adminController.getTemperatura(adress).getObj());
+					log.info("{}",adminController.getTemperatura(adress).getObj());
 				}
 				else if(in.equals("updateTemperature")){
 					for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
@@ -130,7 +138,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						String nazwaPokoju = scanner.next();
 						if (scanner.hasNext()) {
 							int idUrzadzenia = scanner.nextInt();
-							System.out.println(adminController.zmienStanSwiatla(nazwaPokoju, idUrzadzenia, true));
+							log.info(adminController.zmienStanSwiatla(nazwaPokoju, idUrzadzenia, true).getObj());
 
 						}
 					}
@@ -140,7 +148,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						String nazwaPokoju = scanner.next();
 						if (scanner.hasNext()) {
 							int idUrzadzenia = scanner.nextInt();
-							System.out.println(adminController.zmienStanSwiatla(nazwaPokoju, idUrzadzenia, false));
+							log.info(adminController.zmienStanSwiatla(nazwaPokoju, idUrzadzenia, false).getObj());
 
 						}
 					}
@@ -150,7 +158,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						String nazwaPokoju = scanner.next();
 						if (scanner.hasNext()) {
 							int idUrzadzenia = scanner.nextInt();
-							System.out.println(adminController.zmienStanRolety(nazwaPokoju, idUrzadzenia, true));
+							log.info(adminController.zmienStanRolety(nazwaPokoju, idUrzadzenia, true).getObj());
 					
 						}
 					}
@@ -160,7 +168,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						String nazwaPokoju = scanner.next();
 						if (scanner.hasNext()) {
 							int idUrzadzenia = scanner.nextInt();
-							System.out.println(adminController.zmienStanRolety(nazwaPokoju, idUrzadzenia, false));
+							log.info(adminController.zmienStanRolety(nazwaPokoju, idUrzadzenia, false).getObj());
 						}
 					}
 				}
@@ -168,26 +176,32 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					system.getSystemDAO().removeRoom("Marek");
 					adminController.dodajPokoj("Marek");
 
-					System.out.println(adminController.dodajRoleta("Marek", 3, 11,12));
-					System.out.println("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
-					System.out.println(adminController.zmienStanRolety("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true));
+					log.info(adminController.dodajRoleta("Marek", 3, 11,12).getObj());
+					log.info("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
+					log.info(adminController.zmienStanRolety("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true).getObj());
 					
 					
-					// System.out.println(adminController.dodajSwiatlo("Marek", 3, 11));
-					// System.out.println("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
-					// System.out.println(adminController.zmienStanSwiatla("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true));
+					// log.info(adminController.dodajSwiatlo("Marek", 3, 11));
+					// log.info("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
+					// log.info(adminController.zmienStanSwiatla("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true));
 
-					// System.out.println(adminController.dodajTermometr("Marek", 3).getObj());
+					// log.info(adminController.dodajTermometr("Marek", 3).getObj());
 					// for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
 					// 	system.updateTemperature(termometr);
 					// }
 					// int [] tmp = {40,255,30,49,0,22,2,171};
-					// System.out.println(adminController.getTemperatura(tmp).getObj());
+					// log.info(adminController.getTemperatura(tmp).getObj());
 				}
 				else if (in.equals("reinit")) {
 					if (scanner.hasNext()) {
 						int idUrzadzenia = scanner.nextInt();
-						System.out.println(adminController.sprawdzZainicjowaniePlytki(idUrzadzenia));
+						log.info(adminController.sprawdzZainicjowaniePlytki(idUrzadzenia).getObj());
+					}
+				}
+				else if (in.equals("init")) {
+					if (scanner.hasNext()) {
+						int idUrzadzenia = scanner.nextInt();
+						log.info(adminController.reainicjowaniePlytki(idUrzadzenia).getObj());
 					}
 				}
 			}

@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 @Repository
 public class SystemDAO {
 
+    private static final String ROOMS_FILES_LOCALISATION = "src/main/resources/static/database/rooms/";
     TreeMap<String, Room> pokoje; // Pokoje w systemie
     Logger logger;
 
@@ -74,7 +75,8 @@ public class SystemDAO {
         if(r==null){
             return false;
         }
-
+        this.devices.removeAll(r.getDevices());
+        this.sensors.removeAll(r.getSensors());
         r.safeDelete();
 
         if (pokoje.remove(r.getNazwa()) != null){
@@ -171,17 +173,18 @@ public class SystemDAO {
     public void readDatabase() {
         ObjectMapper obj = new ObjectMapper();
         int i = 0;
-        while (true) {
+        while (i< Integer.MAX_VALUE) {
             Room room = null;
             try {
                 room = obj.readValue(
-                        new FileInputStream(new File("src/main/resources/static/database/rooms/" + i + "_Room.json")),
+                        new FileInputStream(new File(ROOMS_FILES_LOCALISATION + i + "_Room.json")),
                         Room.class);
                 pokoje.put(room.getNazwa(), room);
+                devices.addAll(room.getDevices());
+                sensors.addAll(room.getSensors());
                 i++;
             } catch (Exception e) {
-                Logger logger = LoggerFactory.getLogger(this.getClass());
-                logger.info("Wczytano " + i + " pokoi");
+                logger.info("Wczytano {} pokoi", i);
                 break;
             }
         }
@@ -207,7 +210,7 @@ public class SystemDAO {
             try {// tworzenie plików w plikach src
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-                File projFile = new File("src/main/resources/static/database/rooms/" + pokoj.getID() + "_Room.json");
+                File projFile = new File(ROOMS_FILES_LOCALISATION + pokoj.getID() + "_Room.json");
                 projFile.getParentFile().mkdirs();
                 projFile.createNewFile();// utworzenie pliku jeśli nie istnieje
                 objectMapper.writeValue(projFile, pokoj);// plik projektu (src)
@@ -253,7 +256,7 @@ public class SystemDAO {
             try {// tworzenie plików w plikach src
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-                File projFile = new File("src/main/resources/static/database/rooms/" + pokoj.getID() + "_Room.json");
+                File projFile = new File(ROOMS_FILES_LOCALISATION + pokoj.getID() + "_Room.json");
                 projFile.getParentFile().mkdirs();
                 projFile.delete();//usuń plik
             }

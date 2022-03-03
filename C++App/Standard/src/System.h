@@ -30,7 +30,7 @@ protected:
     byte idPrzycisku = 0; //Id przycisku do wypisania
     byte idPrzekaznika = 0; //Id Przekaznika do wypisania
     byte idRolety = 0; //Id Rolety do wypisania
-    byte idDevice = 0;
+    static byte idDevice;
 
     static LinkedList<Device *> devices;
     static LinkedList<Termometr *> termometry;

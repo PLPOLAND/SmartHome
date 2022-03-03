@@ -182,6 +182,7 @@ public class JtAConverter {
                 System.out.println("Writing to addres "+ device.getSlaveID());
                 atmega.writeTo(device.getSlaveID(), buffor);
                 Thread.sleep(100);//TODO czy jest potrzebne?
+                System.out.println("Reading from addres " + device.getSlaveID());
                 byte[] response = atmega.readFrom(device.getSlaveID(), 8);//
                 int OnBoardID = (int)response[0];
                 return OnBoardID;

@@ -3,7 +3,7 @@
 System* System::system = nullptr;
 Timer System::timer = Timer();
 bool System::is_initiated = false;
-
+byte System::idDevice = 0;
 LinkedList<Device *> System::devices = LinkedList<Device *>();
 LinkedList<Termometr *> System::termometry = LinkedList<Termometr*>();
 LinkedList<Przekaznik *> System::przekazniki = LinkedList<Przekaznik*>();
@@ -283,9 +283,10 @@ void System::reinit_system(){
     {
         delete devices[i];//usuń wszystkie urządzenia w systemie
     }
-
+    
     //oczyść wszystkie listy urządzeń
     devices.clear();
+    idDevice = 0;
     przekazniki.clear();
     rolety.clear();
     termometry.clear();

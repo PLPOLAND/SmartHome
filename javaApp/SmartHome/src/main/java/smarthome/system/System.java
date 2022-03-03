@@ -3,6 +3,8 @@ package smarthome.system;
 
 import java.util.Arrays;
 
+import com.pi4j.io.i2c.I2CDevice;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +40,18 @@ public class System {
     Logger log;
 
     System(){
-        log = LoggerFactory.getLogger(System.class);
+        log = LoggerFactory.getLogger(System.class);        
     }
 
 
 
     public SystemDAO getSystemDAO() {
         return this.systemDAO;
+    }
+
+
+    public JtAConverter getArduino() {
+        return this.arduino;
     }
 
 
@@ -66,6 +73,7 @@ public class System {
                 throw new Exception("Nie udało się dodać urządzenia na slavie");
             }
             systemDAO.getRoom(roomName).addDevice(light);
+            systemDAO.getDevices().add(light);
             systemDAO.save();
         } catch (Exception e) {
             light = null;
@@ -95,6 +103,7 @@ public class System {
                 throw new Exception("Nie udało się dodać urządzenia na slavie");
             }
             systemDAO.getRoom(roomName).addDevice(roleta);
+            systemDAO.getDevices().add(roleta);
             systemDAO.save();
         } catch (Exception e) {
             roleta = null;
@@ -121,6 +130,7 @@ public class System {
                 throw new Exception("Nie udało się dodać urządzenia na slavie");
             }
             systemDAO.getRoom(roomName).addSensor(termometr);//dodaj urzadzenie do pokoju
+            systemDAO.getSensors().add(termometr);
             systemDAO.save();
         } catch (Exception e) {
             termometr = null;
@@ -226,12 +236,32 @@ public class System {
             return null;
         }
         Light sw = (Light) room.getDeviceById(deviceID);
-        sw.setStan(stan);
-        systemDAO.save();
-        arduino.changeSwitchState(sw.getOnSlaveID(), sw.getSlaveID(), sw.getStan());
+        if (sw != null) {
+            sw.setStan(stan);
+            systemDAO.save();
+            arduino.changeSwitchState(sw.getOnSlaveID(), sw.getSlaveID(), sw.getStan());
+        }
 
         
         return sw;
+
+    }
+    public Device changeLightState(int deviceID, boolean stan ) {
+        Light lt = null;
+        for(Device dev : systemDAO.getDevices()){
+            if (dev.getId() == deviceID ) {
+               if (dev instanceof Light) {
+                   lt =(Light) dev; 
+               }
+            }
+        }
+        if (lt != null) {
+            lt.setStan(stan);
+            systemDAO.save();
+            arduino.changeSwitchState(lt.getOnSlaveID(), lt.getSlaveID(), lt.getStan());
+        }
+
+        return lt;
 
     }
 
@@ -264,10 +294,50 @@ public class System {
      */
     public boolean checkInitOfBoard(int slaveID) {
         if (!arduino.checkInitOfBoard(slaveID) && arduino.reInitBoard(slaveID)) {
-            
+            log.debug("into ifs");
+            log.debug("number of devices in system: {}", systemDAO.getDevices().size());
             for (Device device : systemDAO.getDevices()) {
+                log.debug("device slaveID: {}",device.getSlaveID());
                 if (device.getSlaveID() == slaveID) {
+                    log.debug("sendingDevice {}", device);
                     device.setOnSlaveID(arduino.addUrzadzenie(device));
+                    this.changeLightState(device.getId(), ((Light) device).getStan());//TODO sprawdzanie czy device jest oblektem typu light
+                }
+            }
+            for (Sensor sensor : systemDAO.getSensors()) {
+                if(sensor.getSlaveID() == slaveID){
+                    if (sensor instanceof Termometr) {
+                        arduino.addTermometr(sensor);//TODO sprawdzanie czy termometr po dodaniu ponownie ma taki sam adres!
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void reinitAllBoards() {
+        for (I2CDevice device : arduino.atmega.getDevices()) {
+            this.checkInitOfBoard(device.getAddress());
+        }
+    }
+    /**
+     * Reinicjalizuje płytke
+     * @param slaveID
+     * @return true jeśli reinicjowano urządzenie
+     * @return false jeśli urządzenie było już inicjowane 
+     */
+    public boolean initOfBoard(int slaveID) {
+        log.debug("initOfBoard");
+        if (arduino.reInitBoard(slaveID)) {
+            log.debug("into ifs");
+            log.debug("number of devices in system: {}", systemDAO.getDevices().size());
+            for (Device device : systemDAO.getDevices()) {
+                log.debug("device slaveID: {}",device.getSlaveID());
+                if (device.getSlaveID() == slaveID) {
+                    log.debug("sendingDevice {}", device);
+                    device.setOnSlaveID(arduino.addUrzadzenie(device));
+                    this.changeLightState(device.getId(), ((Light)device).getStan());//TODO sprawdzanie czy device jest oblektem typu light
                 }
             }
             for (Sensor sensor : systemDAO.getSensors()) {

@@ -46,4 +46,9 @@ public class Runners {
     //     }
     // }
 
+    @Scheduled(fixedRate = 1000)
+    void checkReinit(){
+        logger.info("checkReinit()");
+        system.reinitAllBoards();
+    }
 }

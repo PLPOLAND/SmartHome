@@ -9,18 +9,23 @@ import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class I2C{
 
     ArrayList<I2CDevice> devices;
-
+    Logger logger;
 
     public I2C() {
+        logger = LoggerFactory.getLogger(this.getClass());
         devices = new ArrayList<>();
         try {
+            logger.info("Searching for devices");
             findAll();
+            
         } catch (UnsatisfiedLinkError e) {
             System.err.println("platform does not support this driver");
         } catch (UnsupportedBusNumberException e) {
@@ -48,8 +53,12 @@ public class I2C{
                     //     System.out.print((char) b);
                     // }
                     System.out.println("Dodano Slave o adresie: "+i);
-                    devices.add(device);
-                    validAddresses.add(i);
+                    if (!devices.contains(device)) {
+                        devices.add(device);
+                    }
+                    if (!validAddresses.contains(i)) {
+                        validAddresses.add(i);
+                    }
                 } catch (Exception ignore) {
                     // System.out.println("Sprawdzono: "+i+" i nie jest to prawidłowy adres");
                     // ignore.printStackTrace();

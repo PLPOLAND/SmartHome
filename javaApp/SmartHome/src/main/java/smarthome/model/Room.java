@@ -103,6 +103,7 @@ public class Room {
 
     public void safeDelete(){
         for (Device device : devices) {
+            
             //TODO usuwanie urządzeń z systemu
         }
         for (Sensor sensor : sensors) {
