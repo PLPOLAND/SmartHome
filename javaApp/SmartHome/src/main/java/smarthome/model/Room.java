@@ -101,7 +101,7 @@ public class Room {
         return null;
     }
 
-    public void safeDelate(){
+    public void safeDelete(){
         for (Device device : devices) {
             //TODO usuwanie urządzeń z systemu
         }

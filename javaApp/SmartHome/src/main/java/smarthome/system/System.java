@@ -256,5 +256,29 @@ public class System {
 
         return bl;
     }
-
+    /**
+     * Sprawdza czy płytka była inicjowana przez I2C, i jeśli nie to reinicjuje ją
+     * @param slaveID
+     * @return true jeśli reinicjowano urządzenie
+     * @return false jeśli urządzenie było już inicjowane 
+     */
+    public boolean checkInitOfBoard(int slaveID) {
+        if (!arduino.checkInitOfBoard(slaveID) && arduino.reInitBoard(slaveID)) {
+            
+            for (Device device : systemDAO.getDevices()) {
+                if (device.getSlaveID() == slaveID) {
+                    device.setOnSlaveID(arduino.addUrzadzenie(device));
+                }
+            }
+            for (Sensor sensor : systemDAO.getSensors()) {
+                if(sensor.getSlaveID() == slaveID){
+                    if (sensor instanceof Termometr) {
+                        arduino.addTermometr(sensor);//TODO sprawdzanie czy termometr po dodaniu ponownie ma taki sam adres!
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }

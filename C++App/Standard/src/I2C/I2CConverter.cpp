@@ -207,9 +207,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 doWyslania.add(0, komendaZwrotna);
             }
             break;
-            case Command::KOMENDY::RECEIVE_IS_INIT:
+            case Command::KOMENDY::RECEIVE_CHECK_INIT:
             {
-                OUT_LN(F("RECEIVE_IS_INIT"));
+                OUT_LN(F("RECEIVE_CHECK_INIT"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = System::is_init();

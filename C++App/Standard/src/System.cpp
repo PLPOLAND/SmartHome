@@ -263,7 +263,7 @@ Termometr* System::getTermometr(const byte* adress){
 
 }
 
-LinkedList<byte*> System::getAdrOfThemp(){
+LinkedList<byte*> System::getAdrOfThermometrs(){
     LinkedList<byte*> adresy;
     for (byte i = 0; i < termometry.size(); i++)
     {

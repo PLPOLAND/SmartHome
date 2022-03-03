@@ -63,11 +63,11 @@ public class I2C{
         }
         
 
-        System.out.println("Found: ---");
-        for (int a : validAddresses) {
-        System.out.println("Address: " + Integer.toHexString(a));
-        }
-        System.out.println("----------");
+        // System.out.println("Found: ---");
+        // for (int a : validAddresses) {
+        // System.out.println("Address: " + Integer.toHexString(a));
+        // }
+        // System.out.println("----------");
     }
     
 

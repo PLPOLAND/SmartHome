@@ -60,9 +60,12 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					if (scanner.hasNext()) {
 						String nazwaPokoju = scanner.next();
 						if (scanner.hasNext()) {
-							int pin= scanner.nextInt();
-
-							System.out.println(adminController.dodajSwiatlo(nazwaPokoju,3, pin).getObj().toString());
+							int idPlytki= scanner.nextInt();
+							if (scanner.hasNext()) {
+								int pin= scanner.nextInt();
+								
+								System.out.println(adminController.dodajSwiatlo(nazwaPokoju,idPlytki, pin).getObj().toString());
+							}
 						}
 					}
 				} 
@@ -81,8 +84,12 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				} else if (in.equals("addTermometr")) {
 					if (scanner.hasNext()) {
 						String nazwaPokoju = scanner.next();
-						
-						System.out.println(adminController.dodajTermometr(nazwaPokoju, 3).getObj().toString());
+						if (scanner.hasNext()) {
+							int adress = scanner.nextInt();
+							
+							System.out.println(adminController.dodajTermometr(nazwaPokoju, adress).getObj().toString());
+							
+						}
 					}
 				}
 				else if(in.equals("removeDevice")){
@@ -116,6 +123,26 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				else if(in.equals("updateTemperature")){
 					for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
 						system.updateTemperature(termometr);
+					}
+				}
+				else if(in.equals("lightON")){
+					if (scanner.hasNext()) {
+						String nazwaPokoju = scanner.next();
+						if (scanner.hasNext()) {
+							int idUrzadzenia = scanner.nextInt();
+							System.out.println(adminController.zmienStanSwiatla(nazwaPokoju, idUrzadzenia, true));
+
+						}
+					}
+				}
+				else if(in.equals("lightOFF")){
+					if (scanner.hasNext()) {
+						String nazwaPokoju = scanner.next();
+						if (scanner.hasNext()) {
+							int idUrzadzenia = scanner.nextInt();
+							System.out.println(adminController.zmienStanSwiatla(nazwaPokoju, idUrzadzenia, false));
+
+						}
 					}
 				}
 				else if(in.equals("blindUP")){
@@ -156,6 +183,12 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					// }
 					// int [] tmp = {40,255,30,49,0,22,2,171};
 					// System.out.println(adminController.getTemperatura(tmp).getObj());
+				}
+				else if (in.equals("reinit")) {
+					if (scanner.hasNext()) {
+						int idUrzadzenia = scanner.nextInt();
+						System.out.println(adminController.sprawdzZainicjowaniePlytki(idUrzadzenia));
+					}
 				}
 			}
 			catch(Exception e){

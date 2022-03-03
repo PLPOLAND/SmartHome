@@ -59,7 +59,7 @@ bool Termometr::begin()
     sensors.begin();
     
     if (lastSensorsCount != sensors.getDeviceCount()){
-        LinkedList<byte*> defined = system->getAdrOfThemp();
+        LinkedList<byte*> defined = system->getAdrOfThermometrs();
         for (int i = 0; i < sensors.getDeviceCount(); i++)// poszukaj nowych termometrów podlaczonych do sysytemu
         {
             bool found = false ;

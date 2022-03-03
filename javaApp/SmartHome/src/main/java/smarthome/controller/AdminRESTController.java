@@ -90,7 +90,7 @@ public class AdminRESTController {
     @RequestMapping("/sentAny")
     public Response<String> sentAny(@RequestParam("msg") String msg, @RequestParam("adres") int adres) {
         Response r = new Response<String>(msg+" " + adres);
-        converter.sentAnything(msg, adres);
+        converter.sendAnything(msg, adres);
         return r;
     }
 
@@ -195,15 +195,6 @@ public class AdminRESTController {
     @GetMapping("/addTermometr")
     public Response<String> dodajTermometr(@RequestParam("name") String nazwaPokoju, @RequestParam("idPlytki") int idPlytki){
         Termometr t = system.addTermometr(nazwaPokoju, idPlytki);
-        // Termometr t;
-        // try {
-        //     t = new Termometr(pin);
-        //     t.setSlaveID(idPlytki);
-        //     converter.addTermometr(t);//TODO  
-        //     systemDAO.addSensorToRoom(nazwaPokoju, t);
-        // } catch (Exception e) {
-        //     return new Response<>("",e.getMessage());
-        // }
         return new Response<>("Termometr: '" + t.toString() + "' dodany prawidłowo");
 
     }
@@ -240,6 +231,11 @@ public class AdminRESTController {
             e.printStackTrace();
             return new Response<>("", e.getMessage());
         }
+    }
+
+    public Response<String> sprawdzZainicjowaniePlytki(@RequestParam("boardID") int boardID) {
+        boolean tmp = system.checkInitOfBoard(boardID);
+        return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
     }
     
 

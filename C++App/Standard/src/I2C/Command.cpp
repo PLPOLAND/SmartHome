@@ -63,7 +63,7 @@ void Command::convert(const byte *c, byte size)
     {
     case 1:{
         if (c[0] == 'I')
-            this->komenda = Command::KOMENDY::RECEIVE_IS_INIT;
+            this->komenda = Command::KOMENDY::RECEIVE_CHECK_INIT;
         if (c[0] == 'W')
             this->komenda = Command::KOMENDY::RECEIVE_GET;
         if (c[0] == 'R')

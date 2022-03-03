@@ -74,7 +74,7 @@ public:
     Termometr *getTermometr(const byte *adress);
 
     ///Zwraca listę adresów termometrów zarejestrowanych w systemie
-    LinkedList<byte*> getAdrOfThemp();
+    LinkedList<byte*> getAdrOfThermometrs();
 
     // /**
     //  * @brief Wykonuje komendę dostarczoną w argumencie.

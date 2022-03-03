@@ -75,7 +75,7 @@ public class SystemDAO {
             return false;
         }
 
-        r.safeDelate();
+        r.safeDelete();
 
         if (pokoje.remove(r.getNazwa()) != null){
             delete(r);
@@ -124,6 +124,16 @@ public class SystemDAO {
         }
         return termometry;
     }
+
+
+    public ArrayList<Device> getDevices() {
+        return this.devices;
+    }
+
+    public ArrayList<Sensor> getSensors() {
+        return this.sensors;
+    }
+
 
     /**
      * Dodaje urządzenie do wskazanego pokoju

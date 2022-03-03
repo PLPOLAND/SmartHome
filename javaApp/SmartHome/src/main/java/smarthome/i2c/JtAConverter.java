@@ -32,25 +32,29 @@ public class JtAConverter {
 
     // #region Komendy
     /**[S,U]*/
-    final byte[] STATUSURZADZEN = { 'S', 'U' };
+    final byte[] STATUS_URZADZEN = { 'S', 'U' };
     /**[S,R]*/
-    final byte[] STATUSRGB = { 'S', 'R' };
+    final byte[] STATUS_RGB = { 'S', 'R' };
     /**[W]*/
-    final byte[] CHECKTOWORK = { 'W' };
+    final byte[] CHECK_TO_WORK = { 'W' };
+    /**[I]*/
+    final byte[] CHECK_INIT = { 'I' };
+    /**[R]*/
+    final byte[] REINIT = { 'R' };
     /**[U,S]*/
-    final byte[] ZMIENSTANPRZEKAZNIKA = { 'U' , 'S'}; // + id + stan
+    final byte[] ZMIEN_STAN_PRZEKAZNIKA = { 'U' , 'S'}; // + id + stan
     /**[U,B] */
-    final byte[] ZMIENSTANROLETY = { 'U' , 'B'}; // + id + stan
+    final byte[] ZMIEN_STAN_ROLETY = { 'U' , 'B'}; // + id + stan
     /**[T]*/
-    final byte[] POBIERZTEMPERATURE = { 'T' }; // + ADRESS (8byte)
+    final byte[] POBIERZ_TEMPERATURE = { 'T' }; // + ADRESS (8byte)
     /**[A, S]*/
-    final byte[] DODAJURZADZENIE = { 'A', 'S' }; // + PIN
+    final byte[] DODAJ_URZADZENIE = { 'A', 'S' }; // + PIN
     /**[A, R]*/
-    final byte[] DODAJROLETE = { 'A', 'R' }; // + PIN + PIN
+    final byte[] DODAJ_ROLETE = { 'A', 'R' }; // + PIN + PIN
     /**[A, P]*/
-    final byte[] DODAJPRZYCISK = { 'A', 'P' }; // + PIN
+    final byte[] DODAJ_PRZYCISK = { 'A', 'P' }; // + PIN
     /**[A, T]*/
-    final byte[] DODAJTERMOMETR = { 'A', 'T' };
+    final byte[] DODAJ_TERMOMETR = { 'A', 'T' };
     // #endregion
 
     @Autowired
@@ -76,7 +80,7 @@ public class JtAConverter {
     public void changeSwitchState(int idPrzekaznika, int idPlytki, boolean stan) {
         byte[] buffor = new byte[4];
         int i = 0;
-        for (byte b : ZMIENSTANPRZEKAZNIKA) {
+        for (byte b : ZMIEN_STAN_PRZEKAZNIKA) {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) idPrzekaznika;
@@ -93,7 +97,7 @@ public class JtAConverter {
     public void changeBlindState(Blind roleta, boolean stan) {
         byte[] buffor = new byte[4];
         int i = 0;
-        for (byte b : ZMIENSTANROLETY) {
+        for (byte b : ZMIEN_STAN_ROLETY) {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) roleta.getOnSlaveID();
@@ -124,7 +128,7 @@ public class JtAConverter {
         String bufString = "";
 
         int i =0;
-        for (byte b : POBIERZTEMPERATURE) {
+        for (byte b : POBIERZ_TEMPERATURE) {
             buffor[i++] = b;
             bufString += (int)b + " ";
         }
@@ -164,7 +168,7 @@ public class JtAConverter {
         if (device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO) {
             byte[] buffor = new byte[3];
             int i = 0;
-            for (byte b : DODAJURZADZENIE) {
+            for (byte b : DODAJ_URZADZENIE) {
                 buffor[i++] = b;
             }
             if(device.getTyp() == DeviceTypes.LIGHT){
@@ -188,7 +192,7 @@ public class JtAConverter {
         if(device.getTyp() == DeviceTypes.BLIND){
             byte[] buffor = new byte[4];
             int i = 0;
-            for (byte b : DODAJROLETE) {
+            for (byte b : DODAJ_ROLETE) {
                 buffor[i++] = b;
             }
             buffor[i++] = (byte) (((Blind) device).getPinUp());
@@ -215,7 +219,7 @@ public class JtAConverter {
         if (sens.getTyp() == SensorsTypes.THERMOMETR) {
             byte[] buffor = new byte[2];
             int i = 0;
-            for (byte b : DODAJTERMOMETR) {
+            for (byte b : DODAJ_TERMOMETR) {
                 buffor[i++] = b;
             }
             try {
@@ -229,8 +233,43 @@ public class JtAConverter {
         } 
         return null;
     }
+    public boolean checkInitOfBoard(int adres){
+        byte[] buffor = new byte[1];
+        int i = 0;
+        for (byte b : CHECK_INIT) {
+            buffor[i++] = b;
+        }
 
-    // public void addPrzycisk(Device device) {
+        try {
+            atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
+            Thread.sleep(200);
+            buffor = atmega.readFrom(adres, 8);
+            return buffor[0] == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean reInitBoard(int adres) {
+        byte[] buffor = new byte[1];
+        int i = 0;
+        for (byte b : REINIT) {
+            buffor[i++] = b;
+        }
+
+        try {
+            atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
+            Thread.sleep(200);
+            buffor = atmega.readFrom(adres, 8);
+            return buffor[0] == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    // public void addPrzycisk(Device device) {//TODO ?
     //     if (device.getTyp() == DeviceTypes.PRZYCISK) {
     //         byte[] buffor = new byte[3];
     //         int i = 0;
@@ -250,7 +289,7 @@ public class JtAConverter {
     //     }
     // }
 
-    public void sentAnything(String msg, int adres) {
+    public void sendAnything(String msg, int adres) {
         byte[] buff = new byte[msg.length()];
         logger.debug(msg);
         for (int i = 0; i < buff.length; i++) {
@@ -266,4 +305,6 @@ public class JtAConverter {
     public byte[] getAnything(int adres) throws Exception {
         return atmega.readFrom(adres, 8);
     }
+
+
 }
