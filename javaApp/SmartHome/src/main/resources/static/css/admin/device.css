@@ -1,0 +1,56 @@
+.device{
+    display: block;
+    width: 300px;
+    height: 100px;
+    border-radius: 10px;
+    float: left;
+    margin: 10px;
+
+    background-color: var(--primaryColor);
+    color: var(--primaryTextColor);
+}
+.device .deviceIcon{
+    display: block;
+    float: left;
+    width: calc(20% - 10px);
+    height: calc(100% - 10px);
+
+
+    line-height: 80px;
+    font-size: 30px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+
+    padding: 5px;
+    background-color: var(--primaryLightColor);
+}
+.device .deviceIcon i{
+    display: block;
+    float: left;
+    width: 100%;
+    text-align: center;
+}
+
+.device .deviceDescribe{
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+    display: block;
+    float: left;
+    width: calc(80% - 10px);
+    height: calc(100% - 10px);
+    padding: 5px;
+}   
+
+.device .deviceDescribe .deviceDescribeText{
+    border-top-right-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+
+    display: table;
+    margin: 0 auto;
+    float: left;
+    text-align: center;
+    line-height: 80px;
+    width: calc(100% - 10px);
+    padding: 5px;
+}   

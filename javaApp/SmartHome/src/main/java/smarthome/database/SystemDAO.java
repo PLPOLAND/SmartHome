@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 @Repository
 public class SystemDAO {
 
-    private static final String ROOMS_FILES_LOCALISATION = "src/main/resources/static/database/rooms/";
+    private static final String ROOMS_FILES_LOCALISATION = "smarthome/database/rooms/";
     TreeMap<String, Room> pokoje; // Pokoje w systemie
     Logger logger;
 

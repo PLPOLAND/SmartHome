@@ -1,4 +1,10 @@
 :root{
-	--background-color: #0b006d;
-	--background-image: url(../../img/lawenda.jpg);
+	--primaryColor: #283593;
+	--primaryLightColor: #5f5fc4;
+	--primaryDarkColor: #001064;
+	--secondaryColor: #ff9800;
+	--secondaryLightColor: #ffc947;
+	--secondaryDarkColor: #c66900;
+	--primaryTextColor: #ffffff;
+	--secondaryTextColor: #000000;
 }

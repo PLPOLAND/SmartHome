@@ -1,10 +1,10 @@
 ﻿:root{
-	--background-color: #0b006d;
-	--background-image: url(../../img/lawenda.jpg);
+	--background-color: var(--primaryDarkColor);
+	/* --background-image: url(../../img/lawenda.jpg); */
 }
 body{
 	margin: 0;
-	background-color: var(--background-color);
+	background-color: var(--primaryDarkColor);
 }
 .background-container{
 	position: fixed;
@@ -19,7 +19,7 @@ body{
 	background-image: var(--background-image);
 	background-size: cover; 
 	background-position: center;
-	background-color: #000000;
+	background-color: var(--primaryDarkColor);
 	background-attachment: fixed;
 	filter: blur(10px);
 	transform: scale(1.1);
@@ -34,9 +34,11 @@ body{
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100%;
+	width: calc(100% - 10px);
 	height: 50px;
-	background-color: red;
+	padding: 0 5px 0 5px ;
+	background-color: var(--primaryColor);
+	color: var(--primaryTextColor);
 }
 .banner-user{
 	display: block;
@@ -68,7 +70,8 @@ body{
 }
 .menu{
 	display: block;
-	width: 100%;
+	width: calc(100% - 210px);
+	float: left;
 }
 
 .menu ul{
@@ -91,14 +94,14 @@ body{
 	height: 100%;
 	display: block;
 	float: left;
- 	background-color: blue;
+ 	background-color: var(--primaryColor);
  	text-align: center;
  	text-decoration: none;
-	color: #000000;
+	color: var(--primaryTextColor);
 	transition: 400ms;
 }
 .menu a:hover{
-	background-color: cadetblue;
+	background-color: var(--primaryLightColor);
 }
 .menu ul > li:hover ul{
 	display: block;
@@ -118,4 +121,74 @@ body{
 	line-height: 50px;
 	width: 200px;
 }
-	
+
+#main-body{
+	padding: 10px;
+	padding-top: 60px;
+	color: var(--primaryTextColor);
+}
+
+.user_img{
+	float: right;
+	height: 40px;
+	border-radius: 40px;
+	margin: 5px;
+}
+.nickname{
+	float: right;
+	text-align: right;
+	margin: 0 5px 0 5px;
+}
+#usermenu #menu {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	display: block;
+	float: right;
+	min-height: 50px;
+	line-height: 50px;
+	max-width: 200px;
+	background-color: var(-secondaryColor);
+}
+#usermenu #menu ul > li{
+	display: block;
+	float: left;
+	min-height: 50px;
+	line-height: 50px;
+	max-width: 200px;
+}
+#usermenu #menu a{
+	width: 100%;
+	height: 100%;
+	display: block;
+	float: left;
+ 	background-color: var(--primaryColor);
+ 	text-align: center;
+ 	text-decoration: none;
+	color: var(--primaryTextColor);
+	transition: 400ms;
+}
+#usermenu #menu a:hover{
+	background-color: var(--primaryLightColor);
+}
+#usermenu #menu li:hover ul{
+	display: block;
+}
+#usermenu #menu li>ul{
+	display: none;
+  	transition: 1s;
+	float: none;
+	position: relative;
+	height: auto;
+	margin: 0;
+	padding: 0;
+}
+
+#usermenu #menu  li > ul > li{
+	min-height: 50px;
+	line-height: 50px;
+	width: 200px;
+}
+#usermenu #menu  li > ul > li > a{
+	padding: 0 5px 0 5px;
+}

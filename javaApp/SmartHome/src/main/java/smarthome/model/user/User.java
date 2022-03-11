@@ -25,7 +25,18 @@ public class User {
     public User(){
 
     }
-
+    /**
+     * 
+     * @param id
+     * @param imie
+     * @param nazwisko
+     * @param nick
+     * @param email
+     * @param password
+     * @param oldPassword
+     * @param uprawnienia
+     * @param opcje
+     */
     public User(Long id, String imie, String nazwisko, String nick, String email, String password, String oldPassword, Uprawnienia uprawnienia, Opcje opcje) {
         this.id = id;
         this.imie = imie;

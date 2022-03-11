@@ -1,5 +1,6 @@
 package smarthome.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -21,11 +22,14 @@ import smarthome.database.UsersDAO;
 import smarthome.i2c.JtAConverter;
 import smarthome.model.Response;
 import smarthome.model.Room;
+import smarthome.model.Uprawnienia;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Termometr;
 import smarthome.model.hardware.Blind.RoletaStan;
+import smarthome.model.user.Opcje;
+import smarthome.model.user.User;
 import smarthome.security.Security;
 
 @RestController
@@ -68,13 +72,8 @@ public class AdminRESTController {
 
     @RequestMapping("/test")
     public Response test() {
-        system.getSystemDAO().removeRoom("Marek");
-        this.dodajPokoj("Marek");
-
-        System.out.println(this.dodajSwiatlo("Marek", 3, 11));
-        
-
-        return this.zmienStanSwiatla("Marek",system.getSystemDAO().getRoom("Marek").getDevices().size() - 1, true);
+        users.createUser( new User(0l, "Marek", "Paldyna", "PLPOLAND", "marekpaldyna@wp.pl", "Mareczek", "xxx", new Uprawnienia(true), new Opcje("../img/users/12322601_643168719175369_7590023013141216084_o.jpg") ));
+        return new Response<String>("test");
     }
     @RequestMapping("/find")
     public Response<ArrayList<I2CDevice>> find() {
@@ -242,6 +241,16 @@ public class AdminRESTController {
         boolean tmp = system.initOfBoard(boardID);
         return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
     }
-    
+    @RequestMapping("shutdown")
+    public Response<String> shutdownMe() {
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec("sudo shutdown -h now");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Response<>("ShuttingDownSystem");
+    }
 
 }

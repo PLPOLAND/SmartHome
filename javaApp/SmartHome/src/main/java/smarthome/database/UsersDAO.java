@@ -26,7 +26,8 @@ import smarthome.security.Hash;
 @Repository
 public class UsersDAO {
 
-	List<User> userzy = new ArrayList<User>();
+	private static final String USERS_FILES_LOCATION = "smarthome/database/users/";
+	List<User> userzy = new ArrayList<>();
 
 	public UsersDAO() {
 		this.readDatabase();
@@ -53,9 +54,9 @@ public class UsersDAO {
 		}
 	}
 
-	public User find_user_by_id(Long ID) {
+	public User findUserById(Long id) {
 		for (User user : userzy) {
-			if (user.getId() == ID) {
+			if (user.getId().longValue() == id.longValue()) {
 				return user;// znaleziony user
 			}
 		}
@@ -68,10 +69,10 @@ public class UsersDAO {
 	public void readDatabase() {
 		ObjectMapper obj = new ObjectMapper();
 		int i = 0;
-		while (true) {
+		while (i<Integer.MAX_VALUE) {
 			User user = null;
 			try {
-				user = obj.readValue(new FileInputStream(new File("src/main/resources/static/database/users/" + i + "_User.json")),
+				user = obj.readValue(new FileInputStream(new File(USERS_FILES_LOCATION + i + "_User.json")),
 						User.class);
 				userzy.add(user);
 				i++;
@@ -166,7 +167,8 @@ public class UsersDAO {
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-				File projFile = new File("src/main/resources/static/database/users/" + user.getId() + "_User.json");
+				File projFile = new File(USERS_FILES_LOCATION + user.getId() + "_User.json");
+				new File(USERS_FILES_LOCATION).mkdirs();
 				projFile.createNewFile();// utworzenie pliku jeśli nie istnieje
 				objectMapper.writeValue(projFile, user);// plik projektu (src)
 			} catch (JsonGenerationException e) {

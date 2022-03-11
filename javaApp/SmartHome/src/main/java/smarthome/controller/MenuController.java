@@ -27,8 +27,25 @@ public class MenuController {
     public Response<ArrayList<PozycjaMenu>> getpozycje(HttpServletRequest request) {
         Security s = new Security(request, users);
         if(s.isLoged())
-        return new Response<ArrayList<PozycjaMenu>>(new Menu(s.getFullUserData(),system).getPozycje());
+            return new Response<>(new Menu(s.getFullUserData(),system).getPozycje());
         else
-        return new Response<ArrayList<PozycjaMenu>>(null,"Nie zalogowano!");
+            return new Response<>(null,"Nie zalogowano!");
+    }
+    @RequestMapping("/usrNickName")
+    public Response<String> getUserName(HttpServletRequest request) {
+        Security s = new Security(request, users);
+        if (s.isLoged())
+            return new Response<>(s.getUserName());
+        else
+            return new Response<>(null, "Nie zalogowano!");
+    }
+
+    @RequestMapping("usrAvatar")
+    public Response<String> getUserAvatar(HttpServletRequest request) {
+        Security s = new Security(request, users);
+        if (s.isLoged())
+            return new Response<>(s.getUserAvatarPath());
+        else
+            return new Response<>(null, "Nie zalogowano!");
     }
 }

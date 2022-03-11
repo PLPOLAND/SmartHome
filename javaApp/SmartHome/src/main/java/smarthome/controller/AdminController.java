@@ -21,8 +21,8 @@ public class AdminController {
     @RequestMapping("/")
     public String adminHome(HttpServletRequest request){
         Security sec = new Security(request, users);
-        // if (!sec.isLoged() || !sec.isUserAdmin())
-        //     return "redirect:login";
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
 
         return "admin/index";
     }

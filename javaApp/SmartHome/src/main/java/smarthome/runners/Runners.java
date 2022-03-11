@@ -48,7 +48,7 @@ public class Runners {
 
     @Scheduled(fixedRate = 1000)
     void checkReinit(){
-        logger.info("checkReinit()");
+        logger.debug("checkReinit()");
         system.reinitAllBoards();
     }
 }

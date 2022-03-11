@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import smarthome.database.TemperatureDAO;
 import smarthome.database.UsersDAO;
+import smarthome.model.Response;
 import smarthome.model.hardware.Termometr;
 import smarthome.security.Security;
 
@@ -26,15 +27,15 @@ public class MainRESTController {
     UsersDAO users;
 
     @RequestMapping("/login")
-    String login(HttpServletRequest request) {
+    Response login(HttpServletRequest request) {
         Security s = new Security(request, users);
 
         if (s.login())
-            return "/";
+            return new Response<String>("/");
         else
-            return null;
+            return new Response<String>("Logowanie nie powiodło się!", "Bledny login lub haslo");
     }
-
+    
     
 
     //  @Scheduled(fixedRate = 1000)

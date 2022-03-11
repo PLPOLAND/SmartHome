@@ -61,7 +61,7 @@ public class Security {
         if (resultUsers == null) {
             return false;
         } else {
-            String name = resultUsers.getNick();
+            String name = resultUsers.getImie();
             String nazwisko = resultUsers.getEmail();
             Long idU = resultUsers.getId();
             HttpSession session = request.getSession();
@@ -69,6 +69,7 @@ public class Security {
             session.setAttribute("nazwisko", nazwisko);
             session.setAttribute("id", idU);
             session.setAttribute("uprawnienia",resultUsers.getUprawnienia());
+            session.setAttribute("opcje",resultUsers.getOpcje());
             session.setMaxInactiveInterval(60 * 60); // usuniecie pol sesji po 60 minutach
 
             logger.info("User: " + resultUsers.getNick() + " zalogował się pomyślnie"); //log
@@ -181,11 +182,24 @@ public class Security {
     public User getFullUserData() {
         if (isLoged()) {
             HttpSession session = request.getSession();
-            User result = database.find_user_by_id((Long) session.getAttribute("id"));
+            User result = database.findUserById((Long) session.getAttribute("id"));
             if (result == null) {
                 return null;
             } else {
                 return result;
+            }
+        } else {
+            return null;
+        }
+    }
+    public String getUserAvatarPath(){
+        if (isLoged()) {
+            HttpSession session = request.getSession();
+            User result = database.findUserById((Long) session.getAttribute("id"));
+            if (result == null) {
+                return null;
+            } else {
+                return result.getOpcje().getLokalnaSciezka();//TODO dodać Gravatar
             }
         } else {
             return null;
