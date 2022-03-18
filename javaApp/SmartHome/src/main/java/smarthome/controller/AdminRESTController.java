@@ -13,12 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import smarthome.database.SystemDAO;
 import smarthome.database.UsersDAO;
+import smarthome.exception.HardwareException;
 import smarthome.i2c.JtAConverter;
 import smarthome.model.Response;
 import smarthome.model.Room;
@@ -79,27 +81,27 @@ public class AdminRESTController {
     public Response<ArrayList<I2CDevice>> find() {
         try {
             converter.atmega.findAll();
-        } catch (UnsupportedBusNumberException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            return new Response<>(null, e.getMessage());
         }
-        Response<ArrayList<I2CDevice>> response = new Response<>(converter.atmega.getDevices(), "errortmp");
-        return response;
+        return new Response<>((ArrayList<I2CDevice>)converter.atmega.getDevices());
     }
 
-    @RequestMapping("/sentAny")
+    @RequestMapping("/sendAny")
     public Response<String> sentAny(@RequestParam("msg") String msg, @RequestParam("adres") int adres) {
-        Response r = new Response<String>(msg+" " + adres);
+        Response<String> r = new Response<>(msg+" " + adres);
         converter.sendAnything(msg, adres);
         return r;
     }
 
-    @RequestMapping("/ReadAny")
+    @RequestMapping("/readAny")
     public Response<String> readAny(@RequestParam("adres") int adres) {
         Response<String> r;
         try {
-            r = new Response<String>(new String(converter.getAnything(adres)));
+            r = new Response<>(new String(converter.getAnything(adres)));
         } catch (Exception e) {
-            r = new Response<String>(e.getMessage());
+            r = new Response<>(null, e.getMessage());
         }
         
         return r;
@@ -110,7 +112,7 @@ public class AdminRESTController {
 
     @RequestMapping("/getSystemData")
     public Response<SystemDAO> getSystemData() {
-        return new Response<SystemDAO>(systemDAO);
+        return new Response<>(systemDAO);
     }
 
     @GetMapping("/addRoom")
@@ -118,7 +120,7 @@ public class AdminRESTController {
         Room r = new Room(roomsID++, name);
         systemDAO.addRoom(r);
 
-        return new Response<String>("Pokój: '" + name +"' dodany");
+        return new Response<>("Pokój: '" + name +"' dodany");
     }
 
     // public Response<String> setIdPlytkiRoom(@RequestParam("name") String name, @RequestParam("id") int id) {
@@ -141,23 +143,33 @@ public class AdminRESTController {
     @GetMapping("/addSwiatlo")
     public Response<String> dodajSwiatlo(@RequestParam("name") String nazwaPokoju,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
         
+        try {
+            Light l = (Light) system.addLight(nazwaPokoju, boardID, pin);
+            if (l != null)
+                return new Response<String>("Żarówka: '" + l.toString() + "' dodana prawidłowo");
+            else
+                return new Response<String>("","Nie udało dodać się Żarówki. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania światła",e);
+            return new Response<String>(null, e.getMessage());
+        }
         
-        Light l = (Light) system.addLight(nazwaPokoju, boardID, pin);
-        if(l != null)
-            return new Response<String>("Żarówka: '" + l.toString() + "' dodana prawidłowo");
-        else
-            return new Response<String>("", "Nie udało dodać się Żarówki. Sprawdź konsolę programu w poszukiwaniu szczegółów");
 
     }
     @GetMapping("/addRoleta")
     public Response<String> dodajRoleta(@RequestParam("name") String nazwaPokoju,@RequestParam("boardID") int boardID, @RequestParam("pinUp") int pinUp, @RequestParam("pinDown") int pinDown){
         
         
-        Blind l = (Blind) system.addRoleta(nazwaPokoju, boardID, pinUp, pinDown);
-        if(l != null)
-            return new Response<String>("Roleta: '" + l.toString() + "' dodana prawidłowo");
-        else
-            return new Response<String>("", "Nie udało dodać się Rolety. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        try {
+            Blind l = (Blind) system.addRoleta(nazwaPokoju, boardID, pinUp, pinDown);
+            if(l != null)
+                return new Response<String>("Roleta: '" + l.toString() + "' dodana prawidłowo");
+            else
+                return new Response<String>("", "Nie udało dodać się Rolety. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+                
+            } catch (HardwareException e) {
+                return new Response<String>(null,e.getMessage());
+            }
 
     }
 
@@ -198,21 +210,35 @@ public class AdminRESTController {
 
     }
 
-    @GetMapping("getTemperatura")
+    @GetMapping("/getTemperatura")
     public Response<Float> getTemperatura(@RequestParam("adres") int[] adress){
         
 
         return new Response<>(system.getTemperature(adress));
     }
 
-    @GetMapping("changetLightState")
+    @GetMapping("/changeLightState")
     public Response<String> zmienStanSwiatla(@RequestParam("name") String nazwaPokoju, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("stan") boolean stan) {
         
         try {
             Device d =system.changeLightState( nazwaPokoju, idUrzadzenia, stan);
             return new Response<>("Zmieniono stan Swiatla :" +((Light)d).toString()+" na stan: " + (stan == true ? "ON" : "OFF"));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Błąd podczas zmieniania stanu światła! ",e);
+            return new Response<>("", e.getMessage());
+        }
+
+
+
+    }
+    @PostMapping("/changetLightStateByRoomID")
+    public Response<String> zmienStanSwiatlaByRoomID(@RequestParam("roomID") int roomID, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("stan") boolean stan) {
+        
+        try {
+            Device d =system.changeLightState( roomID, idUrzadzenia, stan);
+            return new Response<>("Zmieniono stan Swiatla :" +((Light)d).toString()+" na stan: " + (stan == true ? "ON" : "OFF"));
+        } catch (Exception e) {
+            logger.error("Błąd podczas zmieniania stanu światła! ", e);
             return new Response<>("", e.getMessage());
         }
 
@@ -220,7 +246,7 @@ public class AdminRESTController {
 
     }
 
-    @GetMapping("changeBlindState")
+    @GetMapping("/changeBlindState")
     public Response<String> zmienStanRolety(@RequestParam("name") String nazwaPokoju, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("pozycja") boolean pozycja) {
         logger.debug("Zmien Stan Rolety w pokoju: "+ nazwaPokoju+ "; id Rolety: " + idUrzadzenia + "; do stanu: " +(pozycja ? "UP":"DOWN"));
         try {
@@ -231,17 +257,17 @@ public class AdminRESTController {
             return new Response<>("", e.getMessage());
         }
     }
-    @GetMapping("checkReinitBoard")
+    @GetMapping("/checkReinitBoard")
     public Response<String> sprawdzZainicjowaniePlytki(@RequestParam("boardID") int boardID) {
         boolean tmp = system.checkInitOfBoard(boardID);
         return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
     }
-    @GetMapping("reinitBoard")
+    @GetMapping("/reinitBoard")
     public Response<String> reainicjowaniePlytki(@RequestParam("boardID") int boardID) {
         boolean tmp = system.initOfBoard(boardID);
         return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
     }
-    @RequestMapping("shutdown")
+    @RequestMapping("/shutdown")
     public Response<String> shutdownMe() {
         Process p;
         try {

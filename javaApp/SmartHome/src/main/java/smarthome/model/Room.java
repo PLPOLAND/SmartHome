@@ -7,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import smarthome.model.hardware.Device;
-import smarthome.model.hardware.DeviceTypes;
-import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Sensor;
 
 public class Room {
@@ -16,7 +14,7 @@ public class Room {
     Logger logger;
 
     /**ID pokoju w systemie */
-    int ID;
+    int id;
     /** nazwa pokoju */
     String name;
     
@@ -25,24 +23,24 @@ public class Room {
 
     public Room(){
         logger = LoggerFactory.getLogger(Room.class);
-        logger.info("Stworzono nowy pokój:" + this.toString());
+        logger.info("Stworzono nowy pokój: {}",this);
     }
 
-    public Room(int ID, String nazwa) {
-        this.ID = ID;
+    public Room(int id, String nazwa) {
+        this.id = id;
         this.name = nazwa;
         this.devices = new ArrayList<>();
         this.sensors = new ArrayList<>();
         logger = LoggerFactory.getLogger(Room.class);
-        logger.info("Stworzono nowy pokój:" + this.toString());
+        logger.info("Stworzono nowy pokój: {}", this);
     }
 
     public int getID() {
-        return this.ID;
+        return this.id;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setID(int id) {
+        this.id = id;
     }
 
     public String getNazwa() {
@@ -59,36 +57,37 @@ public class Room {
     public List<Sensor> getSensors() {
         return this.sensors;
     }
-    public void addDevice(Device device) throws Exception {
+    public void addDevice(Device device) throws IllegalArgumentException {
         if (device.getId() < 0) {
-            throw new Exception("Błędne ID urządzenia");
+            throw new IllegalArgumentException("Błędne ID urządzenia");
         }
         // if (urz.roomID < 0) { //TODO po za implementowaniu pojęcia płytki odkommentować
         //     throw new Exception("Błędny adres płytki");
         // }
 
-        device.setRoom(this.ID);//ustaw id tego pokoju w urządzeniu
+        device.setRoom(this.id);//ustaw id tego pokoju w urządzeniu
         devices.add(device);
-        logger.info("Dodano urządzenie:" + device.toString());
+        logger.info("Dodano urządzenie:{}",device);
     }
-    public void delDevice(Device urz) throws Exception {
-        if (urz.getRoom() != this.ID) {
-            throw new Exception("Podane urządzenie nie należy do tego pokoju");
+
+    public void delDevice(Device urz) throws IllegalArgumentException {
+        if (urz.getRoom() != this.id) {
+            throw new IllegalArgumentException("Podane urządzenie nie należy do tego pokoju");
         }
         devices.remove(urz);
     }
 
-    public void addSensor(Sensor sens) throws Exception {
+    public void addSensor(Sensor sens) throws IllegalArgumentException {
         if (sens.getId() < 0) {
-            throw new Exception("Błędne ID urządzenia");
+            throw new IllegalArgumentException("Błędne ID urządzenia");
         }
         sens.setRoom(this.getID());
         sensors.add(sens);
     }
     
-    public void delSensor(Sensor sens) throws Exception {
-        if (sens.getRoom() != this.ID) {
-            throw new Exception("Podane urządzenie nie należy do tego pokoju");
+    public void delSensor(Sensor sens) throws IllegalArgumentException {
+        if (sens.getRoom() != this.id) {
+            throw new IllegalArgumentException("Podane urządzenie nie należy do tego pokoju");
         }
         sensors.remove(sens);
     }
@@ -104,10 +103,10 @@ public class Room {
     public void safeDelete(){
         for (Device device : devices) {
             
-            //TODO usuwanie urządzeń z systemu
+            //TODO usuwanie urządzeń z slave-a
         }
         for (Sensor sensor : sensors) {
-            //TODO usuwanie sensorów z systemu
+            //TODO usuwanie sensorów z slave-a
         }
     }
 

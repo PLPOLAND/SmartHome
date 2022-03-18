@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import smarthome.database.SystemDAO;
 import smarthome.i2c.JtAConverter;
-import smarthome.model.hardware.Temperature;
 import smarthome.model.hardware.Termometr;
 
 /**
@@ -51,4 +49,30 @@ public class Runners {
         logger.debug("checkReinit()");
         system.reinitAllBoards();
     }
+
+    /* KOD do wykrywania stanu na GPIO
+
+
+			final GpioController gpio = GpioFactory.getInstance();
+			final GpioPinDigitalInput input = gpio.provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_DOWN);
+			input.addListener(new GpioPinListenerDigital() {
+
+				@Override
+				public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+					System.out.println(event.getPin() + " = " + event.getState());
+
+					//Wenn der Pin#2 auf High geht, fährt sich der Rasperry Pi runter.
+					// if (input.getState()==PinState.HIGH) {
+					// 	try {
+					// 		Process p = Runtime.getRuntime().exec("echo tmp");
+					// 		p.waitFor();
+					// 	} catch (IOException | InterruptedException e) {
+					// 		e.printStackTrace();
+					// 	}
+					// }
+
+				}
+			});
+
+    */
 }

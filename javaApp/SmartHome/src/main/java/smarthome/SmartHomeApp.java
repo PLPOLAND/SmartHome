@@ -2,13 +2,9 @@ package smarthome;
 
 import java.util.Scanner;
 
-import com.pi4j.io.i2c.I2CDevice;
 
-import org.apache.catalina.core.ApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -17,7 +13,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import smarthome.controller.AdminRESTController;
-import smarthome.database.SystemDAO;
 import smarthome.model.hardware.Termometr;
 
 

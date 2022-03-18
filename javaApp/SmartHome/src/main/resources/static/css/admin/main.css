@@ -1,10 +1,28 @@
 ﻿:root{
-	--background-color: var(--primaryDarkColor);
+	--background-color: #F0F0F0;
 	/* --background-image: url(../../img/lawenda.jpg); */
 }
 body{
 	margin: 0;
-	background-color: var(--primaryDarkColor);
+	background-color: var(--background-color);
+}
+#err-msg{
+	display: none;
+	cursor: pointer;
+	position: fixed;
+	top: 45%;
+	color: var(--errorTextColor);
+	background-color: var(--errorColor);
+	width: 50%;
+	max-width: 50%;
+	padding: 10px;
+	border-radius: 10px;
+	min-height: 50px;
+	line-height: 50px;
+	text-align: center;
+	font-size: 30px;
+	z-index: 100;
+	left: calc(25% - 10px);
 }
 .background-container{
 	position: fixed;
@@ -19,7 +37,8 @@ body{
 	background-image: var(--background-image);
 	background-size: cover; 
 	background-position: center;
-	background-color: var(--primaryDarkColor);
+	/* background-color: var(--primaryDarkColor); */
+	background-color: var(--background-color);
 	background-attachment: fixed;
 	filter: blur(10px);
 	transform: scale(1.1);
@@ -68,13 +87,13 @@ body{
 .user-icons-pos:hover{
 	background-color: #111111;
 }
-.menu{
+.banner .menu{
 	display: block;
 	width: calc(100% - 210px);
 	float: left;
 }
 
-.menu ul{
+.banner .menu ul{
 	display: block;
 	list-style-type: none;
 	margin: 0;
@@ -82,31 +101,45 @@ body{
 	width: 100%;
 	float: left;
 }
-.menu ul > li{
+.banner .menu ul > li{
 	display: block;
 	float: left;
 	min-height: 50px;
 	line-height: 50px;
 	width: 200px;
-}
-.menu a{
+	background-color: var(--primaryColor);
+}	
+.banner .menu a{
 	width: 100%;
 	height: 100%;
 	display: block;
 	float: left;
- 	background-color: var(--primaryColor);
  	text-align: center;
  	text-decoration: none;
 	color: var(--primaryTextColor);
 	transition: 400ms;
+	
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
 }
-.menu a:hover{
+.banner .menu a:hover{
+}
+.banner .menu ul > li:hover{
+	display: block;
 	background-color: var(--primaryLightColor);
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
 }
-.menu ul > li:hover ul{
+.banner .menu ul > li:first-child:hover{
+	display: block;
+	background-color: var(--primaryLightColor);
+	border-bottom-right-radius: 0px;
+	border-bottom-left-radius: 0px;
+}
+.banner .menu ul > li:hover ul{
 	display: block;
 }
-.menu ul>li>ul{
+.banner .menu ul>li>ul{
 	display: none;
   	transition: 1s;
 	float: none;
@@ -114,12 +147,20 @@ body{
 	height: auto;
 	margin: 0;
 	padding: 0;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
 }
 
-.menu ul > li > ul > li{
+.banner .menu ul > li > ul > li{
 	min-height: 50px;
 	line-height: 50px;
 	width: 200px;
+
+    
+}
+.banner .menu ul > li > ul > li:last-child{
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
 }
 
 #main-body{
@@ -173,6 +214,7 @@ body{
 }
 #usermenu #menu li:hover ul{
 	display: block;
+	
 }
 #usermenu #menu li>ul{
 	display: none;
@@ -188,7 +230,17 @@ body{
 	min-height: 50px;
 	line-height: 50px;
 	width: 200px;
+
+	
 }
+
+#usermenu #menu li > ul > li:last-child a	{
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+
 #usermenu #menu  li > ul > li > a{
+
+	
 	padding: 0 5px 0 5px;
 }

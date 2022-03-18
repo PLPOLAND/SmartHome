@@ -1,5 +1,6 @@
 package smarthome.i2c;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import smarthome.database.SystemDAO;
+import smarthome.exception.HardwareException;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Switch;
@@ -30,6 +32,7 @@ import org.slf4j.LoggerFactory;
 @Service
 public class JtAConverter {
 
+    private static final int MAX_ROZMIAR_ODPOWIEDZI = 8;
     // #region Komendy
     /**[S,U]*/
     final byte[] STATUS_URZADZEN = { 'S', 'U' };
@@ -77,7 +80,7 @@ public class JtAConverter {
      * @param przekaznik - przekaznik docelowy
      * @param stan       - stan przekaznika
      */
-    public void changeSwitchState(int idPrzekaznika, int idPlytki, boolean stan) {
+    public void changeSwitchState(int idPrzekaznika, int idPlytki, boolean stan) throws HardwareException {
         byte[] buffor = new byte[4];
         int i = 0;
         for (byte b : ZMIEN_STAN_PRZEKAZNIKA) {
@@ -85,13 +88,9 @@ public class JtAConverter {
         }
         buffor[i++] = (byte) idPrzekaznika;
         buffor[i++] = (byte) (stan == true ? 1 : 0);
-        try {
-            atmega.writeTo(idPlytki, buffor);
-            byte[] response = atmega.readFrom(idPlytki, 8);//TODO obsluga bledu
-            logger.debug(Arrays.toString(response));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        atmega.writeTo(idPlytki, buffor);
+        byte[] response = atmega.readFrom(idPlytki, 8);//TODO obsluga bledu
+        logger.debug(Arrays.toString(response));
     }
 
     public void changeBlindState(Blind roleta, boolean stan) {
@@ -101,7 +100,7 @@ public class JtAConverter {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) roleta.getOnSlaveID();
-        if (stan == true) {
+        if (stan) {
             buffor[i++] = 'U';
             logger.debug("Wysyłanie komendy podniesienia Rolety");
         }
@@ -140,7 +139,7 @@ public class JtAConverter {
             logger.debug("Writing to addres " + termometr.getSlaveID() + " command: " + Arrays.toString(buffor));
             atmega.writeTo(termometr.getSlaveID(), buffor);
             Thread.sleep(100);
-            byte[] response = atmega.readFrom(termometr.getSlaveID(), 8);
+            byte[] response = atmega.readFrom(termometr.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);
             String tmp ="";
             for (byte b : response) {
                 if (b >= 48 && b<= 57 || b == '.') {
@@ -164,7 +163,7 @@ public class JtAConverter {
      * @param device urządzenie do dodania
      * @return id na płytce (-1 jeśli nie powiodło się)
      */
-    public int addUrzadzenie(Device device) {
+    public int addUrzadzenie(Device device) throws HardwareException{
         if (device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO) {
             byte[] buffor = new byte[3];
             int i = 0;
@@ -179,15 +178,18 @@ public class JtAConverter {
             }
 
             try {
-                System.out.println("Writing to addres "+ device.getSlaveID());
+                logger.debug("Writing to addres {}", device.getSlaveID());
                 atmega.writeTo(device.getSlaveID(), buffor);
                 Thread.sleep(100);//TODO czy jest potrzebne?
-                System.out.println("Reading from addres " + device.getSlaveID());
-                byte[] response = atmega.readFrom(device.getSlaveID(), 8);//
-                int OnBoardID = (int)response[0];
-                return OnBoardID;
-            } catch (Exception e) {
-                e.printStackTrace();
+                logger.debug("Reading from addres {}", device.getSlaveID());
+                byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                return response[0];
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+                logger.debug("Próba kontynuacji");
+                logger.debug("Reading from addres {}", device.getSlaveID());
+                byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                return response[0];
             }
         }
         if(device.getTyp() == DeviceTypes.BLIND){
@@ -200,16 +202,17 @@ public class JtAConverter {
             buffor[i++] = (byte) (((Blind) device).getPinDown());
             
             try {
-                logger.debug("Writing to addres " + device.getSlaveID());
+                logger.debug("Writing to addres {}", device.getSlaveID());
                 atmega.writeTo(device.getSlaveID(), buffor);
                 Thread.sleep(100);
-                byte[] response = atmega.readFrom(device.getSlaveID(), 8);//TODO: dodawanie przekaźników o id podanym w odpowiedzi!
-                int OnBoardID = (int) response[0];
-                
-
-                return OnBoardID;
-            } catch (Exception e) {
+                byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//TODO: dodawanie przekaźników o id podanym w odpowiedzi!
+                return response[0];
+            } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
+                logger.debug("Próba kontynuacji");
+                logger.debug("Reading from addres {}", device.getSlaveID());
+                byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                return response[0];
             }
         }
 
@@ -226,7 +229,7 @@ public class JtAConverter {
             try {
                 atmega.writeTo(sens.getSlaveID(), buffor);//Wyślij prośbę o dodanie nowego termometru na płytce
                 Thread.sleep(200);
-                buffor = atmega.readFrom(sens.getSlaveID(), 8);
+                buffor = atmega.readFrom(sens.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);
                 return buffor;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -234,6 +237,11 @@ public class JtAConverter {
         } 
         return null;
     }
+    /**
+     * Sprawdza czy slave o podanym adresie był już zainicjowany
+     * @param adres - adres slave-a który zostanie zapytany
+     * @return stan zainicjowania slave-a
+     */
     public boolean checkInitOfBoard(int adres){
         byte[] buffor = new byte[1];
         int i = 0;
@@ -244,14 +252,18 @@ public class JtAConverter {
         try {
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
             Thread.sleep(200);
-            buffor = atmega.readFrom(adres, 8);
+            buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             return buffor[0] == 1;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
-
+    /**
+     * Wysyła komendę do slave-a po której slave usuwa wszystkie zapisane u siebie urządzenia
+     * @param adres - adres slave-a na który zostanie wysłana komenda
+     * @return true jeśli slave odpowie, że dostał komendę
+     */
     public boolean reInitBoard(int adres) {
         byte[] buffor = new byte[1];
         int i = 0;
@@ -262,7 +274,7 @@ public class JtAConverter {
         try {
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
             Thread.sleep(200);
-            buffor = atmega.readFrom(adres, 8);
+            buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             return buffor[0] == 1;
         } catch (Exception e) {
             e.printStackTrace();

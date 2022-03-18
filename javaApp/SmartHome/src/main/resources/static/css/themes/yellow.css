@@ -1,0 +1,18 @@
+:root{
+	--primaryColor: #fbc02d;
+    --primaryLightColor: #fff263;
+    --primaryDarkColor: #c49000;
+    --secondaryColor: #03a9f4;
+    --secondaryLightColor: #67daff;
+    --secondaryDarkColor: #007ac1;
+    --primaryTextColor: #000000;
+    --secondaryTextColor: #000000;
+
+    
+	--deviceOffLightColor: #bebebe;
+	--deviceOffColor: #949494;
+	--deviceOffDarkColor: #5a5a5a;
+
+    --errorColor: #eb3939;
+    --errorTextColor: #ffffff;
+}

@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import smarthome.exception.HardwareException;
+
 @Service
 public class I2C{
 
@@ -37,7 +39,7 @@ public class I2C{
     }
 
 
-    public void findAll() throws UnsupportedBusNumberException{
+    public void findAll() throws UnsupportedBusNumberException, IOException{
         List<Integer> validAddresses = new ArrayList<Integer>();
         final I2CBus bus;
         try {
@@ -65,10 +67,8 @@ public class I2C{
                     //ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
                 }
             }
-        } catch (UnsupportedBusNumberException e) {
+        } catch (Exception e) {
             throw e;
-        }catch (Exception e) {
-            e.printStackTrace();
         }
         
 
@@ -80,7 +80,7 @@ public class I2C{
     }
     
 
-    public void writeTo(int adres, byte[] buffer) throws Exception{
+    public void writeTo(int adres, byte[] buffer) throws HardwareException{
         I2CDevice tmp = null;
         for (I2CDevice device : devices) {
             if (device.getAddress() == adres) {
@@ -88,12 +88,16 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new Exception("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
         } else {
-            tmp.write(buffer);
+            try {
+                tmp.write(buffer);
+            } catch (IOException e) {
+                throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres, e);
+            }
         }
     }
-    public void writeTo(int adres, byte[] buffer, int size) throws Exception{
+    public void writeTo(int adres, byte[] buffer, int size) throws HardwareException{
         I2CDevice tmp = null;
         byte[] tmpbuff = new byte[size];
         for (I2CDevice device : devices) {
@@ -102,15 +106,19 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new Exception("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
         } else {
             for (int i = 0; i < size; i++) {
                 tmpbuff[i] = buffer[i];
             }
-            tmp.write(tmpbuff);
+            try {
+                tmp.write(tmpbuff);
+            } catch (IOException e) {
+                throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: "+adres, e);
+            }
         }
     }
-    public byte[] readFrom(int adres, int size) throws Exception{
+    public byte[] readFrom(int adres, int size) throws HardwareException{
         byte[] buffer = new byte[size];
         I2CDevice tmp = null;
         for (I2CDevice device : devices) {
@@ -119,14 +127,18 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new Exception("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
         }
         else{
-            tmp.read(buffer, 0, size);
+            try {
+                tmp.read(buffer, 0, size);
+            } catch (IOException e) {
+                throw new HardwareException("Błąd IO podczas próby odczytu z slave-a o adresie: "+ adres, e);
+            }
         }
         return buffer;
     }
-    public ArrayList<I2CDevice> getDevices() {
+    public List<I2CDevice> getDevices() {
         return this.devices;
     }
 }

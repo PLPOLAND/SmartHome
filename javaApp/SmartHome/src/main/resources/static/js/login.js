@@ -23,7 +23,7 @@ $(document).ready(function () {
                     } else {
                         msg = "Podano błędny login lub hasło";
                         $("#err-msg").html(msg);
-                        $("#err-msg").show('slow');
+                        $("#err-msg").show( "bounce", {}, 1000, function(){hideAfter(this, 10000} );
                         $("#login").val("");
                         $("#pass").val("");
                     }

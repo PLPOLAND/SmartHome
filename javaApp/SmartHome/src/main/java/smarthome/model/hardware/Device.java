@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = Light.class, name = "Light"),
     @JsonSubTypes.Type(value = Blind.class, name = "Blind")
     })
-public abstract class Device {
+public abstract class Device {//TODO Dodać metody do parametru name.
 
     @JsonIgnore
     /** Logger Springa */
@@ -37,6 +37,7 @@ public abstract class Device {
     /** ID kolejnego urządzenia w systemie */
     protected static int nextDeviceID = 0;
     
+    private String name = "";
 
     DeviceTypes typ;
     
@@ -47,6 +48,7 @@ public abstract class Device {
         this.onSlaveID = -1;
         this.typ = DeviceTypes.NONE;
         logger = LoggerFactory.getLogger(Device.class);
+        name = "Undefined";
         // logger.info("Stworzono pusty Device");
     }
     public Device(DeviceTypes type) {
@@ -57,6 +59,7 @@ public abstract class Device {
         this.typ = type;
         logger = LoggerFactory.getLogger(Device.class);
         // logger.info("Stworzono Device:" + this.toString());
+        
     }
 
     public Device(int slaveID, DeviceTypes type){
@@ -131,16 +134,27 @@ public abstract class Device {
     }
 
 
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "{" +
             ", id='" + getId() + "'" +
             ", room='" + getRoom() + "'" +
-            ", slave_ID='" + getSlaveID() + "'" +
+            ", slaveID='" + getSlaveID() + "'" +
             ", onSlaveID='" + getOnSlaveID() + "'" +
+            ", name='" + getName() + "'" +
             ", typ='" + getTyp() + "'" +
             "}";
     }
+
+    
     
 }
 

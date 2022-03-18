@@ -1,13 +1,20 @@
+:root{
+    --device-height: 120px;
+}
+
 .device{
     display: block;
-    width: 300px;
-    height: 100px;
+    width: 400px;
+    height: var(--device-height);
     border-radius: 10px;
     float: left;
     margin: 10px;
 
     background-color: var(--primaryColor);
     color: var(--primaryTextColor);
+    box-shadow: 1px 1px 3px var(--primaryDarkColor);
+
+    cursor: pointer;
 }
 .device .deviceIcon{
     display: block;
@@ -16,7 +23,7 @@
     height: calc(100% - 10px);
 
 
-    line-height: 80px;
+    line-height: calc(var(--device-height) - 10px);
     font-size: 30px;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
@@ -32,12 +39,12 @@
 }
 
 .device .deviceDescribe{
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    /* border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px; */
 
     display: block;
     float: left;
-    width: calc(80% - 10px);
+    width: calc(60% - 10px);
     height: calc(100% - 10px);
     padding: 5px;
 }   
@@ -46,11 +53,42 @@
     border-top-right-radius: 0.5em;
     border-bottom-right-radius: 0.5em;
 
-    display: table;
+    display: block;
     margin: 0 auto;
     float: left;
     text-align: center;
-    line-height: 80px;
+    line-height: calc(var(--device-height) *0.6);
     width: calc(100% - 10px);
-    padding: 5px;
+    padding: 5px 5px 0px 5px;
+    font-size: 20px;
 }   
+
+.device .deviceDescribe .deviceDescribeState{
+    display: block;
+    margin: 0 auto;
+    float: left;
+    text-align: center;
+    line-height: calc(var(--device-height) *0.25);;
+    width: calc(100% - 10px);
+    font-size: 15px;
+    padding: 0px 5px 5px 5px;
+}
+.device .deviceState{
+    display: block;
+    float: left;
+    width: calc(20% - 10px);
+    height: calc(100% - 10px);
+    padding: 5px;
+    line-height: calc(var(--device-height) - 10px);
+    font-size: 30px;
+}
+
+.deviceOFF{
+    background-color: var(--deviceOffColor);
+
+    box-shadow: 1px 1px 3px var(--deviceOffColor);
+}
+
+.device .deviceIconOFF{
+    background-color:  var(--deviceOffLightColor);
+}

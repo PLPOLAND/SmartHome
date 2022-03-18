@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import smarthome.database.SystemDAO;
 import smarthome.database.TemperatureDAO;
+import smarthome.exception.HardwareException;
 import smarthome.i2c.JtAConverter;
 import smarthome.model.Room;
 import smarthome.model.hardware.Device;
@@ -60,25 +61,21 @@ public class System {
      * 
      */
     //TODO dodać javadoc
-    public Device addLight(String roomName, int BoardID, int pin) {
+    public Device addLight(String roomName, int BoardID, int pin) throws IllegalArgumentException, HardwareException {
         Room room = systemDAO.getRoom(roomName);
         if(room == null){
-            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
-            return null;
+            log.error("Nie znaleziono pokoju o podanej nazwie \"{}\" podczas dodawania światła",roomName);
+            throw new IllegalArgumentException("Bledna nazwa pokoju");
         }
         Light light = new Light(false,pin,BoardID);
-        try {
-            light.setOnSlaveID(arduino.addUrzadzenie(light));//dodaj urzadzenie do slavea i zapisz jego id w slavie
-            if(light.getOnSlaveID()==-1){
-                throw new Exception("Nie udało się dodać urządzenia na slavie");
-            }
-            systemDAO.getRoom(roomName).addDevice(light);
-            systemDAO.getDevices().add(light);
-            systemDAO.save();
-        } catch (Exception e) {
-            light = null;
-            e.printStackTrace();
+        light.setOnSlaveID(arduino.addUrzadzenie(light));//dodaj urzadzenie do slavea i zapisz jego id w slavie
+        if(light.getOnSlaveID()==-1){
+            throw new HardwareException("Nie udało się dodać urządzenia na slavie");
         }
+        systemDAO.getRoom(roomName).addDevice(light);
+        systemDAO.getDevices().add(light);
+        systemDAO.save();
+        
         return light;
     }
 
@@ -90,25 +87,21 @@ public class System {
      * @param pinDown
      * @return
      */
-    public Device addRoleta(String roomName, int boardID, int pinUp, int pinDown){
+    public Device addRoleta(String roomName, int boardID, int pinUp, int pinDown) throws HardwareException, IllegalArgumentException{
         Room room = systemDAO.getRoom(roomName);
         if (room == null) {
-            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
-            return null;
+            IllegalArgumentException tmp = new IllegalArgumentException("Bledna nazwa pokoju");
+            log.error("Nie znaleziono podanego pokoju", tmp);
+            throw tmp;
         }
         Blind roleta = new Blind(false, boardID, pinUp, pinDown);
-        try {
-            roleta.setOnSlaveID(arduino.addUrzadzenie(roleta));// dodaj urzadzenie do slavea i zapisz jego id w slavie
-            if (roleta.getOnSlaveID() == -1) {
-                throw new Exception("Nie udało się dodać urządzenia na slavie");
-            }
-            systemDAO.getRoom(roomName).addDevice(roleta);
-            systemDAO.getDevices().add(roleta);
-            systemDAO.save();
-        } catch (Exception e) {
-            roleta = null;
-            log.error(e.getMessage(), e);
+        roleta.setOnSlaveID(arduino.addUrzadzenie(roleta));// dodaj urzadzenie do slavea i zapisz jego id w slavie
+        if (roleta.getOnSlaveID() == -1) {
+            throw new HardwareException("Nie udało się dodać urządzenia na slavie");
         }
+        systemDAO.getRoom(roomName).addDevice(roleta);
+        systemDAO.getDevices().add(roleta);
+        systemDAO.save();
         return roleta;
     }
     /**
@@ -228,7 +221,7 @@ public class System {
 
 
 
-    public Device changeLightState(String roomName, int deviceID, boolean stan ) {
+    public Device changeLightState(String roomName, int deviceID, boolean stan ) throws IllegalArgumentException, HardwareException{
 
         Room room = systemDAO.getRoom(roomName);
         if (room == null) {
@@ -246,7 +239,27 @@ public class System {
         return sw;
 
     }
-    public Device changeLightState(int deviceID, boolean stan ) {
+
+    public Device changeLightState(int roomID, int deviceID, boolean stan ) throws IllegalArgumentException, HardwareException{
+
+        Room room = systemDAO.getRoom(roomID);
+        if (room == null) {
+            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
+            return null;
+        }
+        Light l = (Light) room.getDeviceById(deviceID);
+        if (l != null) {
+            arduino.changeSwitchState(l.getOnSlaveID(), l.getSlaveID(), l.getStan());
+            l.setStan(stan);
+            systemDAO.save();
+        }
+
+        
+        return l;
+
+    }
+
+    public Device changeLightState(int deviceID, boolean stan ) throws HardwareException{
         Light lt = null;
         for(Device dev : systemDAO.getDevices()){
             if (dev.getId() == deviceID ) {
@@ -260,6 +273,8 @@ public class System {
             systemDAO.save();
             arduino.changeSwitchState(lt.getOnSlaveID(), lt.getSlaveID(), lt.getStan());
         }
+        else
+            throw new IllegalArgumentException("Błędne id urządzenia - brak urządzenia o takim id");
 
         return lt;
 
@@ -293,16 +308,25 @@ public class System {
      * @return false jeśli urządzenie było już inicjowane 
      */
     public boolean checkInitOfBoard(int slaveID) {
-        if (!arduino.checkInitOfBoard(slaveID) && arduino.reInitBoard(slaveID)) {
-            log.debug("into ifs");
+        if (!arduino.checkInitOfBoard(slaveID) && arduino.reInitBoard(slaveID)) {//Sprawdź czy płytka była inicjowana, i jeśli nie to wyślij komendę o reinicjalizacji urządzenia
+            log.debug("checkInitOfBoard:");
             log.debug("number of devices in system: {}", systemDAO.getDevices().size());
-            for (Device device : systemDAO.getDevices()) {
+            for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {
                 log.debug("device slaveID: {}",device.getSlaveID());
-                if (device.getSlaveID() == slaveID) {
+                
                     log.debug("sendingDevice {}", device);
-                    device.setOnSlaveID(arduino.addUrzadzenie(device));
-                    this.changeLightState(device.getId(), ((Light) device).getStan());//TODO sprawdzanie czy device jest oblektem typu light
-                }
+                    try {
+                        device.setOnSlaveID(arduino.addUrzadzenie(device));
+                        if (device instanceof Light) {
+                            this.changeLightState(device.getId(), ((Light) device).getStan());
+                        }
+                        else if (device instanceof Blind){
+                            //TODO
+                        }
+                    } catch (HardwareException e) {
+                        log.error("Nie udało się reinicjalizować urządzenia o id {}", slaveID, e);
+                        return false;
+                    }
             }
             for (Sensor sensor : systemDAO.getSensors()) {
                 if(sensor.getSlaveID() == slaveID){
@@ -330,20 +354,27 @@ public class System {
     public boolean initOfBoard(int slaveID) {
         log.debug("initOfBoard");
         if (arduino.reInitBoard(slaveID)) {
-            log.debug("into ifs");
             log.debug("number of devices in system: {}", systemDAO.getDevices().size());
-            for (Device device : systemDAO.getDevices()) {
-                log.debug("device slaveID: {}",device.getSlaveID());
-                if (device.getSlaveID() == slaveID) {
-                    log.debug("sendingDevice {}", device);
+            for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {
+                log.debug("device slaveID: {}", device.getSlaveID());
+                log.debug("sendingDevice {}", device);
+                try {
                     device.setOnSlaveID(arduino.addUrzadzenie(device));
-                    this.changeLightState(device.getId(), ((Light)device).getStan());//TODO sprawdzanie czy device jest oblektem typu light
+                    if (device instanceof Light) {
+                        this.changeLightState(device.getId(), ((Light) device).getStan());
+                    } else if (device instanceof Blind) {
+                        // TODO
+                    }
+                } catch (HardwareException e) {
+                    log.error("Nie udało się reinicjalizować urządzenia o id {}", slaveID, e);
+                    return false;
                 }
             }
             for (Sensor sensor : systemDAO.getSensors()) {
-                if(sensor.getSlaveID() == slaveID){
+                if (sensor.getSlaveID() == slaveID) {
                     if (sensor instanceof Termometr) {
-                        arduino.addTermometr(sensor);//TODO sprawdzanie czy termometr po dodaniu ponownie ma taki sam adres!
+                        arduino.addTermometr(sensor);// TODO sprawdzanie czy termometr po dodaniu ponownie ma taki sam
+                                                     // adres!
                     }
                 }
             }

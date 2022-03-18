@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -63,6 +64,21 @@ public class SystemDAO {
      */
     public Room getRoom(String name) {
         return this.pokoje.get(name);
+    }
+
+    /**
+     * Zwraca pokoj o podanym ID
+     * 
+     * @param name - nazwa pokoju
+     * @return znaleziony pokoj / null jeśli takiego brak
+     */
+    public Room getRoom(int id) {
+        for (Room room : this.pokoje.values()) {
+            if(room.getID() == id){
+                return room;
+            }
+        }
+        return null;
     }
 
     /**
@@ -287,6 +303,23 @@ public class SystemDAO {
             return false;
         }
     }
+    /**
+     * Zwraca listę zawierającą urządzenia przypisane do slave-a o podanym id
+     * @param id - slaveId
+     * @return lista urzdządzeń
+     */
+    public List<Device> getAllDevicesFromSlave(int id){
+        ArrayList<Device> list = new ArrayList<>();
+
+        for (Device device : devices) {
+            if (device.getSlaveID() == id) {
+                list.add(device);
+            }
+        }
+
+        return list;
+    }
+
 
     @Override
     public String toString() {

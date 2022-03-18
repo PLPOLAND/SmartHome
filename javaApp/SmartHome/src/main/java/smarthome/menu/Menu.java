@@ -2,7 +2,6 @@ package smarthome.menu;
 
 import java.util.ArrayList;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +18,6 @@ public class Menu {
 
     ArrayList<PozycjaMenu> pozycje;
     public Menu(User user, SystemDAO system){
-        // system = ApplicationContextHolder.getContext().getBean(SystemDAO.class);
         pozycje = new ArrayList<>();
         if (user!=null && user.getUprawnienia()!=null) {
             if (user.getUprawnienia().isAdmin()) {

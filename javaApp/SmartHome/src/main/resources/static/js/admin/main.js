@@ -1,4 +1,8 @@
 $(document).ready(function () {
+    $("#err-msg").click(function () {
+        $(this).hide('blind',{},1000,function(){});
+    })
+
     $.ajax({
         url: "/api/menu/pozycje",
         type: 'post',
@@ -17,16 +21,37 @@ $(document).ready(function () {
                         menu.append(createElement(element.zawartosc,element.link));
                     }
                 });
+                controlMenu();
+                $(window).resize(function () {
+                    controlMenu();
+                });
             } else {
                 $("#err-msg").html(response.error);
-                $("#err-msg").show('slow');
+                $("#err-msg").show( "bounce", {}, 1000, function(){hideAfter(this, 10000)} );
+            }
+        }
+    });
+    $.ajax({
+        url: "/admin/api/getSystemData",
+        type: 'get',
+        data: {},
+        success: function (response) {
+            // console.log(response);
+
+            // $("#err-msg").html(response);
+            if (response.error == null) {
+                console.log(response.obj.devices);
+                var body = $("#main-body");
+                response.obj.devices.forEach(element => {
+                    body.append(addDevice(element));
+                });
+            } else {
+                $("#err-msg").html(response.error);
+                $("#err-msg").show( "bounce", {}, 1000, function(){hideAfter(this, 10000)} );
             }
         }
     });
 
-});
-
-$(document).ready(function () {
     $.ajax({
         url: "/api/menu/usrNickName",
         type: 'post',
@@ -36,19 +61,15 @@ $(document).ready(function () {
 
             // $("#err-msg").html(response);
             if (response.error == null) {
-                console.log(response.obj);
                 var menu = $("#nickname");
                 menu.html(response.obj);
             } else {
                 $("#err-msg").html(response.error);
-                $("#err-msg").show('slow');
+                $("#err-msg").show( "bounce", {}, 1000, function(){hideAfter(this, 10000)} );
             }
         }
     });
 
-});
-
-$(document).ready(function () {
     $.ajax({
         url: "/api/menu/usrAvatar",
         type: 'post',
@@ -63,7 +84,7 @@ $(document).ready(function () {
                 menu.attr("src", response.obj);
             } else {
                 $("#err-msg").html(response.error);
-                $("#err-msg").show('slow');
+                $("#err-msg").show( "bounce", {}, 1000, function(){hideAfter(this, 10000)} );
             }
         }
     });
@@ -87,4 +108,20 @@ function createRozwijaneMenu(tab , opis, link) {
     });
     menu += "</ul></li>";
     return $(menu);
+}
+function controlMenu() {
+    // if ($(document).width() < 1220) {
+    //     var menu = $(".menu");
+    //     $("body").append(menu.first());
+    // }
+    // if ($(document).width() >= 1220) {
+    //     var menu = $(".menu");
+    //     $(".banner").first().append(menu.first());
+    // }
+}
+
+function hideAfter(me, time) {
+    setTimeout(function () {
+        $(me).click()
+    },time);
 }

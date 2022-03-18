@@ -7,4 +7,12 @@
     --secondaryDarkColor: #c66900;
     --primaryTextColor: #ffffff;
     --secondaryTextColor: #000000;
+
+    
+	--deviceOffLightColor: #aaaaaa;
+	--deviceOffColor: #7c7c7c;
+	--deviceOffDarkColor: #4d4d4d;
+
+    --errorColor: #eb3939;
+    --errorTextColor: #ffffff;
 }
