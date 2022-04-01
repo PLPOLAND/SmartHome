@@ -23,11 +23,19 @@ public class MenuController {
     @Autowired
     SystemDAO system;
     
-    @RequestMapping("/pozycje")
-    public Response<ArrayList<PozycjaMenu>> getpozycje(HttpServletRequest request) {
+    @RequestMapping("/menuGlowne")
+    public Response<ArrayList<PozycjaMenu>> getMenuGlowne(HttpServletRequest request) {
         Security s = new Security(request, users);
         if(s.isLoged())
-            return new Response<>(new Menu(s.getFullUserData(),system).getPozycje());
+            return new Response<>(new Menu(s.getFullUserData(),system).getMenuGlowne());
+        else
+            return new Response<>(null,"Nie zalogowano!");
+    }
+    @RequestMapping("/menuUsera")
+    public Response<ArrayList<PozycjaMenu>> getMenuUsera(HttpServletRequest request) {
+        Security s = new Security(request, users);
+        if(s.isLoged())
+            return new Response<>(new Menu(s.getFullUserData(),system).getMenuUsera());
         else
             return new Response<>(null,"Nie zalogowano!");
     }

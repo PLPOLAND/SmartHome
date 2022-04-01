@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
@@ -25,6 +30,9 @@ public class I2C{
         logger = LoggerFactory.getLogger(this.getClass());
         devices = new ArrayList<>();
         try {
+            
+            restartSlaves();
+            Thread.sleep(5000);
             logger.info("Searching for devices");
             findAll();
             
@@ -71,6 +79,7 @@ public class I2C{
             throw e;
         }
         
+        logger.debug("Znaleziono Slave-ów: {}", devices);
 
         // System.out.println("Found: ---");
         // for (int a : validAddresses) {
@@ -93,7 +102,18 @@ public class I2C{
             try {
                 tmp.write(buffer);
             } catch (IOException e) {
-                throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres, e);
+                HardwareException throwable = new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres, e);
+
+                logger.error(e.getLocalizedMessage(), throwable);
+                
+                restartSlaves();
+
+                logger.warn("Ponowna próba wysłania komendy...");
+                try {
+                    tmp.write(buffer);
+                } catch (Exception e2) {
+                    throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres,e2);
+                }
             }
         }
     }
@@ -138,6 +158,30 @@ public class I2C{
         }
         return buffer;
     }
+    
+    /**
+     * Odcina zasilanie slave-ów na krótki czas aby wymusić ich ponowne uruchomienie
+     */
+    public void restartSlaves() {
+        logger.info("Restartowanie slave-ów");
+
+        final GpioController gpio = GpioFactory.getInstance();
+        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
+        pin.setShutdownOptions(true, PinState.HIGH);//TODO czy napewno po wyłączeniu powinien być w stanie LOW?
+        pin.high();
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
+        }
+
+        pin.low();
+
+        logger.info("Slave-y zrestartowane");
+    }
+
+
     public List<I2CDevice> getDevices() {
         return this.devices;
     }

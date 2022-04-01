@@ -87,12 +87,12 @@ function clickDevice(mee, id, room) {
     }
 
     $.ajax({
-        url: "/admin/api/changetLightStateByRoomID",
+        url: "/admin/api/changeLightStateByRoomID",
         type: 'post',
         data: {
             "roomID": room,
             "idUrzadzenia": id,
-            "stan": me.attr("state") == "on"? true : false
+            "stan": me.attr("state") == "on"? false : true
         },
         success: function (response) {
             console.log(response);
@@ -111,12 +111,17 @@ function showDeviceState(device, stan){
     if (stan) {
         device.removeClass("deviceOFF");
         device.children().first().removeClass("deviceIconOFF");
+        device.children().last().children().first().removeClass("icon-toggle-off");
+        device.children().last().children().first().addClass("icon-toggle-on");
+        device.children().eq(1).children().eq(2).text("ON")
         device.attr("state", "on");
     }
     else{
         device.addClass("deviceOFF");
         device.children().first().addClass("deviceIconOFF");
-
+        device.children().last().children().first().removeClass("icon-toggle-on");
+        device.children().last().children().first().addClass("icon-toggle-off");
+        device.children().eq(1).children().eq(2).text("OFF")
         device.attr("state", "off");
     }
 }

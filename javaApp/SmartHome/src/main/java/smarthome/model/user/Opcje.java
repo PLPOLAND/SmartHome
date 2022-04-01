@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
  */
 public class Opcje {
     
+    private static final String CSS_THEMES_LOCATION = "../css/themes/";
+
+
     //#region Avatar
     enum AvatarType{
         NONE,
@@ -16,17 +19,21 @@ public class Opcje {
         LOCAL
     }
     
+    AvatarType typAvatara; // typ lokalizacji avatara
+    String lokalnaSciezka;
+    
+    String themeSciezka;//ścieżka do kolorystyki strony
+
     public Opcje(){
-        typAvatara = AvatarType.GRAVATAR;
+        typAvatara = AvatarType.LOCAL;
         lokalnaSciezka = "";
+        themeSciezka = "";
     }
 
     public Opcje(String path){
         lokalnaSciezka = path;
     }
 
-    AvatarType typAvatara; // typ lokalizacji avatara
-    String lokalnaSciezka;
     
     //#endregion
     public AvatarType getTypAvatara() {
@@ -56,13 +63,22 @@ public class Opcje {
     }
 
 
+    public String getThemeSciezka() {
+        return this.themeSciezka;
+    }
+
+    public void setThemeSciezka(String themeSciezka) {
+        this.themeSciezka = CSS_THEMES_LOCATION + themeSciezka;
+    }
+
+
     @Override
     public String toString() {
         return "{" +
             " typAvatara='" + getTypAvatara() + "'" +
             ", lokalnaSciezka='" + getLokalnaSciezka() + "'" +
+            ", themeSciezka='" + getThemeSciezka() + "'" +
             "}";
     }
-
 
 }

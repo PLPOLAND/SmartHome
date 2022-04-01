@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import smarthome.database.UsersDAO;
 import smarthome.model.Uprawnienia;
 import smarthome.model.user.User;
+import smarthome.model.user.Opcje;
+
 
 /**
  * Klasa odpowiedzialna za logowanie użytkownika, sprawdzanie czy już się
@@ -195,12 +197,16 @@ public class Security {
     public String getUserAvatarPath(){
         if (isLoged()) {
             HttpSession session = request.getSession();
-            User result = database.findUserById((Long) session.getAttribute("id"));
-            if (result == null) {
-                return null;
-            } else {
-                return result.getOpcje().getLokalnaSciezka();//TODO dodać Gravatar
-            }
+            return ((Opcje)session.getAttribute("opcje")).getLokalnaSciezka();//TODO dodać Gravatar
+        } else {
+            return null;
+        }
+    }
+
+    public String getUserThemePath() {
+        if (isLoged()) {
+            HttpSession session = request.getSession();
+            return ((Opcje) session.getAttribute("opcje")).getThemeSciezka();// TODO dodać Gravatar
         } else {
             return null;
         }
@@ -218,6 +224,7 @@ public class Security {
             session.removeAttribute("nazwisko");
             session.removeAttribute("id");
             session.removeAttribute("uprawnienia");
+            session.removeAttribute("opcje");
         } else
             return;
     }

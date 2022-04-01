@@ -1,0 +1,63 @@
+#body-form{
+    padding: 20px;
+    margin: 0px;
+    width: 50%;
+    margin: auto;
+    background-color: var(--primaryColor);
+}
+#body-form .wiersz{
+    padding-top: 5px;
+    font-size: 30px;
+    line-height: 40px;
+    min-height: 40px;
+}
+#body-form h1{
+    font-size: 40px;
+}
+#body-form hr{
+    margin-top: 0px;
+    margin-bottom: 20px;
+    border-color: var(--primaryTextColor);
+    border-style: solid;
+}
+#body-form button{
+    display: block;
+    background-color: var(--primaryDarkColor);
+    color: var(--primaryTextColor);
+    font-size: 15px;
+    min-height: 40px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 5px;
+    border-style: none;
+    float: left;
+    transition: 500ms;
+}
+#body-form button#clear:hover{
+    background-color: var(--errorColor);
+    color: var(--errorTextColor);
+    transition: 200ms;
+}
+#body-form button#save{
+    float: right;
+}
+
+#body-form button#save:hover{
+    background-color: var(--secondaryColor);
+    color: var(--secondaryTextColor);
+    transition: 200ms;
+}
+#body-form input{
+    padding: 5px;
+    border: 0px ;
+    font-size: 20px;
+    background-color: var(--primaryDarkColor);
+}
+#body-form input:focus{
+    background-color: var(--primaryLightColor);
+}
+#body-form input:hover{
+
+    background-color: var(--primaryLightColor);
+}

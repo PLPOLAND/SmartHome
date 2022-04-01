@@ -4,7 +4,7 @@ $(document).ready(function () {
     })
 
     $.ajax({
-        url: "/api/menu/pozycje",
+        url: "/api/menu/menuGlowne",
         type: 'post',
         data: {},
         success: function (response) {
@@ -31,19 +31,32 @@ $(document).ready(function () {
             }
         }
     });
+
     $.ajax({
-        url: "/admin/api/getSystemData",
-        type: 'get',
+        url: "/api/menu/menuUsera",
+        type: 'post',
         data: {},
         success: function (response) {
             // console.log(response);
 
             // $("#err-msg").html(response);
             if (response.error == null) {
-                console.log(response.obj.devices);
-                var body = $("#main-body");
-                response.obj.devices.forEach(element => {
-                    body.append(addDevice(element));
+                console.log(response.obj);
+                //Dodawanie pozycji w menu pod miniaturką usera
+                var el;
+                el = $('<ul></ul>');
+                $('#userLi').append(el);
+                var menu = $("#userLi ul");
+                response.obj.forEach(element => {
+                    if (element.dropdown == true) {
+                        menu.append(createRozwijaneMenu(element.dropdownMenu, element.zawartosc, element.link));
+                    } else {
+                        menu.append(createElement(element.zawartosc,element.link));
+                    }
+                });
+                controlMenu();
+                $(window).resize(function () {
+                    controlMenu();
                 });
             } else {
                 $("#err-msg").html(response.error);
@@ -88,12 +101,30 @@ $(document).ready(function () {
             }
         }
     });
+    $.ajax({
+        url: "/api/themePath",
+        type: 'post',
+        data: {},
+        success: function (response) {
+            // console.log(response);
+
+            // $("#err-msg").html(response);
+            if (response.error == null) {
+                console.log(response.obj);
+                $("<link/>", {
+                    rel: "stylesheet",
+                    type: "text/css",
+                    href: response.obj
+                }).appendTo("head");
+            } else {
+                $("#err-msg").html(response.error);
+                $("#err-msg").show( "bounce", {}, 1000, function(){hideAfter(this, 10000)} );
+            }
+        }
+    });
 
 
-    //Dodawanie pozycji w menu pod miniaturką usera
-    var el;
-    el = $('<ul><li><a href="./userSettings">Ustawienia</a></li></ul>');
-    $('#userLi').append(el);
+    
 });
 
 

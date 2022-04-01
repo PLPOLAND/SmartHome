@@ -27,7 +27,7 @@ public class MainRESTController {
     UsersDAO users;
 
     @RequestMapping("/login")
-    Response login(HttpServletRequest request) {
+    Response<String> login(HttpServletRequest request) {
         Security s = new Security(request, users);
 
         if (s.login())
@@ -36,30 +36,17 @@ public class MainRESTController {
             return new Response<String>("Logowanie nie powiodło się!", "Bledny login lub haslo");
     }
     
-    
+    @RequestMapping("/themePath")
+    Response<String> getThemePasth(HttpServletRequest request){
 
-    //  @Scheduled(fixedRate = 1000)
-    // void test() {
-    //     Logger logger = LoggerFactory.getLogger(this.getClass());
+        Security s = new Security(request, users);
 
-    //     final String uri = "http://192.168.1.3/get";
+        if (s.isLoged()){
+            return new Response<String>(s.getUserThemePath());
+        }
+        else{
+            return new Response<String>(null, "Nie zalogowano");
+        }       
+    }
 
-    //     ObjectMapper obj = new ObjectMapper();
-
-    //     RestTemplate restTemplate = new RestTemplate();
-    //     String result = restTemplate.getForObject(uri, String.class);
-
-    //     try {
-    //         Temperature termometr2 = obj.readValue(result, Temperature.class);
-    //         logger.info("Temperatura 0: " + termometr2.getTemp());
-    //         temp.setTemp(0, termometr2.getTemp());
-    //     } catch (JsonParseException e) {
-    //         e.printStackTrace();
-    //     } catch (JsonMappingException e) {
-    //         e.printStackTrace();
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-
-    // }
 }

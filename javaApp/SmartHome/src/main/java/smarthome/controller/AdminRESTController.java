@@ -231,7 +231,7 @@ public class AdminRESTController {
 
 
     }
-    @PostMapping("/changetLightStateByRoomID")
+    @PostMapping("/changeLightStateByRoomID")
     public Response<String> zmienStanSwiatlaByRoomID(@RequestParam("roomID") int roomID, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("stan") boolean stan) {
         
         try {

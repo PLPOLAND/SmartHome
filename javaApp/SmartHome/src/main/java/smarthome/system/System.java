@@ -249,7 +249,7 @@ public class System {
         }
         Light l = (Light) room.getDeviceById(deviceID);
         if (l != null) {
-            arduino.changeSwitchState(l.getOnSlaveID(), l.getSlaveID(), l.getStan());
+            arduino.changeSwitchState(l.getOnSlaveID(), l.getSlaveID(), stan);
             l.setStan(stan);
             systemDAO.save();
         }
@@ -269,9 +269,9 @@ public class System {
             }
         }
         if (lt != null) {
+            arduino.changeSwitchState(lt.getOnSlaveID(), lt.getSlaveID(), stan);
             lt.setStan(stan);
             systemDAO.save();
-            arduino.changeSwitchState(lt.getOnSlaveID(), lt.getSlaveID(), lt.getStan());
         }
         else
             throw new IllegalArgumentException("Błędne id urządzenia - brak urządzenia o takim id");
