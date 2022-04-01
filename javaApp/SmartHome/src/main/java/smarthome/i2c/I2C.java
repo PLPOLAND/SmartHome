@@ -167,7 +167,7 @@ public class I2C{
 
         final GpioController gpio = GpioFactory.getInstance();
         final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
-        pin.setShutdownOptions(true, PinState.HIGH);//TODO czy napewno po wyłączeniu powinien być w stanie LOW?
+        pin.setShutdownOptions(true, PinState.HIGH);//TODO czy napewno po wyłączeniu powinien być w stanie HIGH?
         pin.high();
 
         try {
