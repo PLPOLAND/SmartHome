@@ -235,6 +235,52 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 System::reinit_system();//reinicjalizuj system!
 
             }
+            case Command::KOMENDY::RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION:
+            {
+                OUT_LN(F("RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION"));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                Przycisk *przycisk = (Przycisk *) System::getSystem()->getDevice(komenda.getParams()[0]);
+                if (przycisk != nullptr)
+                {
+                    Device* dev = System::getSystem()->getDevice(komenda.getParams()[1]);
+                    if (dev==nullptr)
+                    {
+                        Command* funkcja = new Command;
+                        funkcja->setDevice(dev);
+                        switch (dev->getType())
+                        {
+                            case Device::PRZEKAZNIK:
+                                {
+                                    funkcja->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+                                }
+                                break;
+                            case Device::ROLETA:
+                                {
+                                    funkcja->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+                                    byte parametry[8] = {komenda.getParams()[2], 0, 0, 0, 0, 0, 0, 0};//TODO może da się zmniejszyć rozmiar tablicy?
+                                    funkcja->setParams(parametry);
+                                }
+                                break;
+                        }
+                        przycisk->dodajFunkcjeKlikniecia(funkcja, komenda.getParams()[3]);
+                    }
+                    else
+                    {
+                        params[0] = 'E';//ERROR
+                    }
+                    
+                }
+                else{
+                    params[0] = 'E';//ERROR
+                }
+
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);//dodaj wysłanie potwierdzenia otrzymania komendy
+                
+                System::reinit_system();//reinicjalizuj system!
+
+            }
             case Command::KOMENDY::RECEIVE_GET:
 
                 break;

@@ -155,12 +155,28 @@ void Command::convert(const byte *c, byte size)
         break;
     case 6:
         {
-
+            
         }
         break;
     case 7:
         {
+            if (c[0] == 'P')
+            {
+                if (c[1] == 'K')
+                {
+                    if (c[2] == 'L')
+                    {
+                        this->komenda = Command::KOMENDY::RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION;
 
+                        byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                        parametry[0] = c[3]; // ID Przycisku
+                        parametry[1] = c[4]; // ID Urządzenia
+                        parametry[2] = c[5]; // STAN/U/D
+                        parametry[3] = c[6]; // ILE CLICK-ów
+                        this->setParams(parametry);
+                    }
+                }
+            }
         }
         break;
     case 8:
@@ -254,4 +270,31 @@ void Command::setSlaveID(byte sId){
 }
 void Command::setCommandType(Command::KOMENDY komenda){
     this->komenda = komenda;
+}
+
+String Command::toString(){
+    String out = "";
+
+    out+="Command Type: ";
+    out+=String((int)this->getCommandType());
+    out+='\n';
+
+    out+="Device id: ";
+    if (this->getDevice() != nullptr)
+    {
+        out += String(this->getDevice()->getId());
+    }
+    else
+    {
+        out += "null";
+    }
+    out += '\n';
+    out += "Parametry: ";
+    for (byte i = 0; i < 8; i++)
+    {
+        out += String(this->parametry[i]);
+        out +=" ";
+    }
+    out +='\n';
+    return out;
 }

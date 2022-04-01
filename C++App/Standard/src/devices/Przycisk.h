@@ -35,7 +35,7 @@ private:
     /**
      *  Przechowuje Komendy wykonywane po odpowiedniej liczbie klikniec
      */
-    LinkedList<Command*> funkcje_kliknieca;
+    LinkedList<Command*> funkcje_klikniecia;
     /**
      * Przechowuje Komendy wykonywane po przytrzymaniach. 
      * 
@@ -62,9 +62,9 @@ public:
 
     bool wykonaj();
 
-    bool dodajFunkcjeKlikniecia(Command* command);
-    bool dodajFunkcjePrzytrzymania(Command* command);
-    bool dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command);
+    bool dodajFunkcjeKlikniecia(Command *command, byte klikniec);
+    bool dodajFunkcjePrzytrzymania(Command* command, byte klikniec);
+    bool dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klikniec);
     
     /**
      * @brief Wykonuje komendę dostarczoną w argumencie.

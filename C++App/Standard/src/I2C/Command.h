@@ -21,6 +21,9 @@ public:
         RECEIVE_CHECK_INIT,         //Czy urządzenie zostało zainicjowane
         RECEIVE_INIT,            //reinicjalizuj system
         RECEIVE_GET,             //Wczytaj następny z kolejki
+        RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION,    //dodaj funkcję przycisku lokalnie wywoływaną
+        RECEIVE_ADD_PRZYCISK_GLOBAL_FUNCTION,   //dodaj funkcję przycisku wywoływaną przez slave
+
 
         //Wysylanie
         SEND_REPLY,      //Odpowiedz z zapisanymi danymi w bufforze
@@ -62,6 +65,7 @@ public:
     *   
      */
     void printParametry();
+    String toString();
 
     // void operator delete(void* ptr){
     //     OUT_LN("XXX")

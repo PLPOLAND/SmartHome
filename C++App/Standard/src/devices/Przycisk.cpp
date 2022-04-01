@@ -17,7 +17,7 @@ Przycisk::~Przycisk()
 {
     delete time;
 
-    for (int i = 0; i < funkcje_kliknieca.size(); i++) //TODO doać usuwanie komend przy desturkcji 
+    for (int i = 0; i < funkcje_klikniecia.size(); i++) //TODO doać usuwanie komend przy desturkcji 
     {
         
     }
@@ -163,7 +163,7 @@ bool Przycisk::wykonaj(){
         break;
     case PUSZCZONY:// Przycisk nie był przytrzymywany i skończył się czas na kolejne przyciśnięcie
         {
-            Command* command = funkcje_kliknieca.get(klikniecia);
+            Command* command = funkcje_klikniecia.get(klikniecia);
             this->runCommand(command);
         // System::getSystem()->runCommand(command);
         }
@@ -179,15 +179,27 @@ bool Przycisk::wykonaj(){
     return true; //TODO obsluga bledow?
 }
 
-bool Przycisk::dodajFunkcjeKlikniecia(Command* command){//TODO
+bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){//TODO
+    OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
+    OUT(F("Przyski id: "))
+    OUT_LN(this->getId());
+    OUT("Klikniec: ")
+    OUT_LN(klikniec);
+    OUT_LN(command->toString());
+    OUT_LN();
+    
+    this->funkcje_klikniecia.add(klikniec,command);
+
+    OUT_LN(F("DODANO KOMENDE"))
+
     return true;
 }
 
-bool Przycisk::dodajFunkcjePrzytrzymania(Command* command){//TODO
+bool Przycisk::dodajFunkcjePrzytrzymania(Command* command, byte klikniec){//TODO
     return true;
 }
 
-bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command){//TODO
+bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klikniec){//TODO
     return true;
 }
 
