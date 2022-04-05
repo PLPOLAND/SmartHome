@@ -20,6 +20,7 @@ import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -188,6 +189,7 @@ public class SystemDAO {
      */
     public void readDatabase() {
         ObjectMapper obj = new ObjectMapper();
+        obj.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
         int i = 0;
         while (i< Integer.MAX_VALUE) {
             Room room = null;
@@ -199,9 +201,11 @@ public class SystemDAO {
                 devices.addAll(room.getDevices());
                 sensors.addAll(room.getSensors());
                 i++;
-            } catch (Exception e) {
+            } catch (IOException e) {
                 logger.info("Wczytano {} pokoi", i);
                 break;
+            } catch(Exception e){
+                logger.error("Błąd podczas wczytywania pokoi", e);
             }
         }
     }

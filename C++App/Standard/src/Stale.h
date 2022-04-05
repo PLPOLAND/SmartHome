@@ -14,6 +14,8 @@
     //pinów od 2 do 2+5 używanych do określania adresu urządzenia ((2^PINOW_NA_ADRES)-1 dostępnych adresów)
     #define PINOW_NA_ADRES 5
 
+    #define MAX_NUMBER_OF_FUNCTIONS 4
+
     //BUFFORY
     #define BUFFOR_IN_SIZE 9
     #define BUFFOR_OUT_SIZE 9

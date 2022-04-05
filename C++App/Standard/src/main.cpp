@@ -14,7 +14,7 @@
     void setup()
     {
         Serial.begin(115200); // start serial for output
-        // przycisk.begin(10);
+        przycisk.begin(14);
         przekaznik.begin(11);
         OUT_LN("START");
     }
@@ -22,7 +22,7 @@
     void loop()
     {
         przekaznik.setStan(1);
-        // przycisk.updateStan();
+        przycisk.updateStan();
         // roleta.tic();
 
         // while (Serial.available())

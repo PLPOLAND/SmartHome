@@ -23,7 +23,7 @@ public class Room {
 
     public Room(){
         logger = LoggerFactory.getLogger(Room.class);
-        logger.info("Stworzono nowy pokój: {}",this);
+        // logger.info("Stworzono nowy pokój: {}",this);
     }
 
     public Room(int id, String nazwa) {
@@ -32,7 +32,7 @@ public class Room {
         this.devices = new ArrayList<>();
         this.sensors = new ArrayList<>();
         logger = LoggerFactory.getLogger(Room.class);
-        logger.info("Stworzono nowy pokój: {}", this);
+        // logger.info("Stworzono nowy pokój: {}", this);
     }
 
     public int getID() {
@@ -116,7 +116,7 @@ public class Room {
             "ID='" + getID() + "'" +
             ", nazwa='" + getNazwa() + "'" +
             ", devices='" + getDevices() + "'" +
-            ", sensors='" + getSensors() + "'" +
+            ", sensors='" + (ArrayList<Sensor>)getSensors() + "'" +
             "}";
     }
     

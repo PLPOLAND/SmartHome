@@ -94,7 +94,19 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							
 						}
 					}
-				}
+				} else if (in.equals("addPrzycisk")) {
+					if (scanner.hasNext()) {
+						String nazwaPokoju = scanner.next();
+						if (scanner.hasNext()) {
+							int idPlytki = scanner.nextInt();
+							if (scanner.hasNext()) {
+								int pin = scanner.nextInt();
+
+								log.info(adminController.dodajPrzycisk(nazwaPokoju, idPlytki, pin).getObj().toString());
+							}
+						}
+					}
+				} 
 				else if(in.equals("removeDevice")){
 					if (scanner.hasNext()) {
 						String nazwaPokoju = scanner.next();
@@ -168,24 +180,18 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					}
 				}
 				else if(in.equals("test")){
-					system.getSystemDAO().removeRoom("Marek");
-					adminController.dodajPokoj("Marek");
+					byte[] tmp = new byte[7];
 
-					log.info(adminController.dodajRoleta("Marek", 3, 11,12).getObj());
-					log.info("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
-					log.info(adminController.zmienStanRolety("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true).getObj());
-					
-					
-					// log.info(adminController.dodajSwiatlo("Marek", 3, 11));
-					// log.info("id" + (system.getSystemDAO().getRoom("Marek").getDevices().size()-1));
-					// log.info(adminController.zmienStanSwiatla("Marek", system.getSystemDAO().getRoom("Marek").getDevices().get(system.getSystemDAO().getRoom("Marek").getDevices().size()-1).getId(), true));
+					tmp[0] = 'P';
+					tmp[1] = 'K';
+					tmp[2] = 'L';
+					tmp[3] = 3;
+					tmp[4] = 0;
+					tmp[5] = 1;
+					tmp[6] = 1;
 
-					// log.info(adminController.dodajTermometr("Marek", 3).getObj());
-					// for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
-					// 	system.updateTemperature(termometr);
-					// }
-					// int [] tmp = {40,255,30,49,0,22,2,171};
-					// log.info(adminController.getTemperatura(tmp).getObj());
+					system.getArduino().atmega.writeTo(8, tmp);
+					log.debug("{}",system.getArduino().atmega.readFrom(8, 8));
 				}
 				else if (in.equals("reinit")) {
 					if (scanner.hasNext()) {

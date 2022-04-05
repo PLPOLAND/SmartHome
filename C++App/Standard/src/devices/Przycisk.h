@@ -8,7 +8,7 @@
 #include "I2C/Command.h"
 #include "Przekaznik.h"
 #include "Roleta.h"
-// #include "System.h"
+// #include "System.h" NIEWOLNO!
 
 /**
  * 

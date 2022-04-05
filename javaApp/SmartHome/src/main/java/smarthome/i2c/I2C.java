@@ -26,11 +26,16 @@ public class I2C{
     ArrayList<I2CDevice> devices;
     Logger logger;
 
+    //Do restartowania
+    GpioController gpio;
+    GpioPinDigitalOutput pin;
+
     public I2C() {
         logger = LoggerFactory.getLogger(this.getClass());
         devices = new ArrayList<>();
         try {
-            
+            gpio = GpioFactory.getInstance();
+            pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
             restartSlaves();
             Thread.sleep(5000);
             logger.info("Searching for devices");
@@ -114,6 +119,7 @@ public class I2C{
                 } catch (Exception e2) {
                     throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres,e2);
                 }
+                logger.info("Wysłano!");
             }
         }
     }
@@ -165,8 +171,7 @@ public class I2C{
     public void restartSlaves() {
         logger.info("Restartowanie slave-ów");
 
-        final GpioController gpio = GpioFactory.getInstance();
-        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
+        
         pin.setShutdownOptions(true, PinState.HIGH);//TODO czy napewno po wyłączeniu powinien być w stanie HIGH?
         pin.high();
 
@@ -177,6 +182,12 @@ public class I2C{
         }
 
         pin.low();
+
+        try {
+            Thread.sleep(5000);//oczekiwanie na uruchomienie się slave-ów
+        } catch (InterruptedException e) {
+            logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
+        }
 
         logger.info("Slave-y zrestartowane");
     }

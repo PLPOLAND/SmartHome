@@ -74,7 +74,14 @@ void System::tic(){
             // OUT_LN(i);
         }
     }
-
+    if (this->przyciski.size() > 0)
+    {
+        for (byte i = 0; i < this->przyciski.size(); i++)
+        {
+            this->przyciski.get(i)->tic();
+        }
+    }
+    
 }
 
 Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){

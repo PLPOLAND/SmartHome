@@ -74,6 +74,7 @@ void Roleta::tic()
 }
 
 bool Roleta::begin(byte pinUp, byte pinDown){
+    this->setType(Device::TYPE::ROLETA);
     if (pinUp >= PINOW_NA_ADRES + 2 && pinUp <= 16 && pinDown >= PINOW_NA_ADRES + 2 && pinDown <= 16)
     {
         this->setPinUp(pinUp);

@@ -5,17 +5,22 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.Nulls;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({ 
-    @JsonSubTypes.Type(value = Termometr.class, name = "Termometr")
+    @JsonSubTypes.Type(value = Termometr.class, name = "Termometr"),
+    @JsonSubTypes.Type(value = Button.class, name = "Button")
     })
 public abstract class Sensor {
-        /** Logger Springa */
+    private static final String STWORZONO_SENSOR_STRING = "Stworzono Sensor: {}";
+
+    /** Logger Springa */
     @JsonIgnore
     Logger logger;
 
@@ -25,6 +30,8 @@ public abstract class Sensor {
     private int room;
     /** adres slave'a*/
     private int slaveID;
+    /** ID urzadzenia na płytce drukowanej */
+    private int onSlaveID = -1; //domyślnie -1 dla wiadomości, że nie istnieje id tego sensora na slavie
     /** adres urzadzenia */
     private int[] addres;//int ponieważ w arduino byte jest 0-255 a w javie -128-127
     /** ID kolejnego urządzenia w systemie */
@@ -32,7 +39,7 @@ public abstract class Sensor {
 
     SensorsTypes typ;
     
-    public Sensor() {
+    protected Sensor() {
         this.id = nextDeviceID++;
         this.room = -1;
         this.slaveID = -1;
@@ -41,34 +48,35 @@ public abstract class Sensor {
         logger = LoggerFactory.getLogger(Sensor.class);
         logger.info("Stworzono pusty Sensor");
     }
-    public Sensor(SensorsTypes type) {
+    
+    protected Sensor(SensorsTypes type) {
         this.id = nextDeviceID++;
         this.room = -1;
         this.slaveID = -1;
         this.addres = null;
         this.typ = type;
         logger = LoggerFactory.getLogger(Sensor.class);
-        logger.info("Stworzono Sensor:" + this.toString());
+        logger.info("1" + STWORZONO_SENSOR_STRING, this);
     }
 
-    public Sensor(int slaveID, SensorsTypes type){
+    protected Sensor(int slaveID, SensorsTypes type){
         this.id = nextDeviceID++;
         this.room = -1;
         this.slaveID = slaveID;
         this.addres = null;
         this.typ = type;
         logger = LoggerFactory.getLogger(Sensor.class);
-        logger.info("Stworzono Sensor:" + this.toString());
+        logger.info(STWORZONO_SENSOR_STRING, this);
     }
     
-    public Sensor(int id, int room, int slaveID, byte[] addres,SensorsTypes type){
+    protected Sensor(int id, int room, int slaveID, byte[] addres,SensorsTypes type){
         this.id = id;
         this.room = room;
         this.slaveID = slaveID;
         setAddres(addres);
         this.typ = type;
         logger = LoggerFactory.getLogger(Sensor.class);
-        logger.info("Stworzono Sensor:" + this.toString());
+        logger.info(STWORZONO_SENSOR_STRING, this);
     }
 
 
@@ -108,11 +116,18 @@ public abstract class Sensor {
         return this.addres;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAddres(byte[] _addres) {
-        this.addres = new int[8];
+        if (_addres == null ||_addres.length == 0 ) {
+            this.addres = new int[8];
+            
+        }
+        else{
+            this.addres = new int[8];
 
-        for (int i = 0; i < 8; i++) {
-            this.addres[i] = _addres[i] & 0xFF;
+            for (int i = 0; i < 8; i++) {
+                this.addres[i] = _addres[i] & 0xFF;
+            }
         }
 
     }
@@ -123,6 +138,14 @@ public abstract class Sensor {
 
     public void setTyp(SensorsTypes typ) {
         this.typ = typ;
+    }
+
+    public int getOnSlaveID() {
+        return this.onSlaveID;
+    }
+
+    public void setOnSlaveID(int onSlaveID) {
+        this.onSlaveID = onSlaveID;
     }
 
     @Override
@@ -139,6 +162,7 @@ public abstract class Sensor {
             ", id='" + getId() + "'" +
             ", room='" + getRoom() + "'" +
             ", slaveID='" + getSlaveID() + "'" +
+            ", onSlaveID='" + getOnSlaveID() + "'" +
             ", addres='" + tmp + "'" +
             ", typ='" + getTyp() + "'" +
             "}";

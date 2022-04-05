@@ -16,6 +16,7 @@ import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
+import smarthome.model.hardware.Button;
 import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Termometr;
@@ -236,6 +237,31 @@ public class JtAConverter {
             }
         } 
         return null;
+    }
+
+    public int addPrzycisk(Button button)throws HardwareException{
+        byte[] buffor = new byte[3];
+        int i = 0;
+        for (byte b : DODAJ_PRZYCISK) {
+            buffor[i++] = b;
+        }
+        buffor[i++] = (byte) button.getPin();
+        
+
+        try {
+            logger.debug("Writing to addres {}", button.getSlaveID());
+            atmega.writeTo(button.getSlaveID(), buffor);
+            Thread.sleep(100);// TODO czy jest potrzebne?
+            logger.debug("Reading from addres {}", button.getSlaveID());
+            byte[] response = atmega.readFrom(button.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+            return response[0];
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+            logger.debug("Próba kontynuacji");
+            logger.debug("Reading from addres {}", button.getSlaveID());
+            byte[] response = atmega.readFrom(button.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+            return response[0];
+        }
     }
     /**
      * Sprawdza czy slave o podanym adresie był już zainicjowany

@@ -44,7 +44,7 @@ public class Runners {
     //     }
     // }
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 60000)
     void checkReinit(){
         logger.debug("checkReinit()");
         system.reinitAllBoards();

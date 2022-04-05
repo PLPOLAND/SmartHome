@@ -28,6 +28,7 @@ import smarthome.model.Uprawnienia;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
+import smarthome.model.hardware.Button;
 import smarthome.model.hardware.Termometr;
 import smarthome.model.hardware.Blind.RoletaStan;
 import smarthome.model.user.Opcje;
@@ -267,6 +268,39 @@ public class AdminRESTController {
         boolean tmp = system.initOfBoard(boardID);
         return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
     }
+
+
+    @GetMapping("/addPrzycisk")
+    public Response<String> dodajPrzycisk(@RequestParam("name") String nazwaPokoju, @RequestParam("boardID") int boardID, @RequestParam("pin") int pin) {
+        try {
+            Button b = system.addButton(nazwaPokoju, boardID, pin);
+            if (b != null)
+                return new Response<>("Przycisk: '" + b.toString() + "' dodana prawidłowo");
+            else
+                return new Response<>("",
+                        "Nie udało dodać się Przycisku. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania przycisku", e);
+            return new Response<>(null, e.getMessage());
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @RequestMapping("/shutdown")
     public Response<String> shutdownMe() {
         Process p;

@@ -8,6 +8,7 @@ Przekaznik::~Przekaznik()
 }
 bool Przekaznik::begin(byte pin, bool stan)
 {
+    this->setType(TYPE::PRZEKAZNIK);
     if (pin >= PINOW_NA_ADRES + 2 && pin <= 16)
     {
         this->pin = pin;

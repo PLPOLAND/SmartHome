@@ -35,10 +35,10 @@ protected:
     static LinkedList<Device *> devices;
     static LinkedList<Termometr *> termometry;
     static LinkedList<Przekaznik *> przekazniki;
-    static LinkedList<Przycisk *> przyciski;
     static LinkedList<Roleta *> rolety;
 
 public:
+    static LinkedList<Przycisk *> przyciski;
     System(const System&) = delete;
     void operator= (const System &) = delete;
     ~System();

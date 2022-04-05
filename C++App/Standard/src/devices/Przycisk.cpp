@@ -1,4 +1,5 @@
 #include <devices/Przycisk.h>
+#include <System.h>
 
 /**
  * 
@@ -33,9 +34,16 @@ Przycisk::~Przycisk()
 bool Przycisk::begin(byte pin)
 {
     Device(Device::TYPE::PRZYCISK);
+    Command* tmp = new Command;
+    for (size_t i = 0; i < MAX_NUMBER_OF_FUNCTIONS; i++)
+    {
+        funkcje_klikniecia.add(tmp);
+    }
+    
     if(this->setPin(pin)){
         time = new Timer();
         time->time(STOP);
+        stan = BRAK_AKCJI;
         return true;
     }
     return false;
@@ -144,7 +152,14 @@ void Przycisk::updateStan(){
  * */
 void Przycisk::tic(){
     this->updateStan(); //obsluga zmiany stanów przycisku
-
+    // static int i = 0;
+    // if(i++>10000){
+    //     OUT_LN(F("TIC"));
+    // OUT_LN(time->time());
+    //     OUT_LN(digitalRead(pin)?"LOW":"HIGH");
+    //     OUT_LN(stan);
+    //     i = 0 ;
+    // }
 }
 
 /**
@@ -163,6 +178,9 @@ bool Przycisk::wykonaj(){
         break;
     case PUSZCZONY:// Przycisk nie był przytrzymywany i skończył się czas na kolejne przyciśnięcie
         {
+            OUT_LN(F("Wykonywanie PUSZCZONY"))
+            OUT(F("klikniec: "))
+            OUT_LN(klikniecia);
             Command* command = funkcje_klikniecia.get(klikniecia);
             this->runCommand(command);
         // System::getSystem()->runCommand(command);
@@ -179,18 +197,21 @@ bool Przycisk::wykonaj(){
     return true; //TODO obsluga bledow?
 }
 
-bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){//TODO
+bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
     OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
     OUT(F("Przyski id: "))
     OUT_LN(this->getId());
     OUT("Klikniec: ")
     OUT_LN(klikniec);
     OUT_LN(command->toString());
+    OUT(F("Device PIN: "))
+    OUT_LN(command->getDevice()->getId());
     OUT_LN();
+    Command* tmp = new Command;
+    tmp->makeCopy(command);
     
-    this->funkcje_klikniecia.add(klikniec,command);
-
-    OUT_LN(F("DODANO KOMENDE"))
+    this->funkcje_klikniecia.add(klikniec,tmp);
+    OUT_LN(F("DODANO KOMENDE"));
 
     return true;
 }
@@ -205,20 +226,34 @@ bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klik
 
 bool Przycisk::runCommand(Command *command)
 {
+    OUT_LN(F("RUN_COMMAND"))
     switch (command->getCommandType())
     {
     case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
     {
+        OUT_LN(F("RECEIVE_ZMIEN_STAN_PRZEKAZNIKA"))
         if (command->getDevice()->getType() == Device::TYPE::PRZEKAZNIK)
         {
-            if (((Przekaznik *)command->getDevice())->getStan())
+            Przekaznik *tmp = (Przekaznik *)System::getSystem()->getDevice(command->getDevice()->getId());
+            OUT_LN(F("PRZEKAZNIK"))
+            OUT_LN(tmp->toString());
+            if (tmp->getStan())
             {
-                ((Przekaznik *)command->getDevice())->setStan(0);
+                tmp->setStan(false);
             }
             else
             {
-                ((Przekaznik *)command->getDevice())->setStan(1);
+                tmp->setStan(true);
             }
+            // OUT_LN(((Przekaznik *)command->getDevice())->toString());
+            // if (((Przekaznik *)command->getDevice())->getStan())
+            // {
+            //     ((Przekaznik *)command->getDevice())->setStan(false);
+            // }
+            // else
+            // {
+            //     ((Przekaznik *)command->getDevice())->setStan(true);
+            // }
         }
         else{
             return false;

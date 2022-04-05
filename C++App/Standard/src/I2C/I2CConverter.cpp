@@ -235,6 +235,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 System::reinit_system();//reinicjalizuj system!
 
             }
+            break;
             case Command::KOMENDY::RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION:
             {
                 OUT_LN(F("RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION"));
@@ -244,15 +245,19 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 if (przycisk != nullptr)
                 {
                     Device* dev = System::getSystem()->getDevice(komenda.getParams()[1]);
-                    if (dev==nullptr)
+                    if (dev!=nullptr)
                     {
                         Command* funkcja = new Command;
                         funkcja->setDevice(dev);
+                        OUT(F("device type: "))
+                        OUT_LN(dev->getType())
                         switch (dev->getType())
                         {
                             case Device::PRZEKAZNIK:
                                 {
                                     funkcja->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+                                    byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // TODO może da się zmniejszyć rozmiar tablicy?
+                                    funkcja->setParams(parametry);
                                 }
                                 break;
                             case Device::ROLETA:
@@ -262,8 +267,14 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                                     funkcja->setParams(parametry);
                                 }
                                 break;
+                            default:
+                                break;
                         }
+                        OUT_LN(F("FUNKCJA: "));
+                        OUT_LN(funkcja->toString());
                         przycisk->dodajFunkcjeKlikniecia(funkcja, komenda.getParams()[3]);
+                        OUT(F("Przyciski size:"))
+                        OUT_LN(System::przyciski.size());
                     }
                     else
                     {
@@ -278,7 +289,6 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);//dodaj wysłanie potwierdzenia otrzymania komendy
                 
-                System::reinit_system();//reinicjalizuj system!
 
             }
             case Command::KOMENDY::RECEIVE_GET:
