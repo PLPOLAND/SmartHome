@@ -5,7 +5,7 @@
             "name": "Spring Boot-SmartHomeApp<SmartHomeWebApp>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "mainClass": "smarthome.SmartHomeApp",
             "projectName": "SmartHomeWebApp",
             "args": ""

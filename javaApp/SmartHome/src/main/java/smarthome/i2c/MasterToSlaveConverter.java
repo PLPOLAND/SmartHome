@@ -17,6 +17,7 @@ import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
+import smarthome.model.hardware.ButtonFunction;
 import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Termometr;
@@ -26,12 +27,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * Klasa odpowiadająca za kompunikację pomiędzy Raspi a Atmegami
+ * Klasa odpowiadająca za kompunikację pomiędzy Masterem a Slave-ami
  * 
  * @author Marek Pałdyna
  */
 @Service
-public class JtAConverter {
+public class MasterToSlaveConverter {
 
     private static final int MAX_ROZMIAR_ODPOWIEDZI = 8;
     // #region Komendy
@@ -59,6 +60,8 @@ public class JtAConverter {
     final byte[] DODAJ_PRZYCISK = { 'A', 'P' }; // + PIN
     /**[A, T]*/
     final byte[] DODAJ_TERMOMETR = { 'A', 'T' };
+    /**[P, K, L] */
+    final byte[] DODAJ_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L' };
     // #endregion
 
     @Autowired
@@ -70,7 +73,7 @@ public class JtAConverter {
     /** Logger Springa */
     Logger logger;
 
-    JtAConverter() {
+    MasterToSlaveConverter() {
         logger = LoggerFactory.getLogger(this.getClass());
         logger.info("Stworzno JtAConverter");
     }
@@ -263,6 +266,35 @@ public class JtAConverter {
             return response[0];
         }
     }
+
+    public int sendClickFunction(ButtonFunction function) throws HardwareException{
+        byte[] buffor = new byte[7];
+        byte[] tmp2 = function.toCommand();
+        int i = 0;
+        for (byte b : DODAJ_LOKALNA_FUNKCJE_KLIKNIEC) {
+            buffor[i++] = b;
+        }
+        buffor[i++] = tmp2[0];
+        buffor[i++] = tmp2[1];
+        buffor[i++] = tmp2[2];
+        buffor[i] = tmp2[3];
+
+        try {
+            logger.debug("Writing to addres {}", function.getButton().getSlaveID());
+            atmega.writeTo(function.getButton().getSlaveID(), buffor);
+            Thread.sleep(100);// TODO czy jest potrzebne?
+            logger.debug("Reading from addres {}", function.getButton().getSlaveID());
+            byte[] response = atmega.readFrom(function.getButton().getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+            return response[0];
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+            logger.debug("Próba kontynuacji");
+            logger.debug("Reading from addres {}", function.getButton().getSlaveID());
+            byte[] response = atmega.readFrom(function.getButton().getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+            return response[0];
+        }
+
+    }
     /**
      * Sprawdza czy slave o podanym adresie był już zainicjowany
      * @param adres - adres slave-a który zostanie zapytany
@@ -308,26 +340,6 @@ public class JtAConverter {
         return false;
     }
     
-    // public void addPrzycisk(Device device) {//TODO ?
-    //     if (device.getTyp() == DeviceTypes.PRZYCISK) {
-    //         byte[] buffor = new byte[3];
-    //         int i = 0;
-    //         for (byte b : DODAJPRZYCISK) {
-    //             buffor[i++] = b;
-    //         }
-    //         buffor[i++] = (byte) device.getPin();
-    //         try {
-    //             atmega.writeTo(device.getIDPlytki(), buffor);
-    //         } catch (Exception e) {
-    //             e.printStackTrace();
-    //         }
-    //     } else if (device.getTyp() == DeviceTypes.PRZEKAZNIK || device.getTyp() == DeviceTypes.SWIATLO) {
-    //         addUrzadzenie(device);
-    //     } else if (device.getTyp() == DeviceTypes.TERMOMETR) {
-    //         addTermometr(device);
-    //     }
-    // }
-
     public void sendAnything(String msg, int adres) {
         byte[] buff = new byte[msg.length()];
         logger.debug(msg);

@@ -56,7 +56,7 @@ public abstract class Sensor {
         this.addres = null;
         this.typ = type;
         logger = LoggerFactory.getLogger(Sensor.class);
-        logger.info("1" + STWORZONO_SENSOR_STRING, this);
+        logger.info(STWORZONO_SENSOR_STRING, this);
     }
 
     protected Sensor(int slaveID, SensorsTypes type){

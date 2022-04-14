@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import smarthome.i2c.JtAConverter;
+import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.hardware.Termometr;
 
 /**
@@ -24,7 +24,7 @@ public class Runners {
     @Autowired
     smarthome.system.System system;
     @Autowired
-    JtAConverter converter;
+    MasterToSlaveConverter converter;
 
     ArrayList<Termometr> termometrs;
     

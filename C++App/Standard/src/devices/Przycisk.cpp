@@ -209,8 +209,9 @@ bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
     OUT_LN();
     Command* tmp = new Command;
     tmp->makeCopy(command);
-    
-    this->funkcje_klikniecia.add(klikniec,tmp);
+    if(!this->funkcje_klikniecia.set(klikniec,tmp)){
+        this->funkcje_klikniecia.add(klikniec,tmp);
+    }
     OUT_LN(F("DODANO KOMENDE"));
 
     return true;

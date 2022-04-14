@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import smarthome.database.SystemDAO;
 import smarthome.database.UsersDAO;
 import smarthome.exception.HardwareException;
-import smarthome.i2c.JtAConverter;
+import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.Response;
 import smarthome.model.Room;
 import smarthome.model.Uprawnienia;
@@ -29,6 +29,7 @@ import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
+import smarthome.model.hardware.ButtonFunction;
 import smarthome.model.hardware.Termometr;
 import smarthome.model.hardware.Blind.RoletaStan;
 import smarthome.model.user.Opcje;
@@ -51,7 +52,7 @@ public class AdminRESTController {
     UsersDAO users;
 
     @Autowired
-    JtAConverter converter;
+    MasterToSlaveConverter converter;
 
     int roomsID = 0;// id nowego pokoju.
 
@@ -216,6 +217,19 @@ public class AdminRESTController {
         
 
         return new Response<>(system.getTemperature(adress));
+    }
+    @GetMapping("/addButtonClickFunction")
+    public Response<String> addButtonClickFunction(@RequestParam("buttonID") int buttonID,@RequestParam("deviceID") int deviceId, @RequestParam("state") ButtonFunction.State state, @RequestParam("clicks") int clicks ) {
+        try {
+            Device device = systemDAO.getDevices().get(deviceId);
+            system.addFunctionToButton(buttonID, device, state, clicks);
+            return new Response<>("Funkcja przycisku o id: "+buttonID+" dodana pomyślnie");
+        } catch (Exception e) {
+            logger.error("Bład podczas dodawania funkcji kliknięć do przycisku", e);
+            return new Response<>("", e.getMessage());
+        }
+        
+        
     }
 
     @GetMapping("/changeLightState")

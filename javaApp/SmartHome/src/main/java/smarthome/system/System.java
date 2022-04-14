@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import smarthome.database.SystemDAO;
 import smarthome.database.TemperatureDAO;
 import smarthome.exception.HardwareException;
-import smarthome.i2c.JtAConverter;
+import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.Room;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
@@ -22,6 +22,7 @@ import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
+import smarthome.model.hardware.ButtonFunction;
 import smarthome.model.hardware.Termometr;
 import smarthome.model.hardware.Blind.RoletaStan;
 
@@ -37,7 +38,7 @@ public class System {
     @Autowired
     TemperatureDAO temperatureDAO;
     @Autowired
-    JtAConverter arduino;
+    MasterToSlaveConverter arduino;
 
     Logger log;
 
@@ -52,7 +53,7 @@ public class System {
     }
 
 
-    public JtAConverter getArduino() {
+    public MasterToSlaveConverter getArduino() {
         return this.arduino;
     }
 
@@ -247,6 +248,20 @@ public class System {
     }
 
 
+    public void addFunctionToButton(int buttonId, Device deviceToControl, ButtonFunction.State state, int numberOfClicks) throws HardwareException{
+        ButtonFunction function = new ButtonFunction(null, deviceToControl, state, numberOfClicks);
+        addFunctionToButton(buttonId, function);
+
+    }
+
+
+    public ButtonFunction addFunctionToButton(int buttonID, ButtonFunction function)throws HardwareException{
+        Button but = (Button)systemDAO.getSensors().get(buttonID);
+        but.addFunkcjaKilkniecia(function);
+        arduino.sendClickFunction(function);
+        return function;
+    }
+
 
     public Device changeLightState(String roomName, int deviceID, boolean stan ) throws IllegalArgumentException, HardwareException{
 
@@ -366,7 +381,11 @@ public class System {
                         try {
                             log.debug("sending Button: {}", sensor);
                             sensor.setOnSlaveID(arduino.addPrzycisk((Button) sensor));
-
+                            if (!((Button) sensor).getFunkcjeKlikniec().isEmpty()) {
+                                for (ButtonFunction bFunction : ((Button) sensor).getFunkcjeKlikniec()) {
+                                    arduino.sendClickFunction(bFunction);
+                                }
+                            }
                         } catch (HardwareException e) {
                             log.error("Nie udało się reinicjalizować przycisku o id {}", slaveID, e);
                             toReturn = false;
@@ -425,6 +444,11 @@ public class System {
                             log.debug("sending Button: {}", sensor);
                             sensor.setOnSlaveID(arduino.addPrzycisk((Button)sensor));
                             
+                            if (!((Button) sensor).getFunkcjeKlikniec().isEmpty()) {
+                                for (ButtonFunction bFunction : ((Button) sensor).getFunkcjeKlikniec()) {
+                                    arduino.sendClickFunction(bFunction);
+                                }
+                            }
                         } catch (HardwareException e) {
                             log.error("Nie udało się reinicjalizować przycisku o id {}", slaveID, e);
                             toReturn = false;
