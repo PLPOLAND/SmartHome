@@ -150,7 +150,21 @@ void Command::convert(const byte *c, byte size)
         break;
     case 5:
         {
+            if (c[0] == 'P')
+            {
+                if (c[1] == 'K')
+                {
+                    if (c[2] == 'L')
+                    {
+                        if(c[3] == 'D')
+                        this->komenda = Command::KOMENDY::RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION;
 
+                        byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                        parametry[0] = c[4]; // ILE CLICK-ów
+                        this->setParams(parametry);
+                    }
+                }
+            }
         }
         break;
     case 6:

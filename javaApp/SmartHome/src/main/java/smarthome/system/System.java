@@ -248,9 +248,9 @@ public class System {
     }
 
 
-    public void addFunctionToButton(int buttonId, Device deviceToControl, ButtonFunction.State state, int numberOfClicks) throws HardwareException{
+    public void addFunctionToButton(int buttonID, Device deviceToControl, ButtonFunction.State state, int numberOfClicks) throws HardwareException{
         ButtonFunction function = new ButtonFunction(null, deviceToControl, state, numberOfClicks);
-        addFunctionToButton(buttonId, function);
+        addFunctionToButton(buttonID, function);
 
     }
 
@@ -260,6 +260,12 @@ public class System {
         but.addFunkcjaKilkniecia(function);
         arduino.sendClickFunction(function);
         return function;
+    }
+    public void removeFunctionToButton(int buttonID, int numberOfClicks) throws HardwareException{
+        Button but = (Button) systemDAO.getSensors().get(buttonID);
+        but.removeFunkcjaKilkniecia(numberOfClicks);
+        arduino.sendRemoveFunction(but.getSlaveID(),numberOfClicks);
+        
     }
 
 

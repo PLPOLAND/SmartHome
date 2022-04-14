@@ -46,6 +46,13 @@ private:
      * 
      */
     LinkedList<Command*> funkcje_przytrzymania_puszczenie;
+
+    /**
+     * @brief obiekt używany do zapychania niezdefiniowanych funkcji w przycisku
+     * 
+     */
+    const static Command *zapychacz;
+
 public:
     Przycisk();
     ~Przycisk();
@@ -63,13 +70,14 @@ public:
     bool wykonaj();
 
     bool dodajFunkcjeKlikniecia(Command *command, byte klikniec);
+    bool usunFunkcjeKlikniecia(byte klikniec);
     bool dodajFunkcjePrzytrzymania(Command* command, byte klikniec);
     bool dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klikniec);
     
     /**
      * @brief Wykonuje komendę dostarczoną w argumencie.
      *
-     * @param command
+     * @param command komenda do wykonania
      * @return true
      * @return false
      */

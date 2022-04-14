@@ -62,6 +62,8 @@ public class MasterToSlaveConverter {
     final byte[] DODAJ_TERMOMETR = { 'A', 'T' };
     /**[P, K, L] */
     final byte[] DODAJ_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L' };
+    /**[P, K, L, D] */
+    final byte[] USUN_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L', 'D' };
     // #endregion
 
     @Autowired
@@ -266,7 +268,12 @@ public class MasterToSlaveConverter {
             return response[0];
         }
     }
-
+    /**
+     * Wysyła funkcję kilknięć lokalną
+     * @param function - funkcja do wysłania
+     * @return
+     * @throws HardwareException
+     */
     public int sendClickFunction(ButtonFunction function) throws HardwareException{
         byte[] buffor = new byte[7];
         byte[] tmp2 = function.toCommand();
@@ -295,6 +302,35 @@ public class MasterToSlaveConverter {
         }
 
     }
+
+
+
+    public int sendRemoveFunction(int slaveID, int numberOfClicks) throws HardwareException{
+        byte[] buffor = new byte[5];
+        int i = 0;
+        for (byte b : USUN_LOKALNA_FUNKCJE_KLIKNIEC) {
+            buffor[i++] = b;
+        }
+        buffor[i] = (byte)numberOfClicks;
+
+        try {
+            logger.debug("Writing to addres {}", slaveID);
+            atmega.writeTo(slaveID, buffor);
+            Thread.sleep(100);// TODO czy jest potrzebne?
+            logger.debug("Reading from addres {}", slaveID);
+            byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
+            return response[0];
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+            logger.debug("Próba kontynuacji");
+            logger.debug("Reading from addres {}", slaveID);
+            byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
+            return response[0];
+        }
+
+    }
+
+
     /**
      * Sprawdza czy slave o podanym adresie był już zainicjowany
      * @param adres - adres slave-a który zostanie zapytany

@@ -249,8 +249,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     {
                         Command* funkcja = new Command;
                         funkcja->setDevice(dev);
-                        OUT(F("device type: "))
-                        OUT_LN(dev->getType())
+                        // OUT(F("device type: "))
+                        // OUT_LN(dev->getType())
                         switch (dev->getType())
                         {
                             case Device::PRZEKAZNIK:
@@ -270,27 +270,41 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                             default:
                                 break;
                         }
-                        OUT_LN(F("FUNKCJA: "));
-                        OUT_LN(funkcja->toString());
                         przycisk->dodajFunkcjeKlikniecia(funkcja, komenda.getParams()[3]);
-                        OUT(F("Przyciski size:"))
-                        OUT_LN(System::przyciski.size());
                     }
                     else
                     {
                         params[0] = 'E';//ERROR
                     }
-                    
+
                 }
                 else{
                     params[0] = 'E';//ERROR
                 }
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna); // dodaj wysłanie potwierdzenia otrzymania komendy
+                break;
+            }
+
+            case Command::KOMENDY::RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION:
+            {
+                OUT_LN(F("RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION"));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                Przycisk *przycisk = (Przycisk *)System::getSystem()->getDevice(komenda.getParams()[0]);
+                if (przycisk != nullptr)
+                {
+                    przycisk->usunFunkcjeKlikniecia(komenda.getParams()[0]);
+                }
+                else
+                {
+                    params[0] = 'E'; // ERROR
+                }
 
                 komendaZwrotna->setParams(params);
-                doWyslania.add(0, komendaZwrotna);//dodaj wysłanie potwierdzenia otrzymania komendy
-                
-
+                doWyslania.add(0, komendaZwrotna); // dodaj wysłanie potwierdzenia otrzymania komendy
             }
+                break;
             case Command::KOMENDY::RECEIVE_GET:
 
                 break;

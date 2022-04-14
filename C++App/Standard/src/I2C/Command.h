@@ -22,6 +22,7 @@ public:
         RECEIVE_INIT,            //reinicjalizuj system
         RECEIVE_GET,             //Wczytaj następny z kolejki
         RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION,    //dodaj funkcję przycisku lokalnie wywoływaną
+        RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION, //usuń funkcję przycisku lokalnie wywoływaną
         RECEIVE_ADD_PRZYCISK_GLOBAL_FUNCTION,   //dodaj funkcję przycisku wywoływaną przez slave
 
 
@@ -66,6 +67,10 @@ public:
      */
     void printParametry();
     String toString();
+
+    void operator =(Command *command){
+        makeCopy(command);
+    }
 
     // void operator delete(void* ptr){
     //     OUT_LN("XXX")

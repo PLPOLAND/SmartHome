@@ -53,6 +53,14 @@ public class Button extends Sensor{
         fun.setButton(this);
         this.funkcjeKlikniec.add(fun);
     }
+    public void removeFunkcjaKilkniecia(int numberOfClicks){
+        for (int i = 0; i < funkcjeKlikniec.size(); i++) {
+            if (funkcjeKlikniec.get(i).getClicks() == numberOfClicks) {
+                funkcjeKlikniec.remove(i);
+                break;
+            }
+        }
+    }
     
     public List<ButtonFunction> getFunkcjeKlikniec(){
         return this.funkcjeKlikniec;

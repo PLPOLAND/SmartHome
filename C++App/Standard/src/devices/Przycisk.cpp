@@ -1,5 +1,8 @@
 #include <devices/Przycisk.h>
 #include <System.h>
+#include <Stale.h>
+
+const Command *Przycisk::zapychacz = new Command;
 
 /**
  * 
@@ -18,12 +21,9 @@ Przycisk::~Przycisk()
 {
     delete time;
 
-    for (int i = 0; i < funkcje_klikniecia.size(); i++) //TODO doać usuwanie komend przy desturkcji 
-    {
-        
-    }
-    
-
+    funkcje_klikniecia.clear();
+    funkcje_przytrzymania.clear();
+    funkcje_przytrzymania.clear();
 }
 
 /**
@@ -35,9 +35,11 @@ bool Przycisk::begin(byte pin)
 {
     Device(Device::TYPE::PRZYCISK);
     Command* tmp = new Command;
-    for (size_t i = 0; i < MAX_NUMBER_OF_FUNCTIONS; i++)
+    for (size_t i = 0; i < MAX_NUMBER_OF_BUTTON_FUNCTIONS; i++)
     {
         funkcje_klikniecia.add(tmp);
+        funkcje_przytrzymania.add(tmp);
+        funkcje_przytrzymania_puszczenie.add(tmp);
     }
     
     if(this->setPin(pin)){
@@ -88,7 +90,7 @@ void Przycisk::updateStan(){
     {
 
         OUT_LN(F("next click "));
-        time->begin(SECS(1));
+        time->begin(BUTTON_CLICK_TIME);
         stan = PRZYCISNIETY;
         klikniecia++;
         OUT_LN(klikniecia);
@@ -97,7 +99,7 @@ void Przycisk::updateStan(){
     {
         OUT_LN(F("first click"));
         stan = PRZYCISNIETY;
-        time->begin(SECS(1));
+        time->begin(BUTTON_CLICK_TIME);
         klikniecia = 1;
     }
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
@@ -198,19 +200,34 @@ bool Przycisk::wykonaj(){
 }
 
 bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
-    OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
+    // OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
+    // OUT(F("Przyski id: "))
+    // OUT_LN(this->getId());
+    // OUT("Klikniec: ")
+    // OUT_LN(klikniec);
+    // OUT_LN(command->toString());
+    // OUT(F("Device PIN: "))
+    // OUT_LN(command->getDevice()->getId());
+    // OUT_LN();
+    Command* tmp = new Command;
+    tmp->makeCopy(command);
+    if(!this->funkcje_klikniecia.set(klikniec,tmp)){//TODO: Wyciek pamięci!
+        this->funkcje_klikniecia.add(klikniec,tmp); // jeśli komenda dla tylu kliknięć jeszcze nie istnieje to dodaj ją.
+    }
+    OUT_LN(F("DODANO KOMENDE"));
+
+    return true;
+}
+bool Przycisk::usunFunkcjeKlikniecia(byte klikniec){
+    OUT_LN(F("USUN FUNKCJE KLIKNIECIE"))
     OUT(F("Przyski id: "))
     OUT_LN(this->getId());
     OUT("Klikniec: ")
     OUT_LN(klikniec);
-    OUT_LN(command->toString());
-    OUT(F("Device PIN: "))
-    OUT_LN(command->getDevice()->getId());
     OUT_LN();
-    Command* tmp = new Command;
-    tmp->makeCopy(command);
-    if(!this->funkcje_klikniecia.set(klikniec,tmp)){
-        this->funkcje_klikniecia.add(klikniec,tmp);
+    delete this->funkcje_klikniecia.get(klikniec);
+    if (!this->funkcje_klikniecia.set(klikniec, const_cast<Command *> (zapychacz))){
+        this->funkcje_klikniecia.add(klikniec, const_cast<Command *>(zapychacz)); // jeśli komenda dla tylu kliknięć jeszcze nie istnieje to dodaj ją.
     }
     OUT_LN(F("DODANO KOMENDE"));
 

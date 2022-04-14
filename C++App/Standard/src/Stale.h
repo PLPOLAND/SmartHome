@@ -14,7 +14,13 @@
     //pinów od 2 do 2+5 używanych do określania adresu urządzenia ((2^PINOW_NA_ADRES)-1 dostępnych adresów)
     #define PINOW_NA_ADRES 5
 
-    #define MAX_NUMBER_OF_FUNCTIONS 4
+    #define MAX_NUMBER_OF_BUTTON_FUNCTIONS 4
+
+    #define SECS(t) (unsigned long)(t * 1000)
+    #define MINS(t) SECS(t) * 60
+    #define HOURS(t) MINS(t) * 60
+
+    #define BUTTON_CLICK_TIME SECS(1)
 
     //BUFFORY
     #define BUFFOR_IN_SIZE 9

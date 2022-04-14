@@ -108,6 +108,18 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							}
 						}
 					}
+				} else if (in.equals("addPrzyciskClickFunction")) {//TODO
+					if (scanner.hasNext()) {
+						String nazwaPokoju = scanner.next();
+						if (scanner.hasNext()) {
+							int idPlytki = scanner.nextInt();
+							if (scanner.hasNext()) {
+								int pin = scanner.nextInt();
+
+								log.info(adminController.dodajPrzycisk(nazwaPokoju, idPlytki, pin).getObj().toString());
+							}
+						}
+					}
 				} 
 				else if(in.equals("removeDevice")){
 					if (scanner.hasNext()) {
