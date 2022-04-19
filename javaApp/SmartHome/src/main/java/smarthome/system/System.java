@@ -63,13 +63,14 @@ public class System {
      * 
      */
     //TODO dodać javadoc
-    public Device addLight(String roomName, int BoardID, int pin) throws IllegalArgumentException, HardwareException {
+    public Device addLight(String roomName, String name, int BoardID, int pin) throws IllegalArgumentException, HardwareException {
         Room room = systemDAO.getRoom(roomName);
         if(room == null){
             log.error("Nie znaleziono pokoju o podanej nazwie \"{}\" podczas dodawania światła",roomName);
             throw new IllegalArgumentException("Bledna nazwa pokoju");
         }
         Light light = new Light(false,pin,BoardID);
+        light.setName(name);
         light.setOnSlaveID(arduino.addUrzadzenie(light));//dodaj urzadzenie do slavea i zapisz jego id w slavie
         if(light.getOnSlaveID()==-1){
             throw new HardwareException("Nie udało się dodać urządzenia na slavie");
@@ -89,7 +90,7 @@ public class System {
      * @param pinDown
      * @return
      */
-    public Device addRoleta(String roomName, int boardID, int pinUp, int pinDown) throws HardwareException, IllegalArgumentException{
+    public Device addRoleta(String roomName, String name, int boardID, int pinUp, int pinDown) throws HardwareException, IllegalArgumentException{
         Room room = systemDAO.getRoom(roomName);
         if (room == null) {
             IllegalArgumentException tmp = new IllegalArgumentException("Bledna nazwa pokoju");
@@ -97,6 +98,7 @@ public class System {
             throw tmp;
         }
         Blind roleta = new Blind(false, boardID, pinUp, pinDown);
+        roleta.setName(name);
         roleta.setOnSlaveID(arduino.addUrzadzenie(roleta));// dodaj urzadzenie do slavea i zapisz jego id w slavie
         if (roleta.getOnSlaveID() == -1) {
             throw new HardwareException("Nie udało się dodać urządzenia na slavie");
@@ -265,6 +267,11 @@ public class System {
         Button but = (Button) systemDAO.getSensors().get(buttonID);
         but.removeFunkcjaKilkniecia(numberOfClicks);
         arduino.sendRemoveFunction(but.getSlaveID(),numberOfClicks);
+        
+    }
+    public void removeFunctionToButton(Button button, int numberOfClicks) throws HardwareException{
+        button.removeFunkcjaKilkniecia(numberOfClicks);
+        arduino.sendRemoveFunction(button.getSlaveID(),numberOfClicks);
         
     }
 

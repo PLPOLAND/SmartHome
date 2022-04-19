@@ -68,8 +68,11 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							int idPlytki= scanner.nextInt();
 							if (scanner.hasNext()) {
 								int pin= scanner.nextInt();
-								
-								log.info(adminController.dodajSwiatlo(nazwaPokoju,idPlytki, pin).getObj().toString());
+								if (scanner.hasNext()) {
+									String name= scanner.next();
+									
+									log.info(adminController.dodajSwiatlo(nazwaPokoju,name,idPlytki, pin).getObj().toString());
+								}
 							}
 						}
 					}
@@ -78,11 +81,16 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					if (scanner.hasNext()) {
 						String nazwaPokoju = scanner.next();
 						if (scanner.hasNext()) {
-							int pinUp= scanner.nextInt();
+							int idPlytki= scanner.nextInt();
 							if (scanner.hasNext()) {
-								int pinDown= scanner.nextInt();
-
-								log.info(adminController.dodajRoleta(nazwaPokoju,3, pinUp, pinDown).getObj().toString());
+								int pinUp= scanner.nextInt();
+								if (scanner.hasNext()) {
+									int pinDown= scanner.nextInt();
+									if (scanner.hasNext()) {
+										String name= scanner.next();
+										log.info(adminController.dodajRoleta(nazwaPokoju,name, idPlytki, pinUp, pinDown).getObj().toString());
+									}
+								}
 							}
 						}
 					}
@@ -116,7 +124,26 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							if (scanner.hasNext()) {
 								int pin = scanner.nextInt();
 
-								log.info(adminController.dodajPrzycisk(nazwaPokoju, idPlytki, pin).getObj().toString());
+								log.info(adminController.dodajPrzycisk(nazwaPokoju, idPlytki, pin).getObj());
+							}
+						}
+					}
+				} else if (in.equals("rmPrzyciskClickFunction")) {//TODO sprawdzić
+					if (scanner.hasNext()) {
+						int idPrzycisku = scanner.nextInt();
+						if (scanner.hasNext()) {
+							int clicks = scanner.nextInt();
+							log.info(adminController.rmButtonClickFunction(idPrzycisku, clicks).getObj());
+						}
+					}
+				} else if (in.equals("addPrzyciskClickFunction")) {//TODO sprawdzić
+					if (scanner.hasNext()) {
+						int idPrzycisku = scanner.nextInt();
+						if (scanner.hasNext()) {
+							int clicks = scanner.nextInt();
+							if (scanner.hasNext()) {
+								int deviceID = scanner.nextInt();
+								log.info(adminController.addButtonClickFunction(idPrzycisku, deviceID, ButtonFunction.State.NONE, clicks).getObj());
 							}
 						}
 					}

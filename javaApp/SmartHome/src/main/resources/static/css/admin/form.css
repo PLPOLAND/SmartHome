@@ -48,11 +48,21 @@
     color: var(--secondaryTextColor);
     transition: 200ms;
 }
+#body-form button#rm{
+    float: right;
+}
+
+#body-form button#rm:hover{
+    background-color: var(--errorColor);
+    color: var(--errorTextColor);
+    transition: 200ms;
+}
 #body-form input{
     padding: 5px;
     border: 0px ;
     font-size: 20px;
     background-color: var(--primaryDarkColor);
+    color: var(--primaryTextColor);
 }
 #body-form input:focus{
     background-color: var(--primaryLightColor);
@@ -60,4 +70,22 @@
 #body-form input:hover{
 
     background-color: var(--primaryLightColor);
+}
+#body-form select{
+    padding: 5px;
+    border: 0px ;
+    font-size: 20px;
+    background-color: var(--primaryDarkColor);
+    color: var(--primaryTextColor);
+}
+#body-form select:focus{
+    background-color: var(--primaryLightColor);
+}
+#body-form select:hover{
+
+    background-color: var(--primaryLightColor);
+}
+
+.toHide{
+    display: none;
 }

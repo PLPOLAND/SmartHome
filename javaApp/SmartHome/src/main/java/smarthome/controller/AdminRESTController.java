@@ -26,6 +26,7 @@ import smarthome.model.Response;
 import smarthome.model.Room;
 import smarthome.model.Uprawnienia;
 import smarthome.model.hardware.Device;
+import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
@@ -54,7 +55,6 @@ public class AdminRESTController {
     @Autowired
     MasterToSlaveConverter converter;
 
-    int roomsID = 0;// id nowego pokoju.
 
     AdminRESTController(){
         logger = LoggerFactory.getLogger(this.getClass());
@@ -116,10 +116,23 @@ public class AdminRESTController {
     public Response<SystemDAO> getSystemData() {
         return new Response<>(systemDAO);
     }
+    @RequestMapping("/getDeviceTypes")
+    public Response<String[]> getDeviceTypes() {
+        return new Response<>(DeviceTypes.getNames());
+    }
+
+    @RequestMapping("/getRoomsNamesList")
+    public Response<ArrayList<String>> getRoomsList() {
+        ArrayList<String> pokoje = new ArrayList<>();
+        for (Room room : systemDAO.getRoomsArrayList()) {
+            pokoje.add(room.getNazwa());
+        }
+        return new Response<>(pokoje);
+    }
 
     @GetMapping("/addRoom")
     public Response<String> dodajPokoj(@RequestParam("name") String name){
-        Room r = new Room(roomsID++, name);
+        Room r = new Room(systemDAO.getRoomsArrayList().size(), name);
         systemDAO.addRoom(r);
 
         return new Response<>("Pokój: '" + name +"' dodany");
@@ -143,10 +156,10 @@ public class AdminRESTController {
 
     // }
     @GetMapping("/addSwiatlo")
-    public Response<String> dodajSwiatlo(@RequestParam("name") String nazwaPokoju,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
+    public Response<String> dodajSwiatlo(@RequestParam("roomName") String nazwaPokoju, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
         
         try {
-            Light l = (Light) system.addLight(nazwaPokoju, boardID, pin);
+            Light l = (Light) system.addLight(nazwaPokoju, deviceName, boardID, pin);
             if (l != null)
                 return new Response<String>("Żarówka: '" + l.toString() + "' dodana prawidłowo");
             else
@@ -159,11 +172,11 @@ public class AdminRESTController {
 
     }
     @GetMapping("/addRoleta")
-    public Response<String> dodajRoleta(@RequestParam("name") String nazwaPokoju,@RequestParam("boardID") int boardID, @RequestParam("pinUp") int pinUp, @RequestParam("pinDown") int pinDown){
+    public Response<String> dodajRoleta(@RequestParam("roomName") String nazwaPokoju,@RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pinUp, @RequestParam("pinDown") int pinDown){
         
         
         try {
-            Blind l = (Blind) system.addRoleta(nazwaPokoju, boardID, pinUp, pinDown);
+            Blind l = (Blind) system.addRoleta(nazwaPokoju, deviceName, boardID, pinUp, pinDown);
             if(l != null)
                 return new Response<String>("Roleta: '" + l.toString() + "' dodana prawidłowo");
             else
@@ -196,13 +209,14 @@ public class AdminRESTController {
         Room room = null;
         try {
             if ((room = systemDAO.getRoom(nazwaPokoju)) == null)
-                throw new Exception("Brak pokoju o nazwie: "+ nazwaPokoju);
+                throw new IllegalArgumentException("Brak pokoju o nazwie: "+ nazwaPokoju);
             systemDAO.removeRoom(room);
+            logger.warn("Pokój '{}' został usunięty z systemu!",nazwaPokoju);
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>("", e.getMessage());
         }
-        return new Response<String>("Urzadzenie: '" + room.toString() + "' usnięte prawidłowo z pokoju: " + nazwaPokoju);
+        return new Response<>("Pokój: '" + room.getNazwa() + "' usnięty prawidłowo");
     }
 
     @GetMapping("/addTermometr")
@@ -224,6 +238,18 @@ public class AdminRESTController {
             Device device = systemDAO.getDevices().get(deviceId);
             system.addFunctionToButton(buttonID, device, state, clicks);
             return new Response<>("Funkcja przycisku o id: "+buttonID+" dodana pomyślnie");
+        } catch (Exception e) {
+            logger.error("Bład podczas dodawania funkcji kliknięć do przycisku", e);
+            return new Response<>("", e.getMessage());
+        }
+        
+        
+    }
+    @GetMapping("/rmButtonClickFunction")
+    public Response<String> rmButtonClickFunction(@RequestParam("buttonID") int buttonID, @RequestParam("clicks") int clicks ) {
+        try {
+            system.removeFunctionToButton(buttonID,clicks);
+            return new Response<>("Funkcja przycisku o id: "+buttonID+" usunieta pomyślnie");
         } catch (Exception e) {
             logger.error("Bład podczas dodawania funkcji kliknięć do przycisku", e);
             return new Response<>("", e.getMessage());

@@ -51,5 +51,22 @@ public class AdminController {
 
         return "admin/addRoom";
     }
+    @RequestMapping("/removeRoom")
+    public String rmRoom(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+
+        return "admin/rmRoom";
+    }
+
+    @RequestMapping("/addDevice")
+    public String addDevice(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+
+        return "admin/addDevice";
+    }
 
 }

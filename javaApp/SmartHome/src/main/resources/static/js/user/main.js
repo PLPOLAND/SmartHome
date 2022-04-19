@@ -2,9 +2,6 @@ $(document).ready(function () {
     $("#err-msg").click(function () {
         $(this).hide('blind',{},1000,function(){});
     })
-    $("#msg").click(function () {
-        $(this).hide('blind',{},1000,function(){});
-    })
 
     $.ajax({
         url: "/api/menu/menuGlowne",

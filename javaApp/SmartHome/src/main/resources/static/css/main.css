@@ -9,6 +9,7 @@ body{
 	min-height: 100%;
 	margin: 0;
 	background-color: var(--background-color);
+	font-family: Lato, Montserrat, Roboto;
 }
 #err-msg{
 	display: none;
@@ -17,6 +18,24 @@ body{
 	top: 45%;
 	color: var(--errorTextColor);
 	background-color: var(--errorColor);
+	width: 50%;
+	max-width: 50%;
+	padding: 10px;
+	border-radius: 10px;
+	min-height: 50px;
+	line-height: 50px;
+	text-align: center;
+	font-size: 30px;
+	z-index: 100;
+	left: calc(25% - 10px);
+}
+#msg{
+	display: none;
+	cursor: pointer;
+	position: fixed;
+	top: 45%;
+	color: var(--secondaryTextColor);
+	background-color: var(--secondaryColor);
 	width: 50%;
 	max-width: 50%;
 	padding: 10px;
