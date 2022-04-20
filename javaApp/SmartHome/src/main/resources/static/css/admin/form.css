@@ -47,6 +47,8 @@
     background-color: var(--secondaryColor);
     color: var(--secondaryTextColor);
     transition: 200ms;
+
+    cursor: pointer;
 }
 #body-form button#rm{
     float: right;
@@ -56,6 +58,7 @@
     background-color: var(--errorColor);
     color: var(--errorTextColor);
     transition: 200ms;
+    cursor: pointer;
 }
 #body-form input{
     padding: 5px;

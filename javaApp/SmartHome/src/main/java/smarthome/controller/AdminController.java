@@ -4,7 +4,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import smarthome.database.UsersDAO;
 import smarthome.security.Security;
@@ -52,11 +56,11 @@ public class AdminController {
         return "admin/addRoom";
     }
     @RequestMapping("/removeRoom")
-    public String rmRoom(HttpServletRequest request) {
+    public String rmRoom(@RequestParam(name = "roomName", required = false, defaultValue = "")String roomName,HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
             return "redirect:login";
-
+        model.addAttribute("roomName", roomName);
         return "admin/rmRoom";
     }
 
@@ -67,6 +71,22 @@ public class AdminController {
             return "redirect:login";
 
         return "admin/addDevice";
+    }
+    @RequestMapping("/roomsList")
+    public String roomList(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+
+        return "admin/roomsList";
+    }
+    @RequestMapping("/editRoom")
+    public String editRoom(@RequestParam("roomName")String roomName, HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+        model.addAttribute("roomName", roomName);
+        return "admin/editRoom";
     }
 
 }

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Usuń Pokój - SmartHome</title>
+    <title>Edytuj Pokój - SmartHome</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="../css/jqueryUiMin.css">
     <link rel="stylesheet" href="../css/admin/device.css">
@@ -12,7 +12,7 @@
     <script src="../js/jQueryMin.js"></script>
     <script src="../js/jQueryUIMin.js"></script>
     <script src="../js/admin/main.js"></script>
-    <script src="../js/admin/pages/rmRoom.js"></script>
+    <script src="../js/admin/pages/addRoom.js"></script>
 </head>
 
 <body>
@@ -36,11 +36,11 @@
     </div>
     <div id="main-body">
         <div id="body-form">
-            <h1>Usuń Pokój</h1>
+            <h1>Edytuj Pokój</h1>
             <hr>
             <div class="wiersz"> Nazwa Pokoju : <input id="roomName" th:value="${roomName}"></div>
             <div class="wiersz"></div>
-            <div class="wiersz"><button id="clear">Wyczyść <i class="icon-trash"></i></button><button id="rm">Usuń <i class="icon-trash"></i></button></div>
+            <div class="wiersz"><!--<button id="clear">Wyczyść <i class="icon-trash"></i></button>--><button id="save">Zapisz <i class="icon-save"></i></button></div>
         </div>
     </div>
 </body>

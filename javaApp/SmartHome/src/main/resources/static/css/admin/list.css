@@ -1,0 +1,62 @@
+.list{
+    display: block;
+    width: 90%;
+
+    background-color: var(--primaryDarkColor);
+    color: var(--primaryTextColor);
+    margin: 0 auto;
+    padding: 10px;
+    min-height: 90vh;
+}
+.header{
+    display: block;
+    margin-top: 20px;
+    width: 20%;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.room{
+    display: block;
+    padding: 5px 10px;
+    width: 90%;
+    height: 50px;
+    background-color: var(--primaryColor);
+    line-height: 50px;
+    font-size: 20px;
+    margin: 5px auto;
+    border-radius: 10px;
+}
+.room:hover{
+    background-color: var(--secondaryColor);
+}
+
+.roomName{
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    width: 200px;
+}
+.deviceNum{
+    float: left;
+    height: 100%;
+    width: 150px;
+    padding: 0 10px;
+}
+.sensorNum{
+    float: left;
+    height: 100%;
+    width: 150px;
+    padding: 0 10px;
+}
+.icon{
+    float: right;
+    padding: 0 10px;
+    cursor: pointer;
+}
+.icon:hover .icon-sliders{
+    color: var(--secondaryTextColor);
+}
+.icon:hover .icon-trash{
+    color: var(--errorColor);
+}

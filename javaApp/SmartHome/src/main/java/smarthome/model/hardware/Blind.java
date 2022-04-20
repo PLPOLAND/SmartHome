@@ -1,5 +1,7 @@
 package smarthome.model.hardware;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.slf4j.LoggerFactory;
 
 
@@ -69,13 +71,29 @@ public class Blind extends Device{
         }
         this.changeState(stan2);
     }
-
+    @JsonIgnore
     public int getPinUp(){
         return swtUp.getPin();
     }
+    
+    @JsonIgnore
     public int getPinDown(){
         return swtDown.getPin();
     }
+    public Switch getSwitchUp() {
+        return swtUp;
+    }
+    public Switch getSwitchDown() {
+        return swtDown;
+    }
+    public void setSwitchUp(Switch swt) {
+        swtUp = swt;
+    }
+    public void setSwitchDown(Switch swt) {
+        swtDown = swt;
+    }
+
+
 
     public RoletaStan getStan(){
         return this.stan;

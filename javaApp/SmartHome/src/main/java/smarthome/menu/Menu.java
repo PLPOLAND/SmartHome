@@ -29,7 +29,7 @@ public class Menu {
                 
                 tmp = new PozycjaMenu("Pokoje", "#", true);
                 menuGlowne.add(tmp);
-                tmp.addDropDown(new PozycjaMenu("Lista", "./listOfRooms"));
+                tmp.addDropDown(new PozycjaMenu("Lista", "./roomsList"));
                 tmp.addDropDown(new PozycjaMenu("Dodaj", "./addRoom"));
                 tmp.addDropDown(new PozycjaMenu("Usuń", "./removeRoom"));
                 

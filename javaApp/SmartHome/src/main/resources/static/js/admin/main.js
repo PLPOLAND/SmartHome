@@ -1,9 +1,14 @@
+var hideTimeOutID = 0;
 $(document).ready(function () {
     $("#err-msg").click(function () {
         $(this).hide('blind',{},1000,function(){});
+        $(this).html("");
+        clearTimeout(hideTimeOutID);
     })
     $("#msg").click(function () {
         $(this).hide('blind',{},1000,function(){});
+        $(this).html("");
+        clearTimeout(hideTimeOutID);
     })
 
     $.ajax({
@@ -155,7 +160,7 @@ function controlMenu() {
 }
 
 function hideAfter(me, time) {
-    setTimeout(function () {
+    hideTimeOutID = setTimeout(function () {
         $(me).click()
     },time);
 }

@@ -2,17 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Usuń Pokój - SmartHome</title>
+    <title>SmartHome</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="../css/jqueryUiMin.css">
     <link rel="stylesheet" href="../css/admin/device.css">
-    <link rel="stylesheet" href="../css/admin/form.css">
+    <link rel="stylesheet" href="../css/admin/list.css">
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/fontello/css/fontello.css">
     <script src="../js/jQueryMin.js"></script>
     <script src="../js/jQueryUIMin.js"></script>
     <script src="../js/admin/main.js"></script>
-    <script src="../js/admin/pages/rmRoom.js"></script>
+    <script src="../js/admin/room.js"></script>
+    <script src="../js/admin/pages/roomList.js"></script>
 </head>
 
 <body>
@@ -21,7 +22,9 @@
     <div class="background-container"></div>
     <div class="banner">
         <div class="menu">
-            <ul id="topMenu"></ul>
+            <ul id="topMenu">
+
+            </ul>
         </div>
         <div id="usermenu">
             <ul id="menu">
@@ -35,13 +38,11 @@
         </div>
     </div>
     <div id="main-body">
-        <div id="body-form">
-            <h1>Usuń Pokój</h1>
-            <hr>
-            <div class="wiersz"> Nazwa Pokoju : <input id="roomName" th:value="${roomName}"></div>
-            <div class="wiersz"></div>
-            <div class="wiersz"><button id="clear">Wyczyść <i class="icon-trash"></i></button><button id="rm">Usuń <i class="icon-trash"></i></button></div>
+        <div class="list">
+            <div class="header"><h1>Lista Pokojów</h1></div>
+            
         </div>
+
     </div>
 </body>
 

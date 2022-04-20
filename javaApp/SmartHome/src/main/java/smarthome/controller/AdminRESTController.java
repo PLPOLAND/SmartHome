@@ -122,12 +122,17 @@ public class AdminRESTController {
     }
 
     @RequestMapping("/getRoomsNamesList")
-    public Response<ArrayList<String>> getRoomsList() {
+    public Response<ArrayList<String>> getRoomsNameList() {
         ArrayList<String> pokoje = new ArrayList<>();
         for (Room room : systemDAO.getRoomsArrayList()) {
             pokoje.add(room.getNazwa());
         }
         return new Response<>(pokoje);
+    }
+    @RequestMapping("/getRoomsList")
+    public Response<ArrayList<Room>> getRoomsList() {
+        
+        return new Response<>(systemDAO.getRoomsArrayList());
     }
 
     @GetMapping("/addRoom")
@@ -136,6 +141,17 @@ public class AdminRESTController {
         systemDAO.addRoom(r);
 
         return new Response<>("Pokój: '" + name +"' dodany");
+    }
+    @GetMapping("/editRoom")
+    public Response<String> edytujPokoj(@RequestParam("name") String name, @RequestParam("originalName") String oldName){
+        Room r = systemDAO.getRoom(oldName);
+        if (r != null) {
+            r.setNazwa(name);    
+        }
+        else{
+            return new Response<>(null,"Błędna nazwa pokoju! Taki pokój nie istnieje!");
+        }
+        return new Response<>("Nazwa pokoju: '" + oldName +"' została zmieniona na: '"+name+"'");
     }
 
     // public Response<String> setIdPlytkiRoom(@RequestParam("name") String name, @RequestParam("id") int id) {
@@ -197,6 +213,7 @@ public class AdminRESTController {
             if((dev = systemDAO.getRoom(nazwaPokoju).getDeviceById(id)) == null)
                 throw new Exception("Brak urzadzenia o id: "+id+" w pokoju: "+nazwaPokoju);
             systemDAO.getRoom(nazwaPokoju).delDevice(dev);
+            systemDAO.getDevices().remove(dev);//TODO usuwanie urzadzenia z funkcji przycisków!
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>("", e.getMessage());
