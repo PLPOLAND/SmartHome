@@ -19,53 +19,70 @@ function addDevice(obj) {
     
     //TODO dodać inne rodzaje ikonek w znależności od rodzaju urzadzenia
     var deviceTMP = $("<div class=\"device\"></div >");
-    var deviceIcon = "<div class=\"deviceIcon\" ></div >";
-    var tmp = $(deviceIcon);
-    tmp.append($("<i class=\"icon-lightbulb\"></i>"));
-    $(deviceTMP).append(tmp);
+    var deviceIcon = $("<div class=\"deviceIcon\" ></div >");
+    if (obj.typ==="LIGHT") {
+        deviceIcon.append($("<i class=\"icon-lightbulb\"></i>"));
+    }
+    else if (obj.typ ==="BLIND") {
+        deviceIcon.append($("<i class=\"icon-server\"></i>"));
+    }
+    $(deviceTMP).append(deviceIcon);
 
-    var deviceDescribe = "<div class=\"deviceDescribe\"></div>";
-    var tmp = $(deviceDescribe);
-    tmp.append($("<span class=\"deviceDescribeText\">"+obj.name+"</span>"));
-    tmp.append($("<br>"));
-    tmp.append($("<span class=\"deviceDescribeState\">"+(obj.stan ? "ON" : "OFF" )+"</span>"));
-    $(deviceTMP).append(tmp);
+    var deviceDescribe = $("<div class=\"deviceDescribe\"></div>");
+    deviceDescribe.append($("<span class=\"deviceDescribeText\">"+obj.name+"</span>"));
+    deviceDescribe.append($("<br>"));
+    if (obj.typ === "LIGHT") {
+        deviceDescribe.append($("<span class=\"deviceDescribeState\">"+(obj.stan ? "ON" : "OFF" )+"</span>"));
+        deviceTMP.attr("state", obj.stan ? "on" : "off");
+    }
+    else if (obj.typ === "BLIND") {
+        if (obj.stan === "DOWN") {
+            deviceDescribe.append($("<span class=\"deviceDescribeState\">OPUSZCZONE</span>"));
+            deviceTMP.attr("state", "off");
+        }
+        else{
+            deviceDescribe.append($("<span class=\"deviceDescribeState\">PODNIESIONE</span>"));
+            deviceTMP.attr("state", "on");
+        }
+        
+    }
+    $(deviceTMP).append(deviceDescribe);
 
 
     var deviceState = "<div class=\"deviceState\"></div>";
-    var tmp = $(deviceState);
+    var deviceStateIcon = $(deviceState);
     if (obj.stan) {
-        tmp.append($("<i class=\"icon-toggle-on\"></i>"));
+        deviceStateIcon.append($("<i class=\"icon-toggle-on\"></i>"));
     }
     else{
-        tmp.append($("<i class=\"icon-toggle-off\"></i>"));
+        deviceStateIcon.append($("<i class=\"icon-toggle-off\"></i>"));
     }
-    $(deviceTMP).append(tmp);
+    $(deviceTMP).append(deviceStateIcon);
 
     var device = deviceTMP;
 
-    showDeviceState(device, obj.stan);
+    showDeviceState(device, obj.stan, obj.typ);
     
     device.click(function () {
-        clickDevice(this,obj.id, obj.room);
+        clickDevice(this,obj.id, obj.room, obj.typ);
     })
 
 
 
-    $(device).hover(function() {
-        if ($(this).attr("state") != "off") {
+    // $(device).hover(function() {
+    //     if ($(this).attr("state") != "off") {
 
-            $(this).css('background-color', 'var(--primaryDarkColor)');
-            $(this).children().first().css('background-color', 'var(--primaryColor)');
-        }
-        else{
-            $(this).css('background-color', 'var(--deviceOffDarkColor)');
-            $(this).children().first().css('background-color', 'var(--deviceOffColor)');
-        }
-        },function() {
-            $(this).css('background-color', '');
-            $(this).children().first().css('background-color', '');
-        })
+    //         $(this).css('background-color', 'var(--primaryDarkColor)');
+    //         $(this).children().first().css('background-color', 'var(--primaryColor)');
+    //     }
+    //     else{
+    //         $(this).css('background-color', 'var(--deviceOffDarkColor)');
+    //         $(this).children().first().css('background-color', 'var(--deviceOffColor)');
+    //     }
+    //     },function() {
+    //         $(this).css('background-color', '');
+    //         $(this).children().first().css('background-color', '');
+    //     })
     // $('.device').hover(function () {
     //     $(this).children().css('background-color', '#FFFFFF22');
     //     $(this).children().first().css('background-color', '#FFFFFF44');
@@ -76,7 +93,7 @@ function addDevice(obj) {
 
     return device;
 }
-function clickDevice(mee, id, room) {
+function clickDevice(mee, id, room, typ) {
     var me = $(mee);
     if (me.attr("state") == "on") {
         console.debug("me on");
@@ -86,42 +103,85 @@ function clickDevice(mee, id, room) {
         console.debug("me off");
     }
 
-    $.ajax({
-        url: "/admin/api/changeLightStateByRoomID",
-        type: 'post',
-        data: {
-            "roomID": room,
-            "idUrzadzenia": id,
-            "stan": me.attr("state") == "on"? false : true
-        },
-        success: function (response) {
-            console.log(response);
-            if (response.error == null) {
-                showDeviceState(me, me.attr("state") == "on" ? false : true)
-            } else {
-                $("#err-msg").html("Error: " +  response.error);
-                $("#err-msg").show( "bounce", {}, 1000, function(){hideAfter(this, 10000)} );
+    if (typ === "BLIND") {
+        $.ajax({
+            url: "/admin/api/changeBlindStateByRoomID",
+            type: 'post',
+            data: {
+                "roomID": room,
+                "idUrzadzenia": id,
+                "pozycja": me.attr("state") == "on" ? false : true
+            },
+            success: function (response) {
+                console.log(response);
+                if (response.error == null) {
+                    showDeviceState(me, me.attr("state") == "on" ? false : true, "BLIND")
+                } else {
+                    $("#err-msg").html("Error: " + response.error);
+                    $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+                }
             }
-        }
-    });
-    
-}
-
-function showDeviceState(device, stan){
-    if (stan) {
-        device.removeClass("deviceOFF");
-        device.children().first().removeClass("deviceIconOFF");
-        device.children().last().children().first().removeClass("icon-toggle-off");
-        device.children().last().children().first().addClass("icon-toggle-on");
-        device.children().eq(1).children().eq(2).text("ON")
-        device.attr("state", "on");
+        });
+    }
+    else if(typ==="LIGHT"){
+        $.ajax({
+            url: "/admin/api/changeLightStateByRoomID",
+            type: 'post',
+            data: {
+                "roomID": room,
+                "idUrzadzenia": id,
+                "stan": me.attr("state") == "on"? false : true
+            },
+            success: function (response) {
+                console.log(response);
+                if (response.error == null) {
+                    showDeviceState(me, me.attr("state") == "on" ? false : true, "LIGHT")
+                } else {
+                    $("#err-msg").html("Error: " +  response.error);
+                    $("#err-msg").show( "bounce", {}, 1000, function(){hideAfter(this, 10000)} );
+                }
+            }
+        });
     }
     else{
-        device.addClass("deviceOFF");
-        device.children().first().addClass("deviceIconOFF");
-        device.children().last().children().first().removeClass("icon-toggle-on");
-        device.children().last().children().first().addClass("icon-toggle-off");
-        device.children().eq(1).children().eq(2).text("OFF")
-        device.attr("state", "off");
+        alert("Nie zaprogramowane!");
+    }
+}
+
+function showDeviceState(device, stan, deviceType){
+    if (deviceType === "LIGHT") {
+        if (stan) {
+            device.removeClass("deviceOFF");
+            device.children().first().removeClass("deviceIconOFF");
+            device.children().last().children().first().removeClass("icon-toggle-off");
+            device.children().last().children().first().addClass("icon-toggle-on");
+            device.children().eq(1).children().eq(2).text("ON")
+            device.attr("state", "on");
+        }
+        else{
+            device.addClass("deviceOFF");
+            device.children().first().addClass("deviceIconOFF");
+            device.children().last().children().first().removeClass("icon-toggle-on");
+            device.children().last().children().first().addClass("icon-toggle-off");
+            device.children().eq(1).children().eq(2).text("OFF")
+            device.attr("state", "off");   
+        }
+    } else {
+        if (stan) {
+            device.removeClass("deviceOFF");
+            device.children().first().removeClass("deviceIconOFF");
+            device.children().last().children().first().removeClass("icon-toggle-off");
+            device.children().last().children().first().addClass("icon-toggle-on");
+            device.children().eq(1).children().eq(2).text("PODNIESIONA")
+            device.attr("state", "on");
+        }
+        else {
+            device.addClass("deviceOFF");
+            device.children().first().addClass("deviceIconOFF");
+            device.children().last().children().first().removeClass("icon-toggle-on");
+            device.children().last().children().first().addClass("icon-toggle-off");
+            device.children().eq(1).children().eq(2).text("OPUSZCZONA")
+            device.attr("state", "off");
+        }
     }
 }

@@ -16,6 +16,11 @@
 
     cursor: pointer;
 }
+
+.device:hover{
+    background-color: var(--primaryDarkColor);
+}
+
 .device .deviceIcon{
     display: block;
     float: left;
@@ -30,6 +35,9 @@
 
     padding: 5px;
     background-color: var(--primaryLightColor);
+}
+.device:hover .deviceIcon{
+    background-color: var(--primaryColor);
 }
 .device .deviceIcon i{
     display: block;
@@ -89,6 +97,15 @@
     box-shadow: 1px 1px 3px var(--deviceOffColor);
 }
 
+.device:hover.deviceOFF{
+    background-color: var(--deviceOffDarkColor);
+
+    box-shadow: 1px 1px 3px var(--deviceOffColor);
+}
+
 .device .deviceIconOFF{
     background-color:  var(--deviceOffLightColor);
+}
+.device:hover .deviceIconOFF{
+    background-color:  var(--deviceOffColor);
 }

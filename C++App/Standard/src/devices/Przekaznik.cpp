@@ -85,9 +85,9 @@ String Przekaznik::toString(){
 
     str+="ID: ";
     str+=this->getId();
-    str+="PIN: ";
+    str+="\tPIN: ";
     str+=pin;
-    str+="\t STAN: ";
+    str+="\tSTAN: ";
     str+=stan;
     return str;
 }

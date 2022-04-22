@@ -70,7 +70,7 @@ public class SystemDAO {
     /**
      * Zwraca pokoj o podanym ID
      * 
-     * @param name - nazwa pokoju
+     * @param id - id pokoju
      * @return znaleziony pokoj / null jeśli takiego brak
      */
     public Room getRoom(int id) {

@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import smarthome.controller.AdminRESTController;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonFunction;
+import smarthome.model.hardware.Device;
+import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Termometr;
 
 
@@ -116,18 +118,6 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							}
 						}
 					}
-				} else if (in.equals("addPrzyciskClickFunction")) {//TODO
-					if (scanner.hasNext()) {
-						String nazwaPokoju = scanner.next();
-						if (scanner.hasNext()) {
-							int idPlytki = scanner.nextInt();
-							if (scanner.hasNext()) {
-								int pin = scanner.nextInt();
-
-								log.info(adminController.dodajPrzycisk(nazwaPokoju, idPlytki, pin).getObj());
-							}
-						}
-					}
 				} else if (in.equals("rmPrzyciskClickFunction")) {//TODO sprawdzić
 					if (scanner.hasNext()) {
 						int idPrzycisku = scanner.nextInt();
@@ -143,7 +133,15 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							int clicks = scanner.nextInt();
 							if (scanner.hasNext()) {
 								int deviceID = scanner.nextInt();
-								log.info(adminController.addButtonClickFunction(idPrzycisku, deviceID, ButtonFunction.State.NONE, clicks).getObj());
+								if (scanner.hasNext()) {
+									int tr = scanner.nextInt();
+									Device d = system.getDeviceByID(deviceID);
+									if (d.getTyp() == DeviceTypes.LIGHT || d.getTyp() == DeviceTypes.GNIAZDKO) {
+										log.info(adminController.addButtonClickFunction(idPrzycisku, deviceID, ButtonFunction.State.NONE, clicks).getObj());
+									} else {
+										log.info(adminController.addButtonClickFunction(idPrzycisku, deviceID, tr == 1 ? ButtonFunction.State.UP : ButtonFunction.State.DOWN, clicks).getObj());
+									}
+								}
 							}
 						}
 					}

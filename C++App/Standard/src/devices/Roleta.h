@@ -5,8 +5,9 @@
 #include <Timers.h>
 #include "devices/Przekaznik.h"
 #include "devices/Device.h"
+#include "Stale.h"
 
-#define CZAS_CALKOWITEJ_ZMIANY_POLOZENIA SECS(2) //TODO: kalibracja czasu!
+
 
 
 enum StanRolety {
@@ -64,7 +65,7 @@ public:
         OPUSZCZANIE
     } akcja;
 
-
+    String toString();
 };
 
 #endif // !Roleta_h

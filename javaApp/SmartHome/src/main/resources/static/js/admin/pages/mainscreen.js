@@ -10,8 +10,14 @@ $(document).ready(function () {
             if (response.error == null) {
                 console.log(response.obj.devices);
                 var body = $("#main-body");
-                response.obj.devices.forEach(element => {
-                    body.append(addDevice(element));
+
+                response.obj.roomsArrayList.forEach(room => {
+                    body.append(makeRoom(room.nazwa, room.devices.length, room.sensors.length))
+                    var tmp = $("<div class=\"devList\"></div>")
+                    room.devices.forEach(element=>{
+                        tmp.append(addDevice(element));
+                    })
+                    body.append(tmp);
                 });
             } else {
                 $("#err-msg").html(response.error);

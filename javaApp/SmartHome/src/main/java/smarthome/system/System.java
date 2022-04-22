@@ -57,6 +57,14 @@ public class System {
         return this.arduino;
     }
 
+    public Device getDeviceByID(int id) {
+        for (Device device : systemDAO.getDevices()) {
+            if (device.getId() == id) {
+                return device;
+            }
+        }
+        return null;
+    }
 
     /**
      * Dodaj "żarówkę" do systemu
@@ -286,7 +294,7 @@ public class System {
         Light sw = (Light) room.getDeviceById(deviceID);
         if (sw != null) {
             sw.setStan(stan);
-            systemDAO.save();
+            systemDAO.save(room);
             arduino.changeSwitchState(sw.getOnSlaveID(), sw.getSlaveID(), sw.getStan());
         }
 
@@ -306,7 +314,7 @@ public class System {
         if (l != null) {
             arduino.changeSwitchState(l.getOnSlaveID(), l.getSlaveID(), stan);
             l.setStan(stan);
-            systemDAO.save();
+            systemDAO.save(room);
         }
 
         
@@ -353,6 +361,7 @@ public class System {
         else if (bl.getStan() == RoletaStan.DOWN){
             arduino.changeBlindState(bl, false);
         }
+        systemDAO.save(room);
 
         return bl;
     }

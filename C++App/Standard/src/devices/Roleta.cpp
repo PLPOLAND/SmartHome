@@ -198,3 +198,29 @@ Przekaznik* Roleta::getSwitchUp(){
 Przekaznik* Roleta::getSwitchDown(){
     return &(this->p_down);
 }
+
+String Roleta::toString()
+{
+    String str;
+
+    str += "ID: ";
+    str += this->getId();
+    str += "\tPIN_UP: ";
+    str += this->getPinUp();
+    str += "\tPIN_DOWN: ";
+    str += this->getPinDown();
+    str += "\t STAN: ";
+    if (stan == StanRolety::OPUSZCZONA)
+    {
+        str+="DOWN";
+    }
+    else if (stan == StanRolety::PODNIESIONA)
+    {
+        str+="UP";
+    }
+    else
+    {
+        str+="MIDDLE";
+    }
+    return str;
+}

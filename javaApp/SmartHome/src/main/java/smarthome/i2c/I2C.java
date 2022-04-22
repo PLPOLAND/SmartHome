@@ -37,7 +37,6 @@ public class I2C{
             gpio = GpioFactory.getInstance();
             pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
             restartSlaves();
-            Thread.sleep(5000);
             logger.info("Searching for devices");
             findAll();
             

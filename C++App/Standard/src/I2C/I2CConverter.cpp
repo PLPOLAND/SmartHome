@@ -249,8 +249,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     {
                         Command* funkcja = new Command;
                         funkcja->setDevice(dev);
-                        // OUT(F("device type: "))
-                        // OUT_LN(dev->getType())
+                        OUT(F("device type: "))
+                        OUT_LN(dev->getType())
+                        OUT_LN(funkcja->getDevice()->getType())
                         switch (dev->getType())
                         {
                             case Device::PRZEKAZNIK:

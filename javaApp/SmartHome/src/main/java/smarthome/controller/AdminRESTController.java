@@ -252,7 +252,7 @@ public class AdminRESTController {
     @GetMapping("/addButtonClickFunction")
     public Response<String> addButtonClickFunction(@RequestParam("buttonID") int buttonID,@RequestParam("deviceID") int deviceId, @RequestParam("state") ButtonFunction.State state, @RequestParam("clicks") int clicks ) {
         try {
-            Device device = systemDAO.getDevices().get(deviceId);
+            Device device = system.getDeviceByID(deviceId);
             system.addFunctionToButton(buttonID, device, state, clicks);
             return new Response<>("Funkcja przycisku o id: "+buttonID+" dodana pomyślnie");
         } catch (Exception e) {
@@ -309,6 +309,20 @@ public class AdminRESTController {
         logger.debug("Zmien Stan Rolety w pokoju: "+ nazwaPokoju+ "; id Rolety: " + idUrzadzenia + "; do stanu: " +(pozycja ? "UP":"DOWN"));
         try {
             Device d =system.changeBlindState( nazwaPokoju, idUrzadzenia, pozycja);
+            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getStan() == RoletaStan.UP ? "UP" : "DOWN"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<>("", e.getMessage());
+        }
+    }
+    @PostMapping("/changeBlindStateByRoomID")
+    public Response<String> zmienStanRoletyByRoomID(@RequestParam("roomID") int roomID, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("pozycja") boolean pozycja) {
+
+        Room r = systemDAO.getRoom(roomID);
+        
+        logger.debug("Zmien Stan Rolety w pokoju: "+ r.getNazwa()+ "; id Rolety: " + idUrzadzenia + "; do stanu: " +(pozycja ? "UP":"DOWN"));
+        try {
+            Device d =system.changeBlindState( r.getNazwa(), idUrzadzenia, pozycja);
             return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getStan() == RoletaStan.UP ? "UP" : "DOWN"));
         } catch (Exception e) {
             e.printStackTrace();

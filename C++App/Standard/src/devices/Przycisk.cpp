@@ -200,15 +200,15 @@ bool Przycisk::wykonaj(){
 }
 
 bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
-    // OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
-    // OUT(F("Przyski id: "))
-    // OUT_LN(this->getId());
-    // OUT("Klikniec: ")
-    // OUT_LN(klikniec);
-    // OUT_LN(command->toString());
-    // OUT(F("Device PIN: "))
-    // OUT_LN(command->getDevice()->getId());
-    // OUT_LN();
+    OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
+    OUT(F("Przyski id: "))
+    OUT_LN(this->getId());
+    OUT("Klikniec: ")
+    OUT_LN(klikniec);
+    OUT_LN(command->toString());
+    OUT(F("Device ID: "))
+    OUT_LN(command->getDevice()->getId());
+    OUT_LN();
     Command* tmp = new Command;
     tmp->makeCopy(command);
     if(!this->funkcje_klikniecia.set(klikniec,tmp)){//TODO: Wyciek pamięci!
@@ -244,7 +244,9 @@ bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klik
 
 bool Przycisk::runCommand(Command *command)
 {
-    OUT_LN(F("RUN_COMMAND"))
+    OUT_LN()
+    OUT_LN(F("RUN_COMMAND:"))
+    OUT_LN(command->toString())
     switch (command->getCommandType())
     {
     case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
@@ -280,16 +282,32 @@ bool Przycisk::runCommand(Command *command)
     break;
     case Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY:
     {
+        OUT_LN(F("RECEIVE_ZMIEN_STAN_ROLETY"))
+
+
         if (command->getDevice()->getType() == Device::TYPE::ROLETA)
         {
-            if (((Roleta *)command->getDevice())->getStan() == StanRolety::NIEOKRESLONY || ((Roleta *)command->getDevice())->getStan() == StanRolety::OPUSZCZONA)
+            Roleta *tmp = (Roleta*) System::getSystem()->getDevice(command->getDevice()->getId());
+            OUT_LN(F("ROLETA"))
+            OUT_LN(tmp->toString());
+            if (command->getParams()[0] == 'U')
             {
-                ((Roleta *)command->getDevice())->podnies();
+                tmp->podnies();
+                
             }
-            else
+            else if (command->getParams()[0] == 'D')
             {
-                ((Roleta *)command->getDevice())->opusc();
+                tmp->opusc();
             }
+            
+            
+            // if (tmp->getStan() == StanRolety::NIEOKRESLONY || tmp->getStan() == StanRolety::OPUSZCZONA)
+            // {
+            // }
+            // else
+            // {
+            //     tmp->opusc();
+            // }
         }
         else{
             return false;

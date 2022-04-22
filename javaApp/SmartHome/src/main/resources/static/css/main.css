@@ -95,7 +95,7 @@ body{
 	top: 0;
 	left: 0;
 	width: calc(100% - 10px);
-	min-height: 50px;
+	height: 50px;
 	padding: 0 5px 0 5px ;
 	background-color: var(--primaryColor);
 	color: var(--primaryTextColor);
@@ -145,7 +145,7 @@ body{
 .banner .menu ul > li{
 	display: block;
 	float: left;
-	min-height: 50px;
+	height: 50px;
 	line-height: 50px;
 	width: 200px;
 	background-color: var(--primaryColor);
@@ -168,8 +168,8 @@ body{
 .banner .menu ul > li:hover{
 	display: block;
 	background-color: var(--primaryLightColor);
-	border-bottom-right-radius: 10px;
-	border-bottom-left-radius: 10px;
+	/* border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px; */
 }
 .banner .menu ul > li:first-child:hover{
 	display: block;

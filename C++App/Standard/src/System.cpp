@@ -158,8 +158,10 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                     tmp->setId(idDevice++); //nadaj mu id
                     OUT("id:")
                     OUT_LN(tmp->getId());
+                    OUT(F("ROLETA: "));
+                    OUT_LN(tmp->toString());
                     this->devices.add(tmp->getId(), tmp); //dodaj do listy urzadzen
-                    this->rolety.add(tmp);                //dodaj do listy urzadzen
+                    this->rolety.add(tmp);                //dodaj do listy rolet
                     return tmp;
                 }
                 else
