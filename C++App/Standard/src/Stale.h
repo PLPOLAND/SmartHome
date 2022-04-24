@@ -16,7 +16,7 @@
 
     #define MAX_NUMBER_OF_BUTTON_FUNCTIONS 4
     //Czas podnoszenia/opuszczenia rolety
-    #define CZAS_CALKOWITEJ_ZMIANY_POLOZENIA SECS(10) // TODO: kalibracja czasu!
+    #define CZAS_CALKOWITEJ_ZMIANY_POLOZENIA SECS(35)
 
     #define SECS(t) (unsigned long)(t * 1000)
     #define MINS(t) SECS(t) * 60
