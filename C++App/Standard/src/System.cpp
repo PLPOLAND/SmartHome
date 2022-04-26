@@ -127,9 +127,9 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                 OUT_LN(pin1);
                 Przycisk * tmp = new Przycisk();
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
-                    OUT_LN(F("Poprawnie dodano Przycisk"))
+                    OUT(F("Poprawnie dodano Przycisk"))
                     tmp->setId(idDevice++);//nadaj mu id
-                    OUT("id:")
+                    OUT("\t id: ")
                     OUT_LN(tmp->getId());
                     this->devices.add(tmp->getId(), tmp);//dodaj do listy urzadzen
                     this->przyciski.add(tmp);//dodaj do listy urzadzen

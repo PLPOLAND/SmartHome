@@ -63,7 +63,7 @@ void Przekaznik::setStan(bool stan)
     OUT(F("PIN: "))
     OUT_LN(pin);
     this->stan = stan;
-    digitalWrite(pin, stan == false ? LOW : HIGH);
+    digitalWrite(pin, stan == true ? LOW : HIGH);
     OUT(F("PIN STAN: "))
     OUT_LN(digitalRead(pin));
 
@@ -73,7 +73,7 @@ void Przekaznik::setStan(int stan)
 {
     this->stan = stan == 1 ? true : false;
 
-    digitalWrite(pin, this->stan == false ? LOW : HIGH);
+    digitalWrite(pin, this->stan == true ? LOW : HIGH);
 }
 /**
  * @brief Zwraca String opisujący ten obiekt.

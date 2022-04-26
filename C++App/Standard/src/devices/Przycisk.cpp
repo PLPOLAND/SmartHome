@@ -57,7 +57,7 @@ byte Przycisk::getPin()
 }
 bool Przycisk::setPin(byte pin)
 {
-    if (pin >= PINOW_NA_ADRES + 2 && pin <= 16)
+    if (pin >= PINOW_NA_ADRES + 2 && pin <= 17)
     {
         this->pin = pin;
         pinMode(this->pin, INPUT_PULLUP);

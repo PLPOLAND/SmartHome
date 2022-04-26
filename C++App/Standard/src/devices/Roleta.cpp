@@ -165,7 +165,9 @@ void Roleta::forcePinDownState(bool stan)
  * TODO: Sprawdzić czy powinoo być LOW dla "wylaczenia"
  */
 void Roleta::setPinUpState(bool stan)
-{
+{   
+    this->stop();
+    delay(100);
     if (stan == false) {
         this->p_up.setStan(false);
         this->p_down.setStan(true);
@@ -182,6 +184,8 @@ void Roleta::setPinUpState(bool stan)
  */
 void Roleta::setPinDownState(bool stan)
 {
+    this->stop();
+    delay(100);
     if (stan == false) {
         this->p_up.setStan(true);
         this->p_down.setStan(false);
