@@ -13,6 +13,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import smarthome.controller.AdminRESTController;
+import smarthome.exception.HardwareException;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonFunction;
 import smarthome.model.hardware.Device;
@@ -219,35 +220,16 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					}
 				}
 				else if(in.equals("test")){
-					byte[] tmp = new byte[7];
+					byte[] tmp = new byte[3];
 
-					// tmp[0] = 'P';
-					// tmp[1] = 'K';
-					// tmp[2] = 'L';
-					// tmp[3] = 3;
-					// tmp[4] = 0;
-					// tmp[5] = 1;
-					// tmp[6] = 1;
+					tmp[0] = 'S';
+					tmp[1] = 'D';
+					tmp[2] = (byte) system.getDeviceByID(0).getOnSlaveID();
 
-					// ButtonFunction buttonFunction = new ButtonFunction();
+					system.getArduino().atmega.writeTo(8, tmp);
+					log.info("reading from 8: {}",system.getArduino().atmega.readFrom(8, 8));
 
-					// buttonFunction.setButton((Button)system.getSystemDAO().getSensors().get(0));
-					// buttonFunction.setDevice(system.getSystemDAO().getAllDevicesFromSlave(8).get(0));
-					// buttonFunction.setClicks(1);
-					// buttonFunction.setState(ButtonFunction.State.NONE);
-					// byte[] tmp2 = buttonFunction.toCommand();
-					// tmp[0] = 'P';
-					// tmp[1] = 'K';
-					// tmp[2] = 'L';
-					// tmp[3] = tmp2[0];
-					// tmp[4] = tmp2[1];
-					// tmp[5] = tmp2[2];
-					// tmp[6] = tmp2[3];
-
-					// system.getArduino().atmega.writeTo(8, tmp);
-					// log.debug("reading from 8: {}",system.getArduino().atmega.readFrom(8, 8));
-
-					log.info(adminController.addButtonClickFunction(0, 1, ButtonFunction.State.NONE, 1).getObj());
+					// log.info(adminController.addButtonClickFunction(0, 1, ButtonFunction.State.NONE, 1).getObj());
 				}
 				else if (in.equals("reinit")) {
 					if (scanner.hasNext()) {
@@ -260,6 +242,15 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						int idUrzadzenia = scanner.nextInt();
 						log.info(adminController.reainicjowaniePlytki(idUrzadzenia).getObj());
 					}
+				}
+				else if (in.equals("update")){
+					for (Device device : system.getSystemDAO().getDevices()) {
+						try{
+							system.updateDeviceState(device);
+						}catch(HardwareException e){
+							log.error(e.getMessage(), e);
+						}
+					}		
 				}
 			}
 			catch(Exception e){

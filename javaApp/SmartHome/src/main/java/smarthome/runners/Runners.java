@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import smarthome.exception.HardwareException;
 import smarthome.i2c.MasterToSlaveConverter;
+import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Termometr;
 
 /**
@@ -49,6 +51,17 @@ public class Runners {
         logger.debug("checkReinit()");
         system.reinitAllBoards();
     }
+    // @Scheduled(fixedRate = 2000)
+    // void updateDevicesState(){
+    //     logger.debug("updateDevicesState()");
+    //     for (Device device : system.getSystemDAO().getDevices()) {
+    //         try{
+    //             system.updateDeviceState(device);
+    //         }catch(HardwareException e){
+    //             logger.error(e.getMessage(), e);;
+    //         }
+    //     }
+    // }
 
     /* KOD do wykrywania stanu na GPIO
 

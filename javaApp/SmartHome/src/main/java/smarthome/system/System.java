@@ -16,6 +16,7 @@ import smarthome.exception.HardwareException;
 import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.Room;
 import smarthome.model.hardware.Device;
+import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
@@ -322,7 +323,7 @@ public class System {
 
     }
 
-    public Device changeLightState(int deviceID, boolean stan ) throws HardwareException{
+    public Device changeLightState(int deviceID, boolean stan ) throws IllegalArgumentException, HardwareException{
         Light lt = null;
         for(Device dev : systemDAO.getDevices()){
             if (dev.getId() == deviceID ) {
@@ -481,5 +482,33 @@ public class System {
             return toReturn;
         }
         return false;
+    }
+
+    public void updateDeviceState(Device device) throws HardwareException{
+        
+        int state = arduino.checkDeviceState(device.getSlaveID(), device.getOnSlaveID());
+        if (device.getTyp() == DeviceTypes.BLIND) {
+            Blind b = (Blind) device;
+            if (state == 'U') {
+                b.changeState(RoletaStan.UP);
+            }
+            else if (state == 'D') {
+                b.changeState(RoletaStan.DOWN);
+            }
+            else{
+                b.changeState(RoletaStan.NOTKNOW);
+            }
+        }
+        else if(device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO){
+            if (device instanceof Light) {
+                Light l = (Light) device;
+                l.setStan(state == 1 ? true:false);
+            } 
+            // else if (device instanceof { // TODO Po dodaniu gniazdek do systemu dodać kod!
+                
+            // }
+        }
+
+
     }
 }

@@ -64,6 +64,8 @@ public class MasterToSlaveConverter {
     final byte[] DODAJ_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L' };
     /**[P, K, L, D] */
     final byte[] USUN_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L', 'D' };
+    /**[S, D] */
+    final byte[] SPRAWDZ_STAN_URZADZENIA = { 'S', 'D' };
     // #endregion
 
     @Autowired
@@ -374,6 +376,31 @@ public class MasterToSlaveConverter {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    public int checkDeviceState(int slaveID, int onSlaveDeviceId) throws HardwareException {
+        byte[] buffor = new byte[3];
+        int i = 0;
+        for (byte b : SPRAWDZ_STAN_URZADZENIA) {
+            buffor[i++] = b;
+        }
+        buffor[i] = (byte) onSlaveDeviceId;
+
+        try {
+            logger.debug("Writing to addres {} {}", slaveID, buffor);
+            atmega.writeTo(slaveID, buffor);
+            Thread.sleep(100);// TODO czy jest potrzebne?
+            logger.debug("Reading from addres {}", slaveID);
+            byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
+            return response[0];
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+            logger.debug("Próba kontynuacji");
+            logger.debug("Reading from addres {}", slaveID);
+            byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
+            return response[0];
+        }
+
     }
     
     public void sendAnything(String msg, int adres) {

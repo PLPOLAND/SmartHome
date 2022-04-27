@@ -88,26 +88,43 @@ void Command::convert(const byte *c, byte size)
             {
                 if (c[1] == 'S')// Dodaj przekaźnik
                 {
-                    OUT_LN(F("case 3, AS"))
+                    // OUT_LN(F("case 3, AS"))
                     this->komenda = Command::KOMENDY::RECEIVE_ADD_PRZEKAZNIK;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2];//nr pinu urzadzenia
-                    OUT("pin = ")
-                    OUT_LN((int)c[2]);
+                    // OUT("pin = ")
+                    // OUT_LN((int)c[2]);
                     this->setParams(parametry);
                 }
                 else if (c[1] == 'P')//Dodaj Przycisk zwykły
                 {
-                    OUT_LN(F("case 3, AP"))
+                    // OUT_LN(F("case 3, AP"))
                     this->komenda = Command::KOMENDY::RECEIVE_ADD_PRZYCISK;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2];//nr pinu urzadzenia
-                    OUT("pin = ")
+                    // OUT("pin = ")
+                    // OUT_LN((int)c[2]);
+                    this->setParams(parametry);
+                }
+                
+            }
+            if (c[0] == 'S')
+            {
+                if (c[1]=='D')//Status urządzenia
+                {
+                    OUT_LN(F("---------"))
+                    OUT_LN(F("SD"))
+                    OUT_LN(F("---------"))
+                    this->komenda = Command::KOMENDY::RECIEVE_DEVICES_STATUS;
+                    byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    parametry[0] = c[2]; // id urzadzenia
+                    OUT("device id = ");
                     OUT_LN((int)c[2]);
                     this->setParams(parametry);
                 }
                 
             }
+            
             
         }
         break;
@@ -161,6 +178,7 @@ void Command::convert(const byte *c, byte size)
 
                         byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                         parametry[0] = c[4]; // ILE CLICK-ów
+                        parametry[1] = c[5]; // ILE CLICK-ów
                         this->setParams(parametry);
                     }
                 }

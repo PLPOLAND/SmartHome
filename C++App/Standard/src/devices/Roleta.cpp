@@ -59,14 +59,20 @@ StanRolety Roleta::getStan() { return stan; };
  * */
 void Roleta::tic()
 {
+    // OUT_LN("ROLETA TIC")
+    // OUT("ROLETA time->available: ")
+    // OUT(time->available()?"yes":"no")
+
     if (akcja == Akcja::PODNOSZENIE_CALKOWITE && time->available())
     {
+        OUT_LN("ROLETA STOP")
         this->stop();
         this->stan = StanRolety::PODNIESIONA;
         
     }
     else if (akcja == Akcja::OPUSZCZANIE_CALKOWITE && time->available())
     {
+        OUT_LN("ROLETA STOP")
         this->stop();
         this->stan = StanRolety::OPUSZCZONA;
     }
@@ -79,9 +85,10 @@ bool Roleta::begin(byte pinUp, byte pinDown){
     {
         this->setPinUp(pinUp);
         this->setPinDown(pinDown);
-
+        this->stop();
         akcja = Akcja::POSTOJ;
-        time = new Timer();
+        time = new Timer;
+        time->begin(1);
         time->time(STOP);
     }
     else
@@ -97,8 +104,14 @@ bool Roleta::begin(byte pinUp, byte pinDown){
  */
 void Roleta::podnies()
 {
+    // OUT_LN("PODNIES")
     akcja = Akcja::PODNOSZENIE_CALKOWITE;
     time->begin(CZAS_CALKOWITEJ_ZMIANY_POLOZENIA);
+
+    // OUT("ROLETA time->available: ")
+    // OUT_LN(time->available() ? "yes" : "no")
+    // OUT("ROLETA time(): ")
+    // OUT_LN(time->time())
     stan = StanRolety::NIEOKRESLONY;
     setPinUpState(true); //Zalacza pin sterowania roleta do gory i wylacza pin sterowania roleta do dolu
 };
@@ -165,9 +178,10 @@ void Roleta::forcePinDownState(bool stan)
  * TODO: Sprawdzić czy powinoo być LOW dla "wylaczenia"
  */
 void Roleta::setPinUpState(bool stan)
-{   
-    this->stop();
-    delay(100);
+{
+    forcePinDownState(false);
+    forcePinUpState(false);
+    delay(200);
     if (stan == false) {
         this->p_up.setStan(false);
         this->p_down.setStan(true);
@@ -184,8 +198,9 @@ void Roleta::setPinUpState(bool stan)
  */
 void Roleta::setPinDownState(bool stan)
 {
-    this->stop();
-    delay(100);
+    forcePinDownState(false);
+    forcePinUpState(false);
+    delay(200);
     if (stan == false) {
         this->p_up.setStan(true);
         this->p_down.setStan(false);

@@ -295,7 +295,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 Przycisk *przycisk = (Przycisk *)System::getSystem()->getDevice(komenda.getParams()[0]);
                 if (przycisk != nullptr)
                 {
-                    przycisk->usunFunkcjeKlikniecia(komenda.getParams()[0]);
+                    przycisk->usunFunkcjeKlikniecia(komenda.getParams()[1]);//Check
                 }
                 else
                 {
@@ -305,7 +305,62 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna); // dodaj wysłanie potwierdzenia otrzymania komendy
             }
-                break;
+            break;
+            case Command::KOMENDY::RECIEVE_DEVICES_STATUS:
+            {
+                OUT_LN(F("RECIEVE_DEVICES_STATUS"));
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+
+                Device *p =System::getSystem()->getDevice(komenda.getParams()[0]);
+                if (p != nullptr)
+                {
+                    
+                    switch (p->getType())
+                    {
+                    case Device::TYPE::PRZEKAZNIK:
+                        {
+                            byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                            params[0] = ((Przekaznik*) p)->getStan(); // 0/1
+                            komendaZwrotna->setParams(params);
+                            doWyslania.add(0, komendaZwrotna);
+                        }
+                        break;
+                    case Device::TYPE::ROLETA:
+                        {
+                            byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                            StanRolety tmp = ((Roleta *)p)->getStan();
+                            if (tmp == StanRolety::NIEOKRESLONY)
+                            {
+                                params[0] = 'M';
+                            }
+                            else if (tmp == StanRolety::PODNIESIONA)
+                            {
+                                params[0] = 'U';
+                            }
+                            else if (tmp == StanRolety::OPUSZCZONA)
+                            {
+                                params[0] = 'D';
+                            }
+                            
+                            komendaZwrotna->setParams(params);
+                            doWyslania.add(0, komendaZwrotna);
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+
+                }
+                else
+                {
+                    byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    komendaZwrotna->setParams(params);
+                    doWyslania.add(0, komendaZwrotna);
+                }
+                
+            }
+            break;
+
             case Command::KOMENDY::RECEIVE_GET:
 
                 break;

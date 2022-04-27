@@ -10,32 +10,32 @@ public:
     enum class KOMENDY
     {
         NIC,
-        //Odbieranie
-        RECEIVE_ADD_THERMOMETR,  //Dodaj nowy termometr do systemu
-        RECEIVE_ADD_ROLETA,      //Dodaj nową roletę do systemu
-        RECEIVE_ADD_PRZYCISK,    //Dodaj nowy przycisk do systemu
-        RECEIVE_ADD_PRZEKAZNIK,  //Dodaj nowy przekaznik do systemu
-        RECEIVE_GET_TEMPERATURE, //Pobierz temperaturę z termometru
-        RECEIVE_ZMIEN_STAN_PRZEKAZNIKA,      //Zmien stan konkretnego urzadzenia
-        RECEIVE_ZMIEN_STAN_ROLETY, // Podnies opuść konkretną roletę.
-        RECEIVE_CHECK_INIT,         //Czy urządzenie zostało zainicjowane
-        RECEIVE_INIT,            //reinicjalizuj system
-        RECEIVE_GET,             //Wczytaj następny z kolejki
-        RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION,    //dodaj funkcję przycisku lokalnie wywoływaną
-        RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION, //usuń funkcję przycisku lokalnie wywoływaną
-        RECEIVE_ADD_PRZYCISK_GLOBAL_FUNCTION,   //dodaj funkcję przycisku wywoływaną przez slave
+        // Odbieranie
+        RECEIVE_ADD_THERMOMETR,                 // Dodaj nowy termometr do systemu
+        RECEIVE_ADD_ROLETA,                     // Dodaj nową roletę do systemu
+        RECEIVE_ADD_PRZYCISK,                   // Dodaj nowy przycisk do systemu
+        RECEIVE_ADD_PRZEKAZNIK,                 // Dodaj nowy przekaznik do systemu
+        RECEIVE_GET_TEMPERATURE,                // Pobierz temperaturę z termometru
+        RECEIVE_ZMIEN_STAN_PRZEKAZNIKA,         // Zmien stan konkretnego urzadzenia
+        RECEIVE_ZMIEN_STAN_ROLETY,              // Podnies opuść konkretną roletę.
+        RECEIVE_CHECK_INIT,                     // Czy urządzenie zostało zainicjowane
+        RECEIVE_INIT,                           // Reinicjalizuj system
+        RECEIVE_GET,                            // Wczytaj następny z kolejki
+        RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION,    // Dodaj funkcję przycisku lokalnie wywoływaną
+        RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION, // Usuń funkcję przycisku lokalnie wywoływaną
+        RECEIVE_ADD_PRZYCISK_GLOBAL_FUNCTION,   // Dodaj funkcję przycisku wywoływaną przez slave
+        RECIEVE_DEVICES_STATUS,                 // Pobierz dane o statusie danego urządzenia
 
-
-        //Wysylanie
-        SEND_REPLY,      //Odpowiedz z zapisanymi danymi w bufforze
-        SEND_STATUS,     //Wyślij status urządzenia
-        SEND_TEMPERATURA //Odpowiedz z temperatura według szablonu
+        // Wysylanie
+        SEND_REPLY,      // Odpowiedz z zapisanymi danymi w bufforze
+        SEND_STATUS,     // Wyślij status urządzenia
+        SEND_TEMPERATURA // Odpowiedz z temperatura według szablonu
     };
 
 private:
-    byte id_slave;      //wykorzystywane przy przesyłaniu komendy do innego urządzenia
-    Device *urzadzenie; //urządzenie docelowe
-    byte parametry[8];  //dodatkowe parametry
+    byte id_slave;      // wykorzystywane przy przesyłaniu komendy do innego urządzenia
+    Device *urzadzenie; // urządzenie docelowe
+    byte parametry[8];  // dodatkowe parametry
     KOMENDY komenda;
 
 public:
@@ -44,10 +44,10 @@ public:
     ~Command();
 
     /**
-    *   Konwertuje otrzymany ciąg byte-ów na Komendę. 
-    *
-    *@param c ciąg znaków do konwersji
-    *@param size ilość znaków do konwersjii
+     *   Konwertuje otrzymany ciąg byte-ów na Komendę.
+     *
+     *@param c ciąg znaków do konwersji
+     *@param size ilość znaków do konwersjii
      */
     void convert(const byte *c, byte size);
 
@@ -63,12 +63,13 @@ public:
 
     void makeCopy(Command *command);
     /**
-    *   
+     *
      */
     void printParametry();
     String toString();
 
-    void operator =(Command *command){
+    void operator=(Command *command)
+    {
         makeCopy(command);
     }
 

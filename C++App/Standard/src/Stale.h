@@ -9,6 +9,10 @@
         #define OUT_LN(x)
     #endif // DEBUG
 
+    #define SECS(t) (unsigned long)(t * 1000L)
+    #define MINS(t) SECS(t) * 60
+    #define HOURS(t) MINS(t) * 60
+
     #define CZAS_ODSWIERZANIA_TEMPERATURY 0.1 //w minutach
 
     //pinów od 2 do 2+5 używanych do określania adresu urządzenia ((2^PINOW_NA_ADRES)-1 dostępnych adresów)
@@ -18,9 +22,6 @@
     //Czas podnoszenia/opuszczenia rolety
     #define CZAS_CALKOWITEJ_ZMIANY_POLOZENIA SECS(35L)
 
-    #define SECS(t) (unsigned long)(t * 1000)
-    #define MINS(t) SECS(t) * 60
-    #define HOURS(t) MINS(t) * 60
 
     #define BUTTON_CLICK_TIME SECS(1)
 
