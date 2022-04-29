@@ -87,38 +87,38 @@
         sys = System::getSystem();
         sys->begin();
 
-        // Przycisk* p1 = (Przycisk*) sys->addDevice(Device::TYPE::PRZYCISK,A3);
-        // Przycisk* p2 = (Przycisk*) sys->addDevice(Device::TYPE::PRZYCISK,14);
+        Przycisk* p1 = (Przycisk*) sys->addDevice(Device::TYPE::PRZYCISK,A3);
+        Przycisk* p2 = (Przycisk*) sys->addDevice(Device::TYPE::PRZYCISK,14);
 
-        // Roleta* r =(Roleta*) sys->addDevice(Device::TYPE::ROLETA,16,15);
-        // Przekaznik* s1 =(Przekaznik*) sys->addDevice(Device::TYPE::PRZEKAZNIK,12);
-        // Przekaznik* s2 =(Przekaznik*) sys->addDevice(Device::TYPE::PRZEKAZNIK,13);
+        Roleta* r =(Roleta*) sys->addDevice(Device::TYPE::ROLETA,16,15);
+        Przekaznik* s1 =(Przekaznik*) sys->addDevice(Device::TYPE::PRZEKAZNIK,12);
+        Przekaznik* s2 =(Przekaznik*) sys->addDevice(Device::TYPE::PRZEKAZNIK,13);
 
-        // Command* tmp = new Command;
-        // tmp->setDevice(r);
-        // tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
-        // byte parametry[8] = {'U', 0, 0, 0, 0, 0, 0, 0}; 
-        // tmp->setParams(parametry);
-        // p1->dodajFunkcjeKlikniecia(tmp,1);
-        // tmp = new Command;
-        // tmp->setDevice(r);
-        // tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
-        // parametry[0] = 'D'; 
-        // tmp->setParams(parametry);
-        // p1->dodajFunkcjeKlikniecia(tmp,2);
+        Command* tmp = new Command;
+        tmp->setDevice(r);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+        byte parametry[8] = {'U', 0, 0, 0, 0, 0, 0, 0}; 
+        tmp->setParams(parametry);
+        p1->dodajFunkcjeKlikniecia(tmp,1);
+        tmp = new Command;
+        tmp->setDevice(r);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+        parametry[0] = 'D'; 
+        tmp->setParams(parametry);
+        p1->dodajFunkcjeKlikniecia(tmp,2);
 
-        // tmp = new Command;
-        // tmp->setDevice(s1);
-        // tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
-        // parametry[0] = 0; 
-        // tmp->setParams(parametry);
-        // p2->dodajFunkcjeKlikniecia(tmp, 1);
-        // tmp = new Command;
-        // tmp->setDevice(s2);
-        // tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
-        // parametry[0] = 0; /
-        // tmp->setParams(parametry);
-        // p2->dodajFunkcjeKlikniecia(tmp, 2);
+        tmp = new Command;
+        tmp->setDevice(s1);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+        parametry[0] = 0; 
+        tmp->setParams(parametry);
+        p2->dodajFunkcjeKlikniecia(tmp, 1);
+        tmp = new Command;
+        tmp->setDevice(s2);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+        parametry[0] = 0; 
+        tmp->setParams(parametry);
+        p2->dodajFunkcjeKlikniecia(tmp, 2);
 
         OUT_LN(freeMemory());
         digitalWrite(7,LOW);

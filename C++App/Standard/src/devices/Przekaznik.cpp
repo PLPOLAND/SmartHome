@@ -22,14 +22,7 @@ bool Przekaznik::begin(byte pin, bool stan)
         return false;
     }
     this->stan = stan;
-    if (stan)
-    {
-        digitalWrite(pin, HIGH);
-    }
-    else
-    {
-        digitalWrite(pin, LOW);
-    }
+    setStan(stan);
     return true;
 }
 
