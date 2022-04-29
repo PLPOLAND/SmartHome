@@ -1,18 +1,5 @@
 $(document).ready(function () {
-    // $('.device').hover(function() {
-    //     $(this).css('background-color', 'var(--primaryLightColor)');
-    //     $(this).children().first().css('background-color', 'var(--primaryLightColor)');
-    //     },function() {
-    //         $(this).css('background-color', 'var(--primaryColor)');
-    //     $(this).children().first().css('background-color', 'var(--primaryLightColor)');
-    //     })
-    $('.device').hover(function() {
-        $(this).children().css('background-color', '#FFFFFF22');
-        $(this).children().first().css('background-color', '#FFFFFF44');
-        },function() {
-        $(this).children().css('background-color', '#FFFFFF00');
-        $(this).children().first().css('background-color', '#FFFFFF22');
-        });
+    
 });
 
 function addDevice(obj) {
@@ -66,30 +53,6 @@ function addDevice(obj) {
     device.click(function () {
         clickDevice(this,obj.id, obj.room, obj.typ);
     })
-
-
-
-    // $(device).hover(function() {
-    //     if ($(this).attr("state") != "off") {
-
-    //         $(this).css('background-color', 'var(--primaryDarkColor)');
-    //         $(this).children().first().css('background-color', 'var(--primaryColor)');
-    //     }
-    //     else{
-    //         $(this).css('background-color', 'var(--deviceOffDarkColor)');
-    //         $(this).children().first().css('background-color', 'var(--deviceOffColor)');
-    //     }
-    //     },function() {
-    //         $(this).css('background-color', '');
-    //         $(this).children().first().css('background-color', '');
-    //     })
-    // $('.device').hover(function () {
-    //     $(this).children().css('background-color', '#FFFFFF22');
-    //     $(this).children().first().css('background-color', '#FFFFFF44');
-    // }, function () {
-    //     $(this).children().css('background-color', '#FFFFFF00');
-    //     $(this).children().first().css('background-color', '#FFFFFF22');
-    // });
 
     return device;
 }

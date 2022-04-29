@@ -18,6 +18,10 @@ import smarthome.security.Security;
 public class AdminController {
     @Autowired
     UsersDAO users;
+
+    @Autowired
+    AdminRESTController adminRESTController;
+
     @RequestMapping("")
     public String admin(){
         return "redirect:/admin/";
@@ -80,6 +84,14 @@ public class AdminController {
 
         return "admin/roomsList";
     }
+    @RequestMapping("/listOfDevices")
+    public String listOfDevices(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+
+        return "admin/deviceList";
+    }
     @RequestMapping("/editRoom")
     public String editRoom(@RequestParam("roomName")String roomName, HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
@@ -87,6 +99,14 @@ public class AdminController {
             return "redirect:login";
         model.addAttribute("roomName", roomName);
         return "admin/editRoom";
+    }
+    @RequestMapping("/shutdown")
+    public String shutdown(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+        adminRESTController.shutdownMe();
+        return "admin/shutdown";
     }
 
 }

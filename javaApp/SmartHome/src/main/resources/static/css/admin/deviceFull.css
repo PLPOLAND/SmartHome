@@ -1,0 +1,68 @@
+:root{
+    --device-height: 120px;
+}
+
+.fullDevice {
+    display: block;
+    padding: 5px 10px;
+    width: 90%;
+    height: 50px;
+    background-color: var(--primaryColor);
+    line-height: 50px;
+    font-size: 20px;
+    margin: 5px auto;
+    border-radius: 10px;
+}
+
+.fullDevice:hover {
+    background-color: var(--secondaryColor);
+}
+.deviceIcon{
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    width: 30px;
+}
+.deviceName {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    width: 200px;
+}
+
+.stan {
+    float: left;
+    height: 100%;
+    width: 180px;
+    padding: 0 10px;
+}
+
+.slave {
+    float: left;
+    height: 100%;
+    width: 150px;
+    padding: 0 10px;
+}
+.pin {
+    float: left;
+    height: 100%;
+    width: 150px;
+    padding: 0 10px;
+}
+
+.icon {
+    float: right;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.icon:hover .icon-sliders {
+    color: var(--secondaryTextColor);
+}
+
+.icon:hover .icon-trash {
+    color: var(--errorColor);
+}
+.hide{
+    display: none;
+}

@@ -28,6 +28,7 @@ import smarthome.model.Uprawnienia;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Light;
+import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonFunction;
@@ -119,6 +120,14 @@ public class AdminRESTController {
     @RequestMapping("/getDeviceTypes")
     public Response<String[]> getDeviceTypes() {
         return new Response<>(DeviceTypes.getNames());
+    }
+    @RequestMapping("/getDevices")
+    public Response<ArrayList<Device>> getDevices() {
+        return new Response<>(systemDAO.getDevices());
+    }
+    @RequestMapping("/getSensors")
+    public Response<ArrayList<Sensor>> getSensors() {
+        return new Response<>(systemDAO.getSensors());
     }
 
     @RequestMapping("/getRoomsNamesList")
