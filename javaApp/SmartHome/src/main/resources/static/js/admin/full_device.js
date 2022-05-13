@@ -44,6 +44,15 @@ function makeFullDevice(obj) {
     var deleteMe = $('<div class="icon" title="Usuń"><i class="icon-trash"></i></div>');
     var editMe = $('<div class="icon" title="Edytuj"><i class="icon-sliders"></i></div>');
 
+    editMe.click(function () {
+        document.location.href = "/admin/editDevice?deviceID=" + obj.id;
+    })
+
+    deleteMe.click(function () {
+        document.location.href = "/admin/removeDevice?deviceID=" + obj.id;
+
+    })
+
     device.append(deviceIcon);
     device.append(deviceName);
     device.append(deviceState);

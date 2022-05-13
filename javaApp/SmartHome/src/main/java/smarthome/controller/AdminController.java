@@ -2,6 +2,8 @@ package smarthome.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import smarthome.database.UsersDAO;
+import smarthome.model.hardware.Blind;
+import smarthome.model.hardware.Device;
+import smarthome.model.hardware.Light;
 import smarthome.security.Security;
 
 @Controller
@@ -100,6 +105,28 @@ public class AdminController {
         model.addAttribute("roomName", roomName);
         return "admin/editRoom";
     }
+
+    @RequestMapping("/editDevice")
+    public String editDevice(@RequestParam("deviceID") int deviceID, HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+        Device tmp = adminRESTController.system.getDeviceByID(deviceID);
+        model.addAttribute("deviceID", deviceID);
+        model.addAttribute("deviceName", tmp.getName());
+        model.addAttribute("slave", tmp.getSlaveID());
+        
+        if (tmp instanceof Blind) {
+            model.addAttribute("pin1", ((Blind) tmp).getPinUp());
+            model.addAttribute("pin2", ((Blind) tmp).getPinDown());
+        }
+        else if (tmp instanceof Light ) {//TODO Dodać gniazdko
+            model.addAttribute("pin1", ((Light)tmp).getPin());
+        }
+        
+        return "admin/editDevice";
+    }
+
     @RequestMapping("/shutdown")
     public String shutdown(HttpServletRequest request) {
         Security sec = new Security(request, users);

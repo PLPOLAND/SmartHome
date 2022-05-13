@@ -125,6 +125,10 @@ public class AdminRESTController {
     public Response<ArrayList<Device>> getDevices() {
         return new Response<>(systemDAO.getDevices());
     }
+    @RequestMapping("/getDeviceById")
+    public Response<Device> getDeviceById(@RequestParam("id") int id) {
+        return new Response<>(system.getDeviceByID(id));
+    }
     @RequestMapping("/getSensors")
     public Response<ArrayList<Sensor>> getSensors() {
         return new Response<>(systemDAO.getSensors());
