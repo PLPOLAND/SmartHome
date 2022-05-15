@@ -263,16 +263,37 @@ public class AdminRESTController {
     public Response<String> removeDevice(@RequestParam("name") String nazwaPokoju,@RequestParam("id") int id){
         
         Device dev = null;
+        Room r = systemDAO.getRoom(nazwaPokoju);
         try {
-            if((dev = systemDAO.getRoom(nazwaPokoju).getDeviceById(id)) == null)
+            if((dev = r.getDeviceById(id)) == null)
                 throw new Exception("Brak urzadzenia o id: "+id+" w pokoju: "+nazwaPokoju);
-            systemDAO.getRoom(nazwaPokoju).delDevice(dev);
-            systemDAO.getDevices().remove(dev);//TODO usuwanie urzadzenia z funkcji przycisków!
+            
+            system.removeDevice(dev, r);
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>("", e.getMessage());
         }
-        return new Response<String>("Urzadzenie: '" + dev.toString() + "' usnięte prawidłowo z pokoju: " + nazwaPokoju);
+        return new Response<>("Urzadzenie: '" + dev.toString() + "' usnięte prawidłowo z pokoju: " + nazwaPokoju);
+    }
+    @GetMapping("/removeDeviceByID")
+
+    public Response<String> removeDeviceByID(@RequestParam("id") int id){
+        
+        Device dev = null;
+        Room r = null;
+        try {
+            if((dev = system.getDeviceByID(id)) != null){
+                r = systemDAO.getRoom(dev.getRoom());
+                system.removeDevice(dev, r);
+                return new Response<>("Urzadzenie: '" + dev.toString() + "' usnięte prawidłowo z systemu");
+            }
+            else{
+                return new Response<>("", "Nie znaleziono Urządzenia o podanym ID");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<>("", e.getMessage());
+        }
     }
 
     @GetMapping("/removeRoom")

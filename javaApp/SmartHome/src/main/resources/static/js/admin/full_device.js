@@ -49,8 +49,28 @@ function makeFullDevice(obj) {
     })
 
     deleteMe.click(function () {
-        document.location.href = "/admin/removeDevice?deviceID=" + obj.id;
+        // document.location.href = "/admin/api/removeDeviceByID?id=" + obj.id;
+        $.ajax({
+            url: "/admin/api/removeDeviceByID",
+            type: 'get',
+            data: {
+                id: obj.id,
+            },
+            success: function (response) {
+                // console.log(response);
 
+                // $("#err-msg").html(response);
+                if (response.error == null) {
+                    console.log(response.obj);
+                    $("#msg").html(response.obj);
+                    $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
+                    $(this).parent().remove()
+                } else {
+                    $("#err-msg").html(response.error);
+                    $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+                }
+            }
+        });
     })
 
     device.append(deviceIcon);

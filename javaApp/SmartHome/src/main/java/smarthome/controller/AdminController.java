@@ -126,6 +126,26 @@ public class AdminController {
         
         return "admin/editDevice";
     }
+    @RequestMapping("/removeDevice")
+    public String removeDevice(@RequestParam("deviceID") int deviceID, HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+        Device tmp = adminRESTController.system.getDeviceByID(deviceID);
+        model.addAttribute("deviceID", deviceID);
+        model.addAttribute("deviceName", tmp.getName());
+        model.addAttribute("slave", tmp.getSlaveID());
+        
+        if (tmp instanceof Blind) {
+            model.addAttribute("pin1", ((Blind) tmp).getPinUp());
+            model.addAttribute("pin2", ((Blind) tmp).getPinDown());
+        }
+        else if (tmp instanceof Light ) {//TODO Dodać gniazdko
+            model.addAttribute("pin1", ((Light)tmp).getPin());
+        }
+        
+        return "admin/editDevice";
+    }
 
     @RequestMapping("/shutdown")
     public String shutdown(HttpServletRequest request) {

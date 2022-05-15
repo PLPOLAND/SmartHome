@@ -40,7 +40,7 @@ public class Menu {
                 tmp = new PozycjaMenu("Urządzenia", "#", true);
                 tmp.addDropDown(new PozycjaMenu("Lista", "./listOfDevices"));
                 tmp.addDropDown(new PozycjaMenu("Dodaj", "./addDevice"));
-                tmp.addDropDown(new PozycjaMenu("Usuń", "./removeDevice"));
+                // tmp.addDropDown(new PozycjaMenu("Usuń", "./removeDevice"));
                 menuGlowne.add(tmp);
 
                 tmp = new PozycjaMenu("Sensory", "#", true);

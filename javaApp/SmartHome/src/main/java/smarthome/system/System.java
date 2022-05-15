@@ -143,6 +143,14 @@ public class System {
         return roleta;
     }
 
+    //TODO dodać javaDoc
+    public void removeDevice(Device device, Room room){
+        room.delDevice(device);
+        systemDAO.getDevices().remove(device);
+        systemDAO.save(room);
+
+        // TODO usuwanie urzadzenia z funkcji przycisków!
+    }
     /**
      * Dodaj "Termometr" do systemu
      * @return 
