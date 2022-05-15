@@ -72,10 +72,10 @@ function save() {
     var url = "api/";
     var deviceType = $("#deviceType").val();
     if (deviceType === "LIGHT") {
-        url += "addSwiatlo"
+        url += "editSwiatlo"
     }
     else if(deviceType === "BLIND"){
-        url += "addRoleta"
+        url += "editRoleta"
     }
     else {
         $("#err-msg").html("Urządzenie jeszcze nie zostało zaprogramowane w systemie!");
@@ -83,42 +83,43 @@ function save() {
         return;
     }
     //TODO SAVING
-    // $.ajax({
-    //     url: url,
-    //     type: 'get',
+    $.ajax({
+        url: url,
+        type: 'get',
         
-    //     data: { 
-    //         name: $("#name").val(),
-    //         roomName: $("#room").val(),
-    //         boardID: $("#boardID").val(),
-    //         pin: $("#pin1").val(),
-    //         pinDown: $("#pin2").val()
-    //     },
-    //     success: function (response) {
-    //         // console.log(response);
+        data: { 
+            name: $("#name").val(),
+            roomName: $("#room").val(),
+            boardID: $("#boardID").val(),
+            deviceId: id,
+            pin: $("#pin1").val(),
+            pinDown: $("#pin2").val()
+        },
+        success: function (response) {
+            // console.log(response);
 
-    //         // $("#err-msg").html(response);
-    //         if (response.error == null) {
-    //             console.log(response.obj);
-    //             $("#msg").html(response.obj);
-    //             $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
-    //         } else {
-    //             $("#err-msg").html(response.error);
-    //             $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
-    //         }
-    //     }
-    // });
+            // $("#err-msg").html(response);
+            if (response.error == null) {
+                console.log(response.obj);
+                $("#msg").html(response.obj);
+                $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
+            } else {
+                $("#err-msg").html(response.error);
+                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+            }
+        }
+    });
 }
 function clear() {
     // $("input").val("")//TODO delete device
 }
 
-function onload(id) {
+function onload(id1) {
     $.ajax({
         url: "api/getDeviceById",
         type: 'get',
         data: {
-            id: id
+            id: id1
         },
         success: function (response) {
             // console.log(response);

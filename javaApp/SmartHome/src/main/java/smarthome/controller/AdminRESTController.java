@@ -200,6 +200,47 @@ public class AdminRESTController {
         
 
     }
+
+    @GetMapping("/editSwiatlo")
+    public Response<String> editSwiatlo(@RequestParam("deviceId") int deviceId, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
+        
+        try {
+            Light l = (Light) system.getDeviceByID(deviceId);
+            if (l != null){
+                l.setName(deviceName);
+                l.setSlaveID(boardID);
+                l.setPin(pin);
+                //TODO Aktualizacja na płytkach!
+                return new Response<>("Żarówka: '" + l.toString() + "' uaktualniona prawidłowo");
+            }
+            else
+                return new Response<>("","Nie udało znaleźć się Żarówki. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania światła",e);
+            return new Response<>(null, e.getMessage());
+        }
+    }
+    @GetMapping("/editRoleta")
+    public Response<String> editRoleta(@RequestParam("deviceId") int deviceId, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin, @RequestParam("pinDown") int pinDown){
+        
+        try {
+            Blind l = (Blind) system.getDeviceByID(deviceId);
+            if (l != null){
+                l.setName(deviceName);
+                l.setSlaveID(boardID);
+                l.setPinUp(pin);
+                l.setPinDown(pinDown);
+
+                //TODO Aktualizacja na płytkach!
+                return new Response<>("Roleta: '" + l.toString() + "' uaktualniona prawidłowo");
+            }
+            else
+                return new Response<>("","Nie udało znaleźć się Rolety. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania światła",e);
+            return new Response<>(null, e.getMessage());
+        }
+    }
     @GetMapping("/addRoleta")
     public Response<String> dodajRoleta(@RequestParam("roomName") String nazwaPokoju,@RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pinUp, @RequestParam("pinDown") int pinDown){
         
