@@ -82,7 +82,6 @@ function save() {
         $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
         return;
     }
-    //TODO SAVING
     $.ajax({
         url: url,
         type: 'get',
