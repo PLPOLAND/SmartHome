@@ -80,6 +80,15 @@ public class Blind extends Device{
     public int getPinDown(){
         return swtDown.getPin();
     }
+    @JsonIgnore
+    public void setPinUp(int pin){
+        swtUp.setPin(pin);
+    }
+    
+    @JsonIgnore
+    public void setPinDown(int pin){
+        swtDown.setPin(pin);
+    }
     public Switch getSwitchUp() {
         return swtUp;
     }
