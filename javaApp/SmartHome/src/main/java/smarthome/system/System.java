@@ -66,6 +66,14 @@ public class System {
         }
         return null;
     }
+    public Sensor getSensorByID(int id) {
+        for (Sensor device : systemDAO.getSensors()) {
+            if (device.getId() == id) {
+                return device;
+            }
+        }
+        return null;
+    }
 
     /**
      * Dodaj "żarówkę" do systemu

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import smarthome.database.UsersDAO;
 import smarthome.model.hardware.Blind;
+import smarthome.model.hardware.Button;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
 import smarthome.security.Security;
@@ -23,6 +24,9 @@ import smarthome.security.Security;
 public class AdminController {
     @Autowired
     UsersDAO users;
+
+    @Autowired
+    smarthome.system.System system;
 
     @Autowired
     AdminRESTController adminRESTController;
@@ -97,6 +101,14 @@ public class AdminController {
 
         return "admin/deviceList";
     }
+    @RequestMapping("/listOfSensors")
+    public String listOfSensors(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+
+        return "admin/sensorList";
+    }
     @RequestMapping("/editRoom")
     public String editRoom(@RequestParam("roomName")String roomName, HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
@@ -126,26 +138,23 @@ public class AdminController {
         
         return "admin/editDevice";
     }
-    @RequestMapping("/removeDevice")
-    public String removeDevice(@RequestParam("deviceID") int deviceID, HttpServletRequest request, Model model) {
+   
+    @RequestMapping("/editButton")
+    public String editButton(@RequestParam(name = "buttonID",defaultValue = "0") int buttonID, HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
             return "redirect:login";
-        Device tmp = adminRESTController.system.getDeviceByID(deviceID);
-        model.addAttribute("deviceID", deviceID);
-        model.addAttribute("deviceName", tmp.getName());
+        Button tmp = (Button) system.getSensorByID(buttonID);
+        model.addAttribute("slaveID", tmp.getSlaveID());
+        model.addAttribute("buttonName", tmp.getName());
         model.addAttribute("slave", tmp.getSlaveID());
-        
-        if (tmp instanceof Blind) {
-            model.addAttribute("pin1", ((Blind) tmp).getPinUp());
-            model.addAttribute("pin2", ((Blind) tmp).getPinDown());
-        }
-        else if (tmp instanceof Light ) {//TODO Dodać gniazdko
-            model.addAttribute("pin1", ((Light)tmp).getPin());
-        }
-        
-        return "admin/editDevice";
+        model.addAttribute("pin", tmp.getPin());
+        model.addAttribute("buttonID", buttonID);
+
+        return "admin/editButton";
     }
+
+
 
     @RequestMapping("/shutdown")
     public String shutdown(HttpServletRequest request) {

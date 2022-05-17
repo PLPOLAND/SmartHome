@@ -1,13 +1,11 @@
 package smarthome.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.pi4j.io.i2c.I2CDevice;
-import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,6 +127,10 @@ public class AdminRESTController {
     public Response<Device> getDeviceById(@RequestParam("id") int id) {
         return new Response<>(system.getDeviceByID(id));
     }
+    @RequestMapping("/getSensorById")
+    public Response<Sensor> getSensorById(@RequestParam("id") int id) {
+        return new Response<>(system.getSensorByID(id));
+    }
     @RequestMapping("/getSensors")
     public Response<ArrayList<Sensor>> getSensors() {
         return new Response<>(systemDAO.getSensors());
@@ -136,11 +138,8 @@ public class AdminRESTController {
 
     @RequestMapping("/getRoomsNamesList")
     public Response<ArrayList<String>> getRoomsNameList() {
-        ArrayList<String> pokoje = new ArrayList<>();
-        for (Room room : systemDAO.getRoomsArrayList()) {
-            pokoje.add(room.getNazwa());
-        }
-        return new Response<>(pokoje);
+        
+        return new Response<>(systemDAO.getRoomsNames());
     }
     @RequestMapping("/getRoomsList")
     public Response<ArrayList<Room>> getRoomsList() {
@@ -160,6 +159,7 @@ public class AdminRESTController {
         Room r = systemDAO.getRoom(oldName);
         if (r != null) {
             r.setNazwa(name);    
+            systemDAO.save(r);
         }
         else{
             return new Response<>(null,"Błędna nazwa pokoju! Taki pokój nie istnieje!");
@@ -202,14 +202,18 @@ public class AdminRESTController {
     }
 
     @GetMapping("/editSwiatlo")
-    public Response<String> editSwiatlo(@RequestParam("deviceId") int deviceId, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
+    public Response<String> editSwiatlo(@RequestParam("deviceId") int deviceId,@RequestParam("roomName") String roomName, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
         
         try {
             Light l = (Light) system.getDeviceByID(deviceId);
-            if (l != null){
+            if (l != null){//TODO move to system
                 l.setName(deviceName);
                 l.setSlaveID(boardID);
                 l.setPin(pin);
+
+                systemDAO.getRoom(l.getRoom()).delDevice(l);
+                systemDAO.getRoom(roomName).addDevice(l);
+                systemDAO.save();
                 //TODO Aktualizacja na płytkach!
                 return new Response<>("Żarówka: '" + l.toString() + "' uaktualniona prawidłowo");
             }
@@ -221,16 +225,18 @@ public class AdminRESTController {
         }
     }
     @GetMapping("/editRoleta")
-    public Response<String> editRoleta(@RequestParam("deviceId") int deviceId, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin, @RequestParam("pinDown") int pinDown){
+    public Response<String> editRoleta(@RequestParam("deviceId") int deviceId,@RequestParam("roomName") String roomName, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin, @RequestParam("pinDown") int pinDown){
         
         try {
             Blind l = (Blind) system.getDeviceByID(deviceId);
-            if (l != null){
+            if (l != null){//TODO move to System
                 l.setName(deviceName);
                 l.setSlaveID(boardID);
                 l.setPinUp(pin);
                 l.setPinDown(pinDown);
-
+                systemDAO.getRoom(l.getRoom()).delDevice(l);
+                systemDAO.getRoom(roomName).addDevice(l);
+                systemDAO.save();
                 //TODO Aktualizacja na płytkach!
                 return new Response<>("Roleta: '" + l.toString() + "' uaktualniona prawidłowo");
             }
@@ -266,7 +272,7 @@ public class AdminRESTController {
         Room r = systemDAO.getRoom(nazwaPokoju);
         try {
             if((dev = r.getDeviceById(id)) == null)
-                throw new Exception("Brak urzadzenia o id: "+id+" w pokoju: "+nazwaPokoju);
+                throw new NullPointerException("Brak urzadzenia o id: "+id+" w pokoju: "+nazwaPokoju);
             
             system.removeDevice(dev, r);
         } catch (Exception e) {

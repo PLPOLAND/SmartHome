@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Dodaj Urządzenie - SmartHome</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="../css/jqueryUiMin.css">
+    <link rel="stylesheet" href="../css/admin/form.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/fontello/css/fontello.css">
+    <script src="../js/jQueryMin.js"></script>
+    <script src="../js/jQueryUIMin.js"></script>
+    <script src="../js/admin/main.js"></script>
+    <script src="../js/admin/pages/editButton.js"></script>
+</head>
+
+<body>
+    <script th:inline="javascript">id = /*[[${buttonID}]]*/ -1</script>
+    <div id="err-msg"></div>
+    <div id="msg"></div>
+    <div class="background-container"></div>
+    <div class="banner">
+        <div class="menu">
+            <ul id="topMenu"></ul>
+        </div>
+        <div id="usermenu">
+            <ul id="menu">
+                <li id="userLi">
+                    <a href="#">
+                        <img id="userAvatar" class="user_img" alt="user image">
+                        <span id="nickname" class="nickname">Marek</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="main-body">
+        <div id="body-form">
+            <h1>Edytuj Przycisk</h1>
+            <hr>
+            <div class="wiersz"> Nazwa Przycisku : <input id="name" th:value="${buttonName}"></div>
+            <div class="wiersz"> Pokój : <select id="room"><option value="0">Brak Pokoi</option></select></div>
+            <div class="wiersz"> Adres Slave-a: <input id="boardID" th:value="${slave}"></div>
+            <div class="wiersz"> Pin Slave-a: <input id="pin" th:value="${pin}"></div>
+            <div class="wiersz"> Funkcje Kliknięć: !TODO</div>
+            <div class="wiersz"> Funkcje Przytrzymań: !TODO</div>
+            <div class="wiersz"></div>
+            <div class="wiersz"><button id="clear" class="toHide">Wyczyść <i class="icon-trash"></i></button><button id="save">Zapisz <i class="icon-save"></i></button></div>
+        </div>
+    </div>
+</body>
+
+</html>

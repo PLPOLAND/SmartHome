@@ -124,7 +124,23 @@ public class SystemDAO {
      * @return ArrayList<Room>
      */
     public ArrayList<Room> getRoomsArrayList() {
-        return new ArrayList<Room>(pokoje.values());
+        ArrayList<Room> tmp = new ArrayList<Room>(pokoje.values());
+        tmp.sort(( a, b) -> (a.getID() < b.getID())? -1:1);
+        return tmp;
+    }
+    
+    /**
+     * Zwraca nazwy pokoi w systemie w postaci ArrayList
+     * 
+     * @return ArrayList<Room>
+     */
+    public ArrayList<String> getRoomsNames(){
+        ArrayList<Room> tmp = getRoomsArrayList();
+        ArrayList<String> names = new ArrayList<>();
+        for (Room room : tmp) {
+            names.add(room.getNazwa());
+        }
+        return names;
     }
 
     /**

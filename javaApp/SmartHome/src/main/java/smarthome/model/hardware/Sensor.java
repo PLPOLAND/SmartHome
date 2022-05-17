@@ -36,6 +36,7 @@ public abstract class Sensor {
     private int[] addres;//int ponieważ w arduino byte jest 0-255 a w javie -128-127
     /** ID kolejnego urządzenia w systemie */
     protected static int nextDeviceID = 0;
+    private String name = "";
 
     SensorsTypes typ;
     
@@ -148,25 +149,31 @@ public abstract class Sensor {
         this.onSlaveID = onSlaveID;
     }
 
+
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
     @Override
     public String toString() {
-
-        String tmp =""; 
-        if (addres!=null) {
-            for(int adres:addres){
-                tmp+=adres+" ";
-            }
-        }
-
         return "{" +
             ", id='" + getId() + "'" +
+            ", name='" + getName() + "'" +
             ", room='" + getRoom() + "'" +
             ", slaveID='" + getSlaveID() + "'" +
             ", onSlaveID='" + getOnSlaveID() + "'" +
-            ", addres='" + tmp + "'" +
+            ", addres='" + getAddres() + "'" +
             ", typ='" + getTyp() + "'" +
             "}";
     }
+
+    
     
 }
 

@@ -1,5 +1,4 @@
 var id=-1;
-var rooms;
 $(document).ready(function () {
     $("#clear").click(function() {
         clear();
@@ -7,15 +6,6 @@ $(document).ready(function () {
     $("#save").click(function() {
         save();
     })
-
-    $("#deviceType").change(function(){
-        if ($(this).val()==="BLIND") {
-            $(".toHide").show('blind', {}, 1000, function () { });
-        }
-        else{
-            $(".toHide").hide('blind', {}, 1000, function () { });
-        }
-    });
 
     $.ajax({
         url: "api/getRoomsNamesList",
@@ -28,11 +18,10 @@ $(document).ready(function () {
             // $("#err-msg").html(response);
             if (response.error == null) {
                 console.log(response.obj);
-                rooms = response.obj;
                 $("#room option[value='0']").remove();
                 var i = 0;
                 response.obj.forEach(element => {
-                    $("#room").append('<option value="' + element+'"> '+element+' </option >') ;
+                    $("#room").append('<option value="' + i+'"> '+element+' </option >') ;
                     i++;
                 });
             } else {
@@ -70,7 +59,7 @@ $(document).ready(function () {
 });
 
 function save() {
-
+    return;
     var url = "api/";
     var deviceType = $("#deviceType").val();
     if (deviceType === "LIGHT") {
@@ -117,7 +106,7 @@ function clear() {
 
 function onload(id1) {
     $.ajax({
-        url: "api/getDeviceById",
+        url: "api/getSensorById",
         type: 'get',
         data: {
             id: id1
@@ -130,8 +119,7 @@ function onload(id1) {
                 console.log(response.obj);
                 
                 $("#deviceType").val(response.obj.typ);
-                $("#deviceType").change();
-                $("#room").val(rooms[response.obj.room])
+                $("#room").val(response.obj.room)
             } else {
                 $("#err-msg").html(response.error);
                 $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
