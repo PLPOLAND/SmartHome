@@ -8,6 +8,7 @@
 #include "I2C/Command.h"
 #include "Przekaznik.h"
 #include "Roleta.h"
+#include "Dioda.h"
 // #include "System.h" NIEWOLNO!
 
 /**
@@ -31,7 +32,7 @@ private:
     StanPrzycisku stan;
     int klikniecia;
     Timer* time;
-
+    Dioda dioda;
     /**
      *  Przechowuje Komendy wykonywane po odpowiedniej liczbie klikniec
      */

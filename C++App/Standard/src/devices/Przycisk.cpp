@@ -94,6 +94,7 @@ void Przycisk::updateStan(){
         stan = PRZYCISNIETY;
         klikniecia++;
         OUT_LN(klikniecia);
+        this->dioda.on(200);
     }
     else if (tmpStan == 1 && stan == BRAK_AKCJI) //Przyciśniecie po raz pierwszy
     {
@@ -101,6 +102,7 @@ void Przycisk::updateStan(){
         stan = PRZYCISNIETY;
         time->begin(BUTTON_CLICK_TIME);
         klikniecia = 1;
+        this->dioda.on(200);
     }
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
     {
@@ -117,14 +119,15 @@ void Przycisk::updateStan(){
 
         OUT_LN(F("Wykrycie Przytrzymanie"));
         stan = PRZYTRZYMANY;
+        dioda.on();
     }
     if (stan == PRZYTRZYMANY && tmpStan == 0) //Puszczenie po przytrzymaniu
     { 
 
         OUT_LN(F("Puszczony po przytrzymaniu"));
-
         time->time(STOP);
         stan = BRAK_AKCJI;
+        dioda.off();
         this->wykonaj();//dla BRAK_AKCJI
         klikniecia = 0;
     }
@@ -154,6 +157,7 @@ void Przycisk::updateStan(){
  * */
 void Przycisk::tic(){
     this->updateStan(); //obsluga zmiany stanów przycisku
+    dioda.tic();
     // static int i = 0;
     // if(i++>10000){
     //     OUT_LN(F("TIC"));
@@ -298,6 +302,10 @@ bool Przycisk::runCommand(Command *command)
             else if (command->getParams()[0] == 'D')
             {
                 tmp->opusc();
+            }
+            else if (command->getParams()[0] == 'S')
+            {
+                tmp->stop();
             }
             
             

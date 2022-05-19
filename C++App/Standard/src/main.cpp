@@ -66,6 +66,7 @@
 
     #include "System.h"
     #include "devices/Przycisk.h"
+    #include "Dioda.h"
     
     // Przycisk przycisk1;
     // Przycisk przycisk2;
@@ -73,13 +74,13 @@
     // Przekaznik przekaznik1;
     // Przekaznik przekaznik2;
 
+    Dioda dioda;
 
 
     System* sys;
     void setup()
     {
-        pinMode(7, OUTPUT);
-        digitalWrite(7,HIGH);
+        dioda.on();
         Serial.begin(115200);
         // Serial.println(freeMemory());
         OUT_LN(freeMemory());
@@ -91,8 +92,8 @@
         Przycisk* p2 = (Przycisk*) sys->addDevice(Device::TYPE::PRZYCISK,14);
 
         Roleta* r =(Roleta*) sys->addDevice(Device::TYPE::ROLETA,16,15);
-        Przekaznik* s1 =(Przekaznik*) sys->addDevice(Device::TYPE::PRZEKAZNIK,12);
-        Przekaznik* s2 =(Przekaznik*) sys->addDevice(Device::TYPE::PRZEKAZNIK,13);
+        Przekaznik* s2 =(Przekaznik*) sys->addDevice(Device::TYPE::PRZEKAZNIK,12);
+        Przekaznik* s1 =(Przekaznik*) sys->addDevice(Device::TYPE::PRZEKAZNIK,13);
 
         Command* tmp = new Command;
         tmp->setDevice(r);
@@ -106,6 +107,12 @@
         parametry[0] = 'D'; 
         tmp->setParams(parametry);
         p1->dodajFunkcjeKlikniecia(tmp,2);
+        tmp = new Command;
+        tmp->setDevice(r);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+        parametry[0] = 'S'; 
+        tmp->setParams(parametry);
+        p1->dodajFunkcjeKlikniecia(tmp,3);
 
         tmp = new Command;
         tmp->setDevice(s1);
@@ -121,11 +128,12 @@
         p2->dodajFunkcjeKlikniecia(tmp, 2);
 
         OUT_LN(freeMemory());
-        digitalWrite(7,LOW);
+        dioda.off();
     }
 
     void loop()
     {
+        dioda.tic();
         sys->tic();
     }
 #endif
