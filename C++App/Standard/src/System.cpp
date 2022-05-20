@@ -16,7 +16,7 @@ System *System::getSystem()
     {
         Serial.begin(115200); // start serial for output
         system = new System();
-        OUT_LN(F("getSystem System()"));
+        // OUT_LN(F("getSystem System()"));
     }
 
     // OUT_LN("getSystem()");
@@ -41,13 +41,55 @@ void System::begin(){
     OUT_LN(F("SerialStarted"));
     comunication = I2CConverter::getInstance();
     comunication->begin();
-    OUT_LN(F("comunication->begin();"));
+    // OUT_LN(F("comunication->begin();"));
     Wire.onReceive(I2CConverter::onRecieveEvent);
-    OUT_LN(F("Wire.onReceive(I2CConverter::onRecieveEvent);"));
+    // OUT_LN(F("Wire.onReceive(I2CConverter::onRecieveEvent);"));
     Wire.onRequest(I2CConverter::onRequestEvent);
-    OUT_LN(F("Wire.onReceive(I2CConverter::onRequestEvent);"));
+    // OUT_LN(F("Wire.onReceive(I2CConverter::onRequestEvent);"));
     timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
-    OUT_LN(F("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));"));
+    // OUT_LN(F("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));"));
+    
+    #ifdef DEV
+    Przycisk *p1 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, A3);
+    Przycisk *p2 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, 14);
+
+    Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 16, 15);
+    Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
+    Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
+
+    Command *tmp = new Command;
+    tmp->setDevice(r);
+    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+    byte parametry[8] = {'U', 0, 0, 0, 0, 0, 0, 0};
+    tmp->setParams(parametry);
+    p1->dodajFunkcjeKlikniecia(tmp, 1);
+    tmp = new Command;
+    tmp->setDevice(r);
+    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+    parametry[0] = 'D';
+    tmp->setParams(parametry);
+    p1->dodajFunkcjeKlikniecia(tmp, 2);
+    tmp = new Command;
+    tmp->setDevice(r);
+    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+    parametry[0] = 'S';
+    tmp->setParams(parametry);
+    p1->dodajFunkcjeKlikniecia(tmp, 3);
+
+    tmp = new Command;
+    tmp->setDevice(s1);
+    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+    parametry[0] = 0;
+    tmp->setParams(parametry);
+    p2->dodajFunkcjeKlikniecia(tmp, 1);
+    tmp = new Command;
+    tmp->setDevice(s2);
+    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+    parametry[0] = 0;
+    tmp->setParams(parametry);
+    p2->dodajFunkcjeKlikniecia(tmp, 2);
+    #endif
+
     OUT_LN(freeMemory());
 }
 
@@ -147,17 +189,17 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         case Device::TYPE::ROLETA:
             {
                 OUT_LN(F("-----Dodaj Roleta-----"));
-                OUT("pin1:");
-                OUT_LN(pin1);
-                OUT("pin2:");
-                OUT_LN(pin2);
+                // OUT("pin1:");
+                // OUT_LN(pin1);
+                // OUT("pin2:");
+                // OUT_LN(pin2);
                 Roleta *tmp = new Roleta();
                 if (tmp->begin(pin1, pin2))
                 { //jeśli uda się poparawnie dodać przekaźnik do systemu
                     OUT_LN(F("Poprawnie dodano Roletę"))
                     tmp->setId(idDevice++); //nadaj mu id
-                    OUT("id:")
-                    OUT_LN(tmp->getId());
+                    // OUT("id:")
+                    // OUT_LN(tmp->getId());
                     OUT(F("ROLETA: "));
                     OUT_LN(tmp->toString());
                     this->devices.add(tmp->getId(), tmp); //dodaj do listy urzadzen
@@ -241,7 +283,7 @@ bool System::removeDevice(byte id){
     return true;
 }
 Device* System::getDevice(byte id){
-    OUT(F("szukanie urzadzenia o id:"))
+    OUT(F("szukanie urzadzenia o id:\t"))
     OUT_LN(id);
     if (devices.get(id) == nullptr)
     {
@@ -288,9 +330,12 @@ LinkedList<byte*> System::getAdrOfThermometrs(){
 };
 
 void System::reinit_system(){
+    OUT_LN("DEL")
+    Device *tmp;
     for (byte i = 0; i < devices.size(); i++)
     {
-        delete devices[i];//usuń wszystkie urządzenia w systemie
+        tmp = devices.get(i);
+        delete tmp;//usuń wszystkie urządzenia w systemie
     }
     
     //oczyść wszystkie listy urządzeń
@@ -302,6 +347,7 @@ void System::reinit_system(){
     przyciski.clear();
     init_system();
 
+    OUT_LN(freeMemory());
 }
 
 void System::init_system(){

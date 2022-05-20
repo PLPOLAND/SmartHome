@@ -172,16 +172,16 @@ public class I2C{
 
         
         pin.setShutdownOptions(true, PinState.HIGH);//TODO czy napewno po wyłączeniu powinien być w stanie HIGH?
-        pin.high();
-
+        pin.low();
+        
         try {
-            Thread.sleep(100);
+            Thread.sleep(700);
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
-
-        pin.low();
-
+        
+        pin.high();
+        
         try {
             Thread.sleep(5000);//oczekiwanie na uruchomienie się slave-ów
         } catch (InterruptedException e) {

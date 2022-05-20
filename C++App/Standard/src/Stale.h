@@ -1,6 +1,9 @@
 #ifndef STALE
 #define STALE
+
+    #define DEV
     #define DEBUG
+
     #ifdef DEBUG
         #define OUT(x) Serial.print(x); Serial.flush();
         #define OUT_LN(x) Serial.println(x); Serial.flush();

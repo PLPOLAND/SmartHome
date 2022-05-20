@@ -22,6 +22,10 @@
         this->id = d.id;
     }
 
+    Device::~Device(){
+        
+    }
+
     void Device::setType(TYPE type)
     {
         this->type_of_device = type;

@@ -65,14 +65,14 @@ void Roleta::tic()
 
     if (akcja == Akcja::PODNOSZENIE_CALKOWITE && time->available())
     {
-        OUT_LN("ROLETA STOP")
+        // OUT_LN("ROLETA STOP")
         this->stop();
         this->stan = StanRolety::PODNIESIONA;
         
     }
     else if (akcja == Akcja::OPUSZCZANIE_CALKOWITE && time->available())
     {
-        OUT_LN("ROLETA STOP")
+        // OUT_LN("ROLETA STOP")
         this->stop();
         this->stan = StanRolety::OPUSZCZONA;
     }

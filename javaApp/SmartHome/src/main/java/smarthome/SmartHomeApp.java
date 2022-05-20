@@ -252,6 +252,9 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 						}
 					}		
 				}
+				else if (in.equals("restart")){
+					system.getArduino().atmega.restartSlaves();		
+				}
 			}
 			catch(Exception e){
 				e.printStackTrace();

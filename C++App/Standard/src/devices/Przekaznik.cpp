@@ -50,15 +50,15 @@ bool Przekaznik::getStan()
 //włącz/wyłącz przekaźnik (true/false)
 void Przekaznik::setStan(bool stan)
 {
-    OUT_LN(F("SET STAN"))
-    OUT(F("STAN: "))
-    OUT_LN(stan);
-    OUT(F("PIN: "))
-    OUT_LN(pin);
+    // OUT_LN(F("SET STAN"))
+    // OUT(F("STAN: "))
+    // OUT_LN(stan);
+    // OUT(F("PIN: "))
+    // OUT_LN(pin);
     this->stan = stan;
     digitalWrite(pin, stan == true ? LOW : HIGH);
-    OUT(F("PIN STAN: "))
-    OUT_LN(digitalRead(pin));
+    // OUT(F("PIN STAN: "))
+    // OUT_LN(digitalRead(pin));
 
 };
 //włącz/wyłącz przekaźnik (1 = włącz; inna wartość = wyłącz)

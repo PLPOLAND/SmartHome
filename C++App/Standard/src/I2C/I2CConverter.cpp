@@ -230,9 +230,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 }
                 doWyslania.clear();
 
-                doWyslania.add(0, komendaZwrotna);//dodaj wysłanie potwierdzenia otrzymania komendy
-                
                 System::reinit_system();//reinicjalizuj system!
+                
+                doWyslania.add(0, komendaZwrotna);//dodaj wysłanie potwierdzenia otrzymania komendy
 
             }
             break;

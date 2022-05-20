@@ -21,9 +21,23 @@ Przycisk::~Przycisk()
 {
     delete time;
 
+    for (int i = 0; i < funkcje_klikniecia.size(); i++)
+    {
+        delete funkcje_klikniecia.get(i);
+    }
+    for (int i = 0; i < funkcje_przytrzymania.size(); i++)
+    {
+        delete funkcje_przytrzymania.get(i);
+    }
+    // for (int i = 0; i < funkcje_klikniecia.size(); i++)
+    // {
+    //     delete funkcje_klikniecia.get(i);
+    // }
+    
+
     funkcje_klikniecia.clear();
     funkcje_przytrzymania.clear();
-    funkcje_przytrzymania.clear();
+    // funkcje_przytrzymania.clear();
 }
 
 /**
