@@ -146,6 +146,26 @@ public class AdminRESTController {
         
         return new Response<>(systemDAO.getRoomsArrayList());
     }
+    @RequestMapping("/getLightList")
+    public Response<ArrayList<Light>> getLightList() {
+        ArrayList<Light> lights = new ArrayList<>();
+        for (Device device : systemDAO.getDevices()) {
+            if(device.getTyp()==DeviceTypes.LIGHT){
+                lights.add((Light) device);
+            }
+        }
+        return new Response<>(lights);
+    }
+    @RequestMapping("/getBlindsList")
+    public Response<ArrayList<Blind>> getBlindsList() {
+        ArrayList<Blind> blinds = new ArrayList<>();
+        for (Device device : systemDAO.getDevices()) {
+            if(device.getTyp()==DeviceTypes.BLIND){
+                blinds.add((Blind) device);
+            }
+        }
+        return new Response<>(blinds);
+    }
 
     @GetMapping("/addRoom")
     public Response<String> dodajPokoj(@RequestParam("name") String name){

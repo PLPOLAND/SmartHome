@@ -8,11 +8,12 @@ public class ButtonFunction {
     public enum State {
         NONE,
         UP,
-        DOWN
+        DOWN,
+        STOP
     }
 
     Device deviceToControl;
-    State state = State.NONE;//0 lub U/D
+    State state = State.NONE;//0 lub U/D/S
     int clicks = 0;
     
     @JsonBackReference
@@ -21,7 +22,7 @@ public class ButtonFunction {
     public ButtonFunction() {
         button = null;
         deviceToControl = null;
-        state = State.NONE;// 0 lub U/D
+        state = State.NONE;// 0 lub U/D/S
         clicks = 0;
     }
 

@@ -8,7 +8,7 @@ function makeFullSensor(obj) {
         sensorIcon.append($('<i class="icon-thermometer"></i>'))
     }
     else if (obj.typ === 'BUTTON') {
-        sensorIcon.append($('<i class="icon-logout rm90"></i>'))
+        sensorIcon.append($('<i class="icon-button"></i>'))
     }
 
     var sensorName = $('<div class="sensorName">' + obj.name + '</div>');

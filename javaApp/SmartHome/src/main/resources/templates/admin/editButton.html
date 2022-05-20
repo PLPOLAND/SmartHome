@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../css/jqueryUiMin.css">
     <link rel="stylesheet" href="../css/admin/form.css">
     <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/admin/editButton.css">
     <link rel="stylesheet" href="../css/fontello/css/fontello.css">
     <script src="../js/jQueryMin.js"></script>
     <script src="../js/jQueryUIMin.js"></script>
@@ -18,6 +19,33 @@
     <script th:inline="javascript">id = /*[[${buttonID}]]*/ -1</script>
     <div id="err-msg"></div>
     <div id="msg"></div>
+    <div id="addClickFunctionWindow">
+        <div class="body-form">
+            <h1>Dodaj funkcję kliknięcia</h1>
+            <hr>
+            <div class="wiersz">Id przycisku: <input id="buttonID" th:value="${buttonID}" size="2" disabled></div>
+            <div class="wiersz">Typ urzadzenia do kontrolowania: 
+                <select id="deviceType">
+                    <option value="0">Światło</option>
+                    <option value="1">Roleta</option>
+                </select>
+            </div>
+            <div class="wiersz showLight">Urządzenie: <select id="ctrDeviceL"><option value="0">NULL</option></select></div>
+            <div class="wiersz showBlind">Urządzenie: <select id="ctrDeviceB"><option value="0">NULL</option></select></div>
+            <div class="wiersz showBlind">Kierunek:
+                <select id="stan">
+                    <option value="UP">Góra</option>
+                    <option value="DOWN">Dół</option>
+                    <option value="STOP">Stop</option>
+                </select>
+            </div>
+            <div class="wiersz">Ilość Kliknięć do aktywowania funkcji: <input type="number" max="5" min="1" value="1" id="clicks" size="2"></div>
+            <div class="wiersz"></div>
+            <div class="wiersz"><!--<button id="clear" class="toHide">Wyczyść <i class="icon-trash"></i></button>--><button id="addClickFunction">Dodaj <i class="icon-save"></i></button></div>
+        
+        </div>
+    </div>
+    
     <div class="background-container"></div>
     <div class="banner">
         <div class="menu">
@@ -35,14 +63,14 @@
         </div>
     </div>
     <div id="main-body">
-        <div id="body-form">
+        <div class="body-form">
             <h1>Edytuj Przycisk</h1>
             <hr>
             <div class="wiersz"> Nazwa Przycisku : <input id="name" th:value="${buttonName}"></div>
             <div class="wiersz"> Pokój : <select id="room"><option value="0">Brak Pokoi</option></select></div>
             <div class="wiersz"> Adres Slave-a: <input id="boardID" th:value="${slave}"></div>
             <div class="wiersz"> Pin Slave-a: <input id="pin" th:value="${pin}"></div>
-            <div class="wiersz"> Funkcje Kliknięć: !TODO</div>
+            <div class="wiersz"> Funkcje Kliknięć: <span class="clickFNum"></span><i class="icon-plus clickable" id="add"></i><i class="icon-sliders clickable" id="list"></i></div>
             <div class="wiersz"> Funkcje Przytrzymań: !TODO</div>
             <div class="wiersz"></div>
             <div class="wiersz"><button id="clear" class="toHide">Wyczyść <i class="icon-trash"></i></button><button id="save">Zapisz <i class="icon-save"></i></button></div>

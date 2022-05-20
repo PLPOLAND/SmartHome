@@ -1,0 +1,25 @@
+#addClickFunctionWindow{
+    display: none;
+    position: absolute;
+    width: calc(100vw - 2em);
+    height: calc(100vh - 6em);
+    z-index: 10;
+    background-color: #000000EE;
+    color: var(--primaryTextColor);
+    padding: 3em 1em;
+    overflow: auto;
+    cursor: pointer;
+}
+.body-form{
+    cursor: default;
+}
+#addClickFunction{
+    float: right;
+}
+#addClickFunction:hover {
+    background-color: var(--secondaryColor);
+    color: var(--secondaryTextColor);
+    transition: 200ms;
+
+    cursor: pointer;
+}

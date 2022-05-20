@@ -1,26 +1,27 @@
-#body-form{
+.body-form{
     padding: 20px;
     margin: 0px;
     width: 50%;
     margin: auto;
     background-color: var(--primaryColor);
+    overflow: auto;
 }
-#body-form .wiersz{
+.body-form .wiersz{
     padding-top: 5px;
     font-size: 30px;
     line-height: 40px;
     min-height: 40px;
 }
-#body-form h1{
+.body-form h1{
     font-size: 40px;
 }
-#body-form hr{
+.body-form hr{
     margin-top: 0px;
     margin-bottom: 20px;
     border-color: var(--primaryTextColor);
     border-style: solid;
 }
-#body-form button{
+.body-form button{
     display: block;
     background-color: var(--primaryDarkColor);
     color: var(--primaryTextColor);
@@ -34,61 +35,76 @@
     float: left;
     transition: 500ms;
 }
-#body-form button#clear:hover{
+.body-form button#clear:hover{
     background-color: var(--errorColor);
     color: var(--errorTextColor);
     transition: 200ms;
 }
-#body-form button#save{
+.body-form button#save{
     float: right;
 }
 
-#body-form button#save:hover{
+.body-form button#save:hover{
     background-color: var(--secondaryColor);
     color: var(--secondaryTextColor);
     transition: 200ms;
 
     cursor: pointer;
 }
-#body-form button#rm{
+.body-form button#rm{
     float: right;
 }
 
-#body-form button#rm:hover{
+.body-form button#rm:hover{
     background-color: var(--errorColor);
     color: var(--errorTextColor);
     transition: 200ms;
     cursor: pointer;
 }
-#body-form input{
+.body-form input{
     padding: 5px;
     border: 0px ;
     font-size: 20px;
     background-color: var(--primaryDarkColor);
     color: var(--primaryTextColor);
 }
-#body-form input:focus{
+.body-form input:focus{
     background-color: var(--primaryLightColor);
 }
-#body-form input:hover{
+.body-form input:hover{
 
     background-color: var(--primaryLightColor);
 }
-#body-form select{
+.body-form select{
     padding: 5px;
     border: 0px ;
     font-size: 20px;
     background-color: var(--primaryDarkColor);
     color: var(--primaryTextColor);
 }
-#body-form select:focus{
+.body-form select:focus{
     background-color: var(--primaryLightColor);
 }
-#body-form select:hover{
+.body-form select:hover{
 
     background-color: var(--primaryLightColor);
 }
 
 .toHide{
     display: none;
+}
+.clickable,
+.clickable::before{
+    transition: 250ms;
+    cursor: pointer;
+}
+.clickable:hover {
+    transition: 500ms;
+    color: var(--secondaryColor);
+    transform: rotate(180deg);
+}
+.clickable:hover::before {
+    transition: 500ms;
+    color: var(--secondaryColor);
+    transform: rotate(180deg);
 }

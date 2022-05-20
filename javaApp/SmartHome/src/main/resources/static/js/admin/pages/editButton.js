@@ -1,4 +1,5 @@
 var id=-1;
+var rooms;
 $(document).ready(function () {
     $("#clear").click(function() {
         clear();
@@ -18,45 +19,103 @@ $(document).ready(function () {
             // $("#err-msg").html(response);
             if (response.error == null) {
                 console.log(response.obj);
+                rooms = response.obj;
                 $("#room option[value='0']").remove();
                 var i = 0;
                 response.obj.forEach(element => {
                     $("#room").append('<option value="' + i+'"> '+element+' </option >') ;
                     i++;
                 });
+
+                getLights();
+                getBlinds();
+
             } else {
                 $("#err-msg").html(response.error);
                 $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
             }
         }
     });
-    $.ajax({
-        url: "api/getDeviceTypes",
-        type: 'get',
-        data: {
-        },
-        success: function (response) {
-            // console.log(response);
-
-            // $("#err-msg").html(response);
-            if (response.error == null) {
-                console.log(response.obj);
-                $("#deviceType option[value='0']").remove();
-                var i = 0;
-                response.obj.forEach(element => {
-                    $("#deviceType").append('<option value="'+element+'"> '+element+' </option >') ;
-                    i++;
-                });
-            } else {
-                $("#err-msg").html(response.error);
-                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
-            }
+    $("#deviceType").change(function () {
+        if ($("#deviceType").val()==1) {
+            $(".showBlind").show();
+            $(".showLight").hide();
+        } else {
+            $(".showBlind").hide();
+            $(".showLight").show();
+            
         }
+    })
+    $("#deviceType").change();
+
+    $("#addClickFunction").click(function(){addClickFuntion()});
+    $("#addClickFunctionWindow").click(function () {
+        $("#addClickFunctionWindow").hide("blind", {}, 1000, function () {});
+    }).children().click(function (e) {
+        return false;
     });
 
+    $("#add").click(function(){
+        $("#addClickFunctionWindow").show("blind", {}, 1000, function () { })
+    })
+    $("#list").click(function(){
+        $("#err-msg").html("TODO");
+        $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000); });
+
+    })
     onload(id);
 
 });
+
+function getBlinds() {
+    $.ajax({
+        url: "api/getBlindsList",
+        type: 'get',
+        data: {},
+        success: function (response) {
+            // console.log(response);
+            // $("#err-msg").html(response);
+            if (response.error == null) {
+                console.log(response.obj);
+                response.obj.sort((a, b) => a.id > b.id);
+                $("#ctrDeviceB option[value='0']").remove();
+                // var i = 0;
+                response.obj.forEach(element => {
+                    $("#ctrDeviceB").append('<option value="' + element.id + '">' + element.id + ' - ' + rooms[element.room] + ' - ' + element.name + ' </option >');
+                    // i++;
+                });
+            } else {
+                $("#err-msg").html(response.error);
+                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000); });
+            }
+        }
+    });
+}
+
+function getLights() {
+    $.ajax({
+        url: "api/getLightList",
+        type: 'get',
+        data: {},
+        success: function (response) {
+            // console.log(response);
+            // $("#err-msg").html(response);
+            if (response.error == null) {
+                console.log(response.obj);
+                response.obj.sort((a, b) => a.id > b.id);
+                $("#ctrDeviceL option[value='0']").remove();
+                // var i = 0;
+                response.obj.forEach(element => {
+                    $("#ctrDeviceL").append('<option value="' + element.id + '">' + element.id + ' - ' + rooms[element.room] + ' - ' + element.name + ' </option >');
+                    // i++;
+                });
+            } else {
+                $("#err-msg").html(response.error);
+                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000); });
+            }
+        }
+    });
+}
 
 function save() {
     return;
@@ -118,8 +177,48 @@ function onload(id1) {
             if (response.error == null) {
                 console.log(response.obj);
                 
-                $("#deviceType").val(response.obj.typ);
                 $("#room").val(response.obj.room)
+                
+
+            } else {
+                $("#err-msg").html(response.error);
+                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+            }
+        }
+    });
+}
+
+function addClickFuntion() {
+    var device,stan="";
+    if ($("#deviceType").val()==0) {//LIGHT
+        device = $("#ctrDeviceL").val();
+        stan = "NONE";
+    }
+    else{
+        device = $("#ctrDeviceB").val();
+        stan = $("#stan").val();
+    }
+
+
+    $.ajax({
+        url: "api/addButtonClickFunction",
+        type: 'get',
+        data: {
+            buttonID: id,
+            deviceID: device,
+            state: stan,
+            clicks: $("#clicks").val()
+        },
+        success: function (response) {
+            // console.log(response);
+
+            //     // $("#err-msg").html(response);
+            if (response.error == null) {
+                console.log(response.obj);
+
+                $("#msg").html(response.obj);
+                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+
             } else {
                 $("#err-msg").html(response.error);
                 $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
