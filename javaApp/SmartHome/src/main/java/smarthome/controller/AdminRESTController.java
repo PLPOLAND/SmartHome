@@ -27,6 +27,7 @@ import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Sensor;
+import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonFunction;
@@ -134,6 +135,11 @@ public class AdminRESTController {
     @RequestMapping("/getSensors")
     public Response<ArrayList<Sensor>> getSensors() {
         return new Response<>(systemDAO.getSensors());
+    }
+    
+    @RequestMapping("/getSensorTypes")
+    public Response<String[]> getSensorTypes() {
+        return new Response<>(SensorsTypes.getNames());
     }
 
     @RequestMapping("/getRoomsNamesList")
@@ -321,6 +327,26 @@ public class AdminRESTController {
             return new Response<>("", e.getMessage());
         }
     }
+    @GetMapping("/removeSensorByID")
+
+    public Response<String> removeSensorByID(@RequestParam("id") int id){
+        
+        Sensor sen = null;
+        Room r = null;
+        try {
+            if((sen = system.getSensorByID(id)) != null){
+                r = systemDAO.getRoom(sen.getRoom());
+                system.removeSensor(sen, r);
+                return new Response<>("Sensor: '" + sen.toString() + "' usnięte prawidłowo z systemu");
+            }
+            else{
+                return new Response<>("", "Nie znaleziono Urządzenia o podanym ID");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<>("", e.getMessage());
+        }
+    }
 
     @GetMapping("/removeRoom")
     public Response<String> removeRoom(@RequestParam("name") String nazwaPokoju) {
@@ -443,12 +469,13 @@ public class AdminRESTController {
 
 
     @GetMapping("/addPrzycisk")
-    public Response<String> dodajPrzycisk(@RequestParam("name") String nazwaPokoju, @RequestParam("boardID") int boardID, @RequestParam("pin") int pin) {
+    public Response<String> dodajPrzycisk(@RequestParam("name") String nazwa,@RequestParam("roomName") String nazwaPokoju, @RequestParam("boardID") int boardID, @RequestParam("pin") int pin) {
         try {
-            Button b = system.addButton(nazwaPokoju, boardID, pin);
+            Button b = system.addButton(nazwa,nazwaPokoju, boardID, pin);
             if (b != null)
+            {
                 return new Response<>("Przycisk: '" + b.toString() + "' dodana prawidłowo");
-            else
+            }else
                 return new Response<>("",
                         "Nie udało dodać się Przycisku. Sprawdź konsolę programu w poszukiwaniu szczegółów");
         } catch (Exception e) {

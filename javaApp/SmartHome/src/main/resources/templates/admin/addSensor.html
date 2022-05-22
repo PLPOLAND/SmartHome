@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Dodaj Urządzenie - SmartHome</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="../css/jqueryUiMin.css">
+    <link rel="stylesheet" href="../css/admin/device.css">
+    <link rel="stylesheet" href="../css/admin/form.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/fontello/css/fontello.css">
+    <script src="../js/jQueryMin.js"></script>
+    <script src="../js/jQueryUIMin.js"></script>
+    <script src="../js/admin/main.js"></script>
+    <script src="../js/admin/pages/addSensor.js"></script>
+</head>
+
+<body>
+    <div id="err-msg"></div>
+    <div id="msg"></div>
+    <div class="background-container"></div>
+    <div class="banner">
+        <div class="menu">
+            <ul id="topMenu"></ul>
+        </div>
+        <div id="usermenu">
+            <ul id="menu">
+                <li id="userLi">
+                    <a href="#">
+                        <img id="userAvatar" class="user_img" alt="user image">
+                        <span id="nickname" class="nickname">Marek</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="main-body">
+        <div class="body-form">
+            <h1>Dodaj Sensor</h1>
+            <hr>
+            <div class="wiersz"> Nazwa Urządzenia : <input id="name"></div>
+            <div class="wiersz"> Pokój : <select id="room"><option value="0">Brak Pokoi</option></select></div>
+            <div class="wiersz"> Typ: <select id="sensorType"><option value="0">Brak</option></select></div>
+            <div class="wiersz"> Adres Slave-a: <input id="boardID"></div>
+            <div class="wiersz"> Pin Slave-a: <input id="pin"></div>
+            <div class="wiersz"></div>
+            <div class="wiersz"><button id="clear">Wyczyść <i class="icon-trash"></i></button><button id="save">Zapisz <i class="icon-save"></i></button></div>
+        </div>
+    </div>
+</body>
+
+</html>

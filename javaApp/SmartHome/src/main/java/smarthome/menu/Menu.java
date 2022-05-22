@@ -46,13 +46,13 @@ public class Menu {
                 tmp = new PozycjaMenu("Sensory", "#", true);
                 tmp.addDropDown(new PozycjaMenu("Lista", "./listOfSensors"));
                 tmp.addDropDown(new PozycjaMenu("Dodaj", "./addSensor"));
-                tmp.addDropDown(new PozycjaMenu("Usuń", "./removeSensor"));
+                // tmp.addDropDown(new PozycjaMenu("Usuń", "./removeSensor"));
                 menuGlowne.add(tmp);
 
                 tmp = new PozycjaMenu("Użytkownicy", "#", true);
                 tmp.addDropDown(new PozycjaMenu("Lista", "./listOfUsers"));
                 tmp.addDropDown(new PozycjaMenu("Dodaj", "./addUser"));
-                tmp.addDropDown(new PozycjaMenu("Usuń", "./removeUser"));
+                // tmp.addDropDown(new PozycjaMenu("Usuń", "./removeUser"));
                 menuGlowne.add(tmp);
 
                 //MENU USERA

@@ -115,7 +115,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 							if (scanner.hasNext()) {
 								int pin = scanner.nextInt();
 
-								log.info(adminController.dodajPrzycisk(nazwaPokoju, idPlytki, pin).getObj().toString());
+								log.info(adminController.dodajPrzycisk("dodany z terminala",nazwaPokoju, idPlytki, pin).getObj().toString());
 							}
 						}
 					}

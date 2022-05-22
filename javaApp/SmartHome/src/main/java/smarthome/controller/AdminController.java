@@ -85,6 +85,14 @@ public class AdminController {
 
         return "admin/addDevice";
     }
+    @RequestMapping("/addSensor")
+    public String addSensor(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return "redirect:login";
+
+        return "admin/addSensor";
+    }
     @RequestMapping("/roomsList")
     public String roomList(HttpServletRequest request) {
         Security sec = new Security(request, users);
@@ -140,7 +148,7 @@ public class AdminController {
     }
    
     @RequestMapping("/editButton")
-    public String editButton(@RequestParam(name = "buttonID",defaultValue = "0") int buttonID, HttpServletRequest request, Model model) {
+    public String editButton(@RequestParam(name = "id",defaultValue = "0") int buttonID, HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
             return "redirect:login";

@@ -1,7 +1,7 @@
 #ifndef STALE
 #define STALE
 
-    #define DEV
+    // #define DEV
     #define DEBUG
 
     #ifdef DEBUG

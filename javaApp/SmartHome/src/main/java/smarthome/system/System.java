@@ -133,22 +133,23 @@ public class System {
      * 
      */
     // TODO dodać javadoc
-    public Button addButton(String roomName, int boardID, int pin) throws IllegalArgumentException, HardwareException{
+    public Button addButton(String name, String roomName, int boardID, int pin) throws IllegalArgumentException, HardwareException{
         Room room = systemDAO.getRoom(roomName);
         if (room == null) {
             IllegalArgumentException tmp = new IllegalArgumentException("Bledna nazwa pokoju");
             log.error("Nie znaleziono podanego pokoju", tmp);
             throw tmp;
         }
-        Button roleta = new Button(boardID, pin);
-        roleta.setOnSlaveID(arduino.addPrzycisk(roleta));// dodaj urzadzenie do slavea i zapisz jego id w slavie
-        if (roleta.getOnSlaveID() == -1) {
+        Button button = new Button(boardID, pin);
+        button.setName(name);
+        button.setOnSlaveID(arduino.addPrzycisk(button));// dodaj urzadzenie do slavea i zapisz jego id w slavie
+        if (button.getOnSlaveID() == -1) {
             throw new HardwareException("Nie udało się dodać urządzenia na slavie");
         }
-        systemDAO.getRoom(roomName).addSensor(roleta);
-        systemDAO.getSensors().add(roleta);
+        systemDAO.getRoom(roomName).addSensor(button);
+        systemDAO.getSensors().add(button);
         systemDAO.save();
-        return roleta;
+        return button;
     }
 
     //TODO dodać javaDoc
@@ -158,6 +159,14 @@ public class System {
         systemDAO.save(room);
 
         // TODO usuwanie urzadzenia z funkcji przycisków!
+    }
+    
+    // TODO dodać javaDoc
+    public void removeSensor(Sensor sen, Room room) {
+        room.delSensor(sen);
+        systemDAO.getSensors().remove(sen);
+        systemDAO.save(room);
+
     }
     /**
      * Dodaj "Termometr" do systemu
@@ -527,4 +536,8 @@ public class System {
 
 
     }
+
+
+
+    
 }
