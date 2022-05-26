@@ -277,7 +277,29 @@ function makeFunctionList(obj) {
     })
 
     del.click(function () {
-        alert("TODO");
+        $.ajax({
+            url: "api/rmButtonClickFunction",
+            type: 'get',
+            data: {
+                buttonID: id,
+                clicks: obj.clicks
+            },
+            success: function (response) {
+                // console.log(response);
+
+                //     // $("#err-msg").html(response);
+                if (response.error == null) {
+                    console.log(response.obj);
+
+                    $("#msg").html(response.obj);
+                    $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+
+                } else {
+                    $("#err-msg").html(response.error);
+                    $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+                }
+            }
+        });
     })
 
 
