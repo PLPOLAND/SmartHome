@@ -1,3 +1,4 @@
+
 $(document).ready(function () {
     $("#subbutton").click(function () {
         var username = $("#login").val();
@@ -12,7 +13,7 @@ $(document).ready(function () {
             $.ajax({
                 url: urle,
                 type: 'post',
-                data: { nick: username, pass: password },
+                data: { nick: username, pass: password , link: link},
                 success: function (response) {
                     console.log(response);
                     

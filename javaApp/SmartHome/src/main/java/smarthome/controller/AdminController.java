@@ -1,5 +1,7 @@
 package smarthome.controller;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -39,17 +41,17 @@ public class AdminController {
     public String adminHome(HttpServletRequest request){
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
-
+            return this.reredairect(request);
         return "admin/index";
     }
 
     @RequestMapping("/login")
-    public String adminLogin(HttpServletRequest request) {
+    public String adminLogin(HttpServletRequest request, @RequestParam(name = "l", defaultValue = "") String l, Model model) {
         Security sec = new Security(request, users);
         if (sec.isLoged() && sec.isUserAdmin())
-            return "redirect:/admin/";
+            return "redirect:" + l;
 
+        model.addAttribute("link", l);
         return "loginPage";
     }
 
@@ -64,7 +66,7 @@ public class AdminController {
     public String addRoom(HttpServletRequest request) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
 
         return "admin/addRoom";
     }
@@ -72,7 +74,7 @@ public class AdminController {
     public String rmRoom(@RequestParam(name = "roomName", required = false, defaultValue = "")String roomName,HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
         model.addAttribute("roomName", roomName);
         return "admin/rmRoom";
     }
@@ -81,7 +83,7 @@ public class AdminController {
     public String addDevice(HttpServletRequest request) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
 
         return "admin/addDevice";
     }
@@ -89,7 +91,7 @@ public class AdminController {
     public String addSensor(HttpServletRequest request) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
 
         return "admin/addSensor";
     }
@@ -97,7 +99,7 @@ public class AdminController {
     public String roomList(HttpServletRequest request) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
 
         return "admin/roomsList";
     }
@@ -105,7 +107,7 @@ public class AdminController {
     public String listOfDevices(HttpServletRequest request) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
 
         return "admin/deviceList";
     }
@@ -113,7 +115,7 @@ public class AdminController {
     public String listOfSensors(HttpServletRequest request) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
 
         return "admin/sensorList";
     }
@@ -121,7 +123,7 @@ public class AdminController {
     public String editRoom(@RequestParam("roomName")String roomName, HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
         model.addAttribute("roomName", roomName);
         return "admin/editRoom";
     }
@@ -130,7 +132,7 @@ public class AdminController {
     public String editDevice(@RequestParam("deviceID") int deviceID, HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
         Device tmp = adminRESTController.system.getDeviceByID(deviceID);
         model.addAttribute("deviceID", deviceID);
         model.addAttribute("deviceName", tmp.getName());
@@ -151,7 +153,7 @@ public class AdminController {
     public String editButton(@RequestParam(name = "id",defaultValue = "0") int buttonID, HttpServletRequest request, Model model) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
         Button tmp = (Button) system.getSensorByID(buttonID);
         model.addAttribute("slaveID", tmp.getSlaveID());
         model.addAttribute("buttonName", tmp.getName());
@@ -168,9 +170,23 @@ public class AdminController {
     public String shutdown(HttpServletRequest request) {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
-            return "redirect:login";
+            return this.reredairect(request);
         adminRESTController.shutdownMe();
         return "admin/shutdown";
     }
 
+    String reredairect(HttpServletRequest request){
+        String str = "redirect:login?l=";
+        str += request.getRequestURI();
+        str += "?";
+        Map<String,String[]> tmp = request.getParameterMap();
+        for (String name : tmp.keySet()) {
+            for (String val : tmp.get(name)) {
+                str +=name + "=";
+                str += val;
+                str +="&";
+            }
+        }
+        return str.substring(0, str.length()-1);
+    }
 }

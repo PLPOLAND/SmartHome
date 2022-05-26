@@ -68,8 +68,15 @@ public class AdminRESTController {
     @RequestMapping("/login")
     Response<String> login(HttpServletRequest request) {
         Security s = new Security(request, users);
-        if (s.login())
-            return new Response<>("/admin/");
+        if (s.login()){
+            if (request.getParameter("link").equals("")) {
+                return new Response<>("/admin/");
+                
+            } else {
+                
+                return new Response<>(request.getParameter("link"));
+            }
+        }
         else
             return new Response<String>("", "Nie znaleziono dopasowania w bazie danych");
     }
