@@ -1,5 +1,5 @@
 #include <Kontener.h>
-#include <devices/Termometr.h>
+// #include <devices/Termometr.h>
 
 // template<typename T>
 // void Kontener<T>::add(T dana)

@@ -26,7 +26,8 @@
     #define CZAS_CALKOWITEJ_ZMIANY_POLOZENIA SECS(35L)
 
 
-    #define BUTTON_CLICK_TIME SECS(1)
+    #define BUTTON_CLICK_TIME 500
+    // #define BUTTON_CLICK_TIME SECS(1)
 
     //BUFFORY
     #define BUFFOR_IN_SIZE 9
@@ -41,10 +42,14 @@
      */
     #define EEPROM_ADRES_OF_STARTUP_BYTE 0
 
-    /**
-     * @brief Funkcja do resetowania Arduino
-     * 
-     */
-    void const (*resetFunc)(void) = 0;
+    ;
 #endif // !Stale
 
+#ifndef RESET
+    #define RESET
+    /**
+     * @brief Funkcja do resetowania Arduino
+     *
+     */
+    void static const (*resetFunc)(void) = 0;
+#endif
