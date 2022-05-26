@@ -2,6 +2,7 @@
 #define SYSTEM_H
 
 #include <Arduino.h>
+#include <EEPROM.h>
 #include <Timers.h>
 #include <Wire.h>
 #include "FreeMemory.h"
@@ -84,6 +85,19 @@ public:
     //  * @return false 
     //  */
     // bool runCommand(Command *command);
+    /**
+     * @brief Get the Start Up Variant from EEPROM
+     * 
+     * @return true if startup should be without deafult Devices
+     * @return false if startup should be with deafult Devices
+     */
+    bool getStartUpVariant();
+    /**
+     * @brief Set the Next Startup Variant in EEPROM
+     *
+     * @param variant true if next startup should be without deafult Devices
+     */
+    void setNextStartupVariant(bool variant);
 };
 
 

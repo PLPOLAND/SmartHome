@@ -49,46 +49,53 @@ void System::begin(){
     timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     // OUT_LN(F("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));"));
     
-    #ifdef DEV
-    Przycisk *p1 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, A3);
-    Przycisk *p2 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, 14);
+    if (!this->getStartUpVariant())
+    {
+        Przycisk *p1 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, A3);
+        Przycisk *p2 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, 14);
 
-    Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 16, 15);
-    Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
-    Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
+        Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 16, 15);
+        Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
+        Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
 
-    Command *tmp = new Command;
-    tmp->setDevice(r);
-    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
-    byte parametry[8] = {'U', 0, 0, 0, 0, 0, 0, 0};
-    tmp->setParams(parametry);
-    p1->dodajFunkcjeKlikniecia(tmp, 1);
-    tmp = new Command;
-    tmp->setDevice(r);
-    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
-    parametry[0] = 'D';
-    tmp->setParams(parametry);
-    p1->dodajFunkcjeKlikniecia(tmp, 2);
-    tmp = new Command;
-    tmp->setDevice(r);
-    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
-    parametry[0] = 'S';
-    tmp->setParams(parametry);
-    p1->dodajFunkcjeKlikniecia(tmp, 3);
+        Command *tmp = new Command;
+        tmp->setDevice(r);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+        byte parametry[8] = {'U', 0, 0, 0, 0, 0, 0, 0};
+        tmp->setParams(parametry);
+        p1->dodajFunkcjeKlikniecia(tmp, 1);
+        tmp = new Command;
+        tmp->setDevice(r);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+        parametry[0] = 'D';
+        tmp->setParams(parametry);
+        p1->dodajFunkcjeKlikniecia(tmp, 2);
+        tmp = new Command;
+        tmp->setDevice(r);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+        parametry[0] = 'S';
+        tmp->setParams(parametry);
+        p1->dodajFunkcjeKlikniecia(tmp, 3);
 
-    tmp = new Command;
-    tmp->setDevice(s1);
-    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
-    parametry[0] = 0;
-    tmp->setParams(parametry);
-    p2->dodajFunkcjeKlikniecia(tmp, 1);
-    tmp = new Command;
-    tmp->setDevice(s2);
-    tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
-    parametry[0] = 0;
-    tmp->setParams(parametry);
-    p2->dodajFunkcjeKlikniecia(tmp, 2);
-    #endif
+        tmp = new Command;
+        tmp->setDevice(s1);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+        parametry[0] = 0;
+        tmp->setParams(parametry);
+        p2->dodajFunkcjeKlikniecia(tmp, 1);
+        tmp = new Command;
+        tmp->setDevice(s2);
+        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+        parametry[0] = 0;
+        tmp->setParams(parametry);
+        p2->dodajFunkcjeKlikniecia(tmp, 2);
+    }
+    else
+    {
+        init_system();
+        this->setNextStartupVariant(false);//next startup should be with devices
+    }
+    
 
     OUT_LN(freeMemory());
 }
@@ -331,23 +338,23 @@ LinkedList<byte*> System::getAdrOfThermometrs(){
 
 void System::reinit_system(){
     OUT_LN("DEL")
-    Device *tmp;
-    for (byte i = 0; i < devices.size(); i++)
-    {
-        tmp = devices.get(i);
-        delete tmp;//usuń wszystkie urządzenia w systemie
-    }
+    // Device *tmp;
+    // for (byte i = 0; i < devices.size(); i++)
+    // {
+    //     tmp = devices.get(i);
+    //     delete tmp;//usuń wszystkie urządzenia w systemie
+    // }
     
-    //oczyść wszystkie listy urządzeń
-    devices.clear();
-    idDevice = 0;
-    przekazniki.clear();
-    rolety.clear();
-    termometry.clear();
-    przyciski.clear();
-    init_system();
-
+    // //oczyść wszystkie listy urządzeń
+    // devices.clear();
+    // idDevice = 0;
+    // przekazniki.clear();
+    // rolety.clear();
+    // termometry.clear();
+    // przyciski.clear();
+    // init_system();
     OUT_LN(freeMemory());
+    resetFunc();//zresetuj system
 }
 
 void System::init_system(){
@@ -358,3 +365,10 @@ bool System::is_init(){
     return is_initiated;
 }
 
+bool System::getStartUpVariant(){
+    return EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE] == 1;
+}
+
+void System::setNextStartupVariant(bool variant){
+    EEPROM.update(EEPROM_ADRES_OF_STARTUP_BYTE,variant?1:0);
+}

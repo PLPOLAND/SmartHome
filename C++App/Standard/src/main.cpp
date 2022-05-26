@@ -77,7 +77,6 @@
 
     Dioda dioda;
 
-
     System* sys;
     void setup()
     {
@@ -130,6 +129,7 @@
 
         OUT_LN(freeMemory());
         dioda.off();
+        // resetFunc();
     }
 
     void loop()

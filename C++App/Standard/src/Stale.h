@@ -1,7 +1,7 @@
 #ifndef STALE
 #define STALE
 
-    // #define DEV
+    #define DEV
     #define DEBUG
 
     #ifdef DEBUG
@@ -32,7 +32,19 @@
     #define BUFFOR_IN_SIZE 9
     #define BUFFOR_OUT_SIZE 9
     //pin komunikacji oneWire
-#define ONEWIRE_BUS 11
+    #define ONEWIRE_BUS 11
 
+    /**
+     * @brief Adres byte-a w pamięci EEPROM zawierający jaki wariant systemu powinien być uruchomiony
+     * @see System.getStartUpVariant
+     * 
+     */
+    #define EEPROM_ADRES_OF_STARTUP_BYTE 0
+
+    /**
+     * @brief Funkcja do resetowania Arduino
+     * 
+     */
+    void const (*resetFunc)(void) = 0;
 #endif // !Stale
 
