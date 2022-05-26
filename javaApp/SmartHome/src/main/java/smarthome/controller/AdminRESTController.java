@@ -2,6 +2,7 @@ package smarthome.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -178,6 +179,11 @@ public class AdminRESTController {
             }
         }
         return new Response<>(blinds);
+    }
+    @RequestMapping("/getButtonFunction")
+    public Response<List<ButtonFunction>> getButtonFunctions(@RequestParam("buttonId")int buttonId) {
+        Button b= (Button)system.getSensorByID(buttonId);
+        return new Response<>(b.getFunkcjeKlikniec());
     }
 
     @GetMapping("/addRoom")

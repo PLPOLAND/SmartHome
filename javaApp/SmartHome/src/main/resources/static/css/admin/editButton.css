@@ -1,7 +1,7 @@
-#addClickFunctionWindow{
+.showupWindow{
     display: none;
     position: absolute;
-    width: calc(100vw - 2em);
+    width: calc(100vw - 1em);
     height: calc(100vh - 6em);
     z-index: 10;
     background-color: #000000EE;
@@ -22,4 +22,57 @@
     transition: 200ms;
 
     cursor: pointer;
+}
+
+.level1{
+    z-index: 10;
+}
+.level2{
+    z-index: 11;
+}
+#listClickFunctionWindow .wiersz {
+    font-size: 20px;
+    height: 50px;
+    line-height: 50px;
+}
+#listClickFunctionWindow .body-form {
+    width: 80%;
+}
+#listClickFunctionWindow .function_list{
+    width: calc(100% - 20px);
+    background-color: var(--primaryDarkColor);
+    padding: 5px 10px;
+}
+#listClickFunctionWindow .clicks{
+    display: block;
+    width: 200px;
+    float: left;
+}
+#listClickFunctionWindow .deviceType{
+    display: block;
+    width: 300px;
+    float: left;
+}   
+#listClickFunctionWindow .deviceName{
+    display: block;
+    width: 300px;
+    float: left;
+}
+#listClickFunctionWindow .stan{
+    display: block;
+    width: 300px;    
+    float: left;
+}
+#listClickFunctionWindow .icon {
+    float: right;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+#listClickFunctionWindow .icon:hover .icon-sliders {
+    color: var(--secondaryColor);
+}
+
+#listClickFunctionWindow .icon:hover .icon-trash {
+    color: var(--errorColor);
 }

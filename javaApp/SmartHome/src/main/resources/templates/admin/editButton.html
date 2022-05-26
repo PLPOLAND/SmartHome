@@ -19,7 +19,7 @@
     <script th:inline="javascript">id = /*[[${buttonID}]]*/ -1</script>
     <div id="err-msg"></div>
     <div id="msg"></div>
-    <div id="addClickFunctionWindow">
+    <div id="addClickFunctionWindow" class="showupWindow level1">
         <div class="body-form">
             <h1>Dodaj funkcję kliknięcia</h1>
             <hr>
@@ -43,6 +43,15 @@
             <div class="wiersz"></div>
             <div class="wiersz"><!--<button id="clear" class="toHide">Wyczyść <i class="icon-trash"></i></button>--><button id="addClickFunction">Dodaj <i class="icon-save"></i></button></div>
         
+        </div>
+    </div>
+    <div id="listClickFunctionWindow" class="showupWindow level2">
+        <div class="body-form">
+            <h1>Lista funkcji kliknięcia</h1>
+            <hr>
+            <div class="wiersz">Id przycisku: <input id="buttonID" th:value="${buttonID}" size="2" disabled></div>
+            <div class="wiersz"></div>
+            
         </div>
     </div>
     

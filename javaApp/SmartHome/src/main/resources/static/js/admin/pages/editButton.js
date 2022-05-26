@@ -54,13 +54,19 @@ $(document).ready(function () {
     }).children().click(function (e) {
         return false;
     });
+    $("#listClickFunction").click(function(){addClickFuntion()});
+    $("#listClickFunctionWindow").click(function () {
+        $("#listClickFunctionWindow").hide("blind", {}, 1000, function () {});
+    }).children().click(function (e) {
+        return false;
+    });
 
     $("#add").click(function(){
         $("#addClickFunctionWindow").show("blind", {}, 1000, function () { })
     })
     $("#list").click(function(){
-        $("#err-msg").html("TODO");
-        $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000); });
+        
+        $("#listClickFunctionWindow").show("blind", {}, 1000, function () { })
 
     })
     onload(id);
@@ -186,6 +192,31 @@ function onload(id1) {
             }
         }
     });
+    $.ajax({
+        url: "api/getButtonFunction",
+        type: 'get',
+        data: {
+            buttonId: id1
+        },
+        success: function (response) {
+            // console.log(response);
+
+        //     // $("#err-msg").html(response);
+            if (response.error == null) {
+                console.log("getButtonfunction response");
+                console.log(response.obj);
+                response.obj.forEach(element => {
+                    $("#listClickFunctionWindow").children().append(makeFunctionList(element))
+                    
+                });
+                
+
+            } else {
+                $("#err-msg").html(response.error);
+                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+            }
+        }
+    });
 }
 
 function addClickFuntion() {
@@ -217,7 +248,7 @@ function addClickFuntion() {
                 console.log(response.obj);
 
                 $("#msg").html(response.obj);
-                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+                $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
 
             } else {
                 $("#err-msg").html(response.error);
@@ -225,4 +256,40 @@ function addClickFuntion() {
             }
         }
     });
+}
+
+function makeFunctionList(obj) {
+    var funlist = $("<div class=\"function_list wiersz\">");
+
+    var clicks = $('<div class="clicks">Kliknięć: '+obj.clicks+'</div>');
+    var devType = $('<div class="deviceType">Rodzaj urzadzenia: '+obj.device.typ+'</div>');
+    var devName = $('<div class="deviceName">Nazwa urządzenia: '+obj.device.name+'</div>');
+    var stan = $('<div class="stan">Stan: '+obj.state+'</div>');
+
+    var edit = $("<div class=\"icon\" title=\"Edytuj\"></div>");
+    edit.append($("<i class=\"icon-sliders\"></i>"));
+    var del = $("<div class=\"icon\" title=\"Usuń\"></div>");
+    del.append($("<i class=\"icon-trash\"></i>"));
+
+    edit.click(function () {
+        // document.location.href = "/admin/editRoom?roomName=" + name;
+        alert("TODO");
+    })
+
+    del.click(function () {
+        alert("TODO");
+    })
+
+
+
+    funlist.append(clicks);
+    funlist.append(devType);
+    funlist.append(devName);
+    funlist.append(stan);
+
+    funlist.append(del);
+    funlist.append(edit);
+
+    return funlist;
+
 }
