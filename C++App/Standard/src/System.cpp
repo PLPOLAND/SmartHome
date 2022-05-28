@@ -48,6 +48,10 @@ void System::begin(){
     // OUT_LN(F("Wire.onReceive(I2CConverter::onRequestEvent);"));
     timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     // OUT_LN(F("timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));"));
+    if (EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE] != 1 && EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE] != 0)
+    {
+        EEPROM.write(EEPROM_ADRES_OF_STARTUP_BYTE,0);
+    }
     
     if (!this->getStartUpVariant())
     {
@@ -94,6 +98,11 @@ void System::begin(){
     {
         init_system();
         this->setNextStartupVariant(false);//next startup should be with devices
+        Command * afterInitCommand = new Command;
+        byte parametry[8] = {1,0,0,0,0,0,0,0};
+        afterInitCommand->setParams(parametry);
+        afterInitCommand->setCommandType(Command::KOMENDY::SEND_REPLY);
+        comunication->doWyslania.add(afterInitCommand);
     }
     
 
@@ -353,6 +362,7 @@ void System::reinit_system(){
     // termometry.clear();
     // przyciski.clear();
     // init_system();
+    System::getSystem()->setNextStartupVariant(true);
     OUT_LN(freeMemory());
     resetFunc();//zresetuj system
 }
@@ -366,9 +376,15 @@ bool System::is_init(){
 }
 
 bool System::getStartUpVariant(){
+    OUT(F("EEPROM: "))
+    OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
     return EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE] == 1;
 }
 
 void System::setNextStartupVariant(bool variant){
+    OUT(F("EEPROM before change: "))
+    OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
     EEPROM.update(EEPROM_ADRES_OF_STARTUP_BYTE,variant?1:0);
+    OUT(F("EEPROM after change: "))
+    OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
 }
