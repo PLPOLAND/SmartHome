@@ -27,7 +27,7 @@ protected:
     static I2CConverter* singleton;
     static LinkedList<Command*> doWyslania;
 
-    friend System;
+    friend class System;
 
 public:
     I2CConverter(I2CConverter &other) = delete;
