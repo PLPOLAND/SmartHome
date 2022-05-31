@@ -50,6 +50,14 @@ public class Runners {
     void checkReinit(){
         logger.debug("checkReinit()");
         system.reinitAllBoards();
+        logger.debug("checkStatus()");
+        for (Device device : system.getSystemDAO().getDevices()) {
+            try {
+                system.updateDeviceState(device);
+            } catch (HardwareException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
     }
     // @Scheduled(fixedRate = 2000)
     // void updateDevicesState(){
