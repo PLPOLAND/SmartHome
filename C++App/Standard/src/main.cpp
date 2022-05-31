@@ -14,7 +14,7 @@
     Przekaznik przekaznik;
     void setup()
     {
-        Serial.begin(115200); // start serial for output
+        Serial.begin(500000); // start serial for output
         przycisk.begin(14);
         przekaznik.begin(11);
         OUT_LN("START");

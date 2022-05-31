@@ -6,6 +6,7 @@ function addDevice(obj) {
     
     //TODO dodać inne rodzaje ikonek w znależności od rodzaju urzadzenia
     var deviceTMP = $("<div class=\"device\"></div >");
+    deviceTMP.attr("id", obj.id);
     var deviceIcon = $("<div class=\"deviceIcon\" ></div >");
     if (obj.typ==="LIGHT") {
         deviceIcon.append($("<i class=\"icon-lightbulb\"></i>"));

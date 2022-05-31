@@ -29,6 +29,11 @@ public class Runners {
     MasterToSlaveConverter converter;
 
     ArrayList<Termometr> termometrs;
+
+    //informujme o (nie)zakończeniu reinicjacji
+    boolean isCheckReinitDone = true;
+    //informuje o (nie)zakończeniu sprawdzania statusu urządzeń 
+    boolean isCheckDevicesStatusDone = true;
     
     public Runners(){
         logger = LoggerFactory.getLogger(this.getClass());
@@ -46,17 +51,30 @@ public class Runners {
     //     }
     // }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedDelay = 60000)
     void checkReinit(){
-        logger.debug("checkReinit()");
-        system.reinitAllBoards();
+        if (isCheckReinitDone && isCheckDevicesStatusDone) {
+            isCheckReinitDone = false;
+            logger.debug("checkReinit()");
+            system.reinitAllBoards();
+            isCheckReinitDone = true;
+        }
+        
+    }
+    
+    @Scheduled(fixedDelay = 5000)
+    void checkDevicesStatus(){
         logger.debug("checkStatus()");
-        for (Device device : system.getSystemDAO().getDevices()) {
-            try {
-                system.updateDeviceState(device);
-            } catch (HardwareException e) {
-                logger.error(e.getMessage(), e);
+        if (isCheckDevicesStatusDone && isCheckReinitDone) {
+            isCheckDevicesStatusDone = false;
+            for (Device device : system.getSystemDAO().getDevices()) {
+                try {
+                    system.updateDeviceState(device);
+                } catch (HardwareException e) {
+                    logger.error(e.getMessage(), e);
+                }
             }
+            isCheckDevicesStatusDone = true;
         }
     }
     // @Scheduled(fixedRate = 2000)

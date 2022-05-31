@@ -104,6 +104,8 @@ public class I2C{
             throw new HardwareException("System nie znalazł urządzenia o takim adresie");
         } else {
             try {
+
+                //Thread.sleep(100);
                 tmp.write(buffer);
             } catch (IOException e) {
                 HardwareException throwable = new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres, e);
@@ -119,7 +121,10 @@ public class I2C{
                     throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres,e2);
                 }
                 logger.info("Wysłano!");
-            }
+            } //catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                //e.printStackTrace();
+          //  }
         }
     }
     public void writeTo(int adres, byte[] buffer, int size) throws HardwareException{
@@ -137,10 +142,14 @@ public class I2C{
                 tmpbuff[i] = buffer[i];
             }
             try {
+                //Thread.sleep(100);
                 tmp.write(tmpbuff);
             } catch (IOException e) {
                 throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: "+adres, e);
-            }
+            } //catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                //e.printStackTrace();
+          //  }
         }
     }
     public byte[] readFrom(int adres, int size) throws HardwareException{
@@ -156,10 +165,15 @@ public class I2C{
         }
         else{
             try {
+
+                //Thread.sleep(100);
                 tmp.read(buffer, 0, size);
             } catch (IOException e) {
                 throw new HardwareException("Błąd IO podczas próby odczytu z slave-a o adresie: "+ adres, e);
-            }
+            } //catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                //e.printStackTrace();
+          //  }
         }
         return buffer;
     }
