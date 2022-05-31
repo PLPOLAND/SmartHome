@@ -8,8 +8,7 @@ public enum SensorsTypes {
     THERMOMETR_HYGROMETR,
     TWILIGHT,
     MOTION,
-    BUTTON,
-    BUTTON_BLINDS;
+    BUTTON;
 
     public static String[] getNames() {
         return Arrays.stream(SensorsTypes.class.getEnumConstants()).map(Enum::name).toArray(String[]::new);
