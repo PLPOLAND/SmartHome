@@ -1,5 +1,6 @@
-var id=-1;
-var rooms;
+var id=-1; //ID edytowanego przycisku
+var rooms; // Pokoje w systemie 
+var oldClicks = -1; // stara liczba kliknięć dla edytowanej funkcji w celu poprawnego usunięcia zmienianej funkcji kliknięć
 $(document).ready(function () {
     $("#clear").click(function() {
         clear();
@@ -23,7 +24,7 @@ $(document).ready(function () {
                 $("#room option[value='0']").remove();
                 var i = 0;
                 response.obj.forEach(element => {
-                    $("#room").append('<option value="' + i+'"> '+element+' </option >') ;
+                    $("#room").append('<option value="' + element+'"> '+element+' </option >') ;
                     i++;
                 });
 
@@ -47,6 +48,17 @@ $(document).ready(function () {
         }
     })
     $("#deviceType").change();
+    $("#deviceTypeEdit").change(function () {
+        if ($("#deviceTypeEdit").val()==1) {
+            $(".showBlind").show();
+            $(".showLight").hide();
+        } else {
+            $(".showBlind").hide();
+            $(".showLight").show();
+            
+        }
+    })
+    $("#deviceTypeEdit").change();
 
     $("#addClickFunction").click(function(){addClickFuntion()});
     $("#addClickFunctionWindow").click(function () {
@@ -60,15 +72,23 @@ $(document).ready(function () {
     }).children().click(function (e) {
         return false;
     });
+    $("#editClickFunctionWindow").click(function () {
+        $("#editClickFunctionWindow").hide("blind", {}, 1000, function () {});
+    }).children().click(function (e) {
+        return false;
+    });
 
     $("#add").click(function(){
         $("#addClickFunctionWindow").show("blind", {}, 1000, function () { })
     })
     $("#list").click(function(){
-        
         $("#listClickFunctionWindow").show("blind", {}, 1000, function () { })
-
     })
+
+    $("#modifyClickFunction").click(function () {
+        saveButtonFunction();
+    })
+
     onload(id);
 
 });
@@ -85,9 +105,11 @@ function getBlinds() {
                 console.log(response.obj);
                 response.obj.sort((a, b) => a.id > b.id);
                 $("#ctrDeviceB option[value='0']").remove();
+                $("#ctrDeviceBEdit option[value='0']").remove();
                 // var i = 0;
                 response.obj.forEach(element => {
                     $("#ctrDeviceB").append('<option value="' + element.id + '">' + element.id + ' - ' + rooms[element.room] + ' - ' + element.name + ' </option >');
+                    $("#ctrDeviceBEdit").append('<option value="' + element.id + '">' + element.id + ' - ' + rooms[element.room] + ' - ' + element.name + ' </option >');
                     // i++;
                 });
             } else {
@@ -110,9 +132,11 @@ function getLights() {
                 console.log(response.obj);
                 response.obj.sort((a, b) => a.id > b.id);
                 $("#ctrDeviceL option[value='0']").remove();
+                $("#ctrDeviceLEdit option[value='0']").remove();
                 // var i = 0;
                 response.obj.forEach(element => {
                     $("#ctrDeviceL").append('<option value="' + element.id + '">' + element.id + ' - ' + rooms[element.room] + ' - ' + element.name + ' </option >');
+                    $("#ctrDeviceLEdit").append('<option value="' + element.id + '">' + element.id + ' - ' + rooms[element.room] + ' - ' + element.name + ' </option >');
                     // i++;
                 });
             } else {
@@ -124,31 +148,54 @@ function getLights() {
 }
 
 function save() {
-    return;
-    var url = "api/";
-    var deviceType = $("#deviceType").val();
-    if (deviceType === "LIGHT") {
-        url += "editSwiatlo"
-    }
-    else if(deviceType === "BLIND"){
-        url += "editRoleta"
+    var url = "api/editButton";
+    $.ajax({
+        url: url,
+        type: 'get',
+        
+        data: { 
+            buttonId: id,
+            roomName: $("#room").val(),
+            name: $("#name").val(),
+            boardID: $("#boardID").val(),
+            pin: $("#pin").val()
+        },
+        success: function (response) {
+            // console.log(response);
+
+            // $("#err-msg").html(response);
+            if (response.error == null) {
+                console.log(response.obj);
+                $("#msg").html(response.obj);
+                $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
+            } else {
+                $("#err-msg").html(response.error);
+                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+            }
+        }
+    });
+}
+function saveButtonFunction() {
+    var url = "api/editButtonFunction";
+    var device, stan = "";
+    if ($("#deviceTypeEdit").val() == 0) {//LIGHT
+        device = $("#ctrDeviceLEdit").val();
+        stan = "NONE";
     }
     else {
-        $("#err-msg").html("Urządzenie jeszcze nie zostało zaprogramowane w systemie!");
-        $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
-        return;
+        device = $("#ctrDeviceBEdit").val();
+        stan = $("#stan").val();
     }
     $.ajax({
         url: url,
         type: 'get',
         
         data: { 
-            name: $("#name").val(),
-            roomName: $("#room").val(),
-            boardID: $("#boardID").val(),
-            deviceId: id,
-            pin: $("#pin1").val(),
-            pinDown: $("#pin2").val()
+            buttonId: id,
+            deviceId: device,
+            state: stan,
+            clicks: $("#clicksEdit").val(),
+            oldClicks: oldClicks
         },
         success: function (response) {
             // console.log(response);
@@ -183,7 +230,7 @@ function onload(id1) {
             if (response.error == null) {
                 console.log(response.obj);
                 
-                $("#room").val(response.obj.room)
+                $("#room").val(rooms[response.obj.room])
                 
 
             } else {
@@ -272,8 +319,8 @@ function makeFunctionList(obj) {
     del.append($("<i class=\"icon-trash\"></i>"));
 
     edit.click(function () {
-        // document.location.href = "/admin/editRoom?roomName=" + name;
-        alert("TODO");
+        $('#editClickFunctionWindow').show("blind", {}, 1000, function () { });
+        oldClicks = obj.clicks;
     })
 
     del.click(function () {

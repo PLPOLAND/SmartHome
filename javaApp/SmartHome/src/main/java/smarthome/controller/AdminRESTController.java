@@ -498,9 +498,49 @@ public class AdminRESTController {
 
     }
 
+    @GetMapping("/editButton")
+    public Response<String> editButton(@RequestParam("buttonId") int buttonId,@RequestParam("roomName") String roomName, @RequestParam("name") String buttonName,@RequestParam("boardID") int newSlaveID, @RequestParam("pin") int pin){
+        
+        try {
+            Button b = (Button) system.getSensorByID(buttonId);
+            if (b != null){//TODO move to System
+                b.setName(buttonName);
+                int oldSlaveID = b.getSlaveID();
+                b.setSlaveID(newSlaveID);
+                b.setPin(pin);
+                systemDAO.getRoom(b.getRoom()).delSensor(b);
+                systemDAO.getRoom(roomName).addSensor(b);
+                systemDAO.save();
+                system.initOfBoard(oldSlaveID);
+                system.initOfBoard(newSlaveID);
+                return new Response<>("Przycisk: '" + b.getName() + "' uaktualnione prawidłowo");
+            }
+            else
+                return new Response<>("","Nie udało znaleźć się Przycisku o id: '"+buttonId+"'. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        } catch (Exception e) {
+            logger.error("Błąd podczas uaktualniania Przycisku",e);
+            return new Response<>(null, e.getMessage());
+        }
+    }
 
+    @GetMapping("/editButtonFunction")
+    public Response<String> editButtonFunction(@RequestParam("buttonId") int buttonId,@RequestParam("deviceId") int deviceId, @RequestParam("state") ButtonFunction.State state, @RequestParam("clicks") int clicks,@RequestParam("oldClicks") int oldclicks ) {
 
-
+        try {
+            Button b = (Button) system.getSensorByID(buttonId);
+            if (b != null) {// TODO move to System
+                 Device device = system.getDeviceByID(deviceId);
+                system.removeFunctionFromButton(b, oldclicks);
+                system.addFunctionToButton(buttonId, device, state, clicks);
+                return new Response<>("Funkcja uaktualniona prawidłowo");
+            } else
+                return new Response<>("", "Nie udało znaleźć się Przycisku o id: '" + buttonId
+                        + "'. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        } catch (Exception e) {
+            logger.error("Błąd podczas uaktualniania Przycisku", e);
+            return new Response<>(null, e.getMessage());
+        }
+    }
 
 
 

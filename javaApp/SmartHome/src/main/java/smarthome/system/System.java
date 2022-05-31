@@ -310,18 +310,19 @@ public class System {
 
 
     public ButtonFunction addFunctionToButton(int buttonID, ButtonFunction function)throws HardwareException{
-        Button but = (Button)systemDAO.getSensors().get(buttonID);
+        
+        Button but = (Button) this.getSensorByID(buttonID);
         but.addFunkcjaKilkniecia(function);
         arduino.sendClickFunction(function);
         return function;
     }
     public void removeFunctionToButton(int buttonID, int numberOfClicks) throws HardwareException{
-        Button but = (Button) systemDAO.getSensors().get(buttonID);
+        Button but = (Button) this.getSensorByID(buttonID);
         but.removeFunkcjaKilkniecia(numberOfClicks);
         arduino.sendRemoveFunction(but.getSlaveID(),numberOfClicks);
         
     }
-    public void removeFunctionToButton(Button button, int numberOfClicks) throws HardwareException{
+    public void removeFunctionFromButton(Button button, int numberOfClicks) throws HardwareException{
         button.removeFunkcjaKilkniecia(numberOfClicks);
         arduino.sendRemoveFunction(button.getSlaveID(),numberOfClicks);
         

@@ -54,6 +54,40 @@
             
         </div>
     </div>
+    <div id="editClickFunctionWindow" class="showupWindow level3">
+        <div class="body-form">
+            <h1>Edytuj funkcję kliknięcia</h1>
+            <hr>
+            <div class="wiersz">Id przycisku: <input id="buttonID" th:value="${buttonID}" size="2" disabled></div>
+            <div class="wiersz"></div>
+            <div class="wiersz">Typ urzadzenia do kontrolowania:
+                <select id="deviceTypeEdit">
+                    <option value="0">Światło</option>
+                    <option value="1">Roleta</option>
+                </select>
+            </div>
+            <div class="wiersz showLight">Urządzenie: <select id="ctrDeviceLEdit">
+                    <option value="0">NULL</option>
+                </select></div>
+            <div class="wiersz showBlind">Urządzenie: <select id="ctrDeviceBEdit">
+                    <option value="0">NULL</option>
+                </select></div>
+            <div class="wiersz showBlind">Kierunek:
+                <select id="stan">
+                    <option value="UP">Góra</option>
+                    <option value="DOWN">Dół</option>
+                    <option value="STOP">Stop</option>
+                </select>
+            </div>
+            <div class="wiersz">Ilość Kliknięć do aktywowania funkcji: <input type="number" max="5" min="1" value="1" id="clicksEdit"
+                    size="2"></div>
+            <div class="wiersz"></div>
+            <div class="wiersz">
+                <!--<button id="clear" class="toHide">Wyczyść <i class="icon-trash"></i></button>--><button
+                    id="modifyClickFunction">Zapisz <i class="icon-save"></i></button>
+            </div>
+        </div>
+    </div>
     
     <div class="background-container"></div>
     <div class="banner">
