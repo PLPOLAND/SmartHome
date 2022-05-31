@@ -14,7 +14,8 @@ System *System::getSystem()
 {
     if (system == NULL)
     {
-        Serial.begin(115200); // start serial for output
+        // Serial.begin(115200); // start serial for output
+        Serial.begin(500000); // start serial for output
         system = new System();
         // OUT_LN(F("getSystem System()"));
     }
@@ -103,6 +104,10 @@ void System::begin(){
         afterInitCommand->setParams(parametry);
         afterInitCommand->setCommandType(Command::KOMENDY::SEND_REPLY);
         comunication->doWyslania.add(afterInitCommand);
+        pinMode(12, OUTPUT);
+        pinMode(13, OUTPUT);
+        pinMode(15, OUTPUT);
+        pinMode(16, OUTPUT);
     }
     
 

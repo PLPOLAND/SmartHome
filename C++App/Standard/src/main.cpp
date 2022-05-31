@@ -81,7 +81,7 @@
     void setup()
     {
         dioda.on();
-        Serial.begin(115200);
+        Serial.begin(500000);
         // Serial.println(freeMemory());
         OUT_LN(freeMemory());
         OUT_LN("setup()");
