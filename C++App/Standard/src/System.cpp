@@ -61,7 +61,8 @@ void System::begin(){
         Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 16, 15);
         Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
         Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
-
+        p1->setCzyPominac(true);
+        p2->setCzyPominac(true);
         Command *tmp = new Command;
         tmp->setDevice(r);
         tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);

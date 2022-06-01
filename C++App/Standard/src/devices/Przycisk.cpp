@@ -45,7 +45,7 @@ Przycisk::~Przycisk()
  * \param pin pin nasłuchu stanu
  * 
  */
-bool Przycisk::begin(byte pin)
+bool Przycisk::begin(byte pin, bool czyPomijacPierwszy = false)
 {
     Device(Device::TYPE::PRZYCISK);
     Command* tmp = new Command;
@@ -56,6 +56,8 @@ bool Przycisk::begin(byte pin)
         funkcje_przytrzymania_puszczenie.add(tmp);
     }
     
+    this->setCzyPominac(czyPomijacPierwszy);
+
     if(this->setPin(pin)){
         time = new Timer();
         time->time(STOP);
@@ -265,6 +267,15 @@ bool Przycisk::runCommand(Command *command)
     OUT_LN()
     OUT_LN(F("RUN_COMMAND:"))
     OUT_LN(command->toString())
+
+    if (this->isCzyPominac())
+    {
+        OUT_LN(F("POMIJANIE"))
+        this->setCzyPominac(false);
+        return true;
+    }
+    
+
     switch (command->getCommandType())
     {
     case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
@@ -340,4 +351,12 @@ bool Przycisk::runCommand(Command *command)
         break;
     }
     return true;
+}
+
+void Przycisk::setCzyPominac(bool pominac){
+    this->czyPominac = pominac;
+}
+
+bool Przycisk::isCzyPominac(){
+    return this->czyPominac;
 }

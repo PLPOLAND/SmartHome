@@ -32,6 +32,8 @@ private:
     StanPrzycisku stan;
     int klikniecia;
     Timer* time;
+    bool czyPominac = false;
+
     Dioda dioda;
     /**
      *  Przechowuje Komendy wykonywane po odpowiedniej liczbie klikniec
@@ -57,8 +59,7 @@ private:
 public:
     Przycisk();
     ~Przycisk();
-    bool begin(byte pin);
-    
+    bool begin(byte pin, bool czyPomijacPierszwy = false);
 
     byte getPin();
     bool setPin(byte pin);
@@ -75,14 +76,17 @@ public:
     bool dodajFunkcjePrzytrzymania(Command* command, byte klikniec);
     bool dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klikniec);
     
-    /**
-     * @brief Wykonuje komendę dostarczoną w argumencie.
-     *
-     * @param command komenda do wykonania
-     * @return true
-     * @return false
-     */
-    bool runCommand(Command *command);
+    void setCzyPominac(bool pominac);
+    bool isCzyPominac();
+
+        /**
+         * @brief Wykonuje komendę dostarczoną w argumencie.
+         *
+         * @param command komenda do wykonania
+         * @return true
+         * @return false
+         */
+        bool runCommand(Command *command);
 };
 
 #endif // !Wylacznik_h
