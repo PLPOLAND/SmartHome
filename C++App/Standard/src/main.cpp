@@ -14,7 +14,7 @@
     Przekaznik przekaznik;
     void setup()
     {
-        Serial.begin(115200); // start serial for output
+        Serial.begin(500000); // start serial for output
         przycisk.begin(14);
         przekaznik.begin(11);
         OUT_LN("START");
@@ -81,7 +81,7 @@
     void setup()
     {
         dioda.on();
-        Serial.begin(115200);
+        Serial.begin(500000);
         // Serial.println(freeMemory());
         OUT_LN(freeMemory());
         OUT_LN("setup()");

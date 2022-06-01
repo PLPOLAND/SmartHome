@@ -13,9 +13,11 @@
 .body-form{
     cursor: default;
 }
+#modifyClickFunction,
 #addClickFunction{
     float: right;
 }
+#modifyClickFunction:hover,
 #addClickFunction:hover {
     background-color: var(--secondaryColor);
     color: var(--secondaryTextColor);
@@ -29,6 +31,9 @@
 }
 .level2{
     z-index: 11;
+}
+.level3{
+    z-index: 12;
 }
 #listClickFunctionWindow .wiersz {
     font-size: 20px;

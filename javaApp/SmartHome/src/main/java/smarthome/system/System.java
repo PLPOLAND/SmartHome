@@ -1,7 +1,9 @@
 package smarthome.system;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 import com.pi4j.io.i2c.I2CDevice;
 
@@ -154,10 +156,26 @@ public class System {
 
     //TODO dodać javaDoc
     public void removeDevice(Device device, Room room){
+        ArrayList<Button> buttons = systemDAO.getAllButtons();
+        ArrayList<ButtonFunction> toRemove = new ArrayList<>();
+        for (Button button : buttons) {
+            for (ButtonFunction buttonFunction : button.getFunkcjeKlikniec()) {
+                if (buttonFunction.getDevice().equals(device)) {
+                    toRemove.add(buttonFunction);
+                    
+                }
+            }
+        }
+        for (ButtonFunction buttonFunction : toRemove) {
+            Button tmp = buttonFunction.getButton();
+            tmp.removeFunkcjaKilkniecia(buttonFunction.getClicks());
+        }
+
         room.delDevice(device);
         systemDAO.getDevices().remove(device);
         systemDAO.save(room);
-
+        
+        initOfBoard(device.getSlaveID());
         // TODO usuwanie urzadzenia z funkcji przycisków!
     }
     
@@ -166,7 +184,7 @@ public class System {
         room.delSensor(sen);
         systemDAO.getSensors().remove(sen);
         systemDAO.save(room);
-
+        initOfBoard(sen.getSlaveID());
     }
     /**
      * Dodaj "Termometr" do systemu
@@ -292,18 +310,19 @@ public class System {
 
 
     public ButtonFunction addFunctionToButton(int buttonID, ButtonFunction function)throws HardwareException{
-        Button but = (Button)systemDAO.getSensors().get(buttonID);
+        
+        Button but = (Button) this.getSensorByID(buttonID);
         but.addFunkcjaKilkniecia(function);
         arduino.sendClickFunction(function);
         return function;
     }
     public void removeFunctionToButton(int buttonID, int numberOfClicks) throws HardwareException{
-        Button but = (Button) systemDAO.getSensors().get(buttonID);
+        Button but = (Button) this.getSensorByID(buttonID);
         but.removeFunkcjaKilkniecia(numberOfClicks);
         arduino.sendRemoveFunction(but.getSlaveID(),numberOfClicks);
         
     }
-    public void removeFunctionToButton(Button button, int numberOfClicks) throws HardwareException{
+    public void removeFunctionFromButton(Button button, int numberOfClicks) throws HardwareException{
         button.removeFunkcjaKilkniecia(numberOfClicks);
         arduino.sendRemoveFunction(button.getSlaveID(),numberOfClicks);
         

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 
 import ch.qos.logback.core.joran.conditional.ElseAction;
 import smarthome.model.Room;
+import smarthome.model.hardware.Button;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Light;
@@ -167,6 +168,17 @@ public class SystemDAO {
 
     public ArrayList<Sensor> getSensors() {
         return this.sensors;
+    }
+
+    public ArrayList<Button> getAllButtons() {
+        ArrayList<Button> buttons = new ArrayList<>();
+        for (Room room : this.getRoomsArrayList()) {
+            for (Sensor przycisk : room.getSensors()) {
+                if (przycisk.getTyp() == SensorsTypes.BUTTON)
+                    buttons.add((Button) przycisk);
+            }
+        }
+        return buttons;
     }
 
 
@@ -346,5 +358,7 @@ public class SystemDAO {
         return "{" + '\n' + " pokoje='" + pokoje + "'" + '\n' + ", devices='" + devices + "'" + '\n' + ", sensors='"
                 + sensors + "'" + '\n' + "}";
     }
+
+    
 
 }

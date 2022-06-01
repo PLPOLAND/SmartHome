@@ -347,7 +347,7 @@ public class MasterToSlaveConverter {
 
         try {
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
-            Thread.sleep(200);
+            Thread.sleep(500);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             return buffor[0] == 1;
         } catch (Exception e) {
@@ -369,7 +369,7 @@ public class MasterToSlaveConverter {
 
         try {
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
-            Thread.sleep(200);
+            Thread.sleep(500);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             return buffor[0] == 1;
         } catch (Exception e) {
