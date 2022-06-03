@@ -82,13 +82,13 @@ public class System {
      * 
      */
     //TODO dodać javadoc
-    public Device addLight(String roomName, String name, int BoardID, int pin) throws IllegalArgumentException, HardwareException {
+    public Device addLight(String roomName, String name, int boardID, int pin) throws IllegalArgumentException, HardwareException {
         Room room = systemDAO.getRoom(roomName);
         if(room == null){
             log.error("Nie znaleziono pokoju o podanej nazwie \"{}\" podczas dodawania światła",roomName);
             throw new IllegalArgumentException("Bledna nazwa pokoju");
         }
-        Light light = new Light(false,pin,BoardID);
+        Light light = new Light(false,pin,boardID);
         light.setName(name);
         light.setOnSlaveID(arduino.addUrzadzenie(light));//dodaj urzadzenie do slavea i zapisz jego id w slavie
         if(light.getOnSlaveID()==-1){
@@ -97,7 +97,7 @@ public class System {
         systemDAO.getRoom(roomName).addDevice(light);
         systemDAO.getDevices().add(light);
         systemDAO.save();
-        
+        log.debug("Dodano żarówkę na Slave-a o id: {}", boardID);
         return light;
     }
 
@@ -125,6 +125,9 @@ public class System {
         systemDAO.getRoom(roomName).addDevice(roleta);
         systemDAO.getDevices().add(roleta);
         systemDAO.save();
+        
+        log.debug("Dodano roletę na Slave-ie o id: {}", boardID);
+
         return roleta;
     }
 
@@ -151,6 +154,7 @@ public class System {
         systemDAO.getRoom(roomName).addSensor(button);
         systemDAO.getSensors().add(button);
         systemDAO.save();
+        log.debug("Przycisk został dodany na płytkę o id: {}", boardID);
         return button;
     }
 
@@ -188,10 +192,12 @@ public class System {
     }
     /**
      * Dodaj "Termometr" do systemu
+     * @deprecated obsługa wyjątków została zmieniona //TODO porpawić
      * @return 
      * 
      */
     // TODO dodać javadoc
+    @Deprecated
     public Termometr addTermometr(String roomName, int boardID) {
         Room room = systemDAO.getRoom(roomName);
         if(room == null){
@@ -301,14 +307,29 @@ public class System {
         arduino.checkTemperature(termometr);
     }
 
-
+    /**
+     * Dodawanie funkcji lokalnej do przycisku na slavie
+     * @param buttonID - id przycisku do którego zostanie dodana funkcja
+     * @param deviceToControl - urządzenie które będzie kontrolowane
+     * @param state - stan na który będzie przełączane kontrolowane urządzenie
+     * @param numberOfClicks - ilość przyciśnięć przycisku wymaganych do wywołania danej funkcji
+     * @throws HardwareException
+     */
     public void addFunctionToButton(int buttonID, Device deviceToControl, ButtonFunction.State state, int numberOfClicks) throws HardwareException{
         ButtonFunction function = new ButtonFunction(null, deviceToControl, state, numberOfClicks);
         addFunctionToButton(buttonID, function);
 
     }
 
-
+    /**
+     * Dodaje funkcję lokalną do przyciksu na slavie
+     * @param buttonID - idprzycisku w systemie do którego zostanie dodana funkcja
+     * @param function - funkcja do dodania
+     * @return ButtonFunction 
+     * @see smarthome.model.hardware.ButtonFunction
+     * 
+     * @throws HardwareException
+     */
     public ButtonFunction addFunctionToButton(int buttonID, ButtonFunction function)throws HardwareException{
         
         Button but = (Button) this.getSensorByID(buttonID);
@@ -316,19 +337,41 @@ public class System {
         arduino.sendClickFunction(function);
         return function;
     }
+    /**
+     * Usuwa funkcję z systemu i slave-a
+     * @param buttonID - id przycisku do którego została przypisana funkcja, która ma zostać usunięta
+     * @param numberOfClicks - ilość przyciśnieć która wywołuje funkcję
+     * @throws HardwareException
+     */
     public void removeFunctionToButton(int buttonID, int numberOfClicks) throws HardwareException{
         Button but = (Button) this.getSensorByID(buttonID);
         but.removeFunkcjaKilkniecia(numberOfClicks);
         arduino.sendRemoveFunction(but.getSlaveID(),numberOfClicks);
         
     }
+    
+    /**
+     * Usuwa funkcję z systemu i slave-a
+     * 
+     * @param button - przycisk do którego została przypisana funkcja, która ma zostać usunięta
+     * @param numberOfClicks - ilość przyciśnieć która wywołuje funkcję
+     * @throws HardwareException
+     */
     public void removeFunctionFromButton(Button button, int numberOfClicks) throws HardwareException{
         button.removeFunkcjaKilkniecia(numberOfClicks);
         arduino.sendRemoveFunction(button.getSlaveID(),numberOfClicks);
         
     }
 
-
+    /**
+     * Zmienia stan światła
+     * @param roomName - nazwa pokoju w którym znajduje się światło
+     * @param deviceID - id urządzenia reprezentującego światło
+     * @param stan - stan na jaki ma zostać przełączone światło
+     * @return urządzenie, którego stan został zmieniony
+     * @throws IllegalArgumentException
+     * @throws HardwareException
+     */
     public Device changeLightState(String roomName, int deviceID, boolean stan ) throws IllegalArgumentException, HardwareException{
 
         Room room = systemDAO.getRoom(roomName);
@@ -418,6 +461,7 @@ public class System {
      */
     public boolean checkInitOfBoard(int slaveID) {
         boolean toReturn = true;
+        log.debug("Sprawdzanie slave-a o id: {}", slaveID);
         if (!arduino.checkInitOfBoard(slaveID) && arduino.reInitBoard(slaveID)) {//Sprawdź czy płytka była inicjowana, i jeśli nie to wyślij komendę o reinicjalizacji urządzenia
             log.debug("number of devices in system: {}", systemDAO.getDevices().size());
             for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {
@@ -478,7 +522,7 @@ public class System {
      */
     public boolean initOfBoard(int slaveID) {
         boolean toReturn = true;
-        log.debug("initOfBoard");
+        log.debug("initOfBoard slaveId: {}", slaveID);
         if (arduino.reInitBoard(slaveID)) {
             log.debug("number of devices in system: {}", systemDAO.getDevices().size());
             for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {

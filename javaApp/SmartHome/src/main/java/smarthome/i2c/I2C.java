@@ -83,7 +83,7 @@ public class I2C{
             throw e;
         }
         
-        logger.debug("Znaleziono Slave-ów: {}", devices);
+        logger.debug("Znaleziono Slave-ów: {}", devices.size());
 
         // System.out.println("Found: ---");
         // for (int a : validAddresses) {
