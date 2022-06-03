@@ -98,7 +98,7 @@ public class MasterToSlaveConverter {
         buffor[i++] = (byte) (stan == true ? 1 : 0);
         atmega.writeTo(idPlytki, buffor);
         byte[] response = atmega.readFrom(idPlytki, 8);//TODO obsluga bledu
-        logger.debug(Arrays.toString(response));
+        logger.debug("Response from {}: {}" ,idPlytki, Arrays.toString(response));
     }
 
     public void changeBlindState(Blind roleta, boolean stan) {
@@ -119,9 +119,14 @@ public class MasterToSlaveConverter {
         try {
             atmega.writeTo(roleta.getSlaveID(), buffor);
             byte[] response = atmega.readFrom(roleta.getSlaveID(), 8);//TODO obsluga bledu
-            logger.debug(Arrays.toString(response));
+            if (response != null) {
+                logger.debug(Arrays.toString(response));
+                
+            } else {
+                logger.debug("No response");
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+           logger.error(e.getMessage());
         }
     }
 
