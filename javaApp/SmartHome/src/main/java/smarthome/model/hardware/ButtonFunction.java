@@ -62,6 +62,8 @@ public class ButtonFunction {
                 return 'U';
             case DOWN:
                 return 'D';
+            case STOP:
+                return 'S';
             default:
                 return 0;
         }
