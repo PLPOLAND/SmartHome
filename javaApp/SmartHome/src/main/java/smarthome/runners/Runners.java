@@ -62,21 +62,21 @@ public class Runners {
         
     }
     
-    @Scheduled(fixedDelay = 5000)
-    void checkDevicesStatus(){
-        logger.debug("checkStatus()");
-        if (isCheckDevicesStatusDone && isCheckReinitDone) {
-            isCheckDevicesStatusDone = false;
-            for (Device device : system.getSystemDAO().getDevices()) {
-                try {
-                    system.updateDeviceState(device);
-                } catch (HardwareException e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-            isCheckDevicesStatusDone = true;
-        }
-    }
+    // @Scheduled(fixedDelay = 5000)
+    // void checkDevicesStatus(){
+    //     logger.debug("checkStatus()");
+    //     if (isCheckDevicesStatusDone && isCheckReinitDone) {
+    //         isCheckDevicesStatusDone = false;
+    //         for (Device device : system.getSystemDAO().getDevices()) {
+    //             try {
+    //                 system.updateDeviceState(device);
+    //             } catch (HardwareException e) {
+    //                 logger.error(e.getMessage(), e);
+    //             }
+    //         }
+    //         isCheckDevicesStatusDone = true;
+    //     }
+    // }
     // @Scheduled(fixedRate = 2000)
     // void updateDevicesState(){
     //     logger.debug("updateDevicesState()");
