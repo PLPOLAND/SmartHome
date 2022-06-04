@@ -24,6 +24,7 @@ public:
         BRAK_AKCJI,
         PUSZCZONY,
         PRZYCISNIETY,
+        PRAWIE_WCISNIETY,
         PRZYTRZYMANY
     };
 
@@ -32,6 +33,7 @@ private:
     StanPrzycisku stan;
     int klikniecia;
     Timer* time;
+    Timer* time2;
     bool czyPominac = false;
 
     Dioda dioda;

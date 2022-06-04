@@ -42,7 +42,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 			;
 		adminController = app.getAutowireCapableBeanFactory().getBean(AdminRESTController.class);
 		system = app.getAutowireCapableBeanFactory().getBean(smarthome.system.System.class);
-		system.reinitAllBoards();
+		// system.reinitAllBoards();
 		Logger log = LoggerFactory.getLogger("SmartHomeApp");
 		
 		String in = "";
