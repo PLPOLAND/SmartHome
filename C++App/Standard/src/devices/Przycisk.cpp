@@ -60,7 +60,9 @@ bool Przycisk::begin(byte pin, bool czyPomijacPierwszy = false)
 
     if(this->setPin(pin)){
         time = new Timer();
+        time2 = new Timer();
         time->time(STOP);
+        time2->time(STOP);
         stan = BRAK_AKCJI;
         return true;
     }
@@ -109,10 +111,19 @@ void Przycisk::updateStan(){
         time->begin(BUTTON_CLICK_TIME);
         stan = PRZYCISNIETY;
         klikniecia++;
+        OUT(F("clicks: "))
         OUT_LN(klikniecia);
         this->dioda.on(200);
     }
     else if (tmpStan == 1 && stan == BRAK_AKCJI) //Przyciśniecie po raz pierwszy
+    {
+        OUT_LN(F("prawiewcisniety"));
+        stan = PRAWIE_WCISNIETY;
+        time2->begin(50);
+        // klikniecia = 1;
+        this->dioda.on(200);
+    }
+    else if (tmpStan == 1 && stan == PRAWIE_WCISNIETY && time2->available()) //Przyciśniecie po raz pierwszy
     {
         OUT_LN(F("first click"));
         stan = PRZYCISNIETY;
@@ -120,6 +131,14 @@ void Przycisk::updateStan(){
         klikniecia = 1;
         this->dioda.on(200);
     }
+    else if (stan == PRAWIE_WCISNIETY && tmpStan == 0 && !time2->available())
+    {
+        stan = BRAK_AKCJI;
+        OUT_LN(F("PUSZCZONY PRAWIE WCISNIETY"));
+        time->time(STOP);
+        time2->time(STOP);
+    }
+
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
     {
 
@@ -129,6 +148,7 @@ void Przycisk::updateStan(){
         
 
     }
+    
     
     if (stan == PRZYCISNIETY && tmpStan == 1 && time->available()) //Wykrycie przytrzymania
     {
