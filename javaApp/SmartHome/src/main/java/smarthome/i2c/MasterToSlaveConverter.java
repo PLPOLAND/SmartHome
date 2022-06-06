@@ -392,16 +392,16 @@ public class MasterToSlaveConverter {
         buffor[i] = (byte) onSlaveDeviceId;
 
         try {
-            logger.debug("Writing to addres {} {}", slaveID, buffor);
+            // logger.debug("Writing to addres {} {}", slaveID, buffor);
             atmega.writeTo(slaveID, buffor);
             Thread.sleep(10);// TODO czy jest potrzebne?
-            logger.debug("Reading from addres {}", slaveID);
+            // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             return response[0];
         } catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
-            logger.debug("Próba kontynuacji");
-            logger.debug("Reading from addres {}", slaveID);
+            logger.error(e.getMessage());
+            // logger.debug("Próba kontynuacji");
+            // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             return response[0];
         }
