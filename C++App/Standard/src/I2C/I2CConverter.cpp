@@ -106,7 +106,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             {
                 //Dodaje termometr do systemu o ile istnieje jakiś wolny, nie podłączony
                 //Jeśli udało się dodać termometr dodaje do wysłania jego id na płytce w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
-                OUT_LN(F("RECEIVE_ADD_THERMOMETR"));
+                OUT_LN(F("REC_ADD_THERMOMETR"));
                 Device *tmpDev = System::getSystem()->addDevice(Device::TYPE::TERMOMETR);
                 komendaZwrotna->setDevice(tmpDev); // Zwróć dodane urządzenie //TODO obsługa nullptr
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
@@ -118,7 +118,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECEIVE_ADD_ROLETA:
             {
-                OUT_LN(F("RECEIVE_ADD_ROLETA"));
+                OUT_LN(F("REC_ADD_ROLETA"));
                 OUT(F("pinUp: "))
                 OUT_LN(komenda.getParams()[0]);
                 OUT(F("pinDown: "))
@@ -135,7 +135,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECEIVE_ADD_PRZYCISK:
             {
-                OUT_LN(F("RECEIVE_ADD_PRZYCISK"));
+                OUT_LN(F("REC_ADD_PRZYCISK"));
                 komendaZwrotna->setDevice(System::getSystem()->addDevice(Device::TYPE::PRZYCISK, komenda.getParams()[0]));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -146,20 +146,19 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECEIVE_ADD_PRZEKAZNIK:
             {
-                OUT_LN(F("RECEIVE_ADD_PRZEKAZNIK"));
+                OUT_LN(F("REC_ADD_PRZEKAZNIK"));
                 komendaZwrotna->setDevice(System::getSystem()->addDevice(Device::TYPE::PRZEKAZNIK, komenda.getParams()[0]));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = komendaZwrotna->getDevice()->getId();
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
-                OUT_LN(F("END OF RECEIVE_ADD_PRZEKAZNIK"))
             }
             break;
 
             case Command::KOMENDY::RECEIVE_GET_TEMPERATURE:
             {
-                OUT_LN(F("RECEIVE_GET_TEMPERATURE"));
+                OUT_LN(F("REC_GET_TEMPERATURE"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_TEMPERATURA);
                 komendaZwrotna->setParams(komenda.getParams());
 
@@ -169,7 +168,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
             {
-                OUT_LN(F("RECEIVE_ZMIEN_STAN_PRZEKAZNIKA"));
+                OUT_LN(F("REC_ZMIEN_STAN_PRZEKAZNIKA"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
 
                 Przekaznik* p = (Przekaznik*) System::getSystem()->getDevice(komenda.getParams()[0]);
@@ -184,7 +183,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 break;
             case Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY:
             {
-                OUT_LN(F("RECEIVE_ZMIEN_STAN_ROLETY"));
+                OUT_LN(F("REC_ZMIEN_STAN_ROLETY"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -209,7 +208,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECEIVE_CHECK_INIT:
             {
-                OUT_LN(F("RECEIVE_CHECK_INIT"));
+                OUT_LN(F("REC_CHECK_INIT"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = System::is_init() == true ? 1:0;
@@ -219,7 +218,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECEIVE_INIT:
             {
-                OUT_LN(F("RECEIVE_INIT"));
+                OUT_LN(F("REC_INIT"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {1, 0, 0, 0, 0, 0, 0, 0};// potwierdź odebranie komendy
                 komendaZwrotna->setParams(params);
@@ -238,7 +237,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION:
             {
-                OUT_LN(F("RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION"));
+                OUT_LN(F("REC_ADD_PRZYCISK_LOCAL_FUNCTION"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 Przycisk *przycisk = (Przycisk *) System::getSystem()->getDevice(komenda.getParams()[0]);
@@ -289,7 +288,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
 
             case Command::KOMENDY::RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION:
             {
-                OUT_LN(F("RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION"));
+                OUT_LN(F("REC_RM_PRZYCISK_L_FUNCTION"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 Przycisk *przycisk = (Przycisk *)System::getSystem()->getDevice(komenda.getParams()[0]);
@@ -308,7 +307,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECIEVE_DEVICES_STATUS:
             {
-                OUT_LN(F("RECIEVE_DEVICES_STATUS"));
+                OUT_LN(F("REC_DEVICES_STATUS"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
 
                 Device *p =System::getSystem()->getDevice(komenda.getParams()[0]);
@@ -387,10 +386,10 @@ void I2CConverter::RequestEvent()
         {
             case Command::KOMENDY::SEND_TEMPERATURA:
                 {
-                    OUT_LN(F("SEND_TEMPERATURA"));
+                    // OUT_LN(F("SEND_TEMPERATURA"));
                     // OUT_LN("freeMemory(): ");
                     // OUT_LN(freeMemory());
-                    OUT("Temperatura: ");
+                    // OUT("Temperatura: ");
                     for (byte i = 0; i < 8; i++)
                     {
                         
@@ -425,7 +424,7 @@ void I2CConverter::RequestEvent()
                 Wire.write(command->getParams(), 8);
                 Wire.clearWriteError();
                 command->printParametry();
-                OUT_LN("END SEND_REPLY")
+                OUT_LN(F("END SEND_REPLY"))
                 OUT_LN();
                 break;
             } 

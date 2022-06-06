@@ -107,7 +107,7 @@ void Przycisk::updateStan(){
     if (tmpStan == 1 && stan == PUSZCZONY && !time->available()) //Przyciśniecie po raz kolejny
     {
 
-        OUT_LN(F("next click "));
+        //OUT_LN(F("next click "));
         time->begin(BUTTON_CLICK_TIME);
         stan = PRZYCISNIETY;
         klikniecia++;
@@ -117,7 +117,7 @@ void Przycisk::updateStan(){
     }
     else if (tmpStan == 1 && stan == BRAK_AKCJI) //Przyciśniecie po raz pierwszy
     {
-        OUT_LN(F("prawiewcisniety"));
+        //OUT_LN(F("prawiewcisniety"));
         stan = PRAWIE_WCISNIETY;
         time2->begin(50);
         // klikniecia = 1;
@@ -125,7 +125,7 @@ void Przycisk::updateStan(){
     }
     else if (tmpStan == 1 && stan == PRAWIE_WCISNIETY && time2->available()) //Przyciśniecie po raz pierwszy
     {
-        OUT_LN(F("first click"));
+        //OUT_LN(F("first click"));
         stan = PRZYCISNIETY;
         time->begin(BUTTON_CLICK_TIME);
         klikniecia = 1;
@@ -134,7 +134,7 @@ void Przycisk::updateStan(){
     else if (stan == PRAWIE_WCISNIETY && tmpStan == 0 && !time2->available())
     {
         stan = BRAK_AKCJI;
-        OUT_LN(F("PUSZCZONY PRAWIE WCISNIETY"));
+        //OUT_LN(F("PUSZCZONY P WCISNIETY"));
         time->time(STOP);
         time2->time(STOP);
     }
@@ -142,7 +142,7 @@ void Przycisk::updateStan(){
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
     {
 
-        OUT_LN(F("puszczony bez przytrzymania"));
+        //OUT_LN(F("puszczony bez przytrzymania"));
         stan = PUSZCZONY;
 
         
@@ -153,14 +153,14 @@ void Przycisk::updateStan(){
     if (stan == PRZYCISNIETY && tmpStan == 1 && time->available()) //Wykrycie przytrzymania
     {
 
-        OUT_LN(F("Wykrycie Przytrzymanie"));
+        //OUT_LN(F("Wykrycie Przytrzymanie"));
         stan = PRZYTRZYMANY;
         dioda.on();
     }
     if (stan == PRZYTRZYMANY && tmpStan == 0) //Puszczenie po przytrzymaniu
     { 
 
-        OUT_LN(F("Puszczony po przytrzymaniu"));
+        //OUT_LN(F("Puszczony po przytrzymaniu"));
         time->time(STOP);
         stan = BRAK_AKCJI;
         dioda.off();
@@ -170,13 +170,13 @@ void Przycisk::updateStan(){
     else if (stan == PRZYTRZYMANY && tmpStan == 1) //Przytrzymywanie
     {
 
-        OUT_LN(F("Przytrzymanie"));
+        //OUT_LN(F("Przytrzymanie"));
         this->wykonaj();//dla PRZYTRZYMANY
     }
 
     if (time->available() && stan == PUSZCZONY) {
 
-        OUT_LN(F("Koniec okresu klikniec"));
+        //OUT_LN(F("Koniec okresu klikniec"));
         time->time(STOP);
         this->wykonaj();//dla PUSZCZONY
         stan = BRAK_AKCJI;
@@ -196,7 +196,7 @@ void Przycisk::tic(){
     dioda.tic();
     // static int i = 0;
     // if(i++>10000){
-    //     OUT_LN(F("TIC"));
+    //     //OUT_LN(F("TIC"));
     // OUT_LN(time->time());
     //     OUT_LN(digitalRead(pin)?"LOW":"HIGH");
     //     OUT_LN(stan);
@@ -220,7 +220,7 @@ bool Przycisk::wykonaj(){
         break;
     case PUSZCZONY:// Przycisk nie był przytrzymywany i skończył się czas na kolejne przyciśnięcie
         {
-            OUT_LN(F("Wykonywanie PUSZCZONY"))
+            //OUT_LN(F("Wykonywanie PUSZCZONY"))
             OUT(F("klikniec: "))
             OUT_LN(klikniecia);
             Command* command = funkcje_klikniecia.get(klikniecia);
@@ -240,7 +240,7 @@ bool Przycisk::wykonaj(){
 }
 
 bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
-    OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
+    //OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
     OUT(F("Przyski id: "))
     OUT_LN(this->getId());
     OUT("Klikniec: ")
@@ -254,12 +254,12 @@ bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
     if(!this->funkcje_klikniecia.set(klikniec,tmp)){//TODO: Wyciek pamięci!
         this->funkcje_klikniecia.add(klikniec,tmp); // jeśli komenda dla tylu kliknięć jeszcze nie istnieje to dodaj ją.
     }
-    OUT_LN(F("DODANO KOMENDE"));
+    //OUT_LN(F("DODANO KOMENDE"));
 
     return true;
 }
 bool Przycisk::usunFunkcjeKlikniecia(byte klikniec){
-    OUT_LN(F("USUN FUNKCJE KLIKNIECIE"))
+    //OUT_LN(F("USUN FUNKCJE KLIKNIECIE"))
     OUT(F("Przyski id: "))
     OUT_LN(this->getId());
     OUT("Klikniec: ")
@@ -269,7 +269,7 @@ bool Przycisk::usunFunkcjeKlikniecia(byte klikniec){
     if (!this->funkcje_klikniecia.set(klikniec, const_cast<Command *> (zapychacz))){
         this->funkcje_klikniecia.add(klikniec, const_cast<Command *>(zapychacz)); // jeśli komenda dla tylu kliknięć jeszcze nie istnieje to dodaj ją.
     }
-    OUT_LN(F("DODANO KOMENDE"));
+    //OUT_LN(F("DODANO KOMENDE"));
 
     return true;
 }
@@ -285,12 +285,12 @@ bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klik
 bool Przycisk::runCommand(Command *command)
 {
     OUT_LN()
-    OUT_LN(F("RUN_COMMAND:"))
+    //OUT_LN(F("RUN_COMMAND:"))
     OUT_LN(command->toString())
 
     if (this->isCzyPominac())
     {
-        OUT_LN(F("POMIJANIE"))
+        //OUT_LN(F("POMIJANIE"))
         this->setCzyPominac(false);
         return true;
     }
@@ -300,11 +300,11 @@ bool Przycisk::runCommand(Command *command)
     {
     case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
     {
-        OUT_LN(F("RECEIVE_ZMIEN_STAN_PRZEKAZNIKA"))
+        //OUT_LN(F("REC_ZMIEN_STAN_PRZEKAZNIKA"))
         if (command->getDevice()->getType() == Device::TYPE::PRZEKAZNIK)
         {
             Przekaznik *tmp = (Przekaznik *)System::getSystem()->getDevice(command->getDevice()->getId());
-            OUT_LN(F("PRZEKAZNIK"))
+            //OUT_LN(F("PRZEKAZNIK"))
             OUT_LN(tmp->toString());
             if (tmp->getStan())
             {
@@ -331,13 +331,13 @@ bool Przycisk::runCommand(Command *command)
     break;
     case Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY:
     {
-        OUT_LN(F("RECEIVE_ZMIEN_STAN_ROLETY"))
+        //OUT_LN(F("REC_ZMIEN_STAN_ROLETY"))
 
 
         if (command->getDevice()->getType() == Device::TYPE::ROLETA)
         {
             Roleta *tmp = (Roleta*) System::getSystem()->getDevice(command->getDevice()->getId());
-            OUT_LN(F("ROLETA"))
+            //OUT_LN(F("ROLETA"))
             OUT_LN(tmp->toString());
             if (command->getParams()[0] == 'U')
             {

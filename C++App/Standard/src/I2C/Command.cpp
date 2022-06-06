@@ -112,9 +112,9 @@ void Command::convert(const byte *c, byte size)
             {
                 if (c[1]=='D')//Status urządzenia
                 {
-                    OUT_LN(F("---"))
-                    OUT_LN(F("SD"))
-                    OUT_LN(F("---"))
+                    //OUT_LN(F("---"))
+                    //OUT_LN(F("SD"))
+                    //OUT_LN(F("---"))
                     this->komenda = Command::KOMENDY::RECIEVE_DEVICES_STATUS;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2]; // id urzadzenia

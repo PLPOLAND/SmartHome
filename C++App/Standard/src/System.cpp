@@ -186,12 +186,12 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::PRZYCISK:
             {
-                OUT_LN(F("-----Dodaj Przycisk-----"))
-                OUT("pin1:")
-                OUT_LN(pin1);
+                OUT_LN(F("-----Add Przycisk-----"))
+                // OUT("pin1:")
+                // OUT_LN(pin1);
                 Przycisk * tmp = new Przycisk();
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
-                    OUT(F("Poprawnie dodano Przycisk"))
+                    // OUT(F("Poprawnie dodano Przycisk"))
                     tmp->setId(idDevice++);//nadaj mu id
                     OUT("\t id: ")
                     OUT_LN(tmp->getId());
@@ -200,7 +200,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                     return tmp;
                 }
                 else{
-                    OUT_LN(F("Nie udało dodać Przycisku"))
+                    // OUT_LN(F("Nie udało dodać Przycisku"))
                     return nullptr;
                 }
             }
@@ -218,19 +218,19 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                 Roleta *tmp = new Roleta();
                 if (tmp->begin(pin1, pin2))
                 { //jeśli uda się poparawnie dodać przekaźnik do systemu
-                    OUT_LN(F("Poprawnie dodano Roletę"))
+                    // OUT_LN(F("Poprawnie dodano Roletę"))
                     tmp->setId(idDevice++); //nadaj mu id
                     // OUT("id:")
                     // OUT_LN(tmp->getId());
-                    OUT(F("ROLETA: "));
-                    OUT_LN(tmp->toString());
+                    // OUT(F("ROLETA: "));
+                    // OUT_LN(tmp->toString());
                     this->devices.add(tmp->getId(), tmp); //dodaj do listy urzadzen
                     this->rolety.add(tmp);                //dodaj do listy rolet
                     return tmp;
                 }
                 else
                 {
-                    OUT_LN(F("Nie udało dodać Rolety"))
+                    // OUT_LN(F("Nie udało dodać Rolety"))
                     return nullptr;
                 }
             }
@@ -305,11 +305,11 @@ bool System::removeDevice(byte id){
     return true;
 }
 Device* System::getDevice(byte id){
-    OUT(F("szukanie urzadzenia o id:\t"))
+    OUT(F("Search dev id:\t"))
     OUT_LN(id);
     if (devices.get(id) == nullptr)
     {
-        OUT_LN("NIE MA TAKIEGO URZADZENIA!")
+        OUT_LN("NO SUCH DEV!")
     }
     
     return devices.get(id);
@@ -327,7 +327,7 @@ Termometr* System::getTermometr(const byte* adress){
                 OUT(" ")
             }
             OUT_LN(" ")
-            OUT("FOUND DEV TYPE:") OUT_LN(termometry[i]->getType()== Device::TERMOMETR);
+            OUT(F("FOUND DEV TYPE:")) OUT_LN(termometry[i]->getType()== Device::TERMOMETR);
             return termometry[i];
         }
             
@@ -352,7 +352,7 @@ LinkedList<byte*> System::getAdrOfThermometrs(){
 };
 
 void System::reinit_system(){
-    OUT_LN("DEL")
+    OUT_LN(F("DEL"))
     // Device *tmp;
     // for (byte i = 0; i < devices.size(); i++)
     // {
@@ -388,9 +388,9 @@ bool System::getStartUpVariant(){
 }
 
 void System::setNextStartupVariant(bool variant){
-    OUT(F("EEPROM before change: "))
+    OUT(F("EEPROM bef change: "))
     OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
     EEPROM.update(EEPROM_ADRES_OF_STARTUP_BYTE,variant?1:0);
-    OUT(F("EEPROM after change: "))
+    OUT(F("EEPROM aft change: "))
     OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
 }
