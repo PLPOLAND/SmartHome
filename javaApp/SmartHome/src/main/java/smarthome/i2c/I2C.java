@@ -185,7 +185,7 @@ public class I2C{
         logger.info("Restartowanie slave-ów");
 
         
-        pin.setShutdownOptions(true, PinState.HIGH);//TODO czy napewno po wyłączeniu powinien być w stanie HIGH?
+        pin.setShutdownOptions(true, PinState.HIGH);
         pin.low();
         
         try {
@@ -197,7 +197,7 @@ public class I2C{
         pin.high();
         
         try {
-            Thread.sleep(5000);//oczekiwanie na uruchomienie się slave-ów
+            Thread.sleep(2000);//oczekiwanie na uruchomienie się slave-ów
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }

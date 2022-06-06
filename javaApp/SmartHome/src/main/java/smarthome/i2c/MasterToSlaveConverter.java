@@ -193,7 +193,7 @@ public class MasterToSlaveConverter {
             try {
                 logger.debug("Writing to addres {}", device.getSlaveID());
                 atmega.writeTo(device.getSlaveID(), buffor);
-                Thread.sleep(100);//TODO czy jest potrzebne?
+                Thread.sleep(10);//TODO czy jest potrzebne?
                 logger.debug("Reading from addres {}", device.getSlaveID());
                 byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
                 return response[0];
@@ -217,7 +217,7 @@ public class MasterToSlaveConverter {
             try {
                 logger.debug("Writing to addres {}", device.getSlaveID());
                 atmega.writeTo(device.getSlaveID(), buffor);
-                Thread.sleep(100);
+                Thread.sleep(10);
                 byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//TODO: dodawanie przekaźników o id podanym w odpowiedzi!
                 return response[0];
             } catch (InterruptedException e) {
@@ -263,7 +263,7 @@ public class MasterToSlaveConverter {
         try {
             logger.debug("Writing to addres {}", button.getSlaveID());
             atmega.writeTo(button.getSlaveID(), buffor);
-            Thread.sleep(100);// TODO czy jest potrzebne?
+            Thread.sleep(10);// TODO czy jest potrzebne?
             logger.debug("Reading from addres {}", button.getSlaveID());
             byte[] response = atmega.readFrom(button.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
             return response[0];
@@ -296,7 +296,7 @@ public class MasterToSlaveConverter {
         try {
             logger.debug("Writing to addres {}", function.getButton().getSlaveID());
             atmega.writeTo(function.getButton().getSlaveID(), buffor);
-            Thread.sleep(100);// TODO czy jest potrzebne?
+            Thread.sleep(10);// TODO czy jest potrzebne?
             logger.debug("Reading from addres {}", function.getButton().getSlaveID());
             byte[] response = atmega.readFrom(function.getButton().getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
             return response[0];
@@ -323,7 +323,7 @@ public class MasterToSlaveConverter {
         try {
             logger.debug("Writing to addres {}", slaveID);
             atmega.writeTo(slaveID, buffor);
-            Thread.sleep(100);// TODO czy jest potrzebne?
+            Thread.sleep(10);// TODO czy jest potrzebne?
             logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             return response[0];
@@ -352,7 +352,7 @@ public class MasterToSlaveConverter {
 
         try {
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
-            Thread.sleep(500);
+            Thread.sleep(10);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             return buffor[0] == 1;
         } catch (Exception e) {
@@ -374,7 +374,7 @@ public class MasterToSlaveConverter {
 
         try {
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
-            Thread.sleep(500);
+            Thread.sleep(250);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             return buffor[0] == 1;
         } catch (Exception e) {
@@ -394,7 +394,7 @@ public class MasterToSlaveConverter {
         try {
             logger.debug("Writing to addres {} {}", slaveID, buffor);
             atmega.writeTo(slaveID, buffor);
-            Thread.sleep(100);// TODO czy jest potrzebne?
+            Thread.sleep(10);// TODO czy jest potrzebne?
             logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             return response[0];
