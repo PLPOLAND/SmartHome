@@ -51,7 +51,7 @@ public class Runners {
     //     }
     // }
 
-    @Scheduled(fixedDelay = 1000)
+    // @Scheduled(fixedDelay = 10000)
     void checkReinit(){
         if (isCheckReinitDone && isCheckDevicesStatusDone) {
             isCheckReinitDone = false;
@@ -62,7 +62,7 @@ public class Runners {
         
     }
     
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 500)
     void checkDevicesStatus(){
         logger.debug("checkStatus()");
         if (isCheckDevicesStatusDone && isCheckReinitDone) {

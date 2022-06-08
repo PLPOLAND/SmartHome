@@ -420,6 +420,7 @@ public class System {
             }
         }
         if (lt != null) {
+            // log.debug("Zmiana stanu Światła");
             arduino.changeSwitchState(lt.getOnSlaveID(), lt.getSlaveID(), stan);
             lt.setStan(stan);
             systemDAO.save();

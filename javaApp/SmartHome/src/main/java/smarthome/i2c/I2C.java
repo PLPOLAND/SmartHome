@@ -29,7 +29,7 @@ public class I2C{
     //Do restartowania
     GpioController gpio;
     GpioPinDigitalOutput pin;
-    boolean isOccupied = false;
+    volatile boolean isOccupied = false;
 
     public I2C() {
         logger = LoggerFactory.getLogger(this.getClass());
@@ -52,7 +52,24 @@ public class I2C{
     }
 
     void setOccupied(boolean isOccup){
-        this.isOccupied = isOccup;
+        if (isOccup) {
+            logger.debug("Occupied");
+            this.isOccupied = isOccup;
+        }
+        else{
+            logger.debug("END Occupied start");
+            new Thread(()->{
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                this.isOccupied = false;
+                logger.debug("END Occupied stop");
+            }).start();
+            
+        }
+        
     }
 
     public void pauseIfOcupied() {
