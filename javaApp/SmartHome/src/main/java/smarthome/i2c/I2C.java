@@ -53,11 +53,11 @@ public class I2C{
 
     void setOccupied(boolean isOccup){
         if (isOccup) {
-            logger.debug("Occupied");
+            // logger.debug("Occupied");
             this.isOccupied = isOccup;
         }
         else{
-            logger.debug("END Occupied start");
+            // logger.debug("END Occupied start");
             new Thread(()->{
                 try {
                     Thread.sleep(5);
@@ -65,7 +65,7 @@ public class I2C{
                     e.printStackTrace();
                 }
                 this.isOccupied = false;
-                logger.debug("END Occupied stop");
+                // logger.debug("END Occupied stop");
             }).start();
             
         }

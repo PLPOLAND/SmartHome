@@ -107,4 +107,15 @@ public class Blind extends Device{
     public RoletaStan getStan(){
         return this.stan;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+            " stan='" + getStan() + "'" +
+            ", swtUp='" + swtUp.toString() + "'" +
+            ", swtDown='" + swtDown.toString() + "'" +
+            ", super ='' " + super.toString() + "'"+
+            "}";
+    }
+
 }

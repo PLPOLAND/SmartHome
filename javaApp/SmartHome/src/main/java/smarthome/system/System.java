@@ -574,22 +574,27 @@ public class System {
     }
 
     public void updateDeviceState(Device device) throws HardwareException{
-        
+        log.debug("updateDeviceState()");
         int state = arduino.checkDeviceState(device.getSlaveID(), device.getOnSlaveID());
         if (device.getTyp() == DeviceTypes.BLIND) {
+            // log.debug("BLIND");
             Blind b = (Blind) device;
             if (state == 'U') {
                 b.changeState(RoletaStan.UP);
+                // log.debug("UP");
             }
             else if (state == 'D') {
                 b.changeState(RoletaStan.DOWN);
+                // log.debug("DOWN");
             }
             else{
                 b.changeState(RoletaStan.NOTKNOW);
+                // log.debug("NOTKNOW");
             }
         }
         else if(device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO){
             if (device instanceof Light) {
+                // log.debug("LIGHT");
                 Light l = (Light) device;
                 l.setStan(state == 1 ? true:false);
             } 
