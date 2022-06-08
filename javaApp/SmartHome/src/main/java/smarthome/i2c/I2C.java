@@ -240,7 +240,7 @@ public class I2C{
         pin.low();
         
         try {
-            Thread.sleep(700);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
