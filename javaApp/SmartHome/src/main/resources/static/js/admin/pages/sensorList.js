@@ -13,24 +13,23 @@ $(document).ready(function () {
             if (response.error == null) {
                 console.log(response.obj);
                 rooms = response.obj;
-            } else {
-                $("#err-msg").html(response.error);
-                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
-            }
-        }
-    });
-
-    $.ajax({
-        url: "/admin/api/getSensors",
-        type: 'post',
-        data: {},
-        success: function (response) {
-            if (response.error == null) {
-                console.log(response.obj);
-                var list = $(".list");
-                response.obj.sort(compareSensors)
-                response.obj.forEach(element => {
-                    list.append(makeFullSensor(element,rooms));
+                $.ajax({
+                    url: "/admin/api/getSensors",
+                    type: 'post',
+                    data: {},
+                    success: function (sensorsResponse) {
+                        if (sensorsResponse.error == null) {
+                            console.log(sensorsResponse.obj);
+                            var list = $(".list");
+                            sensorsResponse.obj.sort(compareSensors)
+                            sensorsResponse.obj.forEach(element => {
+                                list.append(makeFullSensor(element, rooms));
+                            });
+                        } else {
+                            $("#err-msg").html(sensorsResponse.error);
+                            $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+                        }
+                    }
                 });
             } else {
                 $("#err-msg").html(response.error);
@@ -38,6 +37,8 @@ $(document).ready(function () {
             }
         }
     });
+
+    
 });
 
 function compareSensors(a,b) {

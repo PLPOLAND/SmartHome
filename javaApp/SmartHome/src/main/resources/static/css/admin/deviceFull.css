@@ -30,6 +30,12 @@
     padding: 0 10px;
     width: 200px;
 }
+.roomName {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    width: 200px;
+}
 
 .stan {
     float: left;

@@ -12,7 +12,7 @@ function makeFullSensor(obj, rooms) {
     }
 
     var sensorName = $('<div class="sensorName">' + obj.name + '</div>');
-    var roomName = $('<div class="roomName">' + rooms[obj.room] + '</div>');
+    var roomName = $('<div class="roomName">Room: ' + rooms[obj.room] + '</div>');
     var slaveAddr = $('<div class="slave">Slave: ' + obj.slaveID + '</div>')
     var device_pin;
     var clikcFunctions;
