@@ -54,6 +54,11 @@ function addDevice(obj) {
     device.click(function () {
         clickDevice(this,obj.id, obj.room, obj.typ);
     })
+    if (obj.typ === "BLIND") {
+        device.dblclick(function() {
+            //TODO STOP BLIND
+        })
+    }
 
     return device;
 }

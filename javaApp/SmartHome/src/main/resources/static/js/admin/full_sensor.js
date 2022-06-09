@@ -1,5 +1,5 @@
 
-function makeFullSensor(obj) {
+function makeFullSensor(obj, rooms) {
     var device = $("<div class=\"fullSensor\"></div>");
 
     var sensorIcon = $('<div class="sensorIcon"></div>');
@@ -12,6 +12,7 @@ function makeFullSensor(obj) {
     }
 
     var sensorName = $('<div class="sensorName">' + obj.name + '</div>');
+    var roomName = $('<div class="roomName">' + rooms[obj.room] + '</div>');
     var slaveAddr = $('<div class="slave">Slave: ' + obj.slaveID + '</div>')
     var device_pin;
     var clikcFunctions;
@@ -70,6 +71,7 @@ function makeFullSensor(obj) {
 
     device.append(sensorIcon);
     device.append(sensorName);
+    device.append(roomName);
     device.append(slaveAddr);
     if (obj.typ === 'THERMOMETR') {
         device.append(value);

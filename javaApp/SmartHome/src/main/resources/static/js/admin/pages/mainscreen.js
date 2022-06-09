@@ -52,11 +52,13 @@ function updateDevices() {
                             showDeviceState(tmp, element.stan, element.typ)
                         }
                         else if(element.typ === "BLIND"){
-                            if (element.stan == "UP") {
+                            // console.log("BLIND");
+                            if (element.stan === "UP") {
                                 showDeviceState(tmp, true, element.typ)
-                                
-                            } else if (element.stan == "DOWN") {
+                                // console.log("BLIND UP");
+                            } else if (element.stan === "DOWN") {
                                 showDeviceState(tmp, false, element.typ)
+                                // console.log("BLIND DOWN");
                                 
                             }
                         }

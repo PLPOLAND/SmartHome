@@ -29,6 +29,7 @@ public class I2C{
     //Do restartowania
     GpioController gpio;
     GpioPinDigitalOutput pin;
+    volatile boolean isOccupied = false;
 
     public I2C() {
         logger = LoggerFactory.getLogger(this.getClass());
@@ -50,10 +51,42 @@ public class I2C{
         }
     }
 
+    void setOccupied(boolean isOccup){
+        if (isOccup) {
+            // logger.debug("Occupied");
+            this.isOccupied = isOccup;
+        }
+        else{
+            // logger.debug("END Occupied start");
+            new Thread(()->{
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                this.isOccupied = false;
+                // logger.debug("END Occupied stop");
+            }).start();
+            
+        }
+        
+    }
+
+    public void pauseIfOcupied() {
+        while (isOccupied) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
     public void findAll() throws UnsupportedBusNumberException, IOException{
         List<Integer> validAddresses = new ArrayList<Integer>();
         final I2CBus bus;
+        pauseIfOcupied();
+        setOccupied(true);
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
             // for (int i = 1; i < 10; i++) {
@@ -66,14 +99,31 @@ public class I2C{
                     // for (byte b : buffer) {
                     //     System.out.print((char) b);
                     // }
-                    System.out.println("Dodano Slave o adresie: "+i);
-                    if (!devices.contains(device)) {
+                    logger.debug("Znaleziono Slave o adresie: {}",i);
+                    boolean was = false;
+                    for (I2CDevice dev : devices) {
+                        if (dev.getAddress() == i) {
+                            was = true;
+                            break;
+                        }
+                    }
+                    if (!was) {
                         devices.add(device);
+                        logger.debug("Dodano Slave o adresie: {}", i);
                     }
                     if (!validAddresses.contains(i)) {
                         validAddresses.add(i);
                     }
                 } catch (Exception ignore) {
+                    I2CDevice tmp = null;
+                    for (I2CDevice dev : devices) {
+                        if (dev.getAddress() == i) {
+                            tmp = dev;
+                            break;
+                        }
+                    }
+                    devices.remove(tmp);
+
                     // System.out.println("Sprawdzono: "+i+" i nie jest to prawidłowy adres");
                     // ignore.printStackTrace();
                     //ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
@@ -82,7 +132,8 @@ public class I2C{
         } catch (Exception e) {
             throw e;
         }
-        
+        setOccupied(false);
+
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
 
         // System.out.println("Found: ---");
@@ -185,11 +236,11 @@ public class I2C{
         logger.info("Restartowanie slave-ów");
 
         
-        pin.setShutdownOptions(true, PinState.HIGH);//TODO czy napewno po wyłączeniu powinien być w stanie HIGH?
+        pin.setShutdownOptions(true, PinState.HIGH);
         pin.low();
         
         try {
-            Thread.sleep(700);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
@@ -197,7 +248,7 @@ public class I2C{
         pin.high();
         
         try {
-            Thread.sleep(5000);//oczekiwanie na uruchomienie się slave-ów
+            Thread.sleep(2000);//oczekiwanie na uruchomienie się slave-ów
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
