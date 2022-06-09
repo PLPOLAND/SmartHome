@@ -72,7 +72,7 @@ public abstract class Sensor {
         logger.info(STWORZONO_SENSOR_STRING, this);
     }
     
-    protected Sensor(int id, int room, int slaveID, byte[] addres,SensorsTypes type){
+    protected Sensor(int id, int room, int slaveID, int[] addres,SensorsTypes type){
         this.id = id;
         this.room = room;
         this.slaveID = slaveID;

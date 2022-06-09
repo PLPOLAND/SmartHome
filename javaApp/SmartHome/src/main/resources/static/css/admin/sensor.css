@@ -1,0 +1,116 @@
+:root{
+    --device-height: 120px;
+}
+
+.sensor{
+    display: block;
+    width: 250px;
+    height: var(--device-height);
+    border-radius: 10px;
+    float: left;
+    margin: 10px;
+
+    background-color: var(--primaryColor);
+    color: var(--primaryTextColor);
+    box-shadow: 1px 1px 3px var(--primaryDarkColor);
+
+    cursor: pointer;
+}
+
+.sensor:hover{
+    background-color: var(--primaryDarkColor);
+}
+
+.sensor .sensorIcon{
+    display: block;
+    float: left;
+    width: calc(30% - 10px);
+    height: calc(100% - 10px);
+
+
+    line-height: calc(var(--device-height) - 10px);
+    font-size: 30px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+
+    padding: 5px;
+    background-color: var(--primaryLightColor);
+}
+.sensor:hover .sensorIcon{
+    background-color: var(--primaryColor);
+}
+.sensor .sensorIcon i{
+    display: block;
+    float: left;
+    width: 100%;
+    text-align: center;
+}
+
+.sensor .sensorDescribe{
+    /* border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px; */
+
+    display: block;
+    float: left;
+    width: calc(70% - 10px);
+    height: calc(100% - 10px);
+    padding: 5px;
+
+    border-top-right-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+
+    
+}   
+
+.sensor .sensorDescribe .sensorDescribeText{
+    border-top-right-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+
+    display: block;
+    margin: 0 auto;
+    float: left;
+    text-align: center;
+    line-height: calc(var(--device-height) *0.6);
+    width: calc(100% - 10px);
+    padding: 5px 5px 0px 5px;
+    font-size: 35px;
+}   
+
+.sensor .sensorDescribe .sensorDescribeRoomName{
+    display: block;
+    margin: 0 auto;
+    float: left;
+    text-align: center;
+    line-height: calc(var(--device-height) *0.25);;
+    width: calc(100% - 10px);
+    font-size: 15px;
+    padding: 0px 5px 5px 5px;
+}
+.sensor .sensorState{
+    display: block;
+    float: left;
+    width: calc(20% - 10px);
+    height: calc(100% - 10px);
+    padding: 5px;
+    line-height: calc(var(--device-height) - 10px);
+    font-size: 30px;
+}
+/* 
+.deviceOFF{
+    background-color: var(--deviceOffColor);
+
+    box-shadow: 1px 1px 3px var(--deviceOffColor);
+}
+
+.sensor:hover.deviceOFF{
+    background-color: var(--deviceOffDarkColor);
+
+    box-shadow: 1px 1px 3px var(--deviceOffColor);
+}
+
+.sensor .deviceIconOFF{
+    background-color:  var(--deviceOffLightColor);
+}
+.sensor:hover .deviceIconOFF{
+    background-color:  var(--deviceOffColor);
+} */

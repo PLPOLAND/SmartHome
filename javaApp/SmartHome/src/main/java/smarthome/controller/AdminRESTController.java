@@ -117,8 +117,12 @@ public class AdminRESTController {
         return r;
     }
 
-    
-
+    @RequestMapping("/getTmpTermometr")
+    public Response<ArrayList<Termometr>> getTMPTermometrs() {
+        ArrayList<Termometr> tmp = new ArrayList<>();
+        tmp.add(new Termometr(100, systemDAO.getRoom("Brak").getID(), 0, new int[]{0,0,0,0,0,0,0,0}, 25.F, 30.F, 0.F));
+        return new Response<>(tmp);
+    }
 
     @RequestMapping("/getSystemData")
     public Response<SystemDAO> getSystemData() {

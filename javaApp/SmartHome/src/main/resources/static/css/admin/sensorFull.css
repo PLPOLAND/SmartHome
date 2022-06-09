@@ -28,13 +28,19 @@
     float: left;
     height: 100%;
     padding: 0 10px;
-    width: 200px;
+    width: 100px;
 }
 .roomName {
     float: left;
     height: 100%;
     padding: 0 10px;
     width: 200px;
+}
+.adress {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    width: 300px;
 }
 
 .stan {
@@ -47,13 +53,13 @@
 .slave {
     float: left;
     height: 100%;
-    width: 150px;
+    width: 100px;
     padding: 0 10px;
 }
 .pin {
     float: left;
     height: 100%;
-    width: 150px;
+    width: 100px;
     padding: 0 10px;
 }
 
@@ -91,6 +97,6 @@
 .holdFunctionNum{
     float: left;
     height: 100%;
-    width: 230px;
+    width: 200px;
     padding: 0 10px;
 }

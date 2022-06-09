@@ -6,6 +6,7 @@
     color: var(--primaryTextColor);
     margin: 0 auto;
     padding: 10px;
+    padding-bottom: 30px;
     min-height: 90vh;
 }
 .header{

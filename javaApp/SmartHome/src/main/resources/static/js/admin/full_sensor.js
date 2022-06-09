@@ -1,4 +1,41 @@
+// $(document).ready(function () { 
+//     $.ajax({
+//         url: "api/getRoomsNamesList",
+//         type: 'get',
+//         data: {
+//         },
+//         success: function (response) {
+//             // console.log(response);
 
+//             // $("#err-msg").html(response);
+//             if (response.error == null) {
+//                 console.log(response.obj);
+//                 rooms = response.obj;
+//                 $.ajax({
+//                     url: "/admin/api/getTmpTermometr",
+//                     type: 'post',
+//                     data: {},
+//                     success: function (sensorsResponse) {
+//                         if (sensorsResponse.error == null) {
+//                             console.log(sensorsResponse.obj);
+//                             var list = $(".list");
+//                             sensorsResponse.obj.sort(compareSensors)
+//                             sensorsResponse.obj.forEach(element => {
+//                                 list.append(makeFullSensor(element, rooms));
+//                             });
+//                         } else {
+//                             $("#err-msg").html(sensorsResponse.error);
+//                             $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+//                         }
+//                     }
+//                 });
+//             } else {
+//                 $("#err-msg").html(response.error);
+//                 $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+//             }
+//         }
+//     });
+// });
 function makeFullSensor(obj, rooms) {
     var device = $("<div class=\"fullSensor\"></div>");
 
@@ -18,7 +55,15 @@ function makeFullSensor(obj, rooms) {
     var clikcFunctions;
     var holdFunctions;
     var value;
+    var adress;
     if (obj.typ === 'THERMOMETR') {
+        var i = 0;
+        var addresVal="";
+        for (const element of obj.addres) {
+            addresVal += element + " ";
+            
+        }
+        adress = $('<div class="adress">Adres: '+addresVal+'</div>');
         value = $('<div class="value">Temperatura: '+obj.temperatura+'&deg;C</div>')
         
     }
@@ -74,6 +119,7 @@ function makeFullSensor(obj, rooms) {
     device.append(roomName);
     device.append(slaveAddr);
     if (obj.typ === 'THERMOMETR') {
+        device.append(adress);
         device.append(value);
     }
     else if (obj.typ === 'BUTTON') {

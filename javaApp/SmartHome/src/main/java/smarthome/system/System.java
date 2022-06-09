@@ -94,6 +94,14 @@ public class System {
         if(light.getOnSlaveID()==-1){
             throw new HardwareException("Nie udało się dodać urządzenia na slavie");
         }
+
+        int maxID = 0;
+        for (Device device : systemDAO.getDevices()) {// znajdź maksymalne id w systemie
+            if (device.getId() > maxID) {
+                maxID = device.getId();
+            }
+        }
+        light.setId(maxID);
         systemDAO.getRoom(roomName).addDevice(light);
         systemDAO.getDevices().add(light);
         systemDAO.save();
@@ -122,6 +130,13 @@ public class System {
         if (roleta.getOnSlaveID() == -1) {
             throw new HardwareException("Nie udało się dodać urządzenia na slavie");
         }
+        int maxID = 0;
+        for (Device device : systemDAO.getDevices()) {// znajdź maksymalne id w systemie
+            if (device.getId() > maxID) {
+                maxID = device.getId();
+            }
+        }
+        roleta.setId(maxID);
         systemDAO.getRoom(roomName).addDevice(roleta);
         systemDAO.getDevices().add(roleta);
         systemDAO.save();
@@ -151,6 +166,13 @@ public class System {
         if (button.getOnSlaveID() == -1) {
             throw new HardwareException("Nie udało się dodać urządzenia na slavie");
         }
+        int maxID = 0;
+        for (Sensor sensor : systemDAO.getSensors()) {//znajdź maksymalne id w systemie
+            if (sensor.getId()>maxID) {
+                maxID= sensor.getId();
+            }
+        }
+        button.setId(maxID);
         systemDAO.getRoom(roomName).addSensor(button);
         systemDAO.getSensors().add(button);
         systemDAO.save();
