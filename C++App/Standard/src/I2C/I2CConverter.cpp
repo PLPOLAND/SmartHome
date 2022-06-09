@@ -105,15 +105,37 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             case Command::KOMENDY::RECEIVE_ADD_THERMOMETR:
             {
                 //Dodaje termometr do systemu o ile istnieje jakiś wolny, nie podłączony
-                //Jeśli udało się dodać termometr dodaje do wysłania jego id na płytce w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
+                //Jeśli udało się dodać termometr dodaje do wysłania jego adres w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
                 OUT_LN(F("REC_ADD_THERMOMETR"));
                 Device *tmpDev = System::getSystem()->addDevice(Device::TYPE::TERMOMETR);
-                komendaZwrotna->setDevice(tmpDev); // Zwróć dodane urządzenie //TODO obsługa nullptr
-                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
-                komendaZwrotna->setParams(((Termometr *)tmpDev)->getAddres());
-                komendaZwrotna->printParametry();
+                if (tmpDev = nullptr)
+                {
+                    byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    komendaZwrotna->setParams(params);
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                }
+                else
+                {
+                    // komendaZwrotna->setDevice(tmpDev); // Zwróć dodane urządzenie 
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->setParams(((Termometr *)tmpDev)->getAddres());
+                    komendaZwrotna->printParametry();
+                }
+                
+                
                 doWyslania.add(0, komendaZwrotna); //Dodaj komendę do wysłania na sam przód kolejki.
 
+            }
+            break;
+            case Command::KOMENDY::RECEIVE_HOW_MANY_THERMOMETR:
+            {
+                OUT_LN(F("REC_HOW_MANY_THER"))
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                params[0] = Termometr::howManyThermometers();
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
             }
             break;
             case Command::KOMENDY::RECEIVE_ADD_ROLETA:

@@ -1,5 +1,7 @@
 package smarthome.model.hardware;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,9 +119,10 @@ public abstract class Sensor {
         return this.addres;
     }
 
+    @Deprecated
     @JsonSetter(nulls = Nulls.AS_EMPTY)
-    public void setAddres(byte[] _addres) {
-        if (_addres == null ||_addres.length == 0 ) {
+    public void setAddres(byte[] addres) {
+        if (addres == null ||addres.length == 0 ) {
             this.addres = new int[8];
             
         }
@@ -127,10 +130,19 @@ public abstract class Sensor {
             this.addres = new int[8];
 
             for (int i = 0; i < 8; i++) {
-                this.addres[i] = _addres[i] & 0xFF;
+                this.addres[i] = addres[i] & 0xFF;
             }
         }
 
+    }
+    
+    public void setAddres(int[] addres) {
+        if (addres == null || addres.length == 0) {
+            this.addres = new int[8];
+        }
+        else{
+            this.addres = Arrays.copyOf(addres, addres.length);
+        }
     }
 
     public SensorsTypes getTyp() {

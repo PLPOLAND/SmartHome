@@ -155,6 +155,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         break;
 
         case Device::TYPE::TERMOMETR:{
+                OUT_LN(F("---Add Ther---"))
             Termometr *tmp = new Termometr();
             if (tmp->begin())
             { //spr. skonfigurować kolejny termometr
@@ -172,6 +173,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         }
         case Device::TYPE::PRZEKAZNIK:
             {
+                OUT_LN(F("---Add Switch---"))
                 Przekaznik * tmp = new Przekaznik();
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     tmp->setId(idDevice++);//nadaj mu id
@@ -186,7 +188,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::PRZYCISK:
             {
-                OUT_LN(F("-----Add Przycisk-----"))
+                OUT_LN(F("---Add Button---"))
                 // OUT("pin1:")
                 // OUT_LN(pin1);
                 Przycisk * tmp = new Przycisk();
@@ -210,7 +212,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::ROLETA:
             {
-                OUT_LN(F("-----Dodaj Roleta-----"));
+                OUT_LN(F("---Dodaj Blind---"));
                 // OUT("pin1:");
                 // OUT_LN(pin1);
                 // OUT("pin2:");
@@ -393,4 +395,8 @@ void System::setNextStartupVariant(bool variant){
     EEPROM.update(EEPROM_ADRES_OF_STARTUP_BYTE,variant?1:0);
     OUT(F("EEPROM aft change: "))
     OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
+}
+
+byte System::howManyThermometers(){
+    return this->termometry.size();
 }

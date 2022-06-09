@@ -2,8 +2,11 @@ package smarthome.i2c;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.serial.Serial;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +69,8 @@ public class MasterToSlaveConverter {
     final byte[] USUN_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L', 'D' };
     /**[S, D] */
     final byte[] SPRAWDZ_STAN_URZADZENIA = { 'S', 'D' };
+    /**[C, T, N] */
+    final byte[] ILE_TERMOMETROW = { 'C', 'T', 'N' };
     // #endregion
 
     @Autowired
@@ -262,23 +267,38 @@ public class MasterToSlaveConverter {
         return -1;
     }
 
-    public byte[] addTermometr(Sensor sens) { // TODO
-        if (sens.getTyp() == SensorsTypes.THERMOMETR) {
-            byte[] buffor = new byte[2];
-            int i = 0;
-            for (byte b : DODAJ_TERMOMETR) {
-                buffor[i++] = b;
-            }
+    public int[] addTermometr(int slaveAdress) throws HardwareException{ 
+        
+        byte[] buffor = new byte[2];
+        int i = 0;
+        for (byte b : DODAJ_TERMOMETR) {
+            buffor[i++] = b;
+        }
+        try {
+            atmega.pauseIfOcupied();
+            atmega.setOccupied(true);
             try {
-                atmega.writeTo(sens.getSlaveID(), buffor);//Wyślij prośbę o dodanie nowego termometru na płytce
-                Thread.sleep(200);
-                buffor = atmega.readFrom(sens.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);
-                return buffor;
-            } catch (Exception e) {
-                e.printStackTrace();
+                atmega.writeTo(slaveAdress, buffor);// Wyślij prośbę o dodanie nowego termometru na płytce
+                Thread.sleep(100);
+                buffor = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+                int[] adress = new int[8];
+                for (int j = 0; j < 8; j++) {
+                    adress[j] = buffor[j] & 0xFF;
+                }
+                return adress;
+            } catch (InterruptedException e) {
+
+                buffor = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+                int[] adress = new int[8];
+                for (int j = 0; j < 8; j++) {
+                    adress[j] = buffor[j] & 0xFF;
+                }
+                return adress;
             }
-        } 
-        return null;
+        } catch (HardwareException e) {
+            atmega.setOccupied(false);
+            throw e;
+        }
     }
 
     public int addPrzycisk(Button button)throws HardwareException{
@@ -484,6 +504,27 @@ public class MasterToSlaveConverter {
         }
 
     }
+    /**
+     * Sprawdza ile jest dostępnych termomterów na slavie o podanym adresie
+     * @param slaveAdress - adres slave-a
+     * @return ile termomterów jest dostępnych na danym slavie
+     * @throws HardwareException - kiedy nastąpi błąd podczas pisania do / odczytu z salve-a
+     */
+    public int howManyThermometersOnSlave(int slaveAdress) throws HardwareException{
+        int ile = -1;
+
+        atmega.pauseIfOcupied();
+        atmega.setOccupied(true);
+
+        atmega.writeTo(slaveAdress, ILE_TERMOMETROW, 3);
+        // Thread.sleep(10); //TODO usunąć jeśli nie potrzebne 
+        byte[] response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+
+        atmega.setOccupied(false);
+        ile = response[0];
+        return ile;
+    }
+
     
     /**
      * Only for test
@@ -517,6 +558,16 @@ public class MasterToSlaveConverter {
     @Deprecated
     public byte[] getAnything(int adres) throws HardwareException {
         return atmega.readFrom(adres, 8);
+    }
+
+    public List<Integer> getSlavesAdresses() {
+        ArrayList<Integer> adresy = new ArrayList<>();
+
+        for (I2CDevice device : atmega.getDevices()) {
+            adresy.add(device.getAddress());
+        }
+
+        return adresy;
     }
 
 

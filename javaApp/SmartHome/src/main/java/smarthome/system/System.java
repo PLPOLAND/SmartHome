@@ -192,7 +192,7 @@ public class System {
     }
     /**
      * Dodaj "Termometr" do systemu
-     * @deprecated obsługa wyjątków została zmieniona //TODO porpawić
+     * @deprecated obsługa wyjątków została zmieniona, zmieniono sposób dodawania termomterów na płytki i w systemie
      * @return 
      * 
      */
@@ -206,7 +206,7 @@ public class System {
         }
         Termometr termometr = new Termometr(boardID);
         try {
-            termometr.setAddres(arduino.addTermometr(termometr));// dodaj urzadzenie do slavea i zapisz jego id w slavie
+            termometr.setAddres(arduino.addTermometr(boardID));// dodaj urzadzenie do slavea i zapisz jego id w slavie
             if (termometr.getAddres() == null) {
                 throw new Exception("Nie udało się dodać urządzenia na slavie");
             }
@@ -431,7 +431,13 @@ public class System {
         return lt;
 
     }
-
+    /**
+     * Zmienia stan rolety
+     * @param roomName - nazwa pokoju w którym znajduje się roleta
+     * @param deviceID - id rolety w systemie
+     * @param pozycja - pozycja jaka powinna zostać ustawiona (true == UP)
+     * @return roleta
+     */
     public Device changeBlindState(String roomName, int deviceID, boolean pozycja){
         Room room = systemDAO.getRoom(roomName);
         if (room == null) {
@@ -439,11 +445,11 @@ public class System {
             return null;
         }
         Blind bl = (Blind) room.getDeviceById(deviceID);
-        
-        log.debug("Zmieniam pozycje rolety na: " + (pozycja?"UP":"DOWN"));
-        log.debug("Aktualna pozycja rolety:" + (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
+        log.debug("roleta: {}", bl);
+        log.debug("Zmieniam pozycje rolety na: {}",(pozycja?"UP":"DOWN"));
+        // log.debug("Aktualna pozycja rolety: {}", (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
         bl.changeState(pozycja);
-        log.debug("Pozycja rolety po zmianie:" + (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
+        // log.debug("Pozycja rolety po zmianie:{}", (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
         if (bl.getStan() == RoletaStan.UP) {
             arduino.changeBlindState(bl, true);
         }
@@ -454,6 +460,67 @@ public class System {
 
         return bl;
     }
+    
+    /**
+     * Wysyła konfigurację slave-a na urządzenie
+     * 
+     * @param slaveID  - adres slave-a na którego ma zostać wysłana konfiguracja
+     * @return czy wysyłanie się powiodło
+     */
+    private boolean sendConfigToSlave(int slaveID) {
+        boolean toReturn = true;
+        log.debug("number of devices in system: {}", systemDAO.getDevices().size());
+        for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {
+            log.debug("device slaveID: {}", device.getSlaveID());
+            log.debug("sendingDevice {}", device);
+            try {
+                device.setOnSlaveID(arduino.addUrzadzenie(device));
+                if (device instanceof Light) {
+                    this.changeLightState(device.getId(), ((Light) device).getStan());
+                } else if (device instanceof Blind) {
+                    this.changeBlindState(systemDAO.getRoom(device.getRoom()).getNazwa(), device.getId(),
+                            ((Blind) device).getStan() == RoletaStan.UP);
+                }
+            } catch (HardwareException e) {
+                log.error("Nie udało się reinicjalizować urządzenia o id {}", slaveID, e);
+                toReturn = false;
+            }
+        }
+
+        log.debug("number of sensors in system: {}", systemDAO.getSensors().size());
+        for (Sensor sensor : systemDAO.getSensors()) {
+            if (sensor.getSlaveID() == slaveID) {
+                log.debug("sensor id: {}", sensor.getId());
+                if (sensor instanceof Termometr) {
+                    // ignorujemy
+                } else if (sensor instanceof Button) {
+                    try {
+                        log.debug("sending Button: {}", sensor);
+                        sensor.setOnSlaveID(arduino.addPrzycisk((Button) sensor));
+                        if (!((Button) sensor).getFunkcjeKlikniec().isEmpty()) {
+                            for (ButtonFunction bFunction : ((Button) sensor).getFunkcjeKlikniec()) {
+                                arduino.sendClickFunction(bFunction);
+                            }
+                        }
+                    } catch (HardwareException e) {
+                        log.error("Nie udało się reinicjalizować przycisku o id {}", slaveID, e);
+                        toReturn = false;
+                    }
+                }
+            }
+        }
+
+        // try { //TODO odkomentować jeśli wszystko jest ok
+        // this.addUpdateThermometersOnSlave(slaveID);
+        // } catch (HardwareException e) {
+
+        // log.error("Błąd podczas dodawania termometerów: '{}'", e.getMessage());
+        // toReturn = false;
+        // }
+
+        return toReturn;
+    }
+
     /**
      * Sprawdza czy płytka była inicjowana przez I2C, i jeśli nie to reinicjuje ją
      * @param slaveID
@@ -461,55 +528,15 @@ public class System {
      * @return false jeśli urządzenie było już inicjowane 
      */
     public boolean checkInitOfBoard(int slaveID) {
-        boolean toReturn = true;
-        log.debug("Sprawdzanie slave-a o id: {}", slaveID);
+        // log.debug("Sprawdzanie slave-a o id: {}", slaveID);
         if (!arduino.checkInitOfBoard(slaveID) && arduino.reInitBoard(slaveID)) {//Sprawdź czy płytka była inicjowana, i jeśli nie to wyślij komendę o reinicjalizacji urządzenia
-            log.debug("number of devices in system: {}", systemDAO.getDevices().size());
-            for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {
-                log.debug("device slaveID: {}", device.getSlaveID());
-                log.debug("sendingDevice {}", device);
-                try {
-                    device.setOnSlaveID(arduino.addUrzadzenie(device));
-                    if (device instanceof Light) {
-                        this.changeLightState(device.getId(), ((Light) device).getStan());
-                    } else if (device instanceof Blind) {
-                        // TODO
-                    }
-                } catch (HardwareException e) {
-                    log.error("Nie udało się reinicjalizować urządzenia o id {}", slaveID, e);
-                    toReturn = false;
-                }
-            }
-
-            log.debug("number of sensors in system: {}", systemDAO.getSensors().size());
-            for (Sensor sensor : systemDAO.getSensors()) {
-                if (sensor.getSlaveID() == slaveID) {
-                    log.debug("sensor id: {}", sensor.getId());
-                    if (sensor instanceof Termometr) {
-                        log.debug("sending Termometr: {}", sensor);
-                        arduino.addTermometr(sensor);// TODO sprawdzanie czy termometr po dodaniu ponownie ma taki sam
-                        // adres!
-                    } else if (sensor instanceof Button) {
-                        try {
-                            log.debug("sending Button: {}", sensor);
-                            sensor.setOnSlaveID(arduino.addPrzycisk((Button) sensor));
-                            if (!((Button) sensor).getFunkcjeKlikniec().isEmpty()) {
-                                for (ButtonFunction bFunction : ((Button) sensor).getFunkcjeKlikniec()) {
-                                    arduino.sendClickFunction(bFunction);
-                                }
-                            }
-                        } catch (HardwareException e) {
-                            log.error("Nie udało się reinicjalizować przycisku o id {}", slaveID, e);
-                            toReturn = false;
-                        }
-                    }
-                }
-            }
-            return toReturn;
+            return sendConfigToSlave(slaveID);
         }
         return false;
     }
 
+
+ 
     public void reinitAllBoards() {
         for (I2CDevice device : arduino.atmega.getDevices()) {
             this.checkInitOfBoard(device.getAddress());
@@ -522,56 +549,13 @@ public class System {
      * @return false jeśli urządzenie było już inicjowane 
      */
     public boolean initOfBoard(int slaveID) {
-        boolean toReturn = true;
         log.debug("initOfBoard slaveId: {}", slaveID);
         if (arduino.reInitBoard(slaveID)) {
-            log.debug("number of devices in system: {}", systemDAO.getDevices().size());
-            for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {
-                log.debug("device slaveID: {}", device.getSlaveID());
-                log.debug("sendingDevice {}", device);
-                try {
-                    device.setOnSlaveID(arduino.addUrzadzenie(device));
-                    if (device instanceof Light) {
-                        this.changeLightState(device.getId(), ((Light) device).getStan());
-                    } else if (device instanceof Blind) {
-                        // TODO
-                    }
-                } catch (HardwareException e) {
-                    log.error("Nie udało się reinicjalizować urządzenia o id {}", slaveID, e);
-                    toReturn = false;
-                }
-            }
-
-            log.debug("number of sensors in system: {}", systemDAO.getSensors().size());
-            for (Sensor sensor : systemDAO.getSensors()) {
-                if (sensor.getSlaveID() == slaveID) {
-                    log.debug("sensor id: {}", sensor.getId());
-                    if (sensor instanceof Termometr) {
-                        log.debug("sending Termometr: {}", sensor);
-                        arduino.addTermometr(sensor);// TODO sprawdzanie czy termometr po dodaniu ponownie ma taki sam
-                        // adres!
-                    }
-                    else if (sensor instanceof Button) {
-                        try {
-                            log.debug("sending Button: {}", sensor);
-                            sensor.setOnSlaveID(arduino.addPrzycisk((Button)sensor));
-                            
-                            if (!((Button) sensor).getFunkcjeKlikniec().isEmpty()) {
-                                for (ButtonFunction bFunction : ((Button) sensor).getFunkcjeKlikniec()) {
-                                    arduino.sendClickFunction(bFunction);
-                                }
-                            }
-                        } catch (HardwareException e) {
-                            log.error("Nie udało się reinicjalizować przycisku o id {}", slaveID, e);
-                            toReturn = false;
-                        }
-                    }
-                }
-            }
-            return toReturn;
+            return sendConfigToSlave(slaveID);
         }
         return false;
     }
+
 
     public void updateDeviceState(Device device) throws HardwareException{
         log.debug("updateDeviceState()");
@@ -606,6 +590,56 @@ public class System {
 
     }
 
+    public void addUpdateThermometersOnAllSlaves() {
+        for (Integer slaveAdres : arduino.getSlavesAdresses()) { //dla każdego slave-a w systemie
+            try {
+                addUpdateThermometersOnSlave(slaveAdres);
+            } catch (HardwareException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+
+    /**
+     * Automatycznie sprawdza ile termometrów jest podłączonych do danego slave-a i dodaje je. Jeśli, dodany termomter istniał już wcześniej w systemie to jego dane zostają zaktualizowane.
+     * @param slaveAdres - adres slave-a, który ma zostać sprawdzony w poszukiwaniu termometrów.
+     * @throws HardwareException
+     */
+    private void addUpdateThermometersOnSlave(Integer slaveAdres) throws HardwareException {
+        ArrayList<Termometr> termometry = systemDAO.getAllTermometers();
+        int ile = arduino.howManyThermometersOnSlave(slaveAdres);//sprawdź ile jest dostępnych termometrów
+        if (ile > 0) {//jeśli jest ich więcej niż 0 
+            for (int i = 0; i < ile; i++) {
+                int[] addres = arduino.addTermometr(slaveAdres);//dodaj temomter na slavie
+                
+                boolean existed = false;//czy ten termometr był już dodany w systemie
+
+                for (Termometr t : termometry) {//wśród wszystkich dodanych w systemie 
+                    if (Arrays.equals(t.getAddres(), addres)) {//znajdź ten który został właśnie dodany
+                        t.setSlaveID(slaveAdres);//zmień mu adres slave-a
+                        existed = true;
+                        break;
+                    }
+                }
+                if (!existed) {
+                    Termometr termometr = new Termometr(slaveAdres);
+                    termometr.setAddres(addres);
+                    termometr.setName("Dodany automatycznie, slave=" + slaveAdres);
+                    Room tmp = systemDAO.getRoom("Brak");
+                    if (tmp != null) {
+                        
+                        termometr.setRoom(tmp.getID());
+                        tmp.addSensor(termometr);
+                        systemDAO.save(tmp);
+                    }
+                    else{
+                        log.error("Nie znaleziono pokoju '{}' podczas dodawania nowego termometru  ","Brak");
+                    }
+                }
+            }
+        }
+    }
 
 
     

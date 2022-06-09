@@ -43,8 +43,6 @@ public class I2C{
             
         } catch (UnsatisfiedLinkError e) {
             System.err.println("platform does not support this driver");
-        } catch (UnsupportedBusNumberException e) {
-            System.err.println("platform does not support this driver");//TODO
         }catch (Exception e) {
             System.err.println("platform does not support this driver");
 
@@ -82,23 +80,19 @@ public class I2C{
         }
     }
 
-    public void findAll() throws UnsupportedBusNumberException, IOException{
-        List<Integer> validAddresses = new ArrayList<Integer>();
+    public void findAll(){
+        List<Integer> validAddresses = new ArrayList<>();
         final I2CBus bus;
         pauseIfOcupied();
         setOccupied(true);
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
-            // for (int i = 1; i < 10; i++) {
             for (int i = 7; i < 128; i++) {
                 try {
                     I2CDevice device = bus.getDevice(i);
                     device.write((byte) 0);
                     byte[] buffer = new byte[8];
                     device.read(buffer, 0, 8);
-                    // for (byte b : buffer) {
-                    //     System.out.print((char) b);
-                    // }
                     logger.debug("Znaleziono Slave o adresie: {}",i);
                     boolean was = false;
                     for (I2CDevice dev : devices) {
@@ -130,17 +124,11 @@ public class I2C{
                 }
             }
         } catch (Exception e) {
-            throw e;
+            logger.error(e.getMessage());
         }
         setOccupied(false);
 
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
-
-        // System.out.println("Found: ---");
-        // for (int a : validAddresses) {
-        // System.out.println("Address: " + Integer.toHexString(a));
-        // }
-        // System.out.println("----------");
     }
     
 
@@ -252,7 +240,7 @@ public class I2C{
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
-
+        this.findAll();
         logger.info("Slave-y zrestartowane");
     }
 
@@ -260,4 +248,6 @@ public class I2C{
     public List<I2CDevice> getDevices() {
         return this.devices;
     }
+
+    
 }

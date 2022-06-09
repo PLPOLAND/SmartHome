@@ -36,6 +36,7 @@ public:
     bool isCorrect();
     void updateTemperature();
     bool compare2Adresses(const byte* addr1,const byte* addr2);
+    static uint8_t howManyThermometers();
 };
 
 #endif // !TERMOMETR_H

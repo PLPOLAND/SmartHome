@@ -6,6 +6,16 @@ byte Termometr::lastSensorsCount =0;
 System* Termometr::system = System::getSystem();
 LinkedList<byte *> Termometr::adressesOfFreeThermometrs = LinkedList<byte*>();
 
+
+void copyAdress(byte* from, byte* to){
+    for (byte i = 0; i < 8; i++)
+    {
+        to[i] = from[i];
+    }
+    
+}
+
+
 Termometr::Termometr()
 {
     Device(TYPE::TERMOMETR);
@@ -52,72 +62,60 @@ bool Termometr::isCorrect(){//TODO usunąć albo poprawić
     
 }
 
-///skonfiguruj temperaturę
+///skonfiguruj termometr
 ///@return true jeśli udała się poprawna konfiguracja; false jeśli niema już więcej wolnych termometrów w systemie;
 bool Termometr::begin()
 {
     sensors.begin();
-    
-    if (lastSensorsCount != sensors.getDeviceCount()){
-        LinkedList<byte*> defined = system->getAdrOfThermometrs();
-        for (int i = 0; i < sensors.getDeviceCount(); i++)// poszukaj nowych termometrów podlaczonych do sysytemu
-        {
-            bool found = false ;
-            byte currentThempAddr[8];
-            sensors.getAddress(currentThempAddr,i);//pobierz adres kolejnego urządzenia w sensors
+    byte tmpAdress[8]; // adress of termometr to add
+    if (system->howManyThermometers() != sensors.getDeviceCount() && sensors.getDeviceCount() == 1)
+    {
+        sensors.getAddress(tmpAdress,0);
+    }
+    else{
+        return false;
+    }
+    if (system->howManyThermometers()<sensors.getDeviceCount())
+    {
+        LinkedList<Termometr*>* termometry =  &(system->termometry);
 
-            for (int j = 0; j < this->adressesOfFreeThermometrs.size(); j++)//sprawdź czy adres już nie istenieje w liście wolnych
+        bool found = false;
+        for (byte i = 0; i < sensors.getDeviceCount() && found == false; i++)
+        {
+            found = false;
+            byte currAdress[8];
+            sensors.getAddress(currAdress,i);
+            for (byte j = 0; j < termometry->size(); j++)
             {
-                if (compare2Adresses(adressesOfFreeThermometrs.get(j),currentThempAddr))
+                if (compare2Adresses(currAdress,termometry->get(j)->getAddres()))
                 {
                     found = true;
                     break;
                 }
+                
             }
-            if (found == false)//nie znaleziono takego
+            if (found == false)
             {
-                for (int j = 0; j < defined.size(); i++)//wyszukaj więc wśród adresów termometrów już dodanych do systemu
-                {
-                    if (compare2Adresses(adressesOfFreeThermometrs.get(j), defined.get(j)))
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found==false)//jeśli nadal nie znaleziono to dodaj adres do listy wolnych
-                {
-                    adressesOfFreeThermometrs.add(currentThempAddr);
-                }
-                   
+                copyAdress(currAdress, tmpAdress);//znaleziono nowy termometr. zapisz jego adres do zmiennej tymczasowej
             }
             
             
         }
-        
-    }
-    OUT_LN("Termo_begin");
-    if (this->inSystem < sensors.getDeviceCount()) {
-        for (byte i = 0; i < 8; i++)
+        if (!found)
         {
-            this->adress[i] = adressesOfFreeThermometrs.get(0)[i];
-        }
-        
-        // this->adress = adressesOfFreeThermometrs.get(0);//przypisz pierwszy wolny adres
-        adressesOfFreeThermometrs.remove(0);//usuń ten adres z listy wolnych adresów
-        this->inSystem++;//zwiększ liczbę termometrów w systemie
-        OUT_LN("Stworzono nowy termometr");
-        OUT("Adres:");
-        for (int i = 0; i < 8; i++)
-        {
-            OUT(this->adress[i]);
-            OUT(" ");
-        }
-        OUT_LN();
-        } else {
-            OUT_LN("Błąd brak nowych termo");
             return false;
+        }
+        else
+        {
+            copyAdress(tmpAdress,this->adress);
+            OUT_LN(F("therm added ok"))
+            return true;
+        }
+        
+        
+
     }
-    return true;
+    return false;
 }
 //uaktualnij temperaturę termometru
 void Termometr::updateTemperature(){
@@ -145,4 +143,8 @@ bool Termometr::compare2Adresses(const byte *addr1, const byte *addr2){
     }
     return true;
     
+}
+
+uint8_t Termometr::howManyThermometers(){
+    return sensors.getDeviceCount();
 }

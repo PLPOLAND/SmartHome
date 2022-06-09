@@ -108,7 +108,7 @@ void Command::convert(const byte *c, byte size)
                 }
                 
             }
-            if (c[0] == 'S')
+            else if (c[0] == 'S')
             {
                 if (c[1]=='D')//Status urządzenia
                 {
@@ -118,9 +118,21 @@ void Command::convert(const byte *c, byte size)
                     this->komenda = Command::KOMENDY::RECIEVE_DEVICES_STATUS;
                     byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     parametry[0] = c[2]; // id urzadzenia
-                    OUT("device id = ");
-                    OUT_LN((int)c[2]);
+                    // OUT("device id = ");
+                    // OUT_LN((int)c[2]);
                     this->setParams(parametry);
+                }
+                
+            }
+            else if(c[0] == 'C'){
+                if (c[1] == 'T')
+                {
+                    if (c[2] == 'N')
+                    {
+                        this->komenda = Command::KOMENDY::RECEIVE_HOW_MANY_THERMOMETR;
+                        OUT_LN("CTN");
+                    }
+                    
                 }
                 
             }
