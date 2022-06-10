@@ -38,8 +38,8 @@ public class I2C{
             gpio = GpioFactory.getInstance();
             pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
             restartSlaves();
-            logger.info("Searching for devices");
-            findAll();
+            // logger.info("Searching for devices");
+            // findAll();
             
         } catch (UnsatisfiedLinkError e) {
             System.err.println("platform does not support this driver");

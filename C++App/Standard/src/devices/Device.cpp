@@ -3,13 +3,13 @@
     Device::Device()
     {
         this->setType(Device::TYPE::BRAK);
-        this->id = 0;
+        this->id = 255;
     }
 
     Device::Device(TYPE type)
     {
         this->setType(type);
-        this->id = 0;
+        this->id = 255;
     }
     Device::Device(TYPE type, byte id)
     {

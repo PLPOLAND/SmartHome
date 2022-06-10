@@ -107,8 +107,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 //Dodaje termometr do systemu o ile istnieje jakiś wolny, nie podłączony
                 //Jeśli udało się dodać termometr dodaje do wysłania jego adres w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
                 OUT_LN(F("REC_ADD_THERMOMETR"));
-                Device *tmpDev = System::getSystem()->addDevice(Device::TYPE::TERMOMETR);
-                if (tmpDev = nullptr)
+                Termometr *tmpDev = (Termometr*)System::getSystem()->addDevice(Device::TYPE::TERMOMETR);
+                if (tmpDev == nullptr)
                 {
                     byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                     komendaZwrotna->setParams(params);
@@ -117,8 +117,15 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 else
                 {
                     // komendaZwrotna->setDevice(tmpDev); // Zwróć dodane urządzenie 
+                    // Termometr* termometr = (Termometr*)(System::getSystem())->getDevice(tmpDev->getId());
+                    for (byte i = 0; i < 8; i++)
+                    {
+                        OUT(" ")
+                        OUT(tmpDev->getAddres()[i]);
+                    }
+                    OUT_LN()
                     komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
-                    komendaZwrotna->setParams(((Termometr *)tmpDev)->getAddres());
+                    komendaZwrotna->setParams(tmpDev->getAddres());
                     komendaZwrotna->printParametry();
                 }
                 
@@ -132,10 +139,13 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 OUT_LN(F("REC_HOW_MANY_THER"))
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
 
+                OUT_LN(F("BEFORE"))
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = Termometr::howManyThermometers();
+                OUT_LN(F("AFTER"))
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
+                OUT_LN(F("END"))
             }
             break;
             case Command::KOMENDY::RECEIVE_ADD_ROLETA:
@@ -181,8 +191,21 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             case Command::KOMENDY::RECEIVE_GET_TEMPERATURE:
             {
                 OUT_LN(F("REC_GET_TEMPERATURE"));
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                String tmp = String(System::getSystem()->getTermometr(komenda.getParams())->getTemperature(), 2U);
+                OUT(F("temperatura = "))
+                OUT_LN(tmp);
+                for (byte i = 0; i < 8; i++)
+                {
+                    params[i] = 0;
+                }
+                for (byte i = 0; i < tmp.length(); i++)
+                {
+                    params[i] = tmp.charAt(i);
+                }
+
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_TEMPERATURA);
-                komendaZwrotna->setParams(komenda.getParams());
+                komendaZwrotna->setParams(params);
 
                 
                 doWyslania.add(0, komendaZwrotna);
@@ -460,6 +483,7 @@ void I2CConverter::RequestEvent()
     }
     else
     {
+        OUT_LN(F("NOTHING TO SENT"))
         OUT_LN(F("Wire.write('0')"));
         Wire.write('0');
     }

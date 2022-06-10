@@ -239,16 +239,7 @@ void Command::convert(const byte *c, byte size)
                     parametry[i] = c[i+1];
                 }
                 this->setParams(parametry);
-                String tmp = String(System::getSystem()->getTermometr(parametry)->getTemperature(),2U);
-                for (byte i = 0; i < 8; i++)
-                {
-                    parametry[i] = 0;
-                }
-                for (byte i = 0; i < tmp.length(); i++)
-                {
-                    parametry[i] = tmp.charAt(i);
-                }
-                this->setParams(parametry);
+                
             }
             
         }

@@ -532,13 +532,12 @@ public class System {
             }
         }
 
-        // try { //TODO odkomentować jeśli wszystko jest ok
-        // this.addUpdateThermometersOnSlave(slaveID);
-        // } catch (HardwareException e) {
-
-        // log.error("Błąd podczas dodawania termometerów: '{}'", e.getMessage());
-        // toReturn = false;
-        // }
+        try { //TODO odkomentować jeśli wszystko jest ok
+            this.addUpdateThermometersOnSlave(slaveID);
+        } catch (HardwareException e) {
+            log.error("Błąd podczas dodawania termometerów: '{}'", e.getMessage());
+            toReturn = false;
+        }
 
         return toReturn;
     }
@@ -628,12 +627,19 @@ public class System {
      * @param slaveAdres - adres slave-a, który ma zostać sprawdzony w poszukiwaniu termometrów.
      * @throws HardwareException
      */
-    private void addUpdateThermometersOnSlave(Integer slaveAdres) throws HardwareException {
+    public void addUpdateThermometersOnSlave(Integer slaveAdres) throws HardwareException {
         ArrayList<Termometr> termometry = systemDAO.getAllTermometers();
         int ile = arduino.howManyThermometersOnSlave(slaveAdres);//sprawdź ile jest dostępnych termometrów
         if (ile > 0) {//jeśli jest ich więcej niż 0 
             for (int i = 0; i < ile; i++) {
-                int[] addres = arduino.addTermometr(slaveAdres);//dodaj temomter na slavie
+                int[] addres;
+                try {
+                    addres = arduino.addTermometr(slaveAdres);//dodaj termometr na slavie
+                    
+                } catch (HardwareException e) {
+                    log.error(e.getMessage());
+                    throw e;
+                }
                 
                 boolean existed = false;//czy ten termometr był już dodany w systemie
 

@@ -111,7 +111,7 @@ void System::begin(){
         pinMode(16, OUTPUT);
     }
     
-
+    Termometr::init();
     OUT_LN(freeMemory());
 }
 
@@ -159,13 +159,19 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             Termometr *tmp = new Termometr();
             if (tmp->begin())
             { //spr. skonfigurować kolejny termometr
+                OUT_LN("TMP = notnull")
                 tmp->setId(idDevice++);
+                OUT("ID: ");
+                OUT_LN(tmp->getId());
                 this->devices.add(tmp);    //dodaj do głównej listy urządzeń
                 this->termometry.add(tmp); //dodaj do listy termometrów w systemie
+                OUT("ID: ");
+                OUT_LN(tmp->getId());
                 return tmp;
             }
             else
             {
+                OUT_LN("TMP =null")
                 delete tmp;
                 return nullptr; //TODO Poprawić
             }
@@ -321,16 +327,16 @@ Termometr* System::getTermometr(const byte* adress){
 
     for (int i = 0; i < termometry.size(); i++)
     {
-        if (termometry[i]->compare2Adresses(termometry[i]->getAddres(), adress)){
+        if (termometry.get(i)->compare2Adresses(termometry.get(i)->getAddres(), adress)){
             OUT(F("FOUND ADRESS : "));
             for (int j = 0; j < 8; j++)
             {
-                OUT(termometry[i]->getAddres()[j])
+                OUT(termometry.get(i)->getAddres()[j])
                 OUT(" ")
             }
             OUT_LN(" ")
-            OUT(F("FOUND DEV TYPE:")) OUT_LN(termometry[i]->getType()== Device::TERMOMETR);
-            return termometry[i];
+            OUT(F("FOUND DEV TYPE:")) OUT_LN(termometry.get(i)->getType()== Device::TERMOMETR?"OK":"NOT TER");
+            return termometry.get(i);
         }
             
     }

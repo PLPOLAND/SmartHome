@@ -175,12 +175,12 @@ public abstract class Sensor {
     @Override
     public String toString() {
         return "{" +
-            ", id='" + getId() + "'" +
+            " id='" + getId() + "'" +
             ", name='" + getName() + "'" +
             ", room='" + getRoom() + "'" +
             ", slaveID='" + getSlaveID() + "'" +
             ", onSlaveID='" + getOnSlaveID() + "'" +
-            ", addres='" + getAddres() + "'" +
+            ", addres='" + Arrays.toString(getAddres()) + "'" +
             ", typ='" + getTyp() + "'" +
             "}";
     }

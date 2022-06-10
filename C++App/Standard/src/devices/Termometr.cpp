@@ -6,7 +6,6 @@ byte Termometr::lastSensorsCount =0;
 System* Termometr::system = System::getSystem();
 LinkedList<byte *> Termometr::adressesOfFreeThermometrs = LinkedList<byte*>();
 
-
 void copyAdress(byte* from, byte* to){
     for (byte i = 0; i < 8; i++)
     {
@@ -24,10 +23,12 @@ Termometr::Termometr()
 Termometr::~Termometr()
 {
 }
-
+Termometr::Termometr(byte id){
+    Device(TYPE::TERMOMETR, id);
+}
 Termometr::Termometr(const Termometr &t){
     Device((Device)t); 
-    OUT_LN("COPY TERMO")
+    OUT_LN(F("COPY TERMO"))
     memcpy(this->adress,t.adress,8);
     this->temperatura = t.temperatura;
 
@@ -70,12 +71,22 @@ bool Termometr::begin()
     byte tmpAdress[8]; // adress of termometr to add
     if (system->howManyThermometers() != sensors.getDeviceCount() && sensors.getDeviceCount() == 1)
     {
+        OUT_LN("ONE TER")
         sensors.getAddress(tmpAdress,0);
+        copyAdress(tmpAdress, this->adress);
+        OUT_LN("TER addr:")
+        for (byte i = 0; i < 8; i++)
+        {
+            OUT(" ");
+            OUT(this->adress[i]);
+        }
+        OUT_LN();
+        return true;
     }
     else{
         return false;
     }
-    if (system->howManyThermometers()<sensors.getDeviceCount())
+    if (system->howManyThermometers()<sensors.getDeviceCount())//TODO SPRAWDZIĆ DZIAŁANIE
     {
         LinkedList<Termometr*>* termometry =  &(system->termometry);
 
@@ -147,4 +158,7 @@ bool Termometr::compare2Adresses(const byte *addr1, const byte *addr2){
 
 uint8_t Termometr::howManyThermometers(){
     return sensors.getDeviceCount();
+}
+void Termometr::init(){
+    sensors.begin();
 }

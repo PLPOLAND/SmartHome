@@ -161,7 +161,7 @@ public class MasterToSlaveConverter {
             bufString += adr + " ";
         }
         try {
-            logger.debug("Writing to addres " + termometr.getSlaveID() + " command: " + Arrays.toString(buffor));
+            logger.debug("Writing to addres {} command: {} ('{}')", termometr.getSlaveID(), Arrays.toString(buffor), bufString);
             
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
@@ -176,7 +176,7 @@ public class MasterToSlaveConverter {
                 }
             }
             Float temperatura = Float.parseFloat(tmp);
-
+            logger.debug("Got temperature from {}. Temperature = {} *C",Arrays.toString(termometr.getAddres()),temperatura);
             termometr.setTemperatura(temperatura);
 
             return temperatura;
@@ -285,6 +285,16 @@ public class MasterToSlaveConverter {
                 for (int j = 0; j < 8; j++) {
                     adress[j] = buffor[j] & 0xFF;
                 }
+                boolean isOnlyZeros = true;
+                for (int j : buffor) {
+                    if (j!=0) {
+                        isOnlyZeros = false;
+                    }
+                }
+                if (isOnlyZeros) {
+                    throw new HardwareException("Błąd podczas dodawania termometru! Próbowano dodać więcej termometrów niż jest podpiętych do Slave-a?");
+                }
+                atmega.setOccupied(false);
                 return adress;
             } catch (InterruptedException e) {
 
@@ -293,6 +303,7 @@ public class MasterToSlaveConverter {
                 for (int j = 0; j < 8; j++) {
                     adress[j] = buffor[j] & 0xFF;
                 }
+            atmega.setOccupied(false);
                 return adress;
             }
         } catch (HardwareException e) {
@@ -517,7 +528,11 @@ public class MasterToSlaveConverter {
         atmega.setOccupied(true);
 
         atmega.writeTo(slaveAdress, ILE_TERMOMETROW, 3);
-        // Thread.sleep(10); //TODO usunąć jeśli nie potrzebne 
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         byte[] response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
 
         atmega.setOccupied(false);
