@@ -83,8 +83,8 @@ public class I2C{
     public void findAll(){
         List<Integer> validAddresses = new ArrayList<>();
         final I2CBus bus;
-        pauseIfOcupied();
-        setOccupied(true);
+        // pauseIfOcupied();
+        // setOccupied(true);
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
             for (int i = 7; i < 128; i++) {
@@ -126,7 +126,7 @@ public class I2C{
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        setOccupied(false);
+        // setOccupied(false);
 
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
     }

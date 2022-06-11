@@ -83,4 +83,13 @@ public class Termometr extends Sensor{
         
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+            " temperatura='" + getTemperatura() + "'" +
+            ", max='" + getMax() + "'" +
+            ", min='" + getMin() + "'" +
+            ", super = '"+super.toString()+"'}";
+    }
+
 }

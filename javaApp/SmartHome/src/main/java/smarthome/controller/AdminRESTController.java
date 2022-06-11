@@ -148,6 +148,10 @@ public class AdminRESTController {
     public Response<ArrayList<Sensor>> getSensors() {
         return new Response<>(systemDAO.getSensors());
     }
+    @RequestMapping("/getTermometers")
+    public Response<ArrayList<Termometr>> getThermometers() {
+        return new Response<>(systemDAO.getAllTermometers());
+    }
     
     @RequestMapping("/getSensorTypes")
     public Response<String[]> getSensorTypes() {

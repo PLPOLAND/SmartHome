@@ -28,7 +28,7 @@
     float: left;
     height: 100%;
     padding: 0 10px;
-    width: 100px;
+    min-width: 100px;
 }
 .roomName {
     float: left;
@@ -40,7 +40,7 @@
     float: left;
     height: 100%;
     padding: 0 10px;
-    width: 300px;
+    min-width: 330px;
 }
 
 .stan {

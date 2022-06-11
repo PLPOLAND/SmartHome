@@ -327,6 +327,7 @@ public class System {
 
     public void updateTemperature(Termometr termometr){
         arduino.checkTemperature(termometr);
+        systemDAO.save(systemDAO.getRoom(termometr.getRoom()));
     }
 
     /**

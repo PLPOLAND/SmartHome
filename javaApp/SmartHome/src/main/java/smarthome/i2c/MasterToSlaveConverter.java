@@ -166,7 +166,7 @@ public class MasterToSlaveConverter {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
             atmega.writeTo(termometr.getSlaveID(), buffor);
-            Thread.sleep(100);
+            Thread.sleep(200);
             byte[] response = atmega.readFrom(termometr.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
             String tmp ="";
@@ -178,10 +178,11 @@ public class MasterToSlaveConverter {
             Float temperatura = Float.parseFloat(tmp);
             logger.debug("Got temperature from {}. Temperature = {} *C",Arrays.toString(termometr.getAddres()),temperatura);
             termometr.setTemperatura(temperatura);
-
+            
             return temperatura;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            atmega.setOccupied(false);
+            logger.error(e.getMessage());
             return -128.f;
         }
 
