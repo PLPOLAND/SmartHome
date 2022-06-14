@@ -2,21 +2,20 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Dodaj Urządzenie - SmartHome</title>
+    <title>Edytuj Termometr - SmartHome</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="../css/jqueryUiMin.css">
-    <link rel="stylesheet" href="../css/admin/device.css">
     <link rel="stylesheet" href="../css/admin/form.css">
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/fontello/css/fontello.css">
     <script src="../js/jQueryMin.js"></script>
     <script src="../js/jQueryUIMin.js"></script>
     <script src="../js/admin/main.js"></script>
-    <script src="../js/admin/pages/editDevice.js"></script>
+    <script src="../js/admin/pages/editThermometr.js"></script>
 </head>
 
 <body>
-    <script th:inline="javascript">id = /*[[${deviceID}]]*/ 0</script>
+    <script th:inline="javascript">id = /*[[${thermometrID}]]*/ 0</script>
     <div id="err-msg"></div>
     <div id="msg"></div>
     <div class="background-container"></div>
@@ -37,14 +36,11 @@
     </div>
     <div id="main-body">
         <div class="body-form">
-            <h1>Edytuj Urządzenie</h1>
+            <h1>Edytuj Termometr</h1>
             <hr>
-            <div class="wiersz"> Nazwa Urządzenia : <input id="name" th:value="${deviceName}"></div>
+            <div class="wiersz"> Nazwa Termometru : <input id="name" th:value="${therName}"></div>
             <div class="wiersz"> Pokój : <select id="room"><option value="0">Brak Pokoi</option></select></div>
-            <div class="wiersz"> Typ: <select id="deviceType"><option value="0">Brak</option></select></div>
             <div class="wiersz"> Adres Slave-a: <input id="boardID" th:value="${slave}"></div>
-            <div class="wiersz"> Pin Slave-a: <input id="pin1" th:value="${pin1}"></div>
-            <div class="wiersz toHide"> Pin 2 Slave-a: <input id="pin2" th:value="${pin2}"></div>
             <div class="wiersz"></div>
             <div class="wiersz"><button id="clear" class="toHide">Wyczyść <i class="icon-trash"></i></button><button id="save">Zapisz <i class="icon-save"></i></button></div>
         </div>

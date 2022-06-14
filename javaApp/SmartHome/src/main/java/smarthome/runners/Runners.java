@@ -62,23 +62,25 @@ public class Runners {
         
     }
     
-    @Scheduled(fixedDelay = 500)
+    @Scheduled(fixedDelay = 100)
     void checkDevicesStatus(){
-        logger.debug("checkStatus()");
-        if (isCheckDevicesStatusDone && isCheckReinitDone) {
-            isCheckDevicesStatusDone = false;
-            for (Device device : system.getSystemDAO().getDevices()) {
-                try {
-                    system.checkInitOfBoard(device.getSlaveID());
-                    system.updateDeviceState(device);
-                } catch (HardwareException e) {
-                    logger.error(e.getMessage(), e);
+        if (!system.getArduino().atmega.getDevices().isEmpty()) {
+            logger.debug("checkStatus()");
+            if (isCheckDevicesStatusDone && isCheckReinitDone) {
+                isCheckDevicesStatusDone = false;
+                for (Device device : system.getSystemDAO().getDevices()) {
+                    try {
+                        system.checkInitOfBoard(device.getSlaveID());
+                        system.updateDeviceState(device);
+                    } catch (HardwareException e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
+                // for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
+                //     system.updateTemperature(termometr);
+                // }
+                isCheckDevicesStatusDone = true;
             }
-            // for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
-            //     system.updateTemperature(termometr);
-            // }
-            isCheckDevicesStatusDone = true;
         }
     }
 

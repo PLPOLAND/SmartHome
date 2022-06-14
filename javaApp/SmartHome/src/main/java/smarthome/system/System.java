@@ -631,6 +631,7 @@ public class System {
     public void addUpdateThermometersOnSlave(Integer slaveAdres) throws HardwareException {
         ArrayList<Termometr> termometry = systemDAO.getAllTermometers();
         int ile = arduino.howManyThermometersOnSlave(slaveAdres);//sprawdź ile jest dostępnych termometrów
+        arduino.atmega.setOccupied(false);
         if (ile > 0) {//jeśli jest ich więcej niż 0 
             for (int i = 0; i < ile; i++) {
                 int[] addres;

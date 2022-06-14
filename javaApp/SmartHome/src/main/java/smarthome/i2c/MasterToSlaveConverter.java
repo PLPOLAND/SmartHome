@@ -293,6 +293,7 @@ public class MasterToSlaveConverter {
                     }
                 }
                 if (isOnlyZeros) {
+                    atmega.setOccupied(false);
                     throw new HardwareException("Błąd podczas dodawania termometru! Próbowano dodać więcej termometrów niż jest podpiętych do Slave-a?");
                 }
                 atmega.setOccupied(false);
@@ -304,7 +305,7 @@ public class MasterToSlaveConverter {
                 for (int j = 0; j < 8; j++) {
                     adress[j] = buffor[j] & 0xFF;
                 }
-            atmega.setOccupied(false);
+                atmega.setOccupied(false);
                 return adress;
             }
         } catch (HardwareException e) {

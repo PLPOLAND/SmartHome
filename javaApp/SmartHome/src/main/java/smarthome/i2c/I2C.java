@@ -49,7 +49,7 @@ public class I2C{
         }
     }
 
-    void setOccupied(boolean isOccup){
+    public void setOccupied(boolean isOccup){
         if (isOccup) {
             // logger.debug("Occupied");
             this.isOccupied = isOccup;
