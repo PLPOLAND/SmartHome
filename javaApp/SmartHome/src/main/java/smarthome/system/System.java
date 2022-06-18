@@ -671,6 +671,34 @@ public class System {
         }
     }
 
+    /**
+     * Funkcja edytuje dane o termometrze i zapisuje je w pamięci
+     * @param termometerId - id termometru, który będzie aktualizowany
+     * @param name - nowa nazwa termometru
+     * @param roomName - nowy pokój do którego będzie należał termometr
+     * @throws HardwareException
+     */
+    public void editThermometer(int termometerId, String name, String roomName) throws HardwareException {
+        
+        Termometr termometr = (Termometr) this.getSensorByID(termometerId);
+        if (termometr != null) {
+            termometr.setName(name);
+            int oldRoom = termometr.getRoom();
+            termometr.setRoom(this.systemDAO.getRoom(roomName).getID());
+            if (oldRoom == termometr.getRoom()) {
+                systemDAO.save(systemDAO.getRoom(termometr.getRoom()));
+            }
+            else{
+                systemDAO.getRoom(oldRoom).delSensor(termometr);
+                systemDAO.getRoom(roomName).addSensor(termometr);
+                systemDAO.save(systemDAO.getRoom(oldRoom));
+                systemDAO.save(systemDAO.getRoom(roomName));
+            }
+        }
+        else{
+            throw new HardwareException("Brak sensora o id '"+termometerId+"'");
+        }
+    }
 
     
 }

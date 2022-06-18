@@ -530,6 +530,17 @@ public class AdminRESTController {
             return new Response<>(null, e.getMessage());
         }
     }
+    @GetMapping("/editThermometer")
+    public Response<String> editThermometer(@RequestParam("thermometerId") int thermometerId,@RequestParam("roomName") String roomName, @RequestParam("name") String thermometerName){
+        
+        try {
+            system.editThermometer(thermometerId, thermometerName, roomName);
+            return new Response<>("Termometr '" +thermometerName + "'został zaktualizowany poprawnie");
+            } catch (Exception e) {
+            logger.error("Błąd podczas uaktualniania Przycisku",e);
+            return new Response<>(null, e.getMessage());
+        }
+    }
 
     @GetMapping("/editButtonFunction")
     public Response<String> editButtonFunction(@RequestParam("buttonId") int buttonId,@RequestParam("deviceId") int deviceId, @RequestParam("state") ButtonFunction.State state, @RequestParam("clicks") int clicks,@RequestParam("oldClicks") int oldclicks ) {

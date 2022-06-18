@@ -4,7 +4,8 @@
 
 .sensor{
     display: block;
-    width: 250px;
+    width: 400px;
+    /* width: 250px; */
     height: var(--device-height);
     border-radius: 10px;
     float: left;
