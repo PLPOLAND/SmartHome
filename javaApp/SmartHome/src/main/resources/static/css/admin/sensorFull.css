@@ -6,7 +6,7 @@
     display: block;
     padding: 5px 10px;
     width: 90%;
-    height: 50px;
+    min-height: 50px;
     background-color: var(--primaryColor);
     line-height: 50px;
     font-size: 20px;

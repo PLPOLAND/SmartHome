@@ -14,24 +14,26 @@ void copyAdress(byte* from, byte* to){
     
 }
 
-
-Termometr::Termometr()
+Termometr::Termometr() : Device(TYPE::TERMOMETR)
 {
-    Device(TYPE::TERMOMETR);
+    OUT_LN("TERMOMETR()");
+    
+    timer.restart();
 }
 
-Termometr::~Termometr()
+Termometr::Termometr(byte id) : Device(TYPE::TERMOMETR, id)
 {
+    timer.restart();
 }
-Termometr::Termometr(byte id){
-    Device(TYPE::TERMOMETR, id);
-}
-Termometr::Termometr(const Termometr &t){
-    Device((Device)t); 
+
+Termometr::~Termometr(){}
+
+Termometr::Termometr(const Termometr &t) : Device((Device)t)
+{
     OUT_LN(F("COPY TERMO"))
     memcpy(this->adress,t.adress,8);
     this->temperatura = t.temperatura;
-
+    timer.restart();
 }
 
 //Returns byte[8]
@@ -68,6 +70,7 @@ bool Termometr::isCorrect(){//TODO usunąć albo poprawić
 bool Termometr::begin()
 {
     sensors.begin();
+    timer.begin(1);
     byte tmpAdress[8]; // adress of termometr to add
     if (system->howManyThermometers() != sensors.getDeviceCount() && sensors.getDeviceCount() == 1)
     {
@@ -130,17 +133,28 @@ bool Termometr::begin()
 }
 //uaktualnij temperaturę termometru
 void Termometr::updateTemperature(){
-    // OUT_LN("getT");
-    // for (int i = 0; i < 8; i++)
-    // {
-    //     OUTPUT((int)(this->adress[i]));
-    // }
-    // sensors.requestTemperaturesByAddress(this->getAddres());
-    sensors.requestTemperatures();
-    // delay(sensors.millisToWaitForConversion(sensors.getResolution(this->getAddres())));
-    temperatura=sensors.getTempC(this->getAddres());
-    
-    // OUT_LN("getTReq");
+    // OUT_LN(F("updateTemperature"))
+    // OUT(F("Time(")) OUT(timer.time()) OUT_LN(F(")"))
+    if (timer.available())
+    {
+        // OUT(F("termometr o id: "))
+        // OUT_LN(this->getId());
+        sensors.setWaitForConversion(false); // makes it async
+        sensors.requestTemperatures();
+        sensors.setWaitForConversion(true);
+        OUT_LN(F("updatingTemperature"))
+        // for (byte i = 0; i < 8; i++)
+        // {
+        //     OUT(" ");
+        //     OUT(this->adress[i]);
+        // }
+        // if (sensors.isConnected(this->getAddres()))
+        //     OUT_LN("CONNECTED")
+        this->temperatura = sensors.getTempC(this->getAddres());
+        // OUT(F("temperature = "));
+        // OUT_LN(this->temperatura);
+        timer.begin(1000);
+    }
 }
 bool Termometr::compare2Adresses(const byte *addr1, const byte *addr2){
     for (int i = 0; i < 8; i++)

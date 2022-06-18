@@ -22,6 +22,7 @@ private:
     static System* system;
     byte adress[8]; //adres termometru (tablica[8])
     float temperatura;
+    Timer timer;
 public:
     Termometr();
     Termometr(byte id);

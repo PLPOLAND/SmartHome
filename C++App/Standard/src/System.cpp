@@ -62,8 +62,8 @@ void System::begin(){
         Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 16, 15);
         Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
         Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
-        p1->setCzyPominac(true);
-        p2->setCzyPominac(true);
+        // p1->setCzyPominac(true);
+        // p2->setCzyPominac(true);
         Command *tmp = new Command;
         tmp->setDevice(r);
         tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
@@ -116,18 +116,29 @@ void System::begin(){
 }
 
 void System::tic(){
-    if (this->termometry.size() > 0 && timer.available()) //TODO ustawić częstotliwość sprawdzania!
+    // if (this->termometry.size() > 0 && timer.available()) //TODO ustawić częstotliwość sprawdzania!
+    // {
+    //     for (byte i = 0; i < this->termometry.size(); i++)
+    //     {
+    //         this->termometry.get(i)->updateTemperature();
+    //         OUT("Termometr: ");
+    //         OUT(i);
+    //         OUT(" = ");
+    //         OUT_LN(this->termometry.get(i)->getTemperature());
+    //     }
+    //     OUT_LN(F("timer"));
+    //     timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
+    // }
+    if (this->termometry.size() > 0 ) //TODO ustawić częstotliwość sprawdzania!
     {
         for (byte i = 0; i < this->termometry.size(); i++)
         {
             this->termometry.get(i)->updateTemperature();
-            OUT("Termometr: ");
-            OUT(i);
-            OUT(" = ");
-            OUT_LN(this->termometry.get(i)->getTemperature());
+            // OUT("Termometr: ");
+            // OUT(i);
+            // OUT(" = ");
+            // OUT_LN(this->termometry.get(i)->getTemperature());
         }
-        OUT_LN(F("timer"));
-        timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     }
     if (this->rolety.size() > 0) 
     {
@@ -156,22 +167,24 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
 
         case Device::TYPE::TERMOMETR:{
                 OUT_LN(F("---Add Ther---"))
-            Termometr *tmp = new Termometr();
+            Termometr *tmp = new Termometr;
             if (tmp->begin())
             { //spr. skonfigurować kolejny termometr
-                OUT_LN("TMP = notnull")
+                OUT_LN(F("TMP = notnull"))
                 tmp->setId(idDevice++);
-                OUT("ID: ");
+                OUT(F("ID: "));
                 OUT_LN(tmp->getId());
                 this->devices.add(tmp);    //dodaj do głównej listy urządzeń
                 this->termometry.add(tmp); //dodaj do listy termometrów w systemie
-                OUT("ID: ");
+                OUT(F("ID: "));
                 OUT_LN(tmp->getId());
+                OUT("DEV TYPE: ");
+                OUT_LN(tmp->getType());
                 return tmp;
             }
             else
             {
-                OUT_LN("TMP =null")
+                OUT_LN(F("TMP =null"))
                 delete tmp;
                 return nullptr; //TODO Poprawić
             }
@@ -329,14 +342,17 @@ Termometr* System::getTermometr(const byte* adress){
     {
         if (termometry.get(i)->compare2Adresses(termometry.get(i)->getAddres(), adress)){
             OUT(F("FOUND ADRESS : "));
+            Termometr *termometr = termometry.get(i);
             for (int j = 0; j < 8; j++)
             {
-                OUT(termometry.get(i)->getAddres()[j])
+                OUT(termometr->getAddres()[j])
                 OUT(" ")
             }
             OUT_LN(" ")
-            OUT(F("FOUND DEV TYPE:")) OUT_LN(termometry.get(i)->getType()== Device::TERMOMETR?"OK":"NOT TER");
-            return termometry.get(i);
+            OUT(F("FOUND DEV TYPE: "))
+            OUT(termometr->getType());
+            OUT_LN(termometr->getType() == Device::TERMOMETR ? " - OK" : " - NOT TER");
+            return termometr;
         }
             
     }

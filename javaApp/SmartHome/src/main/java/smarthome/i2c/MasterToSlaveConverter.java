@@ -209,23 +209,24 @@ public class MasterToSlaveConverter {
             try {
                 atmega.pauseIfOcupied();
                 atmega.setOccupied(true);
-                try {
+                // try {
                     logger.debug("Writing to addres {}", device.getSlaveID());
     
                     atmega.writeTo(device.getSlaveID(), buffor);
-                    Thread.sleep(10);//TODO czy jest potrzebne?
+                    // Thread.sleep(10);//TODO czy jest potrzebne?
                     logger.debug("Reading from addres {}", device.getSlaveID());
                     byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
                     atmega.setOccupied(false);
                     return response[0];
-                } catch (InterruptedException e) {
-                    logger.error(e.getMessage(), e);
-                    logger.debug("Próba kontynuacji");
-                    logger.debug("Reading from addres {}", device.getSlaveID());
-                    byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
-                    atmega.setOccupied(false);
-                    return response[0];
-                }
+                // } 
+                // catch (InterruptedException e) {
+                //     logger.error(e.getMessage(), e);
+                //     logger.debug("Próba kontynuacji");
+                //     logger.debug("Reading from addres {}", device.getSlaveID());
+                //     byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                //     atmega.setOccupied(false);
+                //     return response[0];
+                // }
                 
             } catch (HardwareException e) {
                 atmega.setOccupied(false);
@@ -243,21 +244,22 @@ public class MasterToSlaveConverter {
             try {
                 atmega.pauseIfOcupied();
                 atmega.setOccupied(true);
-                try {
+                // try {
                     logger.debug("Writing to addres {}", device.getSlaveID());
                     atmega.writeTo(device.getSlaveID(), buffor);
-                    Thread.sleep(10);
+                    // Thread.sleep(10);
                     byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//TODO: dodawanie przekaźników o id podanym w odpowiedzi!
                     atmega.setOccupied(false);
                     return response[0];
-                } catch (InterruptedException e) {
-                    logger.error(e.getMessage(), e);
-                    logger.debug("Próba kontynuacji");
-                    logger.debug("Reading from addres {}", device.getSlaveID());
-                    byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
-                    atmega.setOccupied(false);
-                    return response[0];
-                }
+                // } 
+                // catch (InterruptedException e) {
+                //     logger.error(e.getMessage(), e);
+                //     logger.debug("Próba kontynuacji");
+                //     logger.debug("Reading from addres {}", device.getSlaveID());
+                //     byte[] response = atmega.readFrom(device.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                //     atmega.setOccupied(false);
+                //     return response[0];
+                // }
             }
             catch(HardwareException e){
                 atmega.setOccupied(false);
@@ -278,10 +280,12 @@ public class MasterToSlaveConverter {
         try {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
+            logger.debug("addTermometr");
             try {
                 atmega.writeTo(slaveAdress, buffor);// Wyślij prośbę o dodanie nowego termometru na płytce
                 Thread.sleep(100);
                 buffor = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+                logger.debug("Got: {}", buffor);
                 int[] adress = new int[8];
                 for (int j = 0; j < 8; j++) {
                     adress[j] = buffor[j] & 0xFF;
@@ -326,22 +330,22 @@ public class MasterToSlaveConverter {
                 atmega.pauseIfOcupied();
                 atmega.setOccupied(true);
 
-            try {
+            // try {
                 logger.debug("Writing to addres {}", button.getSlaveID());
                 atmega.writeTo(button.getSlaveID(), buffor);
-                Thread.sleep(10);// TODO czy jest potrzebne?
+                // Thread.sleep(10);// TODO czy jest potrzebne?
                 logger.debug("Reading from addres {}", button.getSlaveID());
                 byte[] response = atmega.readFrom(button.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
                 atmega.setOccupied(false);
                 return response[0];
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-                logger.debug("Próba kontynuacji");
-                logger.debug("Reading from addres {}", button.getSlaveID());
-                byte[] response = atmega.readFrom(button.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
-                atmega.setOccupied(false);
-                return response[0];
-            }
+            // } catch (InterruptedException e) {
+            //     logger.error(e.getMessage(), e);
+            //     logger.debug("Próba kontynuacji");
+            //     logger.debug("Reading from addres {}", button.getSlaveID());
+            //     byte[] response = atmega.readFrom(button.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+            //     atmega.setOccupied(false);
+            //     return response[0];
+            // }
         }
         catch(HardwareException e){
             atmega.setOccupied(false);
@@ -368,22 +372,22 @@ public class MasterToSlaveConverter {
         try {
                 atmega.pauseIfOcupied();
                 atmega.setOccupied(true);
-            try {
+            // try {
                 logger.debug("Writing to addres {}", function.getButton().getSlaveID());
                 atmega.writeTo(function.getButton().getSlaveID(), buffor);
-                Thread.sleep(10);// TODO czy jest potrzebne?
+                // Thread.sleep(10);// TODO czy jest potrzebne?
                 logger.debug("Reading from addres {}", function.getButton().getSlaveID());
                 byte[] response = atmega.readFrom(function.getButton().getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
                 atmega.setOccupied(false);
                 return response[0];
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-                logger.debug("Próba kontynuacji");
-                logger.debug("Reading from addres {}", function.getButton().getSlaveID());
-                byte[] response = atmega.readFrom(function.getButton().getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
-                atmega.setOccupied(false);
-                return response[0];
-            }
+            // } catch (InterruptedException e) {
+            //     logger.error(e.getMessage(), e);
+            //     logger.debug("Próba kontynuacji");
+            //     logger.debug("Reading from addres {}", function.getButton().getSlaveID());
+            //     byte[] response = atmega.readFrom(function.getButton().getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+            //     atmega.setOccupied(false);
+            //     return response[0];
+            // }
         }
         catch(HardwareException e){
             atmega.setOccupied(false);
@@ -403,22 +407,22 @@ public class MasterToSlaveConverter {
         try {
                 atmega.pauseIfOcupied();
                 atmega.setOccupied(true);
-            try {
+            // try {
                 logger.debug("Writing to addres {}", slaveID);
                 atmega.writeTo(slaveID, buffor);
-                Thread.sleep(10);// TODO czy jest potrzebne?
+                // Thread.sleep(10);// TODO czy jest potrzebne?
                 logger.debug("Reading from addres {}", slaveID);
                 byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
                 atmega.setOccupied(false);
                 return response[0];
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-                logger.debug("Próba kontynuacji");
-                logger.debug("Reading from addres {}", slaveID);
-                byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
-                atmega.setOccupied(false);
-                return response[0];
-            }
+            // } catch (InterruptedException e) {
+            //     logger.error(e.getMessage(), e);
+            //     logger.debug("Próba kontynuacji");
+            //     logger.debug("Reading from addres {}", slaveID);
+            //     byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
+            //     atmega.setOccupied(false);
+            //     return response[0];
+            // }
         }
         catch(HardwareException e){
             atmega.setOccupied(false);
@@ -444,7 +448,7 @@ public class MasterToSlaveConverter {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
-            Thread.sleep(10);
+            // Thread.sleep(10);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
             return buffor[0] == 1;
@@ -472,7 +476,7 @@ public class MasterToSlaveConverter {
             atmega.setOccupied(true);
 
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
-            Thread.sleep(250);
+            Thread.sleep(250);// Poczekaj aż atmega się uruchomi ponownie
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
             return buffor[0] == 1;
@@ -498,18 +502,18 @@ public class MasterToSlaveConverter {
             atmega.setOccupied(true);
             // logger.debug("Writing to addres {} {}", slaveID, buffor);
             atmega.writeTo(slaveID, buffor);
-            Thread.sleep(10);// TODO czy jest potrzebne?
+            // Thread.sleep(10);// TODO czy jest potrzebne?
             // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             atmega.setOccupied(false);
             return response[0];
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage());
-            // logger.debug("Próba kontynuacji");
-            // logger.debug("Reading from addres {}", slaveID);
-            byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
-            atmega.setOccupied(false);
-            return response[0];
+        // } catch (InterruptedException e) {
+        //     logger.error(e.getMessage());
+        //     // logger.debug("Próba kontynuacji");
+        //     // logger.debug("Reading from addres {}", slaveID);
+        //     byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
+        //     atmega.setOccupied(false);
+        //     return response[0];
         }
         catch (HardwareException e){
             atmega.setOccupied(false);
@@ -525,18 +529,18 @@ public class MasterToSlaveConverter {
      */
     public int howManyThermometersOnSlave(int slaveAdress) throws HardwareException{
         int ile = -1;
-
+        logger.debug("howManyThermometersOnSlave:");
         atmega.pauseIfOcupied();
         atmega.setOccupied(true);
 
-        atmega.writeTo(slaveAdress, ILE_TERMOMETROW, 3);
+        atmega.writeTo(slaveAdress, ILE_TERMOMETROW);
         try {
             Thread.sleep(10);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         byte[] response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
-
+        logger.debug("Got: {}", Arrays.toString(response));
         atmega.setOccupied(false);
         ile = response[0];
         return ile;

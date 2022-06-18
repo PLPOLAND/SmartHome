@@ -62,7 +62,7 @@ public class Runners {
         
     }
     
-    @Scheduled(fixedDelay = 100)
+    @Scheduled(fixedDelay = 1000)
     void checkDevicesStatus(){
         if (!system.getArduino().atmega.getDevices().isEmpty()) {
             logger.debug("checkStatus()");
@@ -76,9 +76,9 @@ public class Runners {
                         logger.error(e.getMessage(), e);
                     }
                 }
-                // for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
-                //     system.updateTemperature(termometr);
-                // }
+                for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
+                    system.updateTemperature(termometr);
+                }
                 isCheckDevicesStatusDone = true;
             }
         }

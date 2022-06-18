@@ -5,7 +5,7 @@
 
 // TODO poprawic odwołania do kontenerów
 I2CConverter* I2CConverter::singleton = nullptr;
-LinkedList<Command*> I2CConverter::doWyslania = LinkedList<Command*>();
+LinkedList<Command*> I2CConverter::doWyslania = *(new LinkedList<Command*>);
 
 I2CConverter::I2CConverter()
 {
@@ -68,18 +68,19 @@ void I2CConverter::RecieveEvent(int howManyBytes)
     {
         Wire.read();
     }
-    
-    while (0 < Wire.available()) {
-        buf[buffReadSize++] = Wire.read();
-        OUT("i:" );
-        OUT(buffReadSize-1);
-        OUT("  buf:" );
-        OUT_LN(buf[buffReadSize - 1]);
-        if (!(buffReadSize <= BUFFOR_IN_SIZE)) {
-            buffReadSize--;
-            break; // TODO: Obsługa błędu???
-            while (0 < Wire.available())
-                ;
+    else{
+        while (0 < Wire.available()) {
+            buf[buffReadSize++] = Wire.read();
+            OUT("i:" );
+            OUT(buffReadSize-1);
+            OUT("  buf:" );
+            OUT_LN(buf[buffReadSize - 1]);
+            if (!(buffReadSize <= BUFFOR_IN_SIZE)) {
+                buffReadSize--;
+                break; // TODO: Obsługa błędu???
+                while (0 < Wire.available())
+                    ;
+            }
         }
     }
     
@@ -155,12 +156,13 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 OUT_LN(komenda.getParams()[0]);
                 OUT(F("pinDown: "))
                 OUT_LN(komenda.getParams()[1]);
-                komendaZwrotna->setDevice(System::getSystem()->addDevice(Device::TYPE::ROLETA, komenda.getParams()[0], komenda.getParams()[1]));
+                Roleta* tmp = (Roleta*)System::getSystem()->addDevice(Device::TYPE::ROLETA, komenda.getParams()[0], komenda.getParams()[1]);
+                komendaZwrotna->setDevice(tmp);
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = komendaZwrotna->getDevice()->getId();
-                params[1] = ((Roleta *)komendaZwrotna->getDevice())->getSwitchUp()->getId();
-                params[2] = ((Roleta *)komendaZwrotna->getDevice())->getSwitchDown()->getId();
+                params[1] = tmp->getSwitchUp()->getId();
+                params[2] = tmp->getSwitchDown()->getId();
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
             }
@@ -391,13 +393,16 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                         }
                         break;
                     default:
+                        byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};//ERROR
+                        komendaZwrotna->setParams(params);
+                        doWyslania.add(0, komendaZwrotna);
                         break;
                     }
 
                 }
                 else
                 {
-                    byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
                     komendaZwrotna->setParams(params);
                     doWyslania.add(0, komendaZwrotna);
                 }
@@ -406,7 +411,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
 
             case Command::KOMENDY::RECEIVE_GET:
-
+                {
+                    byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
+                }
                 break;
 
             default:
@@ -423,7 +432,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
 //TODO kolejka komend
 void I2CConverter::RequestEvent()
 {
-    Command* command;
+    Command* command = nullptr;
     if (doWyslania.size()>0)
     {
         command = doWyslania.remove(0);//usuń z kolejki
@@ -484,10 +493,18 @@ void I2CConverter::RequestEvent()
     else
     {
         OUT_LN(F("NOTHING TO SENT"))
-        OUT_LN(F("Wire.write('0')"));
-        Wire.write('0');
+        for (byte i = 0; i < 8; i++)
+        {
+            Wire.write(0);
+        }
     }
-    delete command;
+    if (command != nullptr)
+    {
+        OUT_LN(F("command != null"));
+        delete command;
+    }
+    
+    OUT_LN(F("SENDING DONE"));
     
 }
 
