@@ -53,7 +53,7 @@ public:
     
     /// Wysyła temperaturę z termometru
     void printTemperature(byte id);
-    
+    void addToSent(Command* command);
 
 
 

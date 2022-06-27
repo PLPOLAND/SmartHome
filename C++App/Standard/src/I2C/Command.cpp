@@ -65,6 +65,8 @@ void Command::convert(const byte *c, byte size)
         if (c[0] == 'I')
             this->komenda = Command::KOMENDY::RECEIVE_CHECK_INIT;
         if (c[0] == 'W')
+            this->komenda = Command::KOMENDY::RECEIVE_CHECK_HOW_MANY_TO_SENT;
+        if (c[0] == 'G')
             this->komenda = Command::KOMENDY::RECEIVE_GET;
         if (c[0] == 'R')
             this->komenda = Command::KOMENDY::RECEIVE_INIT;

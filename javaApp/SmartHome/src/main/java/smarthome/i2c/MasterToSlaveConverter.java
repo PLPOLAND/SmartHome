@@ -71,6 +71,10 @@ public class MasterToSlaveConverter {
     final byte[] SPRAWDZ_STAN_URZADZENIA = { 'S', 'D' };
     /**[C, T, N] */
     final byte[] ILE_TERMOMETROW = { 'C', 'T', 'N' };
+    /**[W] */
+    final byte[] SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA = {'W'};
+    /**[G] */
+    final byte[] ODBIERZ_KOMENDE = {'G'};
     // #endregion
 
     @Autowired
@@ -547,6 +551,68 @@ public class MasterToSlaveConverter {
             atmega.setOccupied(false);
             ile = response[0];
             return ile;
+        } catch (HardwareException e) {
+            atmega.setOccupied(false);
+            logger.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Reads // TODO
+     * @param slaveAdress
+     * @return
+     * @throws HardwareException
+     */
+    public int howManyCommandToRead(int slaveAdress) throws HardwareException{
+        int ile = -1;
+        logger.debug("howManyCommandToRead:");
+        atmega.pauseIfOcupied();
+        atmega.setOccupied(true);
+
+        atmega.writeTo(slaveAdress, SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        byte[] response;
+        try {
+            response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+            logger.debug("Got: {}", Arrays.toString(response));
+            atmega.setOccupied(false);
+            ile = response[0];
+            return ile;
+        } catch (HardwareException e) {
+            atmega.setOccupied(false);
+            logger.error(e.getMessage());
+            throw e;
+        }
+    }
+    /**
+     * //TODO
+     * @param slaveAdress
+     * @return
+     * @throws HardwareException
+     */
+    public byte[] readCommandFromSlave(int slaveAdress) throws HardwareException{
+        // int ile = -1;
+        logger.debug("readCommandFromSlave:");
+        atmega.pauseIfOcupied();
+        atmega.setOccupied(true);
+
+        atmega.writeTo(slaveAdress, ODBIERZ_KOMENDE);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        byte[] response;
+        try {
+            response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+            logger.debug("Got: {}", Arrays.toString(response));
+            atmega.setOccupied(false);
+            return response;
         } catch (HardwareException e) {
             atmega.setOccupied(false);
             logger.error(e.getMessage());
