@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import smarthome.database.SystemDAO;
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Switch;
@@ -167,20 +168,30 @@ public class MasterToSlaveConverter {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
             atmega.writeTo(termometr.getSlaveID(), buffor);
-            Thread.sleep(200);
+            // Thread.sleep(10);
             byte[] response = atmega.readFrom(termometr.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
+            logger.debug("Got response tempetrture from {}: {}", termometr.getSlaveID(), Arrays.toString(response));
+            if (response[0] == 'E') {
+                logger.error("Error in response from {}", termometr.getSlaveID());
+                return null;
+            }
             String tmp ="";
             for (byte b : response) {
                 if (b >= 48 && b<= 57 || b == '.') {
                     tmp += (char) b;
                 }
             }
-            Float temperatura = Float.parseFloat(tmp);
-            logger.debug("Got temperature from {}. Temperature = {} *C",Arrays.toString(termometr.getAddres()),temperatura);
-            termometr.setTemperatura(temperatura);
+            if (!tmp.equals("")) {
+                Float temperatura = Float.parseFloat(tmp);
+                logger.debug("Got temperature from {}. Temperature = {} *C",Arrays.toString(termometr.getAddres()),temperatura);
+                termometr.setTemperatura(temperatura);
+                return temperatura;
+            }
+            else{
+                throw new HardwareException("Got empty response from " + termometr.getSlaveID());
+            }
             
-            return temperatura;
         } catch (Exception e) {
             atmega.setOccupied(false);
             logger.error(e.getMessage());
@@ -438,7 +449,7 @@ public class MasterToSlaveConverter {
      * @param adres - adres slave-a który zostanie zapytany
      * @return stan zainicjowania slave-a
      */
-    public boolean checkInitOfBoard(int adres){
+    public boolean checkInitOfBoard(int adres) throws SoftwareException, HardwareException{
         byte[] buffor = new byte[1];
         int i = 0;
         for (byte b : CHECK_INIT) {
@@ -452,13 +463,17 @@ public class MasterToSlaveConverter {
             // Thread.sleep(10);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
+            if (buffor[0]=='E') {
+                // logger.error("Error on checking init of board {}", adres);
+                throw new SoftwareException("Error on checking init of board " + adres);
+            }
             return buffor[0] == 1;
         } catch (Exception e) {
-            e.printStackTrace();
             atmega.setOccupied(false);
+            throw e;
         }
-        atmega.setOccupied(false);
-        return false;
+        // atmega.setOccupied(false);
+        // return false;
     }
     /**
      * Wysyła komendę do slave-a po której slave usuwa wszystkie zapisane u siebie urządzenia
@@ -597,6 +612,19 @@ public class MasterToSlaveConverter {
         }
 
         return adresy;
+    }
+
+    public boolean isDeviceConnected(int deviceId) {
+        boolean isConnected = false;
+
+        for (I2CDevice device : atmega.getDevices()) {
+            if (device.getAddress() == deviceId) {
+                isConnected = true;
+                break;
+            }
+        }
+
+        return isConnected;
     }
 
 

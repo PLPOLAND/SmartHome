@@ -206,7 +206,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     params[i] = tmp.charAt(i);
                 }
 
-                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_TEMPERATURA);
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 komendaZwrotna->setParams(params);
 
                 
@@ -497,6 +497,16 @@ void I2CConverter::RequestEvent()
         {
             Wire.write('E');
         }
+        Wire.end();
+
+        byte tmp = 1;
+        byte adress = 7;
+        for (byte i = 0; i < PINOW_NA_ADRES; i++)
+        {
+            adress += tmp * (digitalRead(2 + i) == HIGH ? 0 : 1);
+            tmp *= 2;
+        }
+        Wire.begin(adress);
     }
     if (command != nullptr)
     {

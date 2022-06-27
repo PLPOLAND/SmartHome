@@ -2,7 +2,7 @@
 #define STALE
 
     #define DEV
-    #define DEBUG
+    // #define DEBUG
 
     #ifdef DEBUG
         #define OUT(x) Serial.print(x); Serial.flush();

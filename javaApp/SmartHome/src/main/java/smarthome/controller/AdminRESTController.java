@@ -479,13 +479,18 @@ public class AdminRESTController {
     }
     @GetMapping("/checkReinitBoard")
     public Response<String> sprawdzZainicjowaniePlytki(@RequestParam("boardID") int boardID) {
-        boolean tmp = system.checkInitOfBoard(boardID);
-        return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
+        try {
+            boolean tmp = system.checkInitOfBoard(boardID);
+            return new Response<>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
+        } catch (Exception e) {
+            logger.error("Błąd podczas sprawdzania czy plytka była zainicjowana", e);
+            return new Response<>("", e.getMessage());
+        }
     }
     @GetMapping("/reinitBoard")
     public Response<String> reainicjowaniePlytki(@RequestParam("boardID") int boardID) {
         boolean tmp = system.initOfBoard(boardID);
-        return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
+        return new Response<>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
     }
 
 

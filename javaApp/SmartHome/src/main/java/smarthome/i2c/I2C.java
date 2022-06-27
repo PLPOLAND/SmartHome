@@ -2,6 +2,7 @@ package smarthome.i2c;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.pi4j.io.gpio.GpioController;
@@ -37,9 +38,9 @@ public class I2C{
         try {
             gpio = GpioFactory.getInstance();
             pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
-            restartSlaves();
+            // restartSlaves();//TODO: zamienić na metodę restartSlaves()
+            findAll();// TODO: zamienić na metodę restartSlaves()
             // logger.info("Searching for devices");
-            // findAll();
             
         } catch (UnsatisfiedLinkError e) {
             System.err.println("platform does not support this driver");
@@ -256,7 +257,7 @@ public class I2C{
     public void retryWrite(byte[] toWrite, I2CDevice slave) throws HardwareException{
         boolean done = false;
         for (int i = 0; i < 10 && !done; i++) {
-            logger.warn("Retring to write to device: {}", slave.getAddress());
+            logger.warn("Retring to write '{}' to device: {}",Arrays.toString(toWrite), slave.getAddress());
             try{
                 slave.write(toWrite);
                 done = true;
