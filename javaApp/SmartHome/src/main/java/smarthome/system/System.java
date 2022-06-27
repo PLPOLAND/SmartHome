@@ -101,7 +101,7 @@ public class System {
                 maxID = device.getId();
             }
         }
-        light.setId(maxID);
+        light.setId(maxID+1);
         systemDAO.getRoom(roomName).addDevice(light);
         systemDAO.getDevices().add(light);
         systemDAO.save();
@@ -136,7 +136,7 @@ public class System {
                 maxID = device.getId();
             }
         }
-        roleta.setId(maxID);
+        roleta.setId(maxID+1);
         systemDAO.getRoom(roomName).addDevice(roleta);
         systemDAO.getDevices().add(roleta);
         systemDAO.save();
@@ -172,7 +172,7 @@ public class System {
                 maxID= sensor.getId();
             }
         }
-        button.setId(maxID);
+        button.setId(maxID+1);
         systemDAO.getRoom(roomName).addSensor(button);
         systemDAO.getSensors().add(button);
         systemDAO.save();
@@ -580,7 +580,7 @@ public class System {
 
 
     public void updateDeviceState(Device device) throws HardwareException{
-        log.debug("updateDeviceState()");
+        log.debug("updating device: id = {}, type = {}, slaveID = {}",device.getId(), device.getTyp(), device.getSlaveID());
         int state = arduino.checkDeviceState(device.getSlaveID(), device.getOnSlaveID());
         if (device.getTyp() == DeviceTypes.BLIND) {
             // log.debug("BLIND");
@@ -593,7 +593,7 @@ public class System {
                 b.changeState(RoletaStan.DOWN);
                 // log.debug("DOWN");
             }
-            else{
+            else if (state == 'K') {//TODO: TO TEST
                 b.changeState(RoletaStan.NOTKNOW);
                 // log.debug("NOTKNOW");
             }

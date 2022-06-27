@@ -377,7 +377,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                             StanRolety tmp = ((Roleta *)p)->getStan();
                             if (tmp == StanRolety::NIEOKRESLONY)
                             {
-                                params[0] = 'M';
+                                params[0] = 'K';
                             }
                             else if (tmp == StanRolety::PODNIESIONA)
                             {
@@ -495,7 +495,7 @@ void I2CConverter::RequestEvent()
         OUT_LN(F("NOTHING TO SENT"))
         for (byte i = 0; i < 8; i++)
         {
-            Wire.write(0);
+            Wire.write('E');
         }
     }
     if (command != nullptr)

@@ -138,6 +138,7 @@ public class MasterToSlaveConverter {
                 logger.debug("No response");
             }
         } catch (Exception e) {
+            atmega.setOccupied(false);
            logger.error(e.getMessage());
         }
     }
@@ -161,7 +162,7 @@ public class MasterToSlaveConverter {
             bufString += adr + " ";
         }
         try {
-            logger.debug("Writing to addres {} command: {} ('{}')", termometr.getSlaveID(), Arrays.toString(buffor), bufString);
+            logger.debug("Writing to addres {} command: '{}'", termometr.getSlaveID(), bufString);
             
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
@@ -539,11 +540,18 @@ public class MasterToSlaveConverter {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        byte[] response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
-        logger.debug("Got: {}", Arrays.toString(response));
-        atmega.setOccupied(false);
-        ile = response[0];
-        return ile;
+        byte[] response;
+        try {
+            response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+            logger.debug("Got: {}", Arrays.toString(response));
+            atmega.setOccupied(false);
+            ile = response[0];
+            return ile;
+        } catch (HardwareException e) {
+            atmega.setOccupied(false);
+            logger.error(e.getMessage());
+            throw e;
+        }
     }
 
     

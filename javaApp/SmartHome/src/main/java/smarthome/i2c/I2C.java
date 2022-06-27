@@ -56,7 +56,7 @@ public class I2C{
         }
         else{
             // logger.debug("END Occupied start");
-            new Thread(()->{
+            // new Thread(()->{
                 try {
                     Thread.sleep(5);
                 } catch (InterruptedException e) {
@@ -64,7 +64,7 @@ public class I2C{
                 }
                 this.isOccupied = false;
                 // logger.debug("END Occupied stop");
-            }).start();
+            // }).start();
             
         }
         

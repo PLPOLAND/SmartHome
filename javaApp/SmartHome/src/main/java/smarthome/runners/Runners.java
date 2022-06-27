@@ -62,7 +62,7 @@ public class Runners {
         
     }
     
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 10)
     void checkDevicesStatus(){
         if (!system.getArduino().atmega.getDevices().isEmpty()) {
             logger.debug("checkStatus()");
