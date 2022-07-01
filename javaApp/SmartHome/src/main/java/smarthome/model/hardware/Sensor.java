@@ -107,7 +107,7 @@ public abstract class Sensor {
         this.room = room;
     }
 
-    public int getSlaveID() {
+    public int getSlaveAdress() {
         return this.slaveID;
     }
 
@@ -178,7 +178,7 @@ public abstract class Sensor {
             " id='" + getId() + "'" +
             ", name='" + getName() + "'" +
             ", room='" + getRoom() + "'" +
-            ", slaveID='" + getSlaveID() + "'" +
+            ", slaveID='" + getSlaveAdress() + "'" +
             ", onSlaveID='" + getOnSlaveID() + "'" +
             ", addres='" + Arrays.toString(getAddres()) + "'" +
             ", typ='" + getTyp() + "'" +

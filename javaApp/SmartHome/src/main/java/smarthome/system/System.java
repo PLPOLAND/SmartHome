@@ -77,6 +77,14 @@ public class System {
         }
         return null;
     }
+    public Sensor getSensorByOnSlaveID(int slaveAdress, int onSlaveId) {
+        for (Sensor sensor : systemDAO.getSensors()) {
+            if (sensor.getOnSlaveID() == onSlaveId && sensor.getSlaveAdress() == slaveAdress) {
+                return sensor;
+            }
+        }
+        return null;
+    }
 
     /**
      * Dodaj "żarówkę" do systemu
@@ -211,7 +219,7 @@ public class System {
         room.delSensor(sen);
         systemDAO.getSensors().remove(sen);
         systemDAO.save(room);
-        initOfBoard(sen.getSlaveID());
+        initOfBoard(sen.getSlaveAdress());
     }
     /**
      * Dodaj "Termometr" do systemu
@@ -340,7 +348,7 @@ public class System {
      * @throws HardwareException
      */
     public void addFunctionToButton(int buttonID, Device deviceToControl, ButtonFunction.State state, int numberOfClicks) throws HardwareException{
-        ButtonFunction function = new ButtonFunction(null, deviceToControl, state, numberOfClicks);
+        ButtonFunction function = new ButtonFunction(null, deviceToControl, state, numberOfClicks, this);
         addFunctionToButton(buttonID, function);
 
     }
@@ -370,7 +378,7 @@ public class System {
     public void removeFunctionToButton(int buttonID, int numberOfClicks) throws HardwareException{
         Button but = (Button) this.getSensorByID(buttonID);
         but.removeFunkcjaKilkniecia(numberOfClicks);
-        arduino.sendRemoveFunction(but.getSlaveID(),numberOfClicks);
+        arduino.sendRemoveFunction(but.getSlaveAdress(),numberOfClicks);
         
     }
     
@@ -383,7 +391,7 @@ public class System {
      */
     public void removeFunctionFromButton(Button button, int numberOfClicks) throws HardwareException{
         button.removeFunkcjaKilkniecia(numberOfClicks);
-        arduino.sendRemoveFunction(button.getSlaveID(),numberOfClicks);
+        arduino.sendRemoveFunction(button.getSlaveAdress(),numberOfClicks);
         
     }
 
@@ -520,7 +528,7 @@ public class System {
             }
         }
         for (Sensor sensor : systemDAO.getSensors()) {
-            if (sensor.getSlaveID() == slaveID) {
+            if (sensor.getSlaveAdress() == slaveID) {
                 log.debug("sensor id: {}", sensor.getId());
                 if (sensor instanceof Button) {
                     try {
@@ -738,27 +746,25 @@ public class System {
         return arduino.readCommandFromSlave(slaveAdress);
     }
     
-    private void executeSlaveCommand(byte[] command) {
+    private void executeSlaveCommand(int slaveAdress,byte[] command) {
         if ( command[0] =='C') {
-            Button but = (Button) getSensorByID(command[1]);
-            int clicks = command[2];
-            if (command[3] == 'C') {
-                log.debug("Button {} 'id = {}' was clicked {} time(s)", but.getName(), but.getId(),clicks);
-            }
-            else if (command[3] == 'P') {
-                log.debug("Button {} 'id = {}' was hold and relase after clicked {} time(s)", but.getName(), but.getId(),clicks);
-                
-            }
+            ButtonFunction but = new ButtonFunction(this);
+            but.fromCommand(0, command); //zainicjuj funkcję z danych z slave-a
+            log.debug("Pobrano z slave-a fun: {}",but);
+            return;//TODO
+            
+
         }
     }
     public void checkGetAndExecuteCommandsFromSlave (int slaveAdress) {
         try {
+            log.debug("Sprawdzam czy slave {} ma jakieś polecenia do wykonania",slaveAdress);
             int howMany = arduino.howManyCommandToRead(slaveAdress);
             if (howMany > 0) {
                 for (int i = 0; i < howMany; i++) {
                     byte[] command = arduino.readCommandFromSlave(slaveAdress);
                     if (command != null) {
-                        executeSlaveCommand(command);
+                        executeSlaveCommand(slaveAdress,command);
                     }
                 }
             }

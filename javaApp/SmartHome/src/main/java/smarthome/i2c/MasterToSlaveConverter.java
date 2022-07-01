@@ -167,17 +167,17 @@ public class MasterToSlaveConverter {
             bufString += adr + " ";
         }
         try {
-            logger.debug("Writing to addres {} command: '{}'", termometr.getSlaveID(), bufString);
+            logger.debug("Writing to addres {} command: '{}'", termometr.getSlaveAdress(), bufString);
             
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
-            atmega.writeTo(termometr.getSlaveID(), buffor);
+            atmega.writeTo(termometr.getSlaveAdress(), buffor);
             // Thread.sleep(10);
-            byte[] response = atmega.readFrom(termometr.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);
+            byte[] response = atmega.readFrom(termometr.getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
-            logger.debug("Got response tempetrture from {}: {}", termometr.getSlaveID(), Arrays.toString(response));
+            logger.debug("Got response tempetrture from {}: {}", termometr.getSlaveAdress(), Arrays.toString(response));
             if (response[0] == 'E') {
-                logger.error("Error in response from {}", termometr.getSlaveID());
+                logger.error("Error in response from {}", termometr.getSlaveAdress());
                 return null;
             }
             String tmp ="";
@@ -193,7 +193,7 @@ public class MasterToSlaveConverter {
                 return temperatura;
             }
             else{
-                throw new HardwareException("Got empty response from " + termometr.getSlaveID());
+                throw new HardwareException("Got empty response from " + termometr.getSlaveAdress());
             }
             
         } catch (Exception e) {
@@ -347,11 +347,11 @@ public class MasterToSlaveConverter {
                 atmega.setOccupied(true);
 
             // try {
-                logger.debug("Writing to addres {}", button.getSlaveID());
-                atmega.writeTo(button.getSlaveID(), buffor);
+                logger.debug("Writing to addres {}", button.getSlaveAdress());
+                atmega.writeTo(button.getSlaveAdress(), buffor);
                 // Thread.sleep(10);// TODO czy jest potrzebne?
-                logger.debug("Reading from addres {}", button.getSlaveID());
-                byte[] response = atmega.readFrom(button.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                logger.debug("Reading from addres {}", button.getSlaveAdress());
+                byte[] response = atmega.readFrom(button.getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);//
                 atmega.setOccupied(false);
                 return response[0];
             // } catch (InterruptedException e) {
@@ -389,11 +389,11 @@ public class MasterToSlaveConverter {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
             // try {
-                logger.debug("Writing to addres {}", function.getButton().getSlaveID());
-                atmega.writeTo(function.getButton().getSlaveID(), buffor);
+                logger.debug("Writing to addres {}", function.getButton().getSlaveAdress());
+                atmega.writeTo(function.getButton().getSlaveAdress(), buffor);
                 // Thread.sleep(10);// TODO czy jest potrzebne?
-                logger.debug("Reading from addres {}", function.getButton().getSlaveID());
-                byte[] response = atmega.readFrom(function.getButton().getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                logger.debug("Reading from addres {}", function.getButton().getSlaveAdress());
+                byte[] response = atmega.readFrom(function.getButton().getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);//
                 atmega.setOccupied(false);
                 return response[0];
             // } catch (InterruptedException e) {

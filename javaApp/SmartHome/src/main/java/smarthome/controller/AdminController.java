@@ -156,9 +156,9 @@ public class AdminController {
         if (!sec.isLoged() || !sec.isUserAdmin())
             return this.reredairect(request);
         Button tmp = (Button) system.getSensorByID(buttonID);
-        model.addAttribute("slaveID", tmp.getSlaveID());
+        model.addAttribute("slaveID", tmp.getSlaveAdress());
         model.addAttribute("buttonName", tmp.getName());
-        model.addAttribute("slave", tmp.getSlaveID());
+        model.addAttribute("slave", tmp.getSlaveAdress());
         model.addAttribute("pin", tmp.getPin());
         model.addAttribute("buttonID", buttonID);
 
@@ -170,9 +170,9 @@ public class AdminController {
         if (!sec.isLoged() || !sec.isUserAdmin())
             return this.reredairect(request);
         Termometr tmp = (Termometr) system.getSensorByID(thermometrID);
-        model.addAttribute("slaveID", tmp.getSlaveID());
+        model.addAttribute("slaveID", tmp.getSlaveAdress());
         model.addAttribute("therName", tmp.getName());
-        model.addAttribute("slave", tmp.getSlaveID());
+        model.addAttribute("slave", tmp.getSlaveAdress());
         model.addAttribute("thermometrID", thermometrID);
 
         return "admin/editThermometr";

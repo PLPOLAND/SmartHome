@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.pi4j.io.i2c.I2CDevice;
+
 import smarthome.exception.HardwareException;
 import smarthome.exception.SoftwareException;
 import smarthome.i2c.MasterToSlaveConverter;
@@ -63,7 +65,7 @@ public class Runners {
         
     }
     
-    // @Scheduled(fixedDelay = 10)
+    @Scheduled(fixedDelay = 1000)
     void checkDevicesStatus(){
         if (!system.getArduino().atmega.getDevices().isEmpty()) {
             logger.debug("checkStatus()");
@@ -80,8 +82,13 @@ public class Runners {
                     }
                 }
                 for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
-                    if (system.isSlaveConnected(termometr.getSlaveID())) {
+                    if (system.isSlaveConnected(termometr.getSlaveAdress())) {
                         system.updateTemperature(termometr);
+                    }
+                }
+                for (I2CDevice device : system.getArduino().atmega.getDevices()) {
+                    if (system.isSlaveConnected(device.getAddress())) {
+                        system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
                     }
                 }
                 isCheckDevicesStatusDone = true;

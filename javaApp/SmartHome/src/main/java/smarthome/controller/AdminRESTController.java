@@ -518,7 +518,7 @@ public class AdminRESTController {
             Button b = (Button) system.getSensorByID(buttonId);
             if (b != null){//TODO move to System
                 b.setName(buttonName);
-                int oldSlaveID = b.getSlaveID();
+                int oldSlaveID = b.getSlaveAdress();
                 b.setSlaveID(newSlaveID);
                 b.setPin(pin);
                 systemDAO.getRoom(b.getRoom()).delSensor(b);
