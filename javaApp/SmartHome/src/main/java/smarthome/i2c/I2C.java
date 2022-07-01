@@ -13,7 +13,6 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
-import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +58,7 @@ public class I2C{
             // logger.debug("END Occupied start");
             // new Thread(()->{
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(5);//opóźnienie przed kolejną operacją odczytu/wysłania
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -74,7 +73,7 @@ public class I2C{
     public void pauseIfOcupied() {
         while (isOccupied) {
             try {
-                Thread.sleep(1);
+                Thread.sleep(5);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }

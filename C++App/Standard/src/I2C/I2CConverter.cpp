@@ -457,19 +457,6 @@ void I2CConverter::RequestEvent()
                         Wire.write(command->getParams()[i]);
                         // OUT(" ")
                     }
-                    
-
-
-                    // OUT_LN(((Termometr *)command->getDevice())->getTemperature());
-                    // String tmp = String(((Termometr *)command->getDevice())->getTemperature(), 2U);
-                    // OUT("afterString: ");
-                    // OUT_LN(tmp);
-                    // // OUT_LN(termometry->get(id)->getTemperature());
-                    // Wire.write(0); // wyslij ID Termometru na płytce
-                    // for (byte i = 0; i < tmp.length(); i++)
-                    // {
-                    //     Wire.write(tmp.charAt(i)); // wyslij kolejne cyfry temperatury
-                    // }
                     break;
                 }
             case Command::KOMENDY::SEND_REPLY:

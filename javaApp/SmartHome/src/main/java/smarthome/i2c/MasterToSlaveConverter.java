@@ -382,8 +382,8 @@ public class MasterToSlaveConverter {
         buffor[i++] = tmp2[2];
         buffor[i] = tmp2[3];
         try {
-                atmega.pauseIfOcupied();
-                atmega.setOccupied(true);
+            atmega.pauseIfOcupied();
+            atmega.setOccupied(true);
             // try {
                 logger.debug("Writing to addres {}", function.getButton().getSlaveID());
                 atmega.writeTo(function.getButton().getSlaveID(), buffor);
@@ -492,7 +492,7 @@ public class MasterToSlaveConverter {
             atmega.setOccupied(true);
 
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
-            Thread.sleep(250);// Poczekaj aż atmega się uruchomi ponownie
+            Thread.sleep(300);// Poczekaj aż atmega się uruchomi ponownie
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
             return buffor[0] == 1;
@@ -522,6 +522,12 @@ public class MasterToSlaveConverter {
             // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             atmega.setOccupied(false);
+            if (response[0] == 'E') {
+                // logger.error("Error on checking init of board {}", slaveID);
+                throw new HardwareException("Error on checking state of device onslaveID = " + onSlaveDeviceId);
+            }else {
+                
+            }
             return response[0];
         // } catch (InterruptedException e) {
         //     logger.error(e.getMessage());
@@ -560,8 +566,12 @@ public class MasterToSlaveConverter {
             response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
             logger.debug("Got: {}", Arrays.toString(response));
             atmega.setOccupied(false);
-            ile = response[0];
-            return ile;
+            if (response[0] == 'E') {
+                throw new HardwareException("Error on checking how many thermometers on slave: " + slaveAdress);
+            } else {
+                ile = response[0];
+                return ile;
+            }
         } catch (HardwareException e) {
             atmega.setOccupied(false);
             logger.error(e.getMessage());
