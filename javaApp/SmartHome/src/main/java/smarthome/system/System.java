@@ -348,7 +348,7 @@ public class System {
      * @throws HardwareException
      */
     public void addFunctionToButton(int buttonID, Device deviceToControl, ButtonFunction.State state, int numberOfClicks) throws HardwareException{
-        ButtonFunction function = new ButtonFunction(null, deviceToControl, state, numberOfClicks, this);
+        ButtonFunction function = new ButtonFunction(null, deviceToControl, state, numberOfClicks);
         addFunctionToButton(buttonID, function);
 
     }
@@ -748,7 +748,7 @@ public class System {
     
     private void executeSlaveCommand(int slaveAdress,byte[] command) {
         if ( command[0] =='C') {
-            ButtonFunction but = new ButtonFunction(this);
+            ButtonFunction but = new ButtonFunction();
             but.fromCommand(0, command); //zainicjuj funkcję z danych z slave-a
             log.debug("Pobrano z slave-a fun: {}",but);
             return;//TODO

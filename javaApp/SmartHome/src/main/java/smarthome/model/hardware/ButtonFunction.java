@@ -2,11 +2,14 @@ package smarthome.model.hardware;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Component
 public class ButtonFunction {
+    @Autowired
     static smarthome.system.System system;
 
     public enum State {
@@ -29,14 +32,14 @@ public class ButtonFunction {
     @JsonBackReference
     Button button;
 
-    public ButtonFunction(smarthome.system.System system) {
-        button = null;
-        deviceToControl = null;
-        state = State.NONE;// 0 lub U/D/S
-        clicks = 0;
+    // public ButtonFunction(smarthome.system.System system) {
+    //     button = null;
+    //     deviceToControl = null;
+    //     state = State.NONE;// 0 lub U/D/S
+    //     clicks = 0;
 
-        ButtonFunction.system = system;
-    }
+    //     ButtonFunction.system = system;
+    // }
     public ButtonFunction() {
         button = null;
         deviceToControl = null;
@@ -44,12 +47,19 @@ public class ButtonFunction {
         clicks = 0;
     }
 
-    public ButtonFunction(Button button, Device deviceToControl, State state, int clicks, smarthome.system.System system) {
+    // public ButtonFunction(Button button, Device deviceToControl, State state, int clicks, smarthome.system.System system) {
+    //     this.button = button;
+    //     this.deviceToControl = deviceToControl;
+    //     setState(state);
+    //     this.clicks = clicks;
+    //     ButtonFunction.system = system;
+    // }
+    public ButtonFunction(Button button, Device deviceToControl, State state, int clicks) {
         this.button = button;
         this.deviceToControl = deviceToControl;
         setState(state);
         this.clicks = clicks;
-        ButtonFunction.system = system;
+        // ButtonFunction.system = system;
     }
 
     public Button getButton() {
