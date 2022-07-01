@@ -729,4 +729,42 @@ public class System {
     public boolean isSlaveConnected(int deviceId) {
         return arduino.isDeviceConnected(deviceId);
     }
+
+    public int checkHowManyCommandsToReadFromSlave(int slaveAdress) throws HardwareException {
+        return arduino.howManyCommandToRead(slaveAdress);
+    }
+
+    public byte[] readCommandFromSlave(int slaveAdress) throws HardwareException {
+        return arduino.readCommandFromSlave(slaveAdress);
+    }
+    
+    private void executeSlaveCommand(byte[] command) {
+        if ( command[0] =='C') {
+            Button but = (Button) getSensorByID(command[1]);
+            int clicks = command[2];
+            if (command[3] == 'C') {
+                log.debug("Button {} 'id = {}' was clicked {} time(s)", but.getName(), but.getId(),clicks);
+            }
+            else if (command[3] == 'P') {
+                log.debug("Button {} 'id = {}' was hold and relase after clicked {} time(s)", but.getName(), but.getId(),clicks);
+                
+            }
+        }
+    }
+    public void checkGetAndExecuteCommandsFromSlave (int slaveAdress) {
+        try {
+            int howMany = arduino.howManyCommandToRead(slaveAdress);
+            if (howMany > 0) {
+                for (int i = 0; i < howMany; i++) {
+                    byte[] command = arduino.readCommandFromSlave(slaveAdress);
+                    if (command != null) {
+                        executeSlaveCommand(command);
+                    }
+                }
+            }
+        } catch (HardwareException e) {
+            log.error(e.getMessage(), e);
+        } 
+
+    }
 }

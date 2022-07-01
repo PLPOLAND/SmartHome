@@ -595,14 +595,14 @@ public class MasterToSlaveConverter {
         atmega.pauseIfOcupied();
         atmega.setOccupied(true);
 
-        atmega.writeTo(slaveAdress, SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA);
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         byte[] response;
         try {
+            atmega.writeTo(slaveAdress, SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA);
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
             logger.debug("Got: {}", Arrays.toString(response));
             atmega.setOccupied(false);
@@ -626,14 +626,14 @@ public class MasterToSlaveConverter {
         atmega.pauseIfOcupied();
         atmega.setOccupied(true);
 
-        atmega.writeTo(slaveAdress, ODBIERZ_KOMENDE);
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         byte[] response;
         try {
+            atmega.writeTo(slaveAdress, ODBIERZ_KOMENDE);
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
             logger.debug("Got: {}", Arrays.toString(response));
             atmega.setOccupied(false);

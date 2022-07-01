@@ -44,7 +44,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 		system = app.getAutowireCapableBeanFactory().getBean(smarthome.system.System.class);
 		// system.reinitAllBoards();
 		Logger log = LoggerFactory.getLogger("SmartHomeApp");
-		log.info("Started");;
+		log.info("Started");
 		String in = "";
 
 		while(!in.equals("end") && !in.equals("stop") && ! in.equals("exit")){
@@ -219,12 +219,19 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					}
 				}
 				else if(in.equals("test")){
-					byte[] tmp = {'C','T','N'};
 
-					
-					system.addUpdateThermometersOnSlave(16);
-					Thread.sleep(1000);
-					system.updateTemperature(system.getSystemDAO().getAllTermometers().get(0));
+					// byte[] howMany = {'C','T', 'N'};
+					// system.getArduino().atmega.writeTo(15, howMany); 
+					// log.info("Sending how many to read...");
+					// int tmp = system.getArduino().howManyCommandToRead(15);
+					// log.info("Got: {}",tmp);
+					// if (tmp>0) {
+					// 	log.info("Reading...");
+					// 	byte[] tmp2 = system.getArduino().readCommandFromSlave(15);
+					// 	log.info("Got: {}",tmp2);
+					// }
+
+					system.checkGetAndExecuteCommandsFromSlave(15);
 					// system.getArduino().atmega.writeTo(16, tmp);
 					// Thread.sleep(10);
 					// log.info("reading from 16: {}",system.getArduino().atmega.readFrom(16, 8));
