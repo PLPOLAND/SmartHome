@@ -226,7 +226,8 @@ public class I2C{
      */
     public void restartSlaves() {
         logger.info("Restartowanie slave-ów");
-
+        pauseIfOcupied();
+        setOccupied(true);
         
         pin.setShutdownOptions(true, PinState.HIGH);
         pin.low();
@@ -244,6 +245,9 @@ public class I2C{
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
+
+        setOccupied(false);
+
         this.findAll();
         logger.info("Slave-y zrestartowane");
     }
