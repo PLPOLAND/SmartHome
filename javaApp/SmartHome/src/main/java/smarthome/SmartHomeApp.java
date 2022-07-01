@@ -44,7 +44,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 		system = app.getAutowireCapableBeanFactory().getBean(smarthome.system.System.class);
 		// system.reinitAllBoards();
 		Logger log = LoggerFactory.getLogger("SmartHomeApp");
-		
+		log.info("Started");;
 		String in = "";
 
 		while(!in.equals("end") && !in.equals("stop") && ! in.equals("exit")){
@@ -219,14 +219,15 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					}
 				}
 				else if(in.equals("test")){
-					byte[] tmp = new byte[3];
+					byte[] tmp = {'C','T','N'};
 
-					tmp[0] = 'S';
-					tmp[1] = 'D';
-					tmp[2] = (byte) system.getDeviceByID(0).getOnSlaveID();
-
-					system.getArduino().atmega.writeTo(8, tmp);
-					log.info("reading from 8: {}",system.getArduino().atmega.readFrom(8, 8));
+					
+					system.addUpdateThermometersOnSlave(16);
+					Thread.sleep(1000);
+					system.updateTemperature(system.getSystemDAO().getAllTermometers().get(0));
+					// system.getArduino().atmega.writeTo(16, tmp);
+					// Thread.sleep(10);
+					// log.info("reading from 16: {}",system.getArduino().atmega.readFrom(16, 8));
 
 					// log.info(adminController.addButtonClickFunction(0, 1, ButtonFunction.State.NONE, 1).getObj());
 				}

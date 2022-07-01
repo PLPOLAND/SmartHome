@@ -22,6 +22,7 @@ private:
     static System* system;
     byte adress[8]; //adres termometru (tablica[8])
     float temperatura;
+    Timer timer;
 public:
     Termometr();
     Termometr(byte id);
@@ -36,6 +37,8 @@ public:
     bool isCorrect();
     void updateTemperature();
     bool compare2Adresses(const byte* addr1,const byte* addr2);
+    static uint8_t howManyThermometers();
+    static void init();
 };
 
 #endif // !TERMOMETR_H

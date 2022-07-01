@@ -62,8 +62,8 @@ void System::begin(){
         Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 16, 15);
         Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
         Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
-        p1->setCzyPominac(true);
-        p2->setCzyPominac(true);
+        // p1->setCzyPominac(true);
+        // p2->setCzyPominac(true);
         Command *tmp = new Command;
         tmp->setDevice(r);
         tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
@@ -111,23 +111,34 @@ void System::begin(){
         pinMode(16, OUTPUT);
     }
     
-
+    Termometr::init();
     OUT_LN(freeMemory());
 }
 
 void System::tic(){
-    if (this->termometry.size() > 0 && timer.available()) //TODO ustawić częstotliwość sprawdzania!
+    // if (this->termometry.size() > 0 && timer.available()) //TODO ustawić częstotliwość sprawdzania!
+    // {
+    //     for (byte i = 0; i < this->termometry.size(); i++)
+    //     {
+    //         this->termometry.get(i)->updateTemperature();
+    //         OUT("Termometr: ");
+    //         OUT(i);
+    //         OUT(" = ");
+    //         OUT_LN(this->termometry.get(i)->getTemperature());
+    //     }
+    //     OUT_LN(F("timer"));
+    //     timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
+    // }
+    if (this->termometry.size() > 0 ) //TODO ustawić częstotliwość sprawdzania!
     {
         for (byte i = 0; i < this->termometry.size(); i++)
         {
             this->termometry.get(i)->updateTemperature();
-            OUT("Termometr: ");
-            OUT(i);
-            OUT(" = ");
-            OUT_LN(this->termometry.get(i)->getTemperature());
+            // OUT("Termometr: ");
+            // OUT(i);
+            // OUT(" = ");
+            // OUT_LN(this->termometry.get(i)->getTemperature());
         }
-        OUT_LN(F("timer"));
-        timer.begin(MINS(CZAS_ODSWIERZANIA_TEMPERATURY));
     }
     if (this->rolety.size() > 0) 
     {
@@ -155,16 +166,25 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         break;
 
         case Device::TYPE::TERMOMETR:{
-            Termometr *tmp = new Termometr();
+                OUT_LN(F("---Add Ther---"))
+            Termometr *tmp = new Termometr;
             if (tmp->begin())
             { //spr. skonfigurować kolejny termometr
+                OUT_LN(F("TMP = notnull"))
                 tmp->setId(idDevice++);
+                OUT(F("ID: "));
+                OUT_LN(tmp->getId());
                 this->devices.add(tmp);    //dodaj do głównej listy urządzeń
                 this->termometry.add(tmp); //dodaj do listy termometrów w systemie
+                OUT(F("ID: "));
+                OUT_LN(tmp->getId());
+                OUT("DEV TYPE: ");
+                OUT_LN(tmp->getType());
                 return tmp;
             }
             else
             {
+                OUT_LN(F("TMP =null"))
                 delete tmp;
                 return nullptr; //TODO Poprawić
             }
@@ -172,6 +192,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         }
         case Device::TYPE::PRZEKAZNIK:
             {
+                OUT_LN(F("---Add Switch---"))
                 Przekaznik * tmp = new Przekaznik();
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     tmp->setId(idDevice++);//nadaj mu id
@@ -186,7 +207,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::PRZYCISK:
             {
-                OUT_LN(F("-----Add Przycisk-----"))
+                OUT_LN(F("---Add Button---"))
                 // OUT("pin1:")
                 // OUT_LN(pin1);
                 Przycisk * tmp = new Przycisk();
@@ -210,7 +231,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::ROLETA:
             {
-                OUT_LN(F("-----Dodaj Roleta-----"));
+                OUT_LN(F("---Dodaj Blind---"));
                 // OUT("pin1:");
                 // OUT_LN(pin1);
                 // OUT("pin2:");
@@ -319,16 +340,19 @@ Termometr* System::getTermometr(const byte* adress){
 
     for (int i = 0; i < termometry.size(); i++)
     {
-        if (termometry[i]->compare2Adresses(termometry[i]->getAddres(), adress)){
+        if (termometry.get(i)->compare2Adresses(termometry.get(i)->getAddres(), adress)){
             OUT(F("FOUND ADRESS : "));
+            Termometr *termometr = termometry.get(i);
             for (int j = 0; j < 8; j++)
             {
-                OUT(termometry[i]->getAddres()[j])
+                OUT(termometr->getAddres()[j])
                 OUT(" ")
             }
             OUT_LN(" ")
-            OUT(F("FOUND DEV TYPE:")) OUT_LN(termometry[i]->getType()== Device::TERMOMETR);
-            return termometry[i];
+            OUT(F("FOUND DEV TYPE: "))
+            OUT(termometr->getType());
+            OUT_LN(termometr->getType() == Device::TERMOMETR ? " - OK" : " - NOT TER");
+            return termometr;
         }
             
     }
@@ -393,4 +417,8 @@ void System::setNextStartupVariant(bool variant){
     EEPROM.update(EEPROM_ADRES_OF_STARTUP_BYTE,variant?1:0);
     OUT(F("EEPROM aft change: "))
     OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
+}
+
+byte System::howManyThermometers(){
+    return this->termometry.size();
 }

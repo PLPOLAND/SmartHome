@@ -2,6 +2,7 @@ package smarthome.i2c;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.pi4j.io.gpio.GpioController;
@@ -12,7 +13,6 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
-import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,36 +37,34 @@ public class I2C{
         try {
             gpio = GpioFactory.getInstance();
             pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
-            restartSlaves();
-            logger.info("Searching for devices");
-            findAll();
+            // restartSlaves();//TODO: zamienić na metodę restartSlaves()
+            findAll();// TODO: zamienić na metodę restartSlaves()
+            // logger.info("Searching for devices");
             
         } catch (UnsatisfiedLinkError e) {
             System.err.println("platform does not support this driver");
-        } catch (UnsupportedBusNumberException e) {
-            System.err.println("platform does not support this driver");//TODO
         }catch (Exception e) {
             System.err.println("platform does not support this driver");
 
         }
     }
 
-    void setOccupied(boolean isOccup){
+    public void setOccupied(boolean isOccup){
         if (isOccup) {
             // logger.debug("Occupied");
             this.isOccupied = isOccup;
         }
         else{
             // logger.debug("END Occupied start");
-            new Thread(()->{
+            // new Thread(()->{
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(5);//opóźnienie przed kolejną operacją odczytu/wysłania
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 this.isOccupied = false;
                 // logger.debug("END Occupied stop");
-            }).start();
+            // }).start();
             
         }
         
@@ -75,30 +73,26 @@ public class I2C{
     public void pauseIfOcupied() {
         while (isOccupied) {
             try {
-                Thread.sleep(1);
+                Thread.sleep(5);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
         }
     }
 
-    public void findAll() throws UnsupportedBusNumberException, IOException{
-        List<Integer> validAddresses = new ArrayList<Integer>();
+    public void findAll(){
+        List<Integer> validAddresses = new ArrayList<>();
         final I2CBus bus;
-        pauseIfOcupied();
-        setOccupied(true);
+        // pauseIfOcupied();
+        // setOccupied(true);
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
-            // for (int i = 1; i < 10; i++) {
             for (int i = 7; i < 128; i++) {
                 try {
                     I2CDevice device = bus.getDevice(i);
                     device.write((byte) 0);
                     byte[] buffer = new byte[8];
                     device.read(buffer, 0, 8);
-                    // for (byte b : buffer) {
-                    //     System.out.print((char) b);
-                    // }
                     logger.debug("Znaleziono Slave o adresie: {}",i);
                     boolean was = false;
                     for (I2CDevice dev : devices) {
@@ -130,17 +124,11 @@ public class I2C{
                 }
             }
         } catch (Exception e) {
-            throw e;
+            logger.error(e.getMessage());
         }
-        setOccupied(false);
+        // setOccupied(false);
 
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
-
-        // System.out.println("Found: ---");
-        // for (int a : validAddresses) {
-        // System.out.println("Address: " + Integer.toHexString(a));
-        // }
-        // System.out.println("----------");
     }
     
 
@@ -156,26 +144,28 @@ public class I2C{
         } else {
             try {
 
-                //Thread.sleep(100);
+                // Thread.sleep(100);
                 tmp.write(buffer);
             } catch (IOException e) {
-                HardwareException throwable = new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres, e);
+                retryWrite(buffer, tmp);
+                // HardwareException throwable = new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres, e);
 
-                logger.error(e.getLocalizedMessage(), throwable);
+                // logger.error(e.getLocalizedMessage(), throwable);
                 
-                restartSlaves();
+                // restartSlaves();
 
-                logger.warn("Ponowna próba wysłania komendy...");
-                try {
-                    tmp.write(buffer);
-                } catch (Exception e2) {
-                    throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres,e2);
-                }
-                logger.info("Wysłano!");
-            } //catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                //e.printStackTrace();
-          //  }
+                // logger.warn("Ponowna próba wysłania komendy...");
+                // try {
+                //     tmp.write(buffer);
+                // } catch (Exception e2) {
+                //     throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres,e2);
+                // }
+                // logger.info("Wysłano!");
+            } 
+        //     catch (InterruptedException e) {
+        //        //TODO Auto-generated catch block
+        //         e.printStackTrace();
+        //    }
         }
     }
     public void writeTo(int adres, byte[] buffer, int size) throws HardwareException{
@@ -196,6 +186,7 @@ public class I2C{
                 //Thread.sleep(100);
                 tmp.write(tmpbuff);
             } catch (IOException e) {
+                retryWrite(tmpbuff, tmp);
                 throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: "+adres, e);
             } //catch (InterruptedException e) {
                 // TODO Auto-generated catch block
@@ -220,7 +211,8 @@ public class I2C{
                 //Thread.sleep(100);
                 tmp.read(buffer, 0, size);
             } catch (IOException e) {
-                throw new HardwareException("Błąd IO podczas próby odczytu z slave-a o adresie: "+ adres, e);
+                retryRead(tmp, size, buffer);
+                // throw new HardwareException("Błąd IO podczas próby odczytu z slave-a o adresie: "+ adres, e);
             } //catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 //e.printStackTrace();
@@ -240,7 +232,7 @@ public class I2C{
         pin.low();
         
         try {
-            Thread.sleep(100);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
@@ -252,12 +244,46 @@ public class I2C{
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
-
+        this.findAll();
         logger.info("Slave-y zrestartowane");
     }
 
 
     public List<I2CDevice> getDevices() {
         return this.devices;
+    }
+
+    public void retryWrite(byte[] toWrite, I2CDevice slave) throws HardwareException{
+        boolean done = false;
+        for (int i = 0; i < 10 && !done; i++) {
+            logger.warn("Retring to write '{}' to device: {}",Arrays.toString(toWrite), slave.getAddress());
+            try{
+                slave.write(toWrite);
+                done = true;
+            } catch (IOException e) {
+                logger.error("error");
+            }
+        }
+        if (!done) {
+            throw new HardwareException("Błąd IO podczas próby wysyłania do slave-a o adresie: " + slave.getAddress());
+        }
+    }
+    public byte[] retryRead(I2CDevice slave, int size, byte[] buff) throws HardwareException{
+        boolean done = false;
+        // byte[] buff = new byte[size];
+        for (int i = 0; i < 10 && !done; i++) {
+            logger.warn("Retring to read from device: {}", slave.getAddress());
+            try{
+                slave.read(buff, 0, size);
+                done = true;
+            } catch (IOException e) {
+                logger.error("error");
+            }
+        }
+        if (!done) {
+            throw new HardwareException("Błąd IO podczas próby odczytu z slave-a o adresie: " + slave.getAddress());
+        }
+        else
+            return buff;
     }
 }

@@ -41,7 +41,7 @@ public class Termometr extends Sensor{
      * @param max - max temperatura 
      * @param min - min temperatura 
      */
-    public Termometr(int ID, int room, int idPlytki, byte[] addres, Float temperatura, Float max, Float min) {
+    public Termometr(int ID, int room, int idPlytki, int[] addres, Float temperatura, Float max, Float min) {
         super(ID ,room, idPlytki, addres, SensorsTypes.THERMOMETR);
         this.temperatura = temperatura;
         this.max = max;
@@ -81,6 +81,15 @@ public class Termometr extends Sensor{
     
     public void update(){
         
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+            " temperatura='" + getTemperatura() + "'" +
+            ", max='" + getMax() + "'" +
+            ", min='" + getMin() + "'" +
+            ", super = '"+super.toString()+"'}";
     }
 
 }

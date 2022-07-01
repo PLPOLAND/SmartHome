@@ -15,10 +15,34 @@ $(document).ready(function () {
                 response.obj.roomsArrayList.forEach(room => {
                     body.append(makeRoom(room.nazwa, room.devices.length, room.sensors.length))
                     var tmp = $("<div class=\"devList\"></div>")
+                    tmp.attr("roomID",room.id);
+                    // tmp.hide('blind', {}, 1000, function () { });
                     room.devices.forEach(element=>{
                         tmp.append(addDevice(element));
                     })
                     body.append(tmp);
+
+                    
+
+                });
+                $.ajax({
+                    url: "/admin/api/getTermometers",
+                    type: 'post',
+                    data: {},
+                    success: function (sensorsResponse) {
+                        if (sensorsResponse.error == null) {
+                            console.log(sensorsResponse.obj);
+                            var list = $(".devList");
+                            // sensorsResponse.obj.sort(compareSensors)
+                            sensorsResponse.obj.forEach(element => {
+                                var room = $(".devList[roomid=" + element.room + "]")
+                                room.append(addsensor(element));
+                            });
+                        } else {
+                            $("#err-msg").html(sensorsResponse.error);
+                            $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+                        }
+                    }
                 });
             } else {
                 $("#err-msg").html(response.error);

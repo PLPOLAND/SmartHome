@@ -19,6 +19,7 @@ import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Light;
+import smarthome.model.hardware.Termometr;
 import smarthome.security.Security;
 
 @Controller
@@ -162,6 +163,19 @@ public class AdminController {
         model.addAttribute("buttonID", buttonID);
 
         return "admin/editButton";
+    }
+    @RequestMapping("/editThermometr")
+    public String editThermometr(@RequestParam(name = "id",defaultValue = "0") int thermometrID, HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        Termometr tmp = (Termometr) system.getSensorByID(thermometrID);
+        model.addAttribute("slaveID", tmp.getSlaveID());
+        model.addAttribute("therName", tmp.getName());
+        model.addAttribute("slave", tmp.getSlaveID());
+        model.addAttribute("thermometrID", thermometrID);
+
+        return "admin/editThermometr";
     }
 
 

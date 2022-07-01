@@ -117,8 +117,12 @@ public class AdminRESTController {
         return r;
     }
 
-    
-
+    @RequestMapping("/getTmpTermometr")
+    public Response<ArrayList<Termometr>> getTMPTermometrs() {
+        ArrayList<Termometr> tmp = new ArrayList<>();
+        tmp.add(new Termometr(100, systemDAO.getRoom("Brak").getID(), 0, new int[]{0,0,0,0,0,0,0,0}, 25.F, 30.F, 0.F));
+        return new Response<>(tmp);
+    }
 
     @RequestMapping("/getSystemData")
     public Response<SystemDAO> getSystemData() {
@@ -143,6 +147,10 @@ public class AdminRESTController {
     @RequestMapping("/getSensors")
     public Response<ArrayList<Sensor>> getSensors() {
         return new Response<>(systemDAO.getSensors());
+    }
+    @RequestMapping("/getTermometers")
+    public Response<ArrayList<Termometr>> getThermometers() {
+        return new Response<>(systemDAO.getAllTermometers());
     }
     
     @RequestMapping("/getSensorTypes")
@@ -471,13 +479,18 @@ public class AdminRESTController {
     }
     @GetMapping("/checkReinitBoard")
     public Response<String> sprawdzZainicjowaniePlytki(@RequestParam("boardID") int boardID) {
-        boolean tmp = system.checkInitOfBoard(boardID);
-        return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
+        try {
+            boolean tmp = system.checkInitOfBoard(boardID);
+            return new Response<>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
+        } catch (Exception e) {
+            logger.error("Błąd podczas sprawdzania czy plytka była zainicjowana", e);
+            return new Response<>("", e.getMessage());
+        }
     }
     @GetMapping("/reinitBoard")
     public Response<String> reainicjowaniePlytki(@RequestParam("boardID") int boardID) {
         boolean tmp = system.initOfBoard(boardID);
-        return new Response<String>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
+        return new Response<>("Sprawdzono, czy urządzenie było inicjowane i: " + (tmp?"reinicjalizowano je" : "nie było potrzeby ponownej reinicjalizacji"));
     }
 
 
@@ -518,6 +531,17 @@ public class AdminRESTController {
             else
                 return new Response<>("","Nie udało znaleźć się Przycisku o id: '"+buttonId+"'. Sprawdź konsolę programu w poszukiwaniu szczegółów");
         } catch (Exception e) {
+            logger.error("Błąd podczas uaktualniania Przycisku",e);
+            return new Response<>(null, e.getMessage());
+        }
+    }
+    @GetMapping("/editThermometer")
+    public Response<String> editThermometer(@RequestParam("thermometerId") int thermometerId,@RequestParam("roomName") String roomName, @RequestParam("name") String thermometerName){
+        
+        try {
+            system.editThermometer(thermometerId, thermometerName, roomName);
+            return new Response<>("Termometr '" +thermometerName + "'został zaktualizowany poprawnie");
+            } catch (Exception e) {
             logger.error("Błąd podczas uaktualniania Przycisku",e);
             return new Response<>(null, e.getMessage());
         }

@@ -16,6 +16,7 @@ public:
         RECEIVE_ADD_PRZYCISK,                   // Dodaj nowy przycisk do systemu
         RECEIVE_ADD_PRZEKAZNIK,                 // Dodaj nowy przekaznik do systemu
         RECEIVE_GET_TEMPERATURE,                // Pobierz temperaturę z termometru
+        RECEIVE_HOW_MANY_THERMOMETR,            // Ile termometrów podłączonych do płytki
         RECEIVE_ZMIEN_STAN_PRZEKAZNIKA,         // Zmien stan konkretnego urzadzenia
         RECEIVE_ZMIEN_STAN_ROLETY,              // Podnies opuść konkretną roletę.
         RECEIVE_CHECK_INIT,                     // Czy urządzenie zostało zainicjowane

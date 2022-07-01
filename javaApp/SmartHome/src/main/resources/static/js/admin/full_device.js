@@ -15,6 +15,7 @@ function makeFullDevice(obj) {
     }
 
     var deviceName = $('<div class="deviceName">'+obj.name+'</div>');
+    var roomName = $('<div class="roomName">Room: '+rooms[obj.room]+'</div>');
     var slaveAddr = $('<div class="slave">Slave: '+ obj.slaveID+'</div>')
     var device_pin1;
     var device_pin2;
@@ -75,6 +76,7 @@ function makeFullDevice(obj) {
 
     device.append(deviceIcon);
     device.append(deviceName);
+    device.append(roomName);
     device.append(deviceState);
     device.append(slaveAddr);
     device.append(device_pin1);

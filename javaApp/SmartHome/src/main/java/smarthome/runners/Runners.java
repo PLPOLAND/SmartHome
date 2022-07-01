@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Termometr;
@@ -62,22 +63,33 @@ public class Runners {
         
     }
     
-    @Scheduled(fixedDelay = 500)
+    @Scheduled(fixedDelay = 10)
     void checkDevicesStatus(){
-        logger.debug("checkStatus()");
-        if (isCheckDevicesStatusDone && isCheckReinitDone) {
-            isCheckDevicesStatusDone = false;
-            for (Device device : system.getSystemDAO().getDevices()) {
-                try {
-                    system.checkInitOfBoard(device.getSlaveID());
-                    system.updateDeviceState(device);
-                } catch (HardwareException e) {
-                    logger.error(e.getMessage(), e);
+        if (!system.getArduino().atmega.getDevices().isEmpty()) {
+            logger.debug("checkStatus()");
+            if (isCheckDevicesStatusDone && isCheckReinitDone) {
+                isCheckDevicesStatusDone = false;
+                for (Device device : system.getSystemDAO().getDevices()) {
+                    if (system.isSlaveConnected(device.getSlaveID())) {
+                        try {
+                            system.checkInitOfBoard(device.getSlaveID());
+                            system.updateDeviceState(device);
+                        } catch (HardwareException | SoftwareException e ) {
+                            logger.error(e.getMessage());
+                        }
+                    }
                 }
+                for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
+                    if (system.isSlaveConnected(termometr.getSlaveID())) {
+                        system.updateTemperature(termometr);
+                    }
+                }
+                isCheckDevicesStatusDone = true;
             }
-            isCheckDevicesStatusDone = true;
         }
     }
+
+    
     // @Scheduled(fixedRate = 2000)
     // void updateDevicesState(){
     //     logger.debug("updateDevicesState()");

@@ -39,6 +39,7 @@ protected:
     static LinkedList<Roleta *> rolety;
 
 public:
+    friend class Termometr;
     static LinkedList<Przycisk *> przyciski;
     System(const System&) = delete;
     void operator= (const System &) = delete;
@@ -76,6 +77,14 @@ public:
 
     ///Zwraca listę adresów termometrów zarejestrowanych w systemie
     LinkedList<byte*> getAdrOfThermometrs();
+
+    /**
+     * @brief Zwraca liczbę termoemtrów dodanych do systemu
+     * 
+     * 
+     * @return byte 
+     */
+    byte howManyThermometers();
 
     // /**
     //  * @brief Wykonuje komendę dostarczoną w argumencie.

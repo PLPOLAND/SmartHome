@@ -5,7 +5,7 @@
 
 // TODO poprawic odwołania do kontenerów
 I2CConverter* I2CConverter::singleton = nullptr;
-LinkedList<Command*> I2CConverter::doWyslania = LinkedList<Command*>();
+LinkedList<Command*> I2CConverter::doWyslania = *(new LinkedList<Command*>);
 
 I2CConverter::I2CConverter()
 {
@@ -68,18 +68,19 @@ void I2CConverter::RecieveEvent(int howManyBytes)
     {
         Wire.read();
     }
-    
-    while (0 < Wire.available()) {
-        buf[buffReadSize++] = Wire.read();
-        OUT("i:" );
-        OUT(buffReadSize-1);
-        OUT("  buf:" );
-        OUT_LN(buf[buffReadSize - 1]);
-        if (!(buffReadSize <= BUFFOR_IN_SIZE)) {
-            buffReadSize--;
-            break; // TODO: Obsługa błędu???
-            while (0 < Wire.available())
-                ;
+    else{
+        while (0 < Wire.available()) {
+            buf[buffReadSize++] = Wire.read();
+            OUT("i:" );
+            OUT(buffReadSize-1);
+            OUT("  buf:" );
+            OUT_LN(buf[buffReadSize - 1]);
+            if (!(buffReadSize <= BUFFOR_IN_SIZE)) {
+                buffReadSize--;
+                break; // TODO: Obsługa błędu???
+                while (0 < Wire.available())
+                    ;
+            }
         }
     }
     
@@ -105,15 +106,47 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             case Command::KOMENDY::RECEIVE_ADD_THERMOMETR:
             {
                 //Dodaje termometr do systemu o ile istnieje jakiś wolny, nie podłączony
-                //Jeśli udało się dodać termometr dodaje do wysłania jego id na płytce w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
+                //Jeśli udało się dodać termometr dodaje do wysłania jego adres w przeciwnym wypadku wyśle -1 -> czyli info o niepowodzeniu
                 OUT_LN(F("REC_ADD_THERMOMETR"));
-                Device *tmpDev = System::getSystem()->addDevice(Device::TYPE::TERMOMETR);
-                komendaZwrotna->setDevice(tmpDev); // Zwróć dodane urządzenie //TODO obsługa nullptr
-                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
-                komendaZwrotna->setParams(((Termometr *)tmpDev)->getAddres());
-                komendaZwrotna->printParametry();
+                Termometr *tmpDev = (Termometr*)System::getSystem()->addDevice(Device::TYPE::TERMOMETR);
+                if (tmpDev == nullptr)
+                {
+                    byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    komendaZwrotna->setParams(params);
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                }
+                else
+                {
+                    // komendaZwrotna->setDevice(tmpDev); // Zwróć dodane urządzenie 
+                    // Termometr* termometr = (Termometr*)(System::getSystem())->getDevice(tmpDev->getId());
+                    for (byte i = 0; i < 8; i++)
+                    {
+                        OUT(" ")
+                        OUT(tmpDev->getAddres()[i]);
+                    }
+                    OUT_LN()
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->setParams(tmpDev->getAddres());
+                    komendaZwrotna->printParametry();
+                }
+                
+                
                 doWyslania.add(0, komendaZwrotna); //Dodaj komendę do wysłania na sam przód kolejki.
 
+            }
+            break;
+            case Command::KOMENDY::RECEIVE_HOW_MANY_THERMOMETR:
+            {
+                OUT_LN(F("REC_HOW_MANY_THER"))
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+
+                OUT_LN(F("BEFORE"))
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                params[0] = Termometr::howManyThermometers();
+                OUT_LN(F("AFTER"))
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
+                OUT_LN(F("END"))
             }
             break;
             case Command::KOMENDY::RECEIVE_ADD_ROLETA:
@@ -123,12 +156,13 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 OUT_LN(komenda.getParams()[0]);
                 OUT(F("pinDown: "))
                 OUT_LN(komenda.getParams()[1]);
-                komendaZwrotna->setDevice(System::getSystem()->addDevice(Device::TYPE::ROLETA, komenda.getParams()[0], komenda.getParams()[1]));
+                Roleta* tmp = (Roleta*)System::getSystem()->addDevice(Device::TYPE::ROLETA, komenda.getParams()[0], komenda.getParams()[1]);
+                komendaZwrotna->setDevice(tmp);
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = komendaZwrotna->getDevice()->getId();
-                params[1] = ((Roleta *)komendaZwrotna->getDevice())->getSwitchUp()->getId();
-                params[2] = ((Roleta *)komendaZwrotna->getDevice())->getSwitchDown()->getId();
+                params[1] = tmp->getSwitchUp()->getId();
+                params[2] = tmp->getSwitchDown()->getId();
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
             }
@@ -159,8 +193,21 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             case Command::KOMENDY::RECEIVE_GET_TEMPERATURE:
             {
                 OUT_LN(F("REC_GET_TEMPERATURE"));
-                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_TEMPERATURA);
-                komendaZwrotna->setParams(komenda.getParams());
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                String tmp = String(System::getSystem()->getTermometr(komenda.getParams())->getTemperature(), 2U);
+                OUT(F("temperatura = "))
+                OUT_LN(tmp);
+                for (byte i = 0; i < 8; i++)
+                {
+                    params[i] = 0;
+                }
+                for (byte i = 0; i < tmp.length(); i++)
+                {
+                    params[i] = tmp.charAt(i);
+                }
+
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                komendaZwrotna->setParams(params);
 
                 
                 doWyslania.add(0, komendaZwrotna);
@@ -330,7 +377,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                             StanRolety tmp = ((Roleta *)p)->getStan();
                             if (tmp == StanRolety::NIEOKRESLONY)
                             {
-                                params[0] = 'M';
+                                params[0] = 'K';
                             }
                             else if (tmp == StanRolety::PODNIESIONA)
                             {
@@ -346,13 +393,16 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                         }
                         break;
                     default:
+                        byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};//ERROR
+                        komendaZwrotna->setParams(params);
+                        doWyslania.add(0, komendaZwrotna);
                         break;
                     }
 
                 }
                 else
                 {
-                    byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
                     komendaZwrotna->setParams(params);
                     doWyslania.add(0, komendaZwrotna);
                 }
@@ -361,7 +411,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
 
             case Command::KOMENDY::RECEIVE_GET:
-
+                {
+                    byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
+                komendaZwrotna->setParams(params);
+                doWyslania.add(0, komendaZwrotna);
+                }
                 break;
 
             default:
@@ -378,7 +432,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
 //TODO kolejka komend
 void I2CConverter::RequestEvent()
 {
-    Command* command;
+    Command* command = nullptr;
     if (doWyslania.size()>0)
     {
         command = doWyslania.remove(0);//usuń z kolejki
@@ -403,19 +457,6 @@ void I2CConverter::RequestEvent()
                         Wire.write(command->getParams()[i]);
                         // OUT(" ")
                     }
-                    
-
-
-                    // OUT_LN(((Termometr *)command->getDevice())->getTemperature());
-                    // String tmp = String(((Termometr *)command->getDevice())->getTemperature(), 2U);
-                    // OUT("afterString: ");
-                    // OUT_LN(tmp);
-                    // // OUT_LN(termometry->get(id)->getTemperature());
-                    // Wire.write(0); // wyslij ID Termometru na płytce
-                    // for (byte i = 0; i < tmp.length(); i++)
-                    // {
-                    //     Wire.write(tmp.charAt(i)); // wyslij kolejne cyfry temperatury
-                    // }
                     break;
                 }
             case Command::KOMENDY::SEND_REPLY:
@@ -438,10 +479,29 @@ void I2CConverter::RequestEvent()
     }
     else
     {
-        OUT_LN(F("Wire.write('0')"));
-        Wire.write('0');
+        OUT_LN(F("NOTHING TO SENT"))
+        for (byte i = 0; i < 8; i++)
+        {
+            Wire.write('E');
+        }
+        Wire.end();
+
+        byte tmp = 1;
+        byte adress = 7;
+        for (byte i = 0; i < PINOW_NA_ADRES; i++)
+        {
+            adress += tmp * (digitalRead(2 + i) == HIGH ? 0 : 1);
+            tmp *= 2;
+        }
+        Wire.begin(adress);
     }
-    delete command;
+    if (command != nullptr)
+    {
+        OUT_LN(F("command != null"));
+        delete command;
+    }
+    
+    OUT_LN(F("SENDING DONE"));
     
 }
 
