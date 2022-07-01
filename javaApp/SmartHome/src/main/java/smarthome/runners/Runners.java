@@ -75,7 +75,7 @@ public class Runners {
                             system.checkInitOfBoard(device.getSlaveID());
                             system.updateDeviceState(device);
                         } catch (HardwareException | SoftwareException e ) {
-                            logger.error(e.getMessage());
+                            logger.error("{} {Device ID: {}}" , e.getMessage(), device.getId() );
                         }
                     }
                 }

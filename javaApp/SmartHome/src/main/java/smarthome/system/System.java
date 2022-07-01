@@ -493,31 +493,36 @@ public class System {
      */
     private boolean sendConfigToSlave(int slaveID) {
         boolean toReturn = true;
-        log.debug("number of devices in system: {}", systemDAO.getDevices().size());
+        log.debug("Wysyłam konfigurację slave-a {}", slaveID);
         for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {
-            log.debug("device slaveID: {}", device.getSlaveID());
             log.debug("sendingDevice {}", device);
             try {
                 device.setOnSlaveID(arduino.addUrzadzenie(device));
                 if (device instanceof Light) {
                     this.changeLightState(device.getId(), ((Light) device).getStan());
                 } else if (device instanceof Blind) {
-                    this.changeBlindState(systemDAO.getRoom(device.getRoom()).getNazwa(), device.getId(),
-                            ((Blind) device).getStan() == RoletaStan.UP);
+                    switch (((Blind) device).getStan()) {
+                        case UP:
+                            this.changeBlindState(systemDAO.getRoom(device.getRoom()).getNazwa(), device.getId(), true); // zmienia stan rolety na UP
+                            break;
+                        case DOWN:
+                            this.changeBlindState(systemDAO.getRoom(device.getRoom()).getNazwa(), device.getId(), false); // zmienia stan rolety na DOWN
+                            break;
+                        case NOTKNOW:
+                            break; // nie rob nic
+                        default:
+                            break;
+                    }
                 }
             } catch (HardwareException e) {
                 log.error("Nie udało się reinicjalizować urządzenia o id {}", slaveID, e);
                 toReturn = false;
             }
         }
-
-        log.debug("number of sensors in system: {}", systemDAO.getSensors().size());
         for (Sensor sensor : systemDAO.getSensors()) {
             if (sensor.getSlaveID() == slaveID) {
                 log.debug("sensor id: {}", sensor.getId());
-                if (sensor instanceof Termometr) {
-                    // ignorujemy
-                } else if (sensor instanceof Button) {
+                if (sensor instanceof Button) {
                     try {
                         log.debug("sending Button: {}", sensor);
                         sensor.setOnSlaveID(arduino.addPrzycisk((Button) sensor));
