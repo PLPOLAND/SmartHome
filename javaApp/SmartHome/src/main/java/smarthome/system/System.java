@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import smarthome.database.SystemDAO;
 import smarthome.database.TemperatureDAO;
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.Room;
 import smarthome.model.hardware.Device;
@@ -545,23 +546,39 @@ public class System {
 
     /**
      * Sprawdza czy płytka była inicjowana przez I2C, i jeśli nie to reinicjuje ją
-     * @param slaveID
+     * @param slaveAdress
      * @return true jeśli reinicjowano urządzenie
      * @return false jeśli urządzenie było już inicjowane 
      */
-    public boolean checkInitOfBoard(int slaveID) {
+    public boolean checkInitOfBoard(int slaveAdress) throws HardwareException, SoftwareException {
         // log.debug("Sprawdzanie slave-a o id: {}", slaveID);
-        if (!arduino.checkInitOfBoard(slaveID) && arduino.reInitBoard(slaveID)) {//Sprawdź czy płytka była inicjowana, i jeśli nie to wyślij komendę o reinicjalizacji urządzenia
-            return sendConfigToSlave(slaveID);
+        boolean toReturn = false;
+        for (int i = 0; i < 10; i++) {
+            
+            try {
+                if (!arduino.checkInitOfBoard(slaveAdress) && arduino.reInitBoard(slaveAdress)) {//Sprawdź czy płytka była inicjowana, i jeśli nie to wyślij komendę o reinicjalizacji urządzenia
+                    toReturn = sendConfigToSlave(slaveAdress);
+                }
+                break;
+            } catch (Exception e) {
+                log.error("Błąd podczas sprawdzania czy płytka była inicjowana: '{}'", e.getMessage());
+                if (i == 9) {
+                    throw e;
+                }
+            }
         }
-        return false;
+        return toReturn;
     }
 
 
  
     public void reinitAllBoards() {
         for (I2CDevice device : arduino.atmega.getDevices()) {
-            this.checkInitOfBoard(device.getAddress());
+            try {
+                checkInitOfBoard(device.getAddress());
+            } catch (HardwareException | SoftwareException e) {
+                log.error("Błąd podczas reinicjalizacji płytki: '{}'", e.getMessage());
+            }
         }
     }
     /**
@@ -699,6 +716,12 @@ public class System {
             throw new HardwareException("Brak sensora o id '"+termometerId+"'");
         }
     }
-
-    
+    /**
+     * Sprawdza czy slave jest w systemie i czy jest podłączony.
+     * @param deviceId
+     * @return
+     */
+    public boolean isSlaveConnected(int deviceId) {
+        return arduino.isDeviceConnected(deviceId);
+    }
 }

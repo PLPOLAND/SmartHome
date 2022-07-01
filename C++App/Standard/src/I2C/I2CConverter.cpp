@@ -206,7 +206,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     params[i] = tmp.charAt(i);
                 }
 
-                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_TEMPERATURA);
+                komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 komendaZwrotna->setParams(params);
 
                 
@@ -463,19 +463,6 @@ void I2CConverter::RequestEvent()
                         Wire.write(command->getParams()[i]);
                         // OUT(" ")
                     }
-                    
-
-
-                    // OUT_LN(((Termometr *)command->getDevice())->getTemperature());
-                    // String tmp = String(((Termometr *)command->getDevice())->getTemperature(), 2U);
-                    // OUT("afterString: ");
-                    // OUT_LN(tmp);
-                    // // OUT_LN(termometry->get(id)->getTemperature());
-                    // Wire.write(0); // wyslij ID Termometru na płytce
-                    // for (byte i = 0; i < tmp.length(); i++)
-                    // {
-                    //     Wire.write(tmp.charAt(i)); // wyslij kolejne cyfry temperatury
-                    // }
                     break;
                 }
             case Command::KOMENDY::SEND_REPLY:
@@ -503,6 +490,16 @@ void I2CConverter::RequestEvent()
         {
             Wire.write('E');
         }
+        Wire.end();
+
+        byte tmp = 1;
+        byte adress = 7;
+        for (byte i = 0; i < PINOW_NA_ADRES; i++)
+        {
+            adress += tmp * (digitalRead(2 + i) == HIGH ? 0 : 1);
+            tmp *= 2;
+        }
+        Wire.begin(adress);
     }
     if (command != nullptr)
     {

@@ -181,7 +181,7 @@ void Roleta::setPinUpState(bool stan)
 {
     forcePinDownState(false);
     forcePinUpState(false);
-    delay(200);
+    delay(300);
     if (stan == false) {
         this->p_up.setStan(false);
         this->p_down.setStan(true);
@@ -200,7 +200,7 @@ void Roleta::setPinDownState(bool stan)
 {
     forcePinDownState(false);
     forcePinUpState(false);
-    delay(200);
+    delay(300);
     if (stan == false) {
         this->p_up.setStan(true);
         this->p_down.setStan(false);
