@@ -415,6 +415,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     OUT_LN(F("RECEIVE_CHECK_HOW_MANY_TO_SENT"));
                     byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
                     params[0] = doWyslania.size();
+                    OUT(F("Do wysłania: ")) OUT_LN(doWyslania.size());
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                     komendaZwrotna->setParams(params);
                     doWyslania.add(0, komendaZwrotna);
                 }
@@ -512,7 +514,16 @@ void I2CConverter::RequestEvent()
 }
 
 void I2CConverter::addToSent(Command *command){
-    this->doWyslania.add(command);
+    if (this->doWyslania.size()<3)
+    {
+        this->doWyslania.add(command);
+    }
+    else
+    {
+        delete this->doWyslania.get(3);
+        this->doWyslania.set(3, command);//TODO Pomyśleć nad lepszym rozwiązaniem 
+    }
+    
 }
 
 /*

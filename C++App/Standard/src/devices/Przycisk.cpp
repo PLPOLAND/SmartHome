@@ -170,7 +170,7 @@ void Przycisk::updateStan(){
     else if (stan == PRZYTRZYMANY && tmpStan == 1) //Przytrzymywanie
     {
         this->dioda.on();
-        OUT_LN(F("Przytrzymanie"));
+        // OUT_LN(F("Przytrzymanie"));
         this->wykonaj();//dla PRZYTRZYMANY
         //TODO
     }
@@ -224,8 +224,25 @@ bool Przycisk::wykonaj(){
             //OUT_LN(F("Wykonywanie PUSZCZONY"))
             OUT(F("klikniec: "))
             OUT_LN(klikniecia);
-            Command* command = funkcje_klikniecia.get(klikniecia);
-            this->runCommand(command);
+            if (funkcje_klikniecia.size()-1 >= klikniecia && funkcje_klikniecia.get(klikniecia)->getCommandType() != Command::KOMENDY::NIC)
+            {
+                Command *command = funkcje_klikniecia.get(klikniecia);
+                this->runCommand(command);
+            }
+            else
+            {
+                Command *command = new Command;
+                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                params[0] = 'C';
+                params[1] = this->getId(); // Button ID
+                params[2] = klikniecia;    // ilość kliknięć przed przytrzymaniem
+                params[3] = 'C';           // kliknięcie
+                command->setParams(params);
+                command->setCommandType(Command::KOMENDY::SEND_REPLY);
+                I2CConverter::getInstance()->addToSent(command);
+            }
+            
+            
         // System::getSystem()->runCommand(command);
         }
         break;
@@ -239,7 +256,7 @@ bool Przycisk::wykonaj(){
             params[0] = 'C';
             params[1] = this->getId();  //Button ID
             params[2] = klikniecia;     //ilość kliknięć przed przytrzymaniem
-            params[3] = 'P'; //TODO !
+            params[3] = 'P';            //po przytrzymaniu
             command->setParams(params);
             command->setCommandType(Command::KOMENDY::SEND_REPLY);
             I2CConverter::getInstance()->addToSent(command);
