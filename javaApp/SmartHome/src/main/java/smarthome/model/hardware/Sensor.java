@@ -111,7 +111,7 @@ public abstract class Sensor {
         return this.slaveID;
     }
 
-    public void setSlaveID(int slaveID) {
+    public void setSlaveAdress(int slaveID) {
         this.slaveID = slaveID;
     }
 

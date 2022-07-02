@@ -677,7 +677,7 @@ public class System {
 
                 for (Termometr t : termometry) {//wśród wszystkich dodanych w systemie 
                     if (Arrays.equals(t.getAddres(), addres)) {//znajdź ten który został właśnie dodany
-                        t.setSlaveID(slaveAdres);//zmień mu adres slave-a
+                        t.setSlaveAdress(slaveAdres);//zmień mu adres slave-a
                         existed = true;
                         break;
                     }
@@ -748,9 +748,9 @@ public class System {
     
     private void executeSlaveCommand(int slaveAdress,byte[] command) {
         if ( command[0] =='C') {
-            ButtonFunction but = new ButtonFunction();
-            but.fromCommand(0, command); //zainicjuj funkcję z danych z slave-a
-            log.debug("Pobrano z slave-a fun: {}",but);
+            // ButtonFunction but = new ButtonFunction();
+            // but.fromCommand(0, command); //zainicjuj funkcję z danych z slave-a
+            // log.debug("Pobrano z slave-a fun: {}",but);
             return;//TODO
             
 

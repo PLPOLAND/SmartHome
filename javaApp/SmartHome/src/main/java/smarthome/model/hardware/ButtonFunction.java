@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Component
 public class ButtonFunction {
     @Autowired
-    static smarthome.system.System system;
+    smarthome.system.System system;
 
     public enum State {
         NONE,
@@ -148,7 +148,7 @@ public class ButtonFunction {
         if (system == null) {
             System.out.println("System is null");
         }
-        button = (Button) ButtonFunction.system.getSensorByOnSlaveID(slaveAdress, command[1]);
+        button = (Button) system.getSensorByOnSlaveID(slaveAdress, command[1]);
         clicks = command[2];
         switch (command[3]) {
             case 'P':
