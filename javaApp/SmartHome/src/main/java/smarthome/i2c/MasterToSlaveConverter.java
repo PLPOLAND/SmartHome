@@ -96,7 +96,7 @@ public class MasterToSlaveConverter {
     /**
      * Zmien stan przekaznika
      * 
-     * @param przekaznik - przekaznik docelowy
+     * @param przekaznik - id przekaźnika na slavie
      * @param stan       - stan przekaznika
      */
     public void changeSwitchState(int idPrzekaznika, int idPlytki, DeviceState stan) throws HardwareException {
@@ -106,7 +106,7 @@ public class MasterToSlaveConverter {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) idPrzekaznika;
-        buffor[i++] = (byte) (stan == DeviceState.UP ? 1 : 0); 
+        buffor[i++] = (byte) (stan == DeviceState.ON ? 1 : 0); 
         atmega.pauseIfOcupied();
         atmega.setOccupied(true);
         atmega.writeTo(idPlytki, buffor);
@@ -115,21 +115,31 @@ public class MasterToSlaveConverter {
         logger.debug("Response from {}: {}" ,idPlytki, Arrays.toString(response));
     }
 
-    public void changeBlindState(Blind roleta, boolean stan) {
+    public void changeBlindState(Blind roleta, DeviceState stan) throws HardwareException{
         byte[] buffor = new byte[4];
         int i = 0;
         for (byte b : ZMIEN_STAN_ROLETY) {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) roleta.getOnSlaveID();
-        if (stan) {
-            buffor[i++] = 'U';
-            logger.debug("Wysyłanie komendy podniesienia Rolety");
+
+        switch (stan) {
+            case UP:
+                buffor[i++] = 'U';
+                logger.debug( "Wysyłanie komendy podniesienia Rolety");
+                break;
+            case DOWN:
+                buffor[i++] = 'D';
+                logger.debug( "Wysyłanie komendy opuszczenia Rolety");
+                break;
+            case NOTKNOW://TODO wymyślić co zrobić z tym ( nie może być NOTKNOW)
+                buffor[i++] = 'S';
+                logger.debug( "Wysyłanie komendy zatrzymania Rolety");
+                break;
+            default:
+                break;
         }
-        else{
-            buffor[i++] = 'D';
-            logger.debug("Wysyłanie komendy opuszczenia Rolety");
-        }
+
         try {
 
             atmega.pauseIfOcupied();
@@ -143,9 +153,9 @@ public class MasterToSlaveConverter {
             } else {
                 logger.debug("No response");
             }
-        } catch (Exception e) {
+        } catch (HardwareException e) {
             atmega.setOccupied(false);
-           logger.error(e.getMessage());
+            throw e;
         }
     }
 

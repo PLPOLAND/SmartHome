@@ -12,11 +12,13 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import smarthome.automation.FunctionAction;
 import smarthome.controller.AdminRESTController;
 import smarthome.exception.HardwareException;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonFunction;
 import smarthome.model.hardware.Device;
+import smarthome.model.hardware.DeviceState;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Termometr;
 
@@ -220,18 +222,21 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				}
 				else if(in.equals("test")){
 
-					// byte[] howMany = {'C','T', 'N'};
-					// system.getArduino().atmega.writeTo(15, howMany); 
-					// log.info("Sending how many to read...");
-					// int tmp = system.getArduino().howManyCommandToRead(15);
-					// log.info("Got: {}",tmp);
-					// if (tmp>0) {
-					// 	log.info("Reading...");
-					// 	byte[] tmp2 = system.getArduino().readCommandFromSlave(15);
-					// 	log.info("Got: {}",tmp2);
-					// }
+					FunctionAction test = new FunctionAction();
+					Device dev = system.getSystemDAO().getRoom("Marek").getDeviceById(9);
+					if (dev == null) {
+						log.error("Nie znaleziono urzadzenia");
+					}
+					test.setDevice(dev);
+					test.setActiveDeviceState(DeviceState.ON);
+					test.setAllowReverse(true);
+					
+					test.activate();
 
-					system.checkGetAndExecuteCommandsFromSlave(15);
+					Thread.sleep(10000);
+
+					test.deactivate();
+
 					// system.getArduino().atmega.writeTo(16, tmp);
 					// Thread.sleep(10);
 					// log.info("reading from 16: {}",system.getArduino().atmega.readFrom(16, 8));

@@ -231,6 +231,7 @@ public class SystemDAO {
                 i++;
             } catch (IOException e) {
                 logger.info("Wczytano {} pokoi", i);
+
                 break;
             } catch(Exception e){
                 logger.error("Błąd podczas wczytywania pokoi", e);

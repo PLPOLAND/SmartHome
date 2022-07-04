@@ -97,7 +97,7 @@ public class System {
             log.error("Nie znaleziono pokoju o podanej nazwie \"{}\" podczas dodawania światła",roomName);
             throw new IllegalArgumentException("Bledna nazwa pokoju");
         }
-        Light light = new Light(false,pin,boardID);
+        Light light = new Light(DeviceState.OFF,pin,boardID);
         light.setName(name);
         light.setOnSlaveID(arduino.addUrzadzenie(light));//dodaj urzadzenie do slavea i zapisz jego id w slavie
         if(light.getOnSlaveID()==-1){
@@ -413,9 +413,9 @@ public class System {
         }
         Light sw = (Light) room.getDeviceById(deviceID);
         if (sw != null) {
-            sw.setStan(stan);
+            sw.setState(stan?DeviceState.ON:DeviceState.OFF);
             systemDAO.save(room);
-            arduino.changeSwitchState(sw.getOnSlaveID(), sw.getSlaveID(), sw.getStan());
+            arduino.changeSwitchState(sw.getOnSlaveID(), sw.getSlaveID(), sw.getState());
         }
 
         
@@ -470,11 +470,10 @@ public class System {
      * @param pozycja - pozycja jaka powinna zostać ustawiona (true == UP)
      * @return roleta
      */
-    public Device changeBlindState(String roomName, int deviceID, boolean pozycja){
+    public Device changeBlindState(String roomName, int deviceID, boolean pozycja) throws HardwareException, IllegalArgumentException{
         Room room = systemDAO.getRoom(roomName);
         if (room == null) {
-            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
-            return null;
+            throw new IllegalArgumentException("Nie znaleziono podanego pokoju");
         }
         Blind bl = (Blind) room.getDeviceById(deviceID);
         log.debug("roleta: {}", bl);
@@ -483,10 +482,10 @@ public class System {
         bl.changeState(pozycja);
         // log.debug("Pozycja rolety po zmianie:{}", (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
         if (bl.getState() == DeviceState.UP) {
-            arduino.changeBlindState(bl, true);
+            arduino.changeBlindState(bl, DeviceState.UP);
         }
         else if (bl.getState() == DeviceState.DOWN){
-            arduino.changeBlindState(bl, false);
+            arduino.changeBlindState(bl, DeviceState.DOWN);
         }
         systemDAO.save(room);
 
@@ -507,7 +506,7 @@ public class System {
             try {
                 device.setOnSlaveID(arduino.addUrzadzenie(device));
                 if (device instanceof Light) {
-                    this.changeLightState(device.getId(), ((Light) device).getStan());
+                    this.changeLightState(device.getId(), ((Light) device).getState());
                 } else if (device instanceof Blind) {
                     switch (((Blind) device).getState()) {
                         case UP:
@@ -632,7 +631,7 @@ public class System {
             if (device instanceof Light) {
                 // log.debug("LIGHT");
                 Light l = (Light) device;
-                l.setStan(state == 1 ? true:false);
+                l.setState(state == 1 ? DeviceState.ON : DeviceState.OFF);
             } 
             // else if (device instanceof { // TODO Po dodaniu gniazdek do systemu dodać kod!
                 

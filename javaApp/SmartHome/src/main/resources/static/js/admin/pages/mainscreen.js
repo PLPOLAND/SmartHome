@@ -21,8 +21,7 @@ $(document).ready(function () {
                         tmp.append(addDevice(element));
                     })
                     body.append(tmp);
-
-                    
+                    updateDevices();
 
                 });
                 $.ajax({
@@ -51,9 +50,6 @@ $(document).ready(function () {
         }
     });
 
-    setTimeout(function(){
-        updateDevices();
-    },delay);
     
 });
 function updateDevices() {
@@ -73,14 +69,19 @@ function updateDevices() {
                     response.obj.forEach(element => {
                         var tmp = $("#" + element.id);
                         if (element.typ === "LIGHT") {
-                            showDeviceState(tmp, element.stan, element.typ)
+                            if (element.state === "ON") {
+                                showDeviceState(tmp, true, element.typ)
+                            }
+                            else if (element.state === "OFF") {
+                                showDeviceState(tmp, false, element.typ)
+                            }
                         }
                         else if(element.typ === "BLIND"){
                             // console.log("BLIND");
-                            if (element.stan === "UP") {
+                            if (element.state === "UP") {
                                 showDeviceState(tmp, true, element.typ)
                                 // console.log("BLIND UP");
-                            } else if (element.stan === "DOWN") {
+                            } else if (element.state === "DOWN") {
                                 showDeviceState(tmp, false, element.typ)
                                 // console.log("BLIND DOWN");
                                 

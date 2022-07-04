@@ -160,6 +160,11 @@ public abstract class Device {//TODO Dodać metody do parametru name.
      */
     public abstract void changeState();
 
+    /**
+     * Zmienia stan urządzenia na przeciwny niż jest podany w argumencie
+     */
+    public abstract void changeToOppositeState(DeviceState state);
+
     @Override
     public String toString() {
         return "{" +

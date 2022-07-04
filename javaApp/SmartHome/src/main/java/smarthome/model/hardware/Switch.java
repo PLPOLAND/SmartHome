@@ -13,6 +13,7 @@ public class Switch{
     private int pin;
     public Switch(){
         this.pin = -1;
+        this.stan = DeviceState.OFF;
     }
     public Switch(DeviceState stan, int pin) {
         this.pin = pin;
@@ -22,19 +23,14 @@ public class Switch{
         this.stan = stan;
     }
 
-    @JsonIgnore
-    public boolean isStan() {
-        return this.stan == DeviceState.ON;
-    }
-
     public DeviceState getStan() {
         return this.stan;
     }
 
     
-    public void setStan(boolean stan) {
-        this.stan = stan?DeviceState.ON:DeviceState.OFF;
-    }
+    // public void setStan(boolean stan) {
+    //     this.stan = stan?DeviceState.ON:DeviceState.OFF;
+    // }
 
     public void setStan(DeviceState stan) {
         if (stan!=DeviceState.ON && stan!=DeviceState.OFF) {
@@ -56,7 +52,7 @@ public class Switch{
     @Override
     public String toString() {
         return "{" +
-            " stan='" + isStan() + "'" +
+            " stan='" + getStan() + "'" +
             ", pin='" + getPin() + "'" +
             "}";
     }
