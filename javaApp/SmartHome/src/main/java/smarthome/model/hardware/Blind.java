@@ -6,13 +6,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class Blind extends Device{
-    public enum RoletaStan{
-        DOWN,
-        NOTKNOW,
-        UP
-    }    
-
-    RoletaStan stan;
+    DeviceState stan;
     Switch swtUp;
     Switch swtDown;
 
@@ -23,37 +17,38 @@ public class Blind extends Device{
     
     public Blind(boolean stan, int boardID, int pinUp, int pinDown) {
         super(boardID, DeviceTypes.BLIND);
-        this.stan = stan == true ? RoletaStan.UP : RoletaStan.DOWN;
-        swtUp = new Switch(false, pinUp);
-        swtDown = new Switch(false, pinDown);
+        this.stan = stan? DeviceState.UP : DeviceState.DOWN;
+        swtUp = new Switch(DeviceState.OFF, pinUp);
+        swtDown = new Switch(DeviceState.OFF, pinDown);
         logger = LoggerFactory.getLogger(Blind.class);
     }
 
     public Blind(int id, int room, int boardID, int pinUp, int pinDown){
         super(id, room, boardID, DeviceTypes.BLIND);
-        stan = RoletaStan.DOWN;
-        swtUp = new Switch(false, pinUp);
-        swtDown = new Switch(false, pinDown);
+        stan = DeviceState.NOTKNOW;
+        swtUp = new Switch(DeviceState.OFF, pinUp);
+        swtDown = new Switch(DeviceState.OFF, pinDown);
         logger = LoggerFactory.getLogger(Blind.class);
     }
 
-    public void changeState(RoletaStan stan){
+    @Override
+    public void changeState(DeviceState stan){
         if(this.stan != stan){
             switch (stan) {
                 case DOWN:
                     logger.debug("Zmieniam stan na: DOWN");
                     swtDown.setStan(true);
                     swtUp.setStan(false);
-                    this.stan = RoletaStan.DOWN;
+                    this.stan = DeviceState.DOWN;
                     break;
                 case UP:
                     logger.debug("Zmieniam stan na: UP");
                     swtDown.setStan(false);
                     swtUp.setStan(true);
-                    this.stan = RoletaStan.UP;
+                    this.stan = DeviceState.UP;
                     break;
                 case NOTKNOW://TODO Co w tedy?
-                    this.stan = RoletaStan.NOTKNOW;
+                    this.stan = DeviceState.NOTKNOW;
                     break;
                 default:
                     break;
@@ -61,13 +56,32 @@ public class Blind extends Device{
         }
     }
 
+    @Override
+    public void changeState(){
+        if(this.stan == DeviceState.DOWN){
+            logger.debug("Zmieniam stan na: UP");
+            swtDown.setStan(false);
+            swtUp.setStan(true);
+            this.stan = DeviceState.UP;
+        }else if (this.stan == DeviceState.UP){
+            logger.debug("Zmieniam stan na: DOWN");
+            swtDown.setStan(true);
+            swtUp.setStan(false);
+            this.stan = DeviceState.DOWN;
+        }
+        else if(this.stan == DeviceState.NOTKNOW){
+            logger.debug("Jest stan NOTKNOW więc nic nie robię");
+        }
+    }
+
+    @Deprecated
     public void changeState(boolean stan){
         logger.debug("Zmieniam się na stan: " + (stan?"UP":"DOWN"));
-        RoletaStan stan2;
+        DeviceState stan2;
         if (stan) {
-            stan2 = RoletaStan.UP;
+            stan2 = DeviceState.UP;
         } else {
-            stan2 = RoletaStan.DOWN;
+            stan2 = DeviceState.DOWN;
         }
         this.changeState(stan2);
     }
@@ -103,15 +117,15 @@ public class Blind extends Device{
     }
 
 
-
-    public RoletaStan getStan(){
+    @Override
+    public DeviceState getState(){
         return this.stan;
     }
 
     @Override
     public String toString() {
         return "{" +
-            " stan='" + getStan() + "'" +
+            " stan='" + getState() + "'" +
             ", swtUp='" + swtUp.toString() + "'" +
             ", swtDown='" + swtDown.toString() + "'" +
             ", super ='' " + super.toString() + "'"+

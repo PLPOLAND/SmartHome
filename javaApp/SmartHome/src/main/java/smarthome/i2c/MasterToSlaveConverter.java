@@ -16,6 +16,7 @@ import smarthome.database.SystemDAO;
 import smarthome.exception.HardwareException;
 import smarthome.exception.SoftwareException;
 import smarthome.model.hardware.Device;
+import smarthome.model.hardware.DeviceState;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Light;
@@ -98,14 +99,14 @@ public class MasterToSlaveConverter {
      * @param przekaznik - przekaznik docelowy
      * @param stan       - stan przekaznika
      */
-    public void changeSwitchState(int idPrzekaznika, int idPlytki, boolean stan) throws HardwareException {
+    public void changeSwitchState(int idPrzekaznika, int idPlytki, DeviceState stan) throws HardwareException {
         byte[] buffor = new byte[4];
         int i = 0;
         for (byte b : ZMIEN_STAN_PRZEKAZNIKA) {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) idPrzekaznika;
-        buffor[i++] = (byte) (stan == true ? 1 : 0); 
+        buffor[i++] = (byte) (stan == DeviceState.UP ? 1 : 0); 
         atmega.pauseIfOcupied();
         atmega.setOccupied(true);
         atmega.writeTo(idPlytki, buffor);

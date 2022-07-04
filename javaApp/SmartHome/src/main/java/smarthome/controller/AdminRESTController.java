@@ -27,13 +27,13 @@ import smarthome.model.Uprawnienia;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Light;
+import smarthome.model.hardware.DeviceState;
 import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonFunction;
 import smarthome.model.hardware.Termometr;
-import smarthome.model.hardware.Blind.RoletaStan;
 import smarthome.model.user.Opcje;
 import smarthome.model.user.User;
 import smarthome.security.Security;
@@ -441,7 +441,7 @@ public class AdminRESTController {
     public Response<String> zmienStanSwiatlaByRoomID(@RequestParam("roomID") int roomID, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("stan") boolean stan) {
         
         try {
-            Device d =system.changeLightState( roomID, idUrzadzenia, stan);
+            Device d =system.changeLightState( roomID, idUrzadzenia, stan?DeviceState.ON:DeviceState.OFF);
             return new Response<>("Zmieniono stan Swiatla :" +((Light)d).toString()+" na stan: " + (stan == true ? "ON" : "OFF"));
         } catch (Exception e) {
             logger.error("Błąd podczas zmieniania stanu światła! ", e);
@@ -457,7 +457,7 @@ public class AdminRESTController {
         logger.debug("Zmien Stan Rolety w pokoju: "+ nazwaPokoju+ "; id Rolety: " + idUrzadzenia + "; do stanu: " +(pozycja ? "UP":"DOWN"));
         try {
             Device d =system.changeBlindState( nazwaPokoju, idUrzadzenia, pozycja);
-            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getStan() == RoletaStan.UP ? "UP" : "DOWN"));
+            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getState() == DeviceState.UP ? "UP" : "DOWN"));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>("", e.getMessage());
@@ -471,7 +471,7 @@ public class AdminRESTController {
         logger.debug("Zmien Stan Rolety w pokoju: "+ r.getNazwa()+ "; id Rolety: " + idUrzadzenia + "; do stanu: " +(pozycja ? "UP":"DOWN"));
         try {
             Device d =system.changeBlindState( r.getNazwa(), idUrzadzenia, pozycja);
-            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getStan() == RoletaStan.UP ? "UP" : "DOWN"));
+            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getState() == DeviceState.UP ? "UP" : "DOWN"));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>("", e.getMessage());

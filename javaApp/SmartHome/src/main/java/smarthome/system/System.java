@@ -21,6 +21,7 @@ import smarthome.model.Room;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Light;
+import smarthome.model.hardware.DeviceState;
 import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Switch;
@@ -28,7 +29,6 @@ import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonFunction;
 import smarthome.model.hardware.Termometr;
-import smarthome.model.hardware.Blind.RoletaStan;
 
 /**
  * Główna klasa zarządzająca systemem
@@ -423,7 +423,7 @@ public class System {
 
     }
 
-    public Device changeLightState(int roomID, int deviceID, boolean stan ) throws IllegalArgumentException, HardwareException{
+    public Device changeLightState(int roomID, int deviceID, DeviceState stan ) throws IllegalArgumentException, HardwareException{
 
         Room room = systemDAO.getRoom(roomID);
         if (room == null) {
@@ -442,7 +442,7 @@ public class System {
 
     }
 
-    public Device changeLightState(int deviceID, boolean stan ) throws IllegalArgumentException, HardwareException{
+    public Device changeLightState(int deviceID, DeviceState stan ) throws IllegalArgumentException, HardwareException{
         Light lt = null;
         for(Device dev : systemDAO.getDevices()){
             if (dev.getId() == deviceID ) {
@@ -482,10 +482,10 @@ public class System {
         // log.debug("Aktualna pozycja rolety: {}", (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
         bl.changeState(pozycja);
         // log.debug("Pozycja rolety po zmianie:{}", (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
-        if (bl.getStan() == RoletaStan.UP) {
+        if (bl.getState() == DeviceState.UP) {
             arduino.changeBlindState(bl, true);
         }
-        else if (bl.getStan() == RoletaStan.DOWN){
+        else if (bl.getState() == DeviceState.DOWN){
             arduino.changeBlindState(bl, false);
         }
         systemDAO.save(room);
@@ -509,7 +509,7 @@ public class System {
                 if (device instanceof Light) {
                     this.changeLightState(device.getId(), ((Light) device).getStan());
                 } else if (device instanceof Blind) {
-                    switch (((Blind) device).getStan()) {
+                    switch (((Blind) device).getState()) {
                         case UP:
                             this.changeBlindState(systemDAO.getRoom(device.getRoom()).getNazwa(), device.getId(), true); // zmienia stan rolety na UP
                             break;
@@ -616,15 +616,15 @@ public class System {
             // log.debug("BLIND");
             Blind b = (Blind) device;
             if (state == 'U') {
-                b.changeState(RoletaStan.UP);
+                b.changeState(DeviceState.UP);
                 // log.debug("UP");
             }
             else if (state == 'D') {
-                b.changeState(RoletaStan.DOWN);
+                b.changeState(DeviceState.DOWN);
                 // log.debug("DOWN");
             }
             else if (state == 'K') {//TODO: TO TEST
-                b.changeState(RoletaStan.NOTKNOW);
+                b.changeState(DeviceState.NOTKNOW);
                 // log.debug("NOTKNOW");
             }
         }

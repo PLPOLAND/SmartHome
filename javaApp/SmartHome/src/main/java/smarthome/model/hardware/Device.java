@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     })
 public abstract class Device {//TODO Dodać metody do parametru name.
 
+    private static final String NOT_IMPLEMENTED_HERE = "Wywołano funkcję nie implementowaną w klasie bazowej Device!";
+
     @JsonIgnore
     /** Logger Springa */
     Logger logger;
@@ -141,6 +143,22 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     public void setName(String name) {
         this.name = name;
     }
+
+    /**
+     * Zwraca akutalny stan urządzenia
+     * @return aktualny stan urządzenia
+     */
+    public abstract DeviceState getState();
+
+    /**
+     * Ustawia stan urządzenia na stan podany w argumencie
+     * @param state - stan do ustawienia
+     */
+    public abstract void changeState(DeviceState state);
+    /**
+     * Zmienia stan urządzenia na przeciwny niż jest ustawiony w momencie wywołania funkcji
+     */
+    public abstract void changeState();
 
     @Override
     public String toString() {
