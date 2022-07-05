@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import smarthome.automation.ButtonFunction;
+import smarthome.database.AutomationDAO;
 import smarthome.database.SystemDAO;
 import smarthome.database.TemperatureDAO;
 import smarthome.exception.HardwareException;
@@ -27,7 +29,7 @@ import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
-import smarthome.model.hardware.ButtonFunction;
+import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
 
 /**
@@ -37,6 +39,7 @@ import smarthome.model.hardware.Termometr;
 
 @Service
 public class System {
+
     @Autowired
     SystemDAO systemDAO;
     @Autowired
@@ -44,18 +47,23 @@ public class System {
     @Autowired
     MasterToSlaveConverter arduino;
 
+    @Autowired
+    AutomationDAO automationDAO;
+
     Logger log;
 
-    System(){
-        log = LoggerFactory.getLogger(System.class);        
+    private System(){
+        log = LoggerFactory.getLogger(System.class);
+        
     }
-
-
 
     public SystemDAO getSystemDAO() {
         return this.systemDAO;
     }
 
+    public AutomationDAO getAutomationDAO() {
+        return this.automationDAO;
+    }
 
     public MasterToSlaveConverter getArduino() {
         return this.arduino;
@@ -192,16 +200,16 @@ public class System {
     //TODO dodać javaDoc
     public void removeDevice(Device device, Room room){
         ArrayList<Button> buttons = systemDAO.getAllButtons();
-        ArrayList<ButtonFunction> toRemove = new ArrayList<>();
+        ArrayList<ButtonLocalFunction> toRemove = new ArrayList<>();
         for (Button button : buttons) {
-            for (ButtonFunction buttonFunction : button.getFunkcjeKlikniec()) {
+            for (ButtonLocalFunction buttonFunction : button.getFunkcjeKlikniec()) {
                 if (buttonFunction.getDevice().equals(device)) {
                     toRemove.add(buttonFunction);
                     
                 }
             }
         }
-        for (ButtonFunction buttonFunction : toRemove) {
+        for (ButtonLocalFunction buttonFunction : toRemove) {
             Button tmp = buttonFunction.getButton();
             tmp.removeFunkcjaKilkniecia(buttonFunction.getClicks());
         }
@@ -347,8 +355,8 @@ public class System {
      * @param numberOfClicks - ilość przyciśnięć przycisku wymaganych do wywołania danej funkcji
      * @throws HardwareException
      */
-    public void addFunctionToButton(int buttonID, Device deviceToControl, ButtonFunction.State state, int numberOfClicks) throws HardwareException{
-        ButtonFunction function = new ButtonFunction(null, deviceToControl, state, numberOfClicks);
+    public void addFunctionToButton(int buttonID, Device deviceToControl, ButtonLocalFunction.State state, int numberOfClicks) throws HardwareException{
+        ButtonLocalFunction function = new ButtonLocalFunction(null, deviceToControl, state, numberOfClicks);
         addFunctionToButton(buttonID, function);
 
     }
@@ -358,11 +366,11 @@ public class System {
      * @param buttonID - idprzycisku w systemie do którego zostanie dodana funkcja
      * @param function - funkcja do dodania
      * @return ButtonFunction 
-     * @see smarthome.model.hardware.ButtonFunction
+     * @see smarthome.model.hardware.ButtonLocalFunction
      * 
      * @throws HardwareException
      */
-    public ButtonFunction addFunctionToButton(int buttonID, ButtonFunction function)throws HardwareException{
+    public ButtonLocalFunction addFunctionToButton(int buttonID, ButtonLocalFunction function)throws HardwareException{
         
         Button but = (Button) this.getSensorByID(buttonID);
         but.addFunkcjaKilkniecia(function);
@@ -427,13 +435,12 @@ public class System {
 
         Room room = systemDAO.getRoom(roomID);
         if (room == null) {
-            log.error("Nie znaleziono podanego pokoju", new Exception("Bledna nazwa pokoju"));
-            return null;
+            throw new IllegalArgumentException("Nie znaleziono pokouj o podanym id. Id: " + roomID);
         }
         Light l = (Light) room.getDeviceById(deviceID);
         if (l != null) {
             arduino.changeSwitchState(l.getOnSlaveID(), l.getSlaveID(), stan);
-            l.setStan(stan);
+            l.setState(stan);
             systemDAO.save(room);
         }
 
@@ -454,7 +461,7 @@ public class System {
         if (lt != null) {
             // log.debug("Zmiana stanu Światła");
             arduino.changeSwitchState(lt.getOnSlaveID(), lt.getSlaveID(), stan);
-            lt.setStan(stan);
+            lt.setState(stan);
             systemDAO.save();
         }
         else
@@ -534,7 +541,7 @@ public class System {
                         log.debug("sending Button: {}", sensor);
                         sensor.setOnSlaveID(arduino.addPrzycisk((Button) sensor));
                         if (!((Button) sensor).getFunkcjeKlikniec().isEmpty()) {
-                            for (ButtonFunction bFunction : ((Button) sensor).getFunkcjeKlikniec()) {
+                            for (ButtonLocalFunction bFunction : ((Button) sensor).getFunkcjeKlikniec()) {
                                 arduino.sendClickFunction(bFunction);
                             }
                         }
@@ -745,11 +752,20 @@ public class System {
         return arduino.readCommandFromSlave(slaveAdress);
     }
     
-    private void executeSlaveCommand(int slaveAdress,byte[] command) {
+    private void executeSlaveCommand(int slaveAdress,byte[] command) throws HardwareException{
         if ( command[0] =='C') {
-            // ButtonFunction but = new ButtonFunction();
-            // but.fromCommand(0, command); //zainicjuj funkcję z danych z slave-a
-            // log.debug("Pobrano z slave-a fun: {}",but);
+            ButtonFunction but = new ButtonFunction();
+            but.fromCommand(slaveAdress, command); //zainicjuj funkcję z danych z slave-a
+            log.debug("Pobrano z slave-a fun: {}",but);
+
+            for (ButtonFunction fun : automationDAO.getButtonFunctions()) {
+                if(fun.compare(but)){
+                    log.debug("Znaleziono funkcję: {}",fun);
+                    fun.run();
+                    break;
+                }
+                
+            }
             return;//TODO
             
 

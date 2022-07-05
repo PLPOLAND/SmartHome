@@ -27,10 +27,6 @@ public class Switch{
         return this.stan;
     }
 
-    
-    // public void setStan(boolean stan) {
-    //     this.stan = stan?DeviceState.ON:DeviceState.OFF;
-    // }
 
     public void setStan(DeviceState stan) {
         if (stan!=DeviceState.ON && stan!=DeviceState.OFF) {

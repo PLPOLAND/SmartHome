@@ -36,11 +36,6 @@ public class Light extends Device{
     }
 
     
-    @Deprecated
-    public void setStan(DeviceState stan) {
-        this.swt.setStan(stan);
-    }
-    
     public void setState(DeviceState stan) {
         this.swt.setStan(stan);
     }

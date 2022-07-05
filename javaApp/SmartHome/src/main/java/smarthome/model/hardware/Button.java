@@ -15,7 +15,7 @@ public class Button extends Sensor{
     
     @JsonManagedReference
     /**Przechowuje funkcje kliknięć danego przycisku */
-    ArrayList<ButtonFunction> funkcjeKlikniec;
+    ArrayList<ButtonLocalFunction> funkcjeKlikniec;
 
     
     public Button(){
@@ -37,19 +37,19 @@ public class Button extends Sensor{
         this.pin = pin;
     }
 
-    public Button funkcjeKlikniec(List<ButtonFunction> funkcjeKlikniec) {
-        for (ButtonFunction function : funkcjeKlikniec) {
+    public Button funkcjeKlikniec(List<ButtonLocalFunction> funkcjeKlikniec) {
+        for (ButtonLocalFunction function : funkcjeKlikniec) {
             this.addFunkcjaKilkniecia(function);
         }
         return this;
     }
-    public void setFunkcjeKlikniec(List<ButtonFunction> funkcjeKlikniec) {
-        for (ButtonFunction function : funkcjeKlikniec) {
+    public void setFunkcjeKlikniec(List<ButtonLocalFunction> funkcjeKlikniec) {
+        for (ButtonLocalFunction function : funkcjeKlikniec) {
             this.addFunkcjaKilkniecia(function);
         }
     }
 
-    public void addFunkcjaKilkniecia(ButtonFunction fun){
+    public void addFunkcjaKilkniecia(ButtonLocalFunction fun){
         fun.setButton(this);
         this.funkcjeKlikniec.add(fun);
     }
@@ -62,7 +62,7 @@ public class Button extends Sensor{
         }
     }
     
-    public List<ButtonFunction> getFunkcjeKlikniec(){
+    public List<ButtonLocalFunction> getFunkcjeKlikniec(){
         return this.funkcjeKlikniec;
     }
     
@@ -74,7 +74,23 @@ public class Button extends Sensor{
         this.pin = pin;
     }
     
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Button other = (Button) obj;
+        if (this.pin != other.pin) {
+            return false;
+        }
+        if (this.getId() != other.getId()) {
+            return false;
+        }
+        return true;
+    }
     
     @Override
     public String toString() {

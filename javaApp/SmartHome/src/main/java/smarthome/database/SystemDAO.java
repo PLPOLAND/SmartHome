@@ -356,8 +356,8 @@ public class SystemDAO {
 
     @Override
     public String toString() {
-        return "{" + '\n' + " pokoje='" + pokoje + "'" + '\n' + ", devices='" + devices + "'" + '\n' + ", sensors='"
-                + sensors + "'" + '\n' + "}";
+        return "{" + '\n' + " pokoje='" + pokoje + "'" + "\n\n" + ", devices='" + devices + "'" + "\n\n" + ", sensors='"
+                + sensors + "'" + "\n\n}";
     }
 
     

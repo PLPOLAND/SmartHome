@@ -32,7 +32,7 @@ import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
-import smarthome.model.hardware.ButtonFunction;
+import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
 import smarthome.model.user.Opcje;
 import smarthome.model.user.User;
@@ -189,7 +189,7 @@ public class AdminRESTController {
         return new Response<>(blinds);
     }
     @RequestMapping("/getButtonFunction")
-    public Response<List<ButtonFunction>> getButtonFunctions(@RequestParam("buttonId")int buttonId) {
+    public Response<List<ButtonLocalFunction>> getButtonFunctions(@RequestParam("buttonId")int buttonId) {
         Button b= (Button)system.getSensorByID(buttonId);
         return new Response<>(b.getFunkcjeKlikniec());
     }
@@ -398,7 +398,7 @@ public class AdminRESTController {
         return new Response<>(system.getTemperature(adress));
     }
     @GetMapping("/addButtonClickFunction")
-    public Response<String> addButtonClickFunction(@RequestParam("buttonID") int buttonID,@RequestParam("deviceID") int deviceId, @RequestParam("state") ButtonFunction.State state, @RequestParam("clicks") int clicks ) {
+    public Response<String> addButtonClickFunction(@RequestParam("buttonID") int buttonID,@RequestParam("deviceID") int deviceId, @RequestParam("state") ButtonLocalFunction.State state, @RequestParam("clicks") int clicks ) {
         try {
             Device device = system.getDeviceByID(deviceId);
             system.addFunctionToButton(buttonID, device, state, clicks);
@@ -548,7 +548,7 @@ public class AdminRESTController {
     }
 
     @GetMapping("/editButtonFunction")
-    public Response<String> editButtonFunction(@RequestParam("buttonId") int buttonId,@RequestParam("deviceId") int deviceId, @RequestParam("state") ButtonFunction.State state, @RequestParam("clicks") int clicks,@RequestParam("oldClicks") int oldclicks ) {
+    public Response<String> editButtonFunction(@RequestParam("buttonId") int buttonId,@RequestParam("deviceId") int deviceId, @RequestParam("state") ButtonLocalFunction.State state, @RequestParam("clicks") int clicks,@RequestParam("oldClicks") int oldclicks ) {
 
         try {
             Button b = (Button) system.getSensorByID(buttonId);

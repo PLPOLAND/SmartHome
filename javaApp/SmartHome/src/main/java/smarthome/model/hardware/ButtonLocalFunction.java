@@ -8,9 +8,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Component
-public class ButtonFunction {
-    @Autowired
-    smarthome.system.System system;
+public class ButtonLocalFunction {
 
     public enum State {
         NONE,
@@ -18,29 +16,15 @@ public class ButtonFunction {
         DOWN,
         STOP
     }
-    public enum Type{
-        CLICKED,
-        HOLDING,
-        HOLDED
-    }
-
     Device deviceToControl;
     State state = State.NONE;//0 lub U/D/S
-    Type type = Type.CLICKED;
+    ButtonClickType type = ButtonClickType.CLICKED;
     int clicks = 0;
     
     @JsonBackReference
     Button button;
 
-    // public ButtonFunction(smarthome.system.System system) {
-    //     button = null;
-    //     deviceToControl = null;
-    //     state = State.NONE;// 0 lub U/D/S
-    //     clicks = 0;
-
-    //     ButtonFunction.system = system;
-    // }
-    public ButtonFunction() {
+    public ButtonLocalFunction() {
         button = null;
         deviceToControl = null;
         state = State.NONE;// 0 lub U/D/S
@@ -54,7 +38,7 @@ public class ButtonFunction {
     //     this.clicks = clicks;
     //     ButtonFunction.system = system;
     // }
-    public ButtonFunction(Button button, Device deviceToControl, State state, int clicks) {
+    public ButtonLocalFunction(Button button, Device deviceToControl, State state, int clicks) {
         this.button = button;
         this.deviceToControl = deviceToControl;
         setState(state);
@@ -119,11 +103,11 @@ public class ButtonFunction {
         return button.getOnSlaveID();
     }
 
-    public void setType( Type type) {
+    public void setType( ButtonClickType type) {
         this.type = type;
     }
 
-    public Type getType() {
+    public ButtonClickType getType() {
         return this.type;
     }
 
@@ -141,32 +125,8 @@ public class ButtonFunction {
         return command;
     }
 
-    public void fromCommand(int slaveAdress, byte[] command) {
-        if (command == null) {
-            System.out.println("Command is null");
-        }
-        if (system == null) {
-            System.out.println("System is null");
-        }
-        button = (Button) system.getSensorByOnSlaveID(slaveAdress, command[1]);
-        clicks = command[2];
-        switch (command[3]) {
-            case 'P':
-                type = Type.HOLDED;
-                break;
-            case 'C':
-                type = Type.CLICKED;
-                break;
-            case 'H':
-                type = Type.HOLDING;
-                break;
-            default:
-                break;
-        }
 
-    }
-
-    public boolean isSimilar(ButtonFunction fun){
+    public boolean isSimilar(ButtonLocalFunction fun){
         if(fun.getType() == getType() && fun.getClicks() == getClicks() && fun.getButton().equals(button)){
             return true;
         }

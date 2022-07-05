@@ -1,11 +1,11 @@
 package smarthome.automation;
 
-import java.util.ArrayList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import smarthome.SmartHomeApp;
 import smarthome.exception.HardwareException;
 import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.hardware.Blind;
@@ -16,7 +16,7 @@ import smarthome.model.hardware.DeviceState;
 public class FunctionAction {
 
     @Autowired
-    private MasterToSlaveConverter slave;
+    private static MasterToSlaveConverter slave;
 
     private Device device;
     private DeviceState activeDeviceState;
@@ -26,17 +26,19 @@ public class FunctionAction {
         device = null;
         activeDeviceState = DeviceState.NOTKNOW;
         allowReverse = false;
-        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
     public FunctionAction(Device device, DeviceState activeDeviceState, boolean allowReverse){
         this.device = device;
         this.activeDeviceState = activeDeviceState;
         this.allowReverse = allowReverse;
-        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     public Device getDevice() {
         return device;
+    }
+
+    public static void setSlave(@Autowired MasterToSlaveConverter slave) {
+        FunctionAction.slave = slave;
     }
 
     public void setDevice(Device device) {
@@ -61,6 +63,10 @@ public class FunctionAction {
 
     public boolean getAllowReverse() {
         return allowReverse;
+    }
+    @JsonIgnore
+    public boolean isActive() {
+        return device.getState() == activeDeviceState;
     }
 
     /**
@@ -111,15 +117,15 @@ public class FunctionAction {
      * @throws HardwareException
      */
     private void changeStateOnSlave() throws HardwareException {
-        if (slave == null) {
-            System.out.println("slave is null");
+        if (FunctionAction.slave == null) {
+            FunctionAction.setSlave(SmartHomeApp.getApp().getBean(MasterToSlaveConverter.class));
         }
         switch (device.getTyp()) {
             case LIGHT:
-                slave.changeSwitchState(device.getOnSlaveID(), device.getSlaveID(), device.getState());
+                FunctionAction.slave.changeSwitchState(device.getOnSlaveID(), device.getSlaveID(), device.getState());
                 break;
             case BLIND:
-                slave.changeBlindState((Blind) device, device.getState());
+                FunctionAction.slave.changeBlindState((Blind) device, device.getState());
                 break;
             default:
                 throw new IllegalArgumentException("Urządzenie tego typu nie zostało jeszcze zaimplementowane w funkcji activate()");

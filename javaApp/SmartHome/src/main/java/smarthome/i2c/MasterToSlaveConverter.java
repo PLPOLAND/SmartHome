@@ -1,13 +1,10 @@
 package smarthome.i2c;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.pi4j.io.i2c.I2CDevice;
-import com.pi4j.io.serial.Serial;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,13 +15,10 @@ import smarthome.exception.SoftwareException;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceState;
 import smarthome.model.hardware.DeviceTypes;
-import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
-import smarthome.model.hardware.ButtonFunction;
-import smarthome.model.hardware.Sensor;
-import smarthome.model.hardware.SensorsTypes;
+import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
 
 import org.slf4j.Logger;
@@ -385,7 +379,7 @@ public class MasterToSlaveConverter {
      * @return
      * @throws HardwareException
      */
-    public int sendClickFunction(ButtonFunction function) throws HardwareException{
+    public int sendClickFunction(ButtonLocalFunction function) throws HardwareException{
         byte[] buffor = new byte[7];
         byte[] tmp2 = function.toCommand();
         int i = 0;

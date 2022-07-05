@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.pi4j.io.i2c.I2CDevice;
 
+import smarthome.database.AutomationDAO;
 import smarthome.exception.HardwareException;
 import smarthome.exception.SoftwareException;
 import smarthome.i2c.MasterToSlaveConverter;
@@ -43,27 +44,18 @@ public class Runners {
         
     }
 
-    // @Scheduled(fixedRate = 1000)
-    // void updateTemperature() {
-    //     if (termometrs == null) {
-    //         termometrs = system.getSystemDAO().getAllTermometers();
-    //     }
-    //     for (Termometr termometr : termometrs) {
-    //         system.updateTemperature(termometr);
-    //         logger.debug("Zaaktualizowano temperature termometra id="+termometr.getId()+", t="+termometr.getTemperatura());
-    //     }
-    // }
+    
 
     // @Scheduled(fixedDelay = 10000)
-    void checkReinit(){
-        if (isCheckReinitDone && isCheckDevicesStatusDone) {
-            isCheckReinitDone = false;
-            logger.debug("checkReinit()");
-            system.reinitAllBoards();
-            isCheckReinitDone = true;
-        }
+    // void checkReinit(){
+    //     if (isCheckReinitDone && isCheckDevicesStatusDone) {
+    //         isCheckReinitDone = false;
+    //         logger.debug("checkReinit()");
+    //         system.reinitAllBoards();
+    //         isCheckReinitDone = true;
+    //     }
         
-    }
+    // }
     
     @Scheduled(fixedDelay = 1000)
     void checkDevicesStatus(){
