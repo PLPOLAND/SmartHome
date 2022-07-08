@@ -35,7 +35,7 @@ public class Automation {
     }
 
 
-    @Scheduled(fixedDelay = 500)
+    @Scheduled(fixedDelay = 200)
     void checkAutomationFunctions(){
         logger.debug("checkAutomationFunctions");
         if (functions.size() != automationDAO.getAutomationFunctions().size()){
