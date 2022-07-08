@@ -54,7 +54,6 @@ public class System {
 
     private System(){
         log = LoggerFactory.getLogger(System.class);
-        
     }
 
     public SystemDAO getSystemDAO() {
@@ -70,12 +69,7 @@ public class System {
     }
 
     public Device getDeviceByID(int id) {
-        for (Device device : systemDAO.getDevices()) {
-            if (device.getId() == id) {
-                return device;
-            }
-        }
-        return null;
+        return systemDAO.getDeviceByID(id);
     }
     public Sensor getSensorByID(int id) {
         for (Sensor device : systemDAO.getSensors()) {
@@ -579,7 +573,7 @@ public class System {
                     toReturn = sendConfigToSlave(slaveAdress);
                 }
                 break;
-            } catch (Exception e) {
+            } catch (HardwareException | SoftwareException e) {
                 log.error("Błąd podczas sprawdzania czy płytka była inicjowana: '{}'", e.getMessage());
                 if (i == 9) {
                     throw e;
@@ -773,7 +767,7 @@ public class System {
     }
     public void checkGetAndExecuteCommandsFromSlave (int slaveAdress) {
         try {
-            log.debug("Sprawdzam czy slave {} ma jakieś polecenia do wykonania",slaveAdress);
+            // log.debug("Sprawdzam czy slave {} ma jakieś polecenia do wykonania",slaveAdress);
             int howMany = arduino.howManyCommandToRead(slaveAdress);
             if (howMany > 0) {
                 for (int i = 0; i < howMany; i++) {

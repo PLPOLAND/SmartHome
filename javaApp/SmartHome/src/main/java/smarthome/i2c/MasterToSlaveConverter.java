@@ -596,7 +596,7 @@ public class MasterToSlaveConverter {
      */
     public int howManyCommandToRead(int slaveAdress) throws HardwareException{
         int ile = -1;
-        logger.debug("howManyCommandToRead:");
+        // logger.debug("howManyCommandToRead:");
         atmega.pauseIfOcupied();
         atmega.setOccupied(true);
 
@@ -609,7 +609,7 @@ public class MasterToSlaveConverter {
                 e.printStackTrace();
             }
             response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
-            logger.debug("Got: {}", Arrays.toString(response));
+            // logger.debug("Got: {}", Arrays.toString(response));
             atmega.setOccupied(false);
             ile = response[0];
             return ile;

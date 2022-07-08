@@ -269,6 +269,7 @@ public class I2C{
             }
         }
         if (!done) {
+            // restartSlaves();
             throw new HardwareException("Błąd IO podczas próby wysyłania do slave-a o adresie: " + slave.getAddress());
         }
     }

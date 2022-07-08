@@ -144,6 +144,9 @@ public class Blind extends Device{
 
     @Override
     public DeviceState getState(){
+        if (this.stan == null) {
+            this.changeState(DeviceState.NOTKNOW);
+        }
         return this.stan;
     }
 

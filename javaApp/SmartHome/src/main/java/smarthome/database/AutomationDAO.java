@@ -9,7 +9,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -20,10 +22,15 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import smarthome.automation.AutomationFunction;
 import smarthome.automation.ButtonFunction;
 import smarthome.automation.Function;
+import smarthome.automation.FunctionAction;
 import smarthome.automation.UserFunction;
+import smarthome.model.hardware.Device;
 
 @Repository
-public class AutomationDAO {
+public class AutomationDAO{
+
+    
+    private SystemDAO systemDAO;
     
     private final String FILES_LOCATION = "smarthome/database/automation/";
 
@@ -35,13 +42,18 @@ public class AutomationDAO {
 
     Logger logger;
 
-    public AutomationDAO() {
+    public AutomationDAO(@Autowired SystemDAO systemDAO) {
         logger = LoggerFactory.getLogger(this.getClass());
         functions = new HashMap<>();
         buttonFunctions = new ArrayList<>();
         automationFunctions = new ArrayList<>();
         userFunctions = new ArrayList<>();
-        this.readDatabase();
+        this.systemDAO = systemDAO;
+        readDatabase();
+    }
+
+    public void setSystemDAO(SystemDAO systemDAO){
+        this.systemDAO = systemDAO;
     }
 
     public void addFunction(Function function){
@@ -160,6 +172,10 @@ public class AutomationDAO {
                 function = obj.readValue(
                         new FileInputStream(new File(FILES_LOCATION + i + "_Function.json")),
                         Function.class);
+                for (FunctionAction action : function.getActions()) {
+                    Device dev = systemDAO.getDeviceByID(action.getDevice().getId());
+                    action.setDevice(dev);
+                }
                 functions.put(function.getId(), function);
                 if (function instanceof ButtonFunction) {
                     buttonFunctions.add((ButtonFunction) function);
@@ -170,7 +186,7 @@ public class AutomationDAO {
                 }
                 i++;
             } catch (JsonGenerationException | JsonMappingException e) {
-                logger.error("Error on reading function from file. -> {}", e);
+                logger.error("Error on reading function from file. -> {}", e.getMessage(), e);
                 break;
             } catch (IOException e) {
                 logger.info("Wczytano {} funkcji", i);

@@ -353,6 +353,14 @@ public class SystemDAO {
         return list;
     }
 
+    public Device getDeviceByID(int id) {
+        for (Device device : this.getDevices()) {
+            if (device.getId() == id) {
+                return device;
+            }
+        }
+        return null;
+    }
 
     @Override
     public String toString() {

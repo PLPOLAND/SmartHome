@@ -1,5 +1,8 @@
 package smarthome.automation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import smarthome.SmartHomeApp;
 import smarthome.exception.HardwareException;
 import smarthome.model.hardware.Button;
@@ -15,12 +18,15 @@ public class ButtonFunction extends Function{
 
     private static System system;
 
+    Logger logger;
+    
     Button button;
     int clicks;
     ButtonClickType clickType;
 
     public ButtonFunction() {
         super();
+        logger = LoggerFactory.getLogger(this.getClass());
         reversState = true;
         button = null;
         clicks = 0;
@@ -29,6 +35,7 @@ public class ButtonFunction extends Function{
 
     public ButtonFunction(Button button, int clicks, ButtonClickType clickType) {
         super();
+        logger = LoggerFactory.getLogger(this.getClass());
         reversState = true;
         this.button = button;
         this.clicks = clicks;
@@ -106,9 +113,27 @@ public class ButtonFunction extends Function{
 
     @Override
     public void run() throws HardwareException {
-        
-        for (FunctionAction action : actions) {
-            action.run();
+        logger.debug("Running button function {}",this.getName());
+        // boolean active = true;
+
+        // for (FunctionAction action : actions) {
+        //     if (!action.isActive()) {
+        //         active = false;
+        //         break;
+        //     }
+        // }
+        logger.debug("{} is {}",this.getName(), isActive() ? "active" : "inactive");
+        if (this.isActive()) {
+            logger.debug("Deactivating button function {}",this.getName());
+            for (FunctionAction action : actions) {
+                action.deactivate();
+            }
+        }
+        else{
+            logger.debug("Activating button function {}",this.getName());
+            for (FunctionAction action : actions) {
+                action.activate();
+            }
         }
         
     }

@@ -245,16 +245,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 
 					// test.deactivate();
 
-					Device dev1 = system.getSystemDAO().getRoom("Marek").getDeviceById(10);
-					ButtonFunction function = new ButtonFunction();
-					function.setButton((Button) system.getSensorByID(106));
-					function.setClickType(ButtonClickType.CLICKED);
-					function.setClicks(3);
-					function.addAction(dev, DeviceState.ON);
-					function.addAction(dev1, DeviceState.ON);
-					function.setId(0);
-					function.setName("Światła Marek");
-					system.getAutomationDAO().addFunction(function);
+					system.getAutomationDAO().getButtonFunctions().get(0).run();
 
 
 					// byte[] data = {67, 4, 3, 67, 0, 0, 0, 0};

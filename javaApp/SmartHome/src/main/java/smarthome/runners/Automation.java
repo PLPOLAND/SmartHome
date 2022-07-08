@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import com.pi4j.io.i2c.I2CDevice;
+
 import smarthome.automation.AutomationFunction;
 import smarthome.database.AutomationDAO;
 import smarthome.exception.HardwareException;
@@ -32,7 +35,7 @@ public class Automation {
     }
 
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedDelay = 500)
     void checkAutomationFunctions(){
         logger.debug("checkAutomationFunctions");
         if (functions.size() != automationDAO.getAutomationFunctions().size()){
@@ -44,6 +47,11 @@ public class Automation {
                 fun.run();
             } catch (HardwareException e) {
                 logger.error("Error in automation function {}. Error: {}", fun.getId(), e.getMessage());
+            }
+        }
+        for (I2CDevice device : system.getArduino().atmega.getDevices()) {
+            if (system.isSlaveConnected(device.getAddress())) {
+                system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
             }
         }
     }
