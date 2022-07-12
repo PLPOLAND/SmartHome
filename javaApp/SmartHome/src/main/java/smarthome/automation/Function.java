@@ -71,6 +71,19 @@ public abstract class Function {
         return actions;
     }
 
+    public void removeAction(FunctionAction action) {
+        actions.remove(action);
+    }
+    
+    public void removeAction(Device device, DeviceState activeDeviceState) {
+        for (FunctionAction action : actions) {
+            if (action.getDevice().equals(device) && action.getActiveDeviceState().equals(activeDeviceState)) {
+                actions.remove(action);
+                break;
+            }
+        }
+    }
+
     public boolean isActive() {
         boolean active = true;
         for (FunctionAction action : actions) {

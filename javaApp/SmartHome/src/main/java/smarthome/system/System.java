@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import smarthome.automation.ButtonFunction;
+import smarthome.automation.Function;
+import smarthome.automation.FunctionAction;
 import smarthome.database.AutomationDAO;
 import smarthome.database.SystemDAO;
 import smarthome.database.TemperatureDAO;
@@ -29,6 +31,7 @@ import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
+import smarthome.model.hardware.ButtonClickType;
 import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
 
@@ -782,4 +785,80 @@ public class System {
         } 
 
     }
+
+    /**
+     * Dodadaje nową funkcję globalną przycisku do systemu.
+     * @param fun - funckja do dodania
+     * @return - id dodanej funkcji
+     * @throws HardwareException
+     */
+    public int addButtonAutomation(ButtonFunction fun) throws HardwareException {
+        automationDAO.addFunction(fun);
+        return fun.getId();
+    }
+    /**
+     * Dodaje nową funkcję globalną przycisku do systemu.
+     * @param button - przycisk skojarzony z funkcją
+     * @param clicks - ilość kliknięć przycisku wywołująca funkcję
+     * @param clickType - typ kliknięcia przycisku wywołującego funkcję (kliknięty, przytrzymywany, przytrzymany)
+     * @return - id dodanej funkcji
+     * @throws HardwareException
+     */
+    public int addButtonAutomation(Button button, int clicks, ButtonClickType clickType) throws HardwareException {
+        ButtonFunction fun = new ButtonFunction(button, clicks, clickType);
+        return addButtonAutomation(fun);
+    }
+
+    /**
+     * Usuwa funkcję globalną przycisku z systemu. 
+     * @param id - id funkcji do usunięcia
+     * @throws HardwareException
+     */
+    public void removeButtonAutomation(int id) throws HardwareException {
+        automationDAO.removeFunction(id);
+    }
+
+    /**
+     * Dodaje nową akcję do funckji o podanym id.
+     * @param functionId
+     * @param action
+     */
+    public void addActionToFunction(int functionId, FunctionAction action){
+        try {
+            Function f = automationDAO.getFunction(functionId);
+            f.addAction(action);
+        } catch (Exception e) {
+           log.error("Błąd podczas dodawania akcji do funkcji: {}",e.getMessage());
+        }
+    }
+    /**
+     * Dodaje nową akcję do funckji o podanym id.
+     * @param functionId
+     * @param device
+     * @param activeDeviceState
+     * @param allowReverse
+     */
+    public void addActionToFunction (int functionId, Device device, DeviceState activeDeviceState, boolean allowReverse){
+        try {
+            Function f = automationDAO.getFunction(functionId);
+            f.addAction(device,activeDeviceState,allowReverse);
+        } catch (Exception e) {
+           log.error("Błąd podczas dodawania akcji do funkcji: {}",e.getMessage());
+        }
+    }
+    /**
+     * Usuwa akcję z funkcji o podanym id.
+     * @param functionId - id funckji z której zostanie usunięta akcja
+     * @param device - urządzenie którym steruje akcja
+     * @param activeDeviceState - stan urządzenia którym steruje akcja
+     */
+    public void removeActionFromFunction( int functionId, Device device, DeviceState activeDeviceState){
+        try {
+            Function f = automationDAO.getFunction(functionId);
+            f.removeAction(device,activeDeviceState);
+        } catch (Exception e) {
+           log.error("Błąd podczas usuwania akcji z funkcji: {}",e.getMessage());
+        }
+    }
+    
 }

@@ -132,4 +132,8 @@ public class FunctionAction {
         }
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof FunctionAction && ((FunctionAction) obj).device.getId() == device.getId();
+    }
 }

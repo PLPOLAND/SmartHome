@@ -57,9 +57,18 @@ public class AutomationDAO{
     }
 
     public void addFunction(Function function){
+        if (function.getId() == -1) {
+            Integer maxID = 0;
+            for (Integer id : functions.keySet()) {
+                if (id > maxID) {
+                    maxID = id;
+                }
+            }
+            function.setId(maxID + 1);
+        }
+
         if (functions.containsKey(function.getId())){
             logger.error("Function with id {} already exists", function.getId());
-            return;
         } else {
             functions.put(function.getId(), function);
             if (function instanceof ButtonFunction){
@@ -91,6 +100,15 @@ public class AutomationDAO{
            removeFunction(functions.get(id));
         } else {
             logger.error("Function with id {} does not exist", id);
+        }
+    }
+
+    public Function getFunction(int id) throws IllegalArgumentException{
+        if (functions.containsKey(id)){
+            return functions.get(id);
+        } else {
+            logger.error("Function with id {} does not exist", id);
+            throw new IllegalArgumentException("Function with id " + id + " does not exist");
         }
     }
 
