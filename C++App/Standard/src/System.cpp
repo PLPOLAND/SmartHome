@@ -59,7 +59,7 @@ void System::begin(){
         Przycisk *p1 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, A3);
         Przycisk *p2 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, 14);
 
-        Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 16, 15);
+        Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 15, 16);
         Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
         Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
         // p1->setCzyPominac(true);

@@ -13,6 +13,7 @@ import com.pi4j.io.i2c.I2CDevice;
 import smarthome.automation.AutomationFunction;
 import smarthome.database.AutomationDAO;
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 import smarthome.i2c.MasterToSlaveConverter;
 
 @Service
@@ -51,7 +52,14 @@ public class Automation {
         }
         for (I2CDevice device : system.getArduino().atmega.getDevices()) {
             if (system.isSlaveConnected(device.getAddress())) {
-                system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
+                try{
+                    if (system.checkInitOfBoard(device.getAddress())) {
+                        system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
+                    }
+                }
+                catch (HardwareException | SoftwareException e){
+                    logger.error("Error in checkAutomationFunctions. Error: {}", e.getMessage());
+                }
             }
         }
     }

@@ -257,8 +257,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             {
                 OUT_LN(F("REC_CHECK_INIT"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
-                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                params[0] = System::is_init() == true ? 1:0;
+                byte params[8] = {'I', 0, 0, 0, 0, 0, 0, 0};
+                params[1] = System::is_init() == true ? 1:0;
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
             }
@@ -480,6 +480,12 @@ void I2CConverter::RequestEvent()
             case Command::KOMENDY::SEND_STATUS:
                 break;
             default:
+                OUT_LN(F("ERROR - Nieznana komenda"));
+                for (byte i = 0; i < 8; i++)
+                {
+                    Wire.write('E');
+                }
+                Wire.end();
                 break;
         }
         OUT_LN(freeMemory());

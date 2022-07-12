@@ -472,11 +472,15 @@ public class MasterToSlaveConverter {
             // Thread.sleep(10);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
-            if (buffor[0]=='E') {
-                // logger.error("Error on checking init of board {}", adres);
-                throw new SoftwareException("Error on checking init of board " + adres);
+            if (buffor[0]!='I') {
+                StringBuilder str = new StringBuilder();
+                str.append("Error on checking init of board ");
+                str.append(adres);
+                str.append(". ");
+                str.append("Response[0] != 'I' ");
+                throw new SoftwareException( str.toString());
             }
-            return buffor[0] == 1;
+            return buffor[1] == 1;
         } catch (Exception e) {
             atmega.setOccupied(false);
             throw e;
@@ -531,13 +535,12 @@ public class MasterToSlaveConverter {
             // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             atmega.setOccupied(false);
-            if (response[0] == 'E') {
+            if (response[0] == 'E' || response == null) {
                 // logger.error("Error on checking init of board {}", slaveID);
                 throw new HardwareException("Error on checking state of device slaveID = " + slaveID);
             }else {
-                
+                return response[0];
             }
-            return response[0];
         // } catch (InterruptedException e) {
         //     logger.error(e.getMessage());
         //     // logger.debug("Próba kontynuacji");

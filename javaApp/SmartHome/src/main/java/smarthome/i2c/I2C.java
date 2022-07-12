@@ -146,21 +146,16 @@ public class I2C{
 
                 // Thread.sleep(100);
                 tmp.write(buffer);
-            } catch (IOException e) {
-                retryWrite(buffer, tmp);
-                // HardwareException throwable = new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres, e);
-
-                // logger.error(e.getLocalizedMessage(), throwable);
                 
-                // restartSlaves();
+                
+            } catch (IOException e) {
+                try {
+                    retryWrite(buffer, tmp);
+                } catch (HardwareException h) {
+                    this.restartSlaves();
+                    throw h;
+                }
 
-                // logger.warn("Ponowna próba wysłania komendy...");
-                // try {
-                //     tmp.write(buffer);
-                // } catch (Exception e2) {
-                //     throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres,e2);
-                // }
-                // logger.info("Wysłano!");
             } 
         //     catch (InterruptedException e) {
         //        //TODO Auto-generated catch block
@@ -186,8 +181,13 @@ public class I2C{
                 //Thread.sleep(100);
                 tmp.write(tmpbuff);
             } catch (IOException e) {
-                retryWrite(tmpbuff, tmp);
-                throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: "+adres, e);
+                try {
+                    retryWrite(buffer, tmp);
+                } catch (HardwareException h) {
+                    this.restartSlaves();
+                    throw h;
+                }
+
             } //catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 //e.printStackTrace();
@@ -211,10 +211,14 @@ public class I2C{
                 //Thread.sleep(100);
                 tmp.read(buffer, 0, size);
             } catch (IOException e) {
-                retryRead(tmp, size, buffer);
-                // throw new HardwareException("Błąd IO podczas próby odczytu z slave-a o adresie: "+ adres, e);
+                try {
+                    retryRead(tmp, size, buffer);
+                    
+                } catch (HardwareException h) {
+                    this.restartSlaves();
+                    throw h;
+                }
             } //catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 //e.printStackTrace();
           //  }
         }
