@@ -1,79 +1,56 @@
 function makeFullFunction(obj, rooms) {
-    var device = $("<div class=\"fullSensor\"></div>");
+    var fun = $("<div class=\"fullSensor\"></div>");
 
-    var sensorIcon = $('<div class="sensorIcon"></div>');
+    var id = $("<div class=\"id\"></div>");
+    id.append(obj.id);
 
-    if (obj.typ === 'THERMOMETR') {
-        sensorIcon.append($('<i class="icon-thermometer"></i>'))
-    }
-    else if (obj.typ === 'BUTTON') {
-        sensorIcon.append($('<i class="icon-button"></i>'))
-    }
+    var name = $("<div class=\"name\"></div>");
+    name.html(obj.name);
 
-    var sensorName = $('<div class="sensorName">' + obj.name + '</div>');
-    var roomName = $('<div class="roomName">Room: ' + rooms[obj.room] + '</div>');
-    var slaveAddr = $('<div class="slave">Slave: ' + obj.slaveID + '</div>')
-    var device_pin;
-    var clikcFunctions;
-    var holdFunctions;
-    var value;
-    var adress;
-    if (obj.typ === 'THERMOMETR') {
-        var i = 0;
-        var addresVal="";
-        for (const element of obj.addres) {
-            addresVal += element + " ";
-            
-        }
-        adress = $('<div class="adress">Adres: '+addresVal+'</div>');
-        value = $('<div class="value">Temperatura: '+obj.temperatura+'&deg;C</div>')
-        
-    }
-    else if (obj.typ === 'BUTTON') {
-        device_pin = $('<div class="pin">Pin: ' + obj.pin + '</div>')
-        clikcFunctions = $('<div class="clickFunctionNum">Fun. Kliknięcia: ' + obj.funkcjeKlikniec.length + '</div>')
-        holdFunctions = $('<div class="holdFunctionNum">Fun. Przytrzymania: ' + 0 + '</div>') // TODO dodać po dodaniu funkcjonalności
-        
-    }
+    var actions = $("<div class=\"actions\"></div>");
+    actions.html("Akcji: " + obj.actions.length);
+    
+    var stan = $("<div class=\"stan\"></div>");
+    stan.html("Stan: " + obj.active);
 
-
+    
 
     var deleteMe = $('<div class="icon" title="Usuń"><i class="icon-trash"></i></div>');
     var editMe = $('<div class="icon" title="Edytuj"><i class="icon-sliders"></i></div>');
 
     editMe.click(function () {
-        //TODO
-        if (obj.typ === 'BUTTON') {
-            document.location.href = "/admin/editButton?id=" + obj.id;
-        }
-        else
-            document.location.href = "/admin/editThermometr?id=" + obj.id;
+        // //TODO
+        // if (obj.typ === 'BUTTON') {
+        //     document.location.href = "/admin/editButton?id=" + obj.id;
+        // }
+        // else
+        //     document.location.href = "/admin/editThermometr?id=" + obj.id;
     })
 
     deleteMe.click(function () {
         //TODO
         // document.location.href = "/admin/api/removeDeviceByID?id=" + obj.id;
-        $.ajax({
-            url: "/admin/api/removeSensorByID",
-            type: 'get',
-            data: {
-                id: obj.id,
-            },
-            success: function (response) {
-                // console.log(response);
+        // $.ajax({
+            // url: "/admin/api/removeSensorByID",
+            // type: 'get',
+            // data: {
+            //     id: obj.id,
+            // },
+            // success: function (response) {
+            //     // console.log(response);
 
-                // $("#err-msg").html(response);
-                if (response.error == null) {
-                    console.log(response.obj);
-                    $("#msg").html(response.obj);
-                    $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
-                    $(this).parent().remove()
-                } else {
-                    $("#err-msg").html(response.error);
-                    $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
-                }
-            }
-        });
+            //     // $("#err-msg").html(response);
+            //     if (response.error == null) {
+            //         console.log(response.obj);
+            //         $("#msg").html(response.obj);
+            //         $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
+            //         $(this).parent().remove()
+            //     } else {
+            //         $("#err-msg").html(response.error);
+            //         $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+            //     }
+            // }
+        // });
     })
 
     device.append(sensorIcon);

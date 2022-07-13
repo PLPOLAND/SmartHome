@@ -23,19 +23,34 @@ import smarthome.model.hardware.DeviceState;
         @JsonSubTypes.Type(value = UserFunction.class, name = "UserFunction") })
 public abstract class Function {
 
+    enum FunctionType {
+        NOTKNOWN, AUTOMATION, BUTTON, USER
+    }
+
 
 
     private int id;
     private String name;
     protected ArrayList<FunctionAction> actions;
     boolean reversState;
+    FunctionType type;
 
     protected Function() {
         id = -1;
         name = "";
         actions = new ArrayList<>();
         reversState = false;
+        type = FunctionType.NOTKNOWN;
     }
+
+    protected Function(FunctionType type) {
+        id = -1;
+        name = "";
+        actions = new ArrayList<>();
+        reversState = false;
+        this.type = type;
+    }
+
 
     public int getId() {
         return id;
@@ -95,6 +110,13 @@ public abstract class Function {
         return active;
     }
 
+    public FunctionType getType() {
+        return type;
+    }
+
+    public void setType(FunctionType type) {
+        this.type = type;
+    }
 
     /**
      * Runs the function
@@ -127,4 +149,15 @@ public abstract class Function {
     public abstract void deactivate() throws HardwareException;
     
 
+    @Override
+    public String toString() {
+        return "{" +
+            " id='" + getId() + "'" +
+            ", name='" + getName() + "'" +
+            ", actions='" + getActions() + "'" +
+            ", reversState='" + isReversState() + "'" +
+            ", active='" + isActive() + "'" +
+            "}";
+    }
+    
 }

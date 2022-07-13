@@ -36,6 +36,49 @@
     padding: 0 10px;
     min-width: 100px;
 }
+.conditions {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.oneWay {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.user {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.private {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.button {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.clicks {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.clickType {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+
 
 .stan {
     float: left;

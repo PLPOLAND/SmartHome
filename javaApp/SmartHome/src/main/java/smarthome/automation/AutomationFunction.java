@@ -15,7 +15,7 @@ public class AutomationFunction extends Function {
 
 
     public AutomationFunction() {
-        super();
+        super( FunctionType.AUTOMATION );
         oneWay = false;
         condition = null;
     }

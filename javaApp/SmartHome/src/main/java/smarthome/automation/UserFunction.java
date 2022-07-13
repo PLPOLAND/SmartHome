@@ -14,7 +14,7 @@ public class UserFunction extends Function {
 
 
     public UserFunction() {
-        super();
+        super( FunctionType.USER );
         user = null;
         privateFunction = false;
     }
