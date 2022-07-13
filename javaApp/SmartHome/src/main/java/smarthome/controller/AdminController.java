@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import smarthome.automation.Function;
 import smarthome.database.UsersDAO;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
@@ -178,6 +179,34 @@ public class AdminController {
         return "admin/editThermometr";
     }
 
+    @RequestMapping("automationsList")
+    public String automationsList(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+
+        return "admin/automationsList";
+    }
+    @RequestMapping("addFunction")
+    public String addFunction(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+
+        return "admin/addFunction";
+    }
+
+    @RequestMapping("/editFunction")
+    public String editFunction(@RequestParam(name = "id") int functionID, HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        Function tmp = this.system.getAutomationDAO().getFunction(functionID);
+        model.addAttribute("functionID", functionID);
+        model.addAttribute("functionName", tmp.getName());
+        model.addAttribute("function", tmp);
+        return "admin/editFunction";
+    }
 
 
     @RequestMapping("/shutdown")

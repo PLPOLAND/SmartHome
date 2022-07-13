@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import smarthome.automation.Function;
+import smarthome.database.AutomationDAO;
 import smarthome.database.SystemDAO;
 import smarthome.database.UsersDAO;
 import smarthome.exception.HardwareException;
@@ -32,6 +34,7 @@ import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
+import smarthome.model.hardware.ButtonClickType;
 import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
 import smarthome.model.user.Opcje;
@@ -46,6 +49,9 @@ public class AdminRESTController {
 
     @Autowired
     SystemDAO systemDAO;
+    
+    @Autowired
+    AutomationDAO automationDAO;
 
     @Autowired
     smarthome.system.System system;
@@ -79,11 +85,11 @@ public class AdminRESTController {
             }
         }
         else
-            return new Response<String>("", "Nie znaleziono dopasowania w bazie danych");
+            return new Response<>("", "Nie znaleziono dopasowania w bazie danych");
     }
 
     @RequestMapping("/test")
-    public Response test() {
+    public Response<String> test() {
         users.createUser( new User(0l, "Marek", "Paldyna", "PLPOLAND", "marekpaldyna@wp.pl", "Mareczek", "xxx", new Uprawnienia(true), new Opcje("../img/users/12322601_643168719175369_7590023013141216084_o.jpg") ));
         return new Response<String>("test");
     }
@@ -193,6 +199,10 @@ public class AdminRESTController {
         Button b= (Button)system.getSensorByID(buttonId);
         return new Response<>(b.getFunkcjeKlikniec());
     }
+    @RequestMapping("/getFunctions")
+    public Response<List<Function>> getFunctions(){
+        return new Response<>(new ArrayList<>(this.automationDAO.getAllFunctions().values()));
+    }
 
     @GetMapping("/addRoom")
     public Response<String> dodajPokoj(@RequestParam("name") String name){
@@ -214,23 +224,8 @@ public class AdminRESTController {
         return new Response<>("Nazwa pokoju: '" + oldName +"' została zmieniona na: '"+name+"'");
     }
 
-    // public Response<String> setIdPlytkiRoom(@RequestParam("name") String name, @RequestParam("id") int id) {
-    //     system.getRoom(name).s
 
-    // }
-
-    // @GetMapping("/addGniazdko")
-    // public Response<String> dodajGniazdko(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
-    //     Switch g;
-    //     try {
-    //         g = new Switch(false, pin);
-    //         system.addDeviceToRoom(nazwaPokoju, g);
-    //     } catch (Exception e) {
-    //         return new Response<>("",e.getMessage());
-    //     }
-    //     return new Response<String>("Gniazdko: '" + g.toString() + "' dodane prawidłowo");
-
-    // }
+    
     @GetMapping("/addSwiatlo")
     public Response<String> dodajSwiatlo(@RequestParam("roomName") String nazwaPokoju, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
         
@@ -267,7 +262,7 @@ public class AdminRESTController {
             else
                 return new Response<>("","Nie udało znaleźć się Żarówki. Sprawdź konsolę programu w poszukiwaniu szczegółów");
         } catch (Exception e) {
-            logger.error("Błąd podczas dodawania światła",e);
+            logger.error("Błąd podczas edycji światła",e);
             return new Response<>(null, e.getMessage());
         }
     }
@@ -566,16 +561,69 @@ public class AdminRESTController {
         }
     }
 
+    @RequestMapping("/addButtonGlobalFunction")
+    public Response<String> addButtonFunction(@RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name) {
+        try {
+            Button b = (Button) system.getSensorByID(buttonId);
+            if (b != null) {
+                int id = system.addButtonAutomation(b, clicks, clickType, name);
+                return new Response<>("Funkcja dodana prawidłowo.👌 id = "+ id);
+            } else
+                return new Response<>("", "Nie udało znaleźć się Przycisku o id: '" + buttonId
+                        + "'. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania funkcji globalnej przycisku {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
 
+    @RequestMapping("/removeButtonGlobalFunction")
+    public Response<String> rmButtonFunction(@RequestParam("id")int id){
+        try {
+            system.removeButtonAutomation(id);
+            return new Response<>("Funkcja usunięta prawidłowo ");
+        } catch (Exception e) {
+            logger.error("Błąd podczas usuwania funkcji globalnej przycisku {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
 
+    @RequestMapping("/addAction")
+    public Response<String> addActionToFunction(@RequestParam("functionId")int functionID, @RequestParam("deviceId") int devID, @RequestParam("activeDeviceState") DeviceState activeState, @RequestParam("reverse") boolean reverse){
+        try {
+            Device dev = system.getDeviceByID(devID);
+            system.addActionToFunction(functionID, dev, activeState, reverse);
+            return new Response<>("Akcja dodana prawidłowo");
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania akcji do funkcji {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
 
+    @RequestMapping("/restart")
+    public Response<String> restartSlaves( HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin()) {
+            return new Response<>("", "Nie jesteś zalogowany jako administrator");
+        }
+        else{
+            system.getArduino().atmega.restartSlaves();
+            return new Response<>("Restartowanie urządzeń zakończone prawidłowo");
+        }
 
+    }
 
+    @RequestMapping("/reboot")
+    public Response<String> restartMe() {
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec("sudo reboot");
 
-
-
-
-
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Response<>("Rebooting System");
+    }
 
     @RequestMapping("/shutdown")
     public Response<String> shutdownMe() {
@@ -586,7 +634,7 @@ public class AdminRESTController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Response<>("ShuttingDownSystem");
+        return new Response<>("Reboot System");
     }
 
 }

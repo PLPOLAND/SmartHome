@@ -1,0 +1,71 @@
+:root{
+    --device-height: 120px;
+}
+
+.fullFunction {
+    display: block;
+    padding: 5px 10px;
+    width: 90%;
+    min-height: 50px;
+    background-color: var(--primaryColor);
+    line-height: 50px;
+    font-size: 20px;
+    margin: 5px auto;
+    border-radius: 10px;
+    overflow: auto;
+}
+
+.fullFunction:hover {
+    background-color: var(--secondaryColor);
+}
+.id{
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    width: 30px;
+}
+.name {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.actions {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+
+.stan {
+    float: left;
+    height: 100%;
+    width: 180px;
+    padding: 0 10px;
+}
+
+
+.icon {
+    float: right;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.icon:hover .icon-sliders {
+    color: var(--secondaryTextColor);
+}
+
+.icon:hover .icon-trash {
+    color: var(--errorColor);
+}
+.hide{
+    display: none;
+}
+
+.rm90{
+    transform: rotate(-90deg);
+}
+.rm90::before {
+    transform: rotate(-90deg);
+}
+ 

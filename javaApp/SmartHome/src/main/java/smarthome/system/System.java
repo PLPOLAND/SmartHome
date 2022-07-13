@@ -804,8 +804,9 @@ public class System {
      * @return - id dodanej funkcji
      * @throws HardwareException
      */
-    public int addButtonAutomation(Button button, int clicks, ButtonClickType clickType) throws HardwareException {
+    public int addButtonAutomation(Button button, int clicks, ButtonClickType clickType, String name) throws HardwareException {
         ButtonFunction fun = new ButtonFunction(button, clicks, clickType);
+        fun.setName(name);
         return addButtonAutomation(fun);
     }
 
