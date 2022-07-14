@@ -34,7 +34,7 @@
     float: left;
     height: 100%;
     padding: 0 10px;
-    min-width: 100px;
+    min-width: 80px;
 }
 .conditions {
     float: left;
@@ -78,12 +78,18 @@
     padding: 0 10px;
     min-width: 100px;
 }
+.room {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
 
 
 .stan {
     float: left;
     height: 100%;
-    width: 180px;
+    width: 190px;
     padding: 0 10px;
 }
 

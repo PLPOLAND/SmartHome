@@ -93,6 +93,10 @@ public class Light extends Device{
             " super = "+ super.toString() +
             "}";
     }
+    @Override
+    public boolean isStateCorrect(DeviceState state) {
+        return state == DeviceState.ON || state == DeviceState.OFF;
+    }
     
     
 }

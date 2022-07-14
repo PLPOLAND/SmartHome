@@ -13,11 +13,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import smarthome.automation.Function;
+import smarthome.automation.FunctionAction;
 import smarthome.database.AutomationDAO;
 import smarthome.database.SystemDAO;
 import smarthome.database.UsersDAO;
@@ -154,6 +157,10 @@ public class AdminRESTController {
     public Response<ArrayList<Sensor>> getSensors() {
         return new Response<>(systemDAO.getSensors());
     }
+    @RequestMapping("/getButtons")
+    public Response<ArrayList<Button>> getButtons() {
+        return new Response<>(systemDAO.getAllButtons());
+    }
     @RequestMapping("/getTermometers")
     public Response<ArrayList<Termometr>> getThermometers() {
         return new Response<>(systemDAO.getAllTermometers());
@@ -162,6 +169,16 @@ public class AdminRESTController {
     @RequestMapping("/getSensorTypes")
     public Response<String[]> getSensorTypes() {
         return new Response<>(SensorsTypes.getNames());
+    }
+
+    @RequestMapping("/getFunctionTypes")
+    public Response<String[]> getFunctionTypes() {
+        return new Response<>(Function.getFunctionTypes());
+    }
+
+    @RequestMapping("/getDeviceStates")
+    public Response<String[]> getDeviceStates() {
+        return new Response<>(DeviceState.getNames());
     }
 
     @RequestMapping("/getRoomsNamesList")
@@ -202,6 +219,11 @@ public class AdminRESTController {
     @RequestMapping("/getFunctions")
     public Response<List<Function>> getFunctions(){
         return new Response<>(new ArrayList<>(this.automationDAO.getAllFunctions().values()));
+    }
+
+    @RequestMapping("/getButtonClickTypes")
+    public Response<String[]> getClickTypes() {
+        return new Response<>(ButtonClickType.getNames());
     }
 
     @GetMapping("/addRoom")
@@ -562,13 +584,19 @@ public class AdminRESTController {
     }
 
     @RequestMapping("/addButtonGlobalFunction")
-    public Response<String> addButtonFunction(@RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name) {
+    // public Response<String> addButtonFunction(@RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name, HttpServletRequest request) {
+    public Response<String> addButtonFunction(@RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name, @RequestParam("actions") String actions) {
         try {
+            String[] actionsArray = actions.split("}");
             Button b = (Button) system.getSensorByID(buttonId);
             if (b != null) {
                 int id = system.addButtonAutomation(b, clicks, clickType, name);
+                for (int i = 0; i < actionsArray.length-1; i++) {
+                    //todo: add actions to function
+                }
                 return new Response<>("Funkcja dodana prawidłowo.👌 id = "+ id);
             } else
+        
                 return new Response<>("", "Nie udało znaleźć się Przycisku o id: '" + buttonId
                         + "'. Sprawdź konsolę programu w poszukiwaniu szczegółów");
         } catch (Exception e) {
@@ -598,6 +626,26 @@ public class AdminRESTController {
             logger.error("Błąd podczas dodawania akcji do funkcji {}", e.getMessage());
             return new Response<>(null, e.getMessage());
         }
+    }
+
+    @RequestMapping("/checkAction")
+    public @ResponseBody Response<Boolean> checkActionCorrectness(HttpServletRequest request){
+        try {
+            String action = request.getParameter("action");
+            FunctionAction a = FunctionAction.valueOf(action);
+            if (a.getDevice().isStateCorrect(a.getActiveDeviceState()))
+                return new Response<>(true);
+            else
+                return new Response<>(false);
+        } catch (Exception e) {
+            logger.error("Błąd podczas sprawdzania poprawności akcji {}", e.getMessage());
+            return new Response<>(false);
+        }
+    }
+
+    @RequestMapping("getTestAction")
+    public FunctionAction getTestAction(){
+        return new FunctionAction(1, DeviceState.DOWN, false);
     }
 
     @RequestMapping("/restart")

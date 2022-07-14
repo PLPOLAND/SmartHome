@@ -1,6 +1,7 @@
 package smarthome.automation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import smarthome.exception.HardwareException;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceState;
+import smarthome.model.hardware.DeviceTypes;
 
 /**
  * Function
@@ -24,7 +26,11 @@ import smarthome.model.hardware.DeviceState;
 public abstract class Function {
 
     enum FunctionType {
-        NOTKNOWN, AUTOMATION, BUTTON, USER
+        NOTKNOWN, AUTOMATION, BUTTON, USER;
+        
+        public static String[] getNames() {
+            return Arrays.stream(FunctionType.class.getEnumConstants()).map(Enum::name).toArray(String[]::new);
+        }
     }
 
 
@@ -158,6 +164,10 @@ public abstract class Function {
             ", reversState='" + isReversState() + "'" +
             ", active='" + isActive() + "'" +
             "}";
+    }
+
+    public static String[] getFunctionTypes() {
+        return FunctionType.getNames();
     }
     
 }

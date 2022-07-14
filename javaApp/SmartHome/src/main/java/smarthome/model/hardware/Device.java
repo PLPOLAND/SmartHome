@@ -145,6 +145,13 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     }
 
     /**
+     * Sprawdza czy stan podany w argumencie jest zgodny z stanami dozwolonymi dla urządzenia.
+     * @param state
+     * @return
+     */
+    public abstract boolean isStateCorrect(DeviceState state);
+
+    /**
      * Zwraca akutalny stan urządzenia
      * @return aktualny stan urządzenia
      */

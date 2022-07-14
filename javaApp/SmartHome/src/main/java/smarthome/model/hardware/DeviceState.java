@@ -10,7 +10,8 @@ public enum DeviceState{
     ON;
 
     public static String[] getNames() {
-        return Arrays.stream(DeviceTypes.class.getEnumConstants()).map(Enum::name).toArray(String[]::new);
+        return Arrays.stream(DeviceState.class.getEnumConstants()).map(Enum::name).toArray(String[]::new);
     }
+    
 }
 

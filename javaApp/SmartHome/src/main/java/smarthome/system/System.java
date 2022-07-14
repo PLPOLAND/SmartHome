@@ -861,5 +861,19 @@ public class System {
            log.error("Błąd podczas usuwania akcji z funkcji: {}",e.getMessage());
         }
     }
-    
+    /**
+     * Sprawdza czy stan urządzenia podany w argumencie jest prawidłowy dla urządzenia o podanym id.
+     * @param id
+     * @param state
+     * @return
+     */
+    public boolean isDeviceStateCorrectForDevice(int id, DeviceState state){
+        try {
+            Device d = systemDAO.getDeviceByID(id);
+            return d.isStateCorrect(state);
+        } catch (Exception e) {
+           log.error("Błąd podczas sprawdzania stanu poprawności stanu urządzenia: {}",e.getMessage());
+        }
+        return false;
+    }
 }

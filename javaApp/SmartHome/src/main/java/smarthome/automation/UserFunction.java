@@ -1,6 +1,7 @@
 package smarthome.automation;
 
 import smarthome.exception.HardwareException;
+import smarthome.model.Room;
 import smarthome.model.user.User;
 
 /**
@@ -11,6 +12,7 @@ public class UserFunction extends Function {
     private User user;
     /** Czy tą funkcję pokazywać tylko urzytkownikowi, który ją stworzył */
     boolean privateFunction;
+    Room room;//pokój do którego jest przypisana funkcja
 
 
     public UserFunction() {
@@ -33,6 +35,14 @@ public class UserFunction extends Function {
     
     public void setPrivateFunction(boolean privateFunction) {
         this.privateFunction = privateFunction;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     @Override

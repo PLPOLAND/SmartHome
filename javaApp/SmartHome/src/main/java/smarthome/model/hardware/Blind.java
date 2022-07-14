@@ -160,4 +160,9 @@ public class Blind extends Device{
             "}";
     }
 
+    @Override
+    public boolean isStateCorrect(DeviceState state) {
+        return state == DeviceState.UP || state == DeviceState.DOWN || state == DeviceState.NOTKNOW;
+    }
+
 }

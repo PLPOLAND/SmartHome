@@ -1,5 +1,9 @@
 package smarthome.automation;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import smarthome.exception.HardwareException;
 
 public class AutomationFunction extends Function {
@@ -22,6 +26,11 @@ public class AutomationFunction extends Function {
 
     public AutomationCondition getCondition() {
         return condition;
+    }
+
+    @JsonIgnore
+    public List<Condition> getConditions() {
+        return condition.getConditions();
     }
 
     public void setCondition(AutomationCondition condition) {

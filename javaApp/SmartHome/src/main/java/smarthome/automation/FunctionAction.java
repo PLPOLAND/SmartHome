@@ -1,7 +1,10 @@
 package smarthome.automation;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.SystemPropertyUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -11,6 +14,7 @@ import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceState;
+import smarthome.system.System;
 
 @Component
 public class FunctionAction {
@@ -22,13 +26,18 @@ public class FunctionAction {
     private DeviceState activeDeviceState;
     boolean allowReverse;//true - można odwrócić stan urządzenia podczas wykonywania akcji
 
-    public FunctionAction(){
+    public FunctionAction() {
         device = null;
         activeDeviceState = DeviceState.NOTKNOW;
         allowReverse = false;
     }
     public FunctionAction(Device device, DeviceState activeDeviceState, boolean allowReverse){
         this.device = device;
+        this.activeDeviceState = activeDeviceState;
+        this.allowReverse = allowReverse;
+    }
+    public FunctionAction(int device, DeviceState activeDeviceState, boolean allowReverse){
+        this.device = SmartHomeApp.getApp().getBean(System.class).getDeviceByID(device);
         this.activeDeviceState = activeDeviceState;
         this.allowReverse = allowReverse;
     }
@@ -135,5 +144,39 @@ public class FunctionAction {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof FunctionAction && ((FunctionAction) obj).device.getId() == device.getId();
+    }
+
+    public static FunctionAction valueOf(String action) {
+        action = action.replace("\"", "");
+        action = action.replace("{", "");
+        action = action.replace("}", "");
+        String[] actionParts = action.split(",");
+
+        int deviceID = -1;
+        DeviceState state = null;
+        boolean allowReverse = false;
+
+        for (String string : actionParts) {
+            String[] str = string.split(":");
+            switch (str[0]) {
+                case "device":
+                    deviceID = Integer.parseInt(str[1]);
+                    break;
+                case "activeDeviceState":
+                    state = DeviceState.valueOf(str[1]);
+                    break;
+                case "allowReverse":
+                    allowReverse = Boolean.parseBoolean(str[1]);
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        java.lang.System.out.println(Arrays.toString(actionParts));
+        if (deviceID == -1 || state == null){
+            return null;
+        }
+        return new FunctionAction(deviceID, state, allowReverse);
     }
 }
