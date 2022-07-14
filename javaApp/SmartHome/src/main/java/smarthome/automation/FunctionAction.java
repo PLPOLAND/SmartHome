@@ -150,6 +150,8 @@ public class FunctionAction {
         action = action.replace("\"", "");
         action = action.replace("{", "");
         action = action.replace("}", "");
+        action = action.replace("[", "");
+        action = action.replace("]", "");
         String[] actionParts = action.split(",");
 
         int deviceID = -1;

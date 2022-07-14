@@ -593,6 +593,8 @@ public class AdminRESTController {
                 int id = system.addButtonAutomation(b, clicks, clickType, name);
                 for (int i = 0; i < actionsArray.length-1; i++) {
                     //todo: add actions to function
+                    String action = actionsArray[i];
+                    system.addActionToFunction(id, FunctionAction.valueOf(action));
                 }
                 return new Response<>("Funkcja dodana prawidłowo.👌 id = "+ id);
             } else
