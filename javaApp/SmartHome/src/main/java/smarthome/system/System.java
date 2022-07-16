@@ -815,7 +815,16 @@ public class System {
      * @param id - id funkcji do usunięcia
      * @throws HardwareException
      */
-    public void removeButtonAutomation(int id) throws HardwareException {
+    public void removeButtonAutomation(int id){
+        automationDAO.removeFunction(id);
+    }
+    
+    /**
+     * Usuwa funkcję z systemu. 
+     * @param id - id funkcji do usunięcia
+     * @throws HardwareException
+     */
+    public void removeFunction(int id)  {
         automationDAO.removeFunction(id);
     }
 

@@ -618,6 +618,17 @@ public class AdminRESTController {
         }
     }
 
+    @RequestMapping("/removeFunction")
+    public Response<String> rmFunction(@RequestParam("id") int id){
+        try {
+            system.removeFunction(id);
+            return new Response<>("Funkcja usunięta prawidłowo ");
+        } catch (Exception e) {
+            logger.error("Błąd podczas usuwania funkcji globalnej przycisku {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
+
     @RequestMapping("/addAction")
     public Response<String> addActionToFunction(@RequestParam("functionId")int functionID, @RequestParam("deviceId") int devID, @RequestParam("activeDeviceState") DeviceState activeState, @RequestParam("reverse") boolean reverse){
         try {

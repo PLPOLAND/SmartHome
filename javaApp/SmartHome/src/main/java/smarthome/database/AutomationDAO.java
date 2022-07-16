@@ -24,6 +24,7 @@ import smarthome.automation.ButtonFunction;
 import smarthome.automation.Function;
 import smarthome.automation.FunctionAction;
 import smarthome.automation.UserFunction;
+import smarthome.model.hardware.Button;
 import smarthome.model.hardware.Device;
 
 @Repository
@@ -196,6 +197,7 @@ public class AutomationDAO{
                 }
                 functions.put(function.getId(), function);
                 if (function instanceof ButtonFunction) {
+                   ((ButtonFunction) function).setButton((Button) systemDAO.getSensorByID(((ButtonFunction) function).getButton().getId()));
                     buttonFunctions.add((ButtonFunction) function);
                 } else if (function instanceof AutomationFunction) {
                     automationFunctions.add((AutomationFunction) function);

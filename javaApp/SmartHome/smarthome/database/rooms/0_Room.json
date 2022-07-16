@@ -1,0 +1,31 @@
+{
+  "id" : 0,
+  "devices" : [ {
+    "@type" : "Light",
+    "id" : 0,
+    "room" : 0,
+    "slaveID" : 0,
+    "onSlaveID" : -1,
+    "name" : "",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 0
+    },
+    "state" : "OFF",
+    "pin" : 0
+  } ],
+  "sensors" : [ {
+    "@type" : "Button",
+    "id" : 1,
+    "room" : 0,
+    "onSlaveID" : -1,
+    "addres" : null,
+    "name" : "",
+    "typ" : "BUTTON",
+    "pin" : 0,
+    "funkcjeKlikniec" : [ ],
+    "slaveAdress" : 0
+  } ],
+  "nazwa" : "Kitchen"
+}

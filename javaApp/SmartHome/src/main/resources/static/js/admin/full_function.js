@@ -62,7 +62,7 @@ function makeFullFunction(obj, rooms) {
         //TODO
         // document.location.href = "/admin/api/removeDeviceByID?id=" + obj.id;
         $.ajax({
-            url: "/admin/api/removeFunctionByID",
+            url: "/admin/api/removeFunction",
             type: 'get',
             data: {
                 id: obj.id,

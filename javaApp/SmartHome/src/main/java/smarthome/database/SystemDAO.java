@@ -229,6 +229,8 @@ public class SystemDAO {
                 devices.addAll(room.getDevices());
                 sensors.addAll(room.getSensors());
                 i++;
+                File f = new File(ROOMS_FILES_LOCALISATION + i + "_Room.json");
+                logger.info(f.getAbsolutePath());
             } catch (IOException e) {
                 logger.info("Wczytano {} pokoi", i);
 
@@ -357,6 +359,14 @@ public class SystemDAO {
         for (Device device : this.getDevices()) {
             if (device.getId() == id) {
                 return device;
+            }
+        }
+        return null;
+    }
+    public Sensor getSensorByID(int id) {
+        for (Sensor sensor : this.getSensors()) {
+            if (sensor.getId() == id) {
+                return sensor;
             }
         }
         return null;
