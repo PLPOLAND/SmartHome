@@ -172,7 +172,7 @@ public class MasterToSlaveConverter {
             bufString += adr + " ";
         }
         try {
-            logger.debug("Writing to addres {} command: '{}'", termometr.getSlaveAdress(), bufString);
+            // logger.debug("Writing to addres {} command: '{}'", termometr.getSlaveAdress(), bufString);
             
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
@@ -180,7 +180,7 @@ public class MasterToSlaveConverter {
             // Thread.sleep(10);
             byte[] response = atmega.readFrom(termometr.getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
-            logger.debug("Got response tempetrture from {}: {}", termometr.getSlaveAdress(), Arrays.toString(response));
+            logger.debug("Got response temperature from {}: {}", termometr.getSlaveAdress(), Arrays.toString(response));
             if (response[0] == 'E') {
                 logger.error("Error in response from {}", termometr.getSlaveAdress());
                 return null;

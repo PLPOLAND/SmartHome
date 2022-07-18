@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import smarthome.SmartHomeApp;
+import smarthome.database.AutomationDAO;
 import smarthome.exception.HardwareException;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceState;
@@ -25,7 +27,7 @@ import smarthome.model.hardware.DeviceTypes;
         @JsonSubTypes.Type(value = UserFunction.class, name = "UserFunction") })
 public abstract class Function {
 
-    enum FunctionType {
+    public enum FunctionType {
         NOTKNOWN, AUTOMATION, BUTTON, USER;
         
         public static String[] getNames() {
@@ -84,6 +86,7 @@ public abstract class Function {
 
     public void addAction(FunctionAction action) {
         actions.add(action);
+        SmartHomeApp.getApp().getBean(AutomationDAO.class).save(this);
     }
     public void addAction(Device device, DeviceState activeDeviceState, boolean allowReverse) {
         addAction(new FunctionAction(device, activeDeviceState, allowReverse));
@@ -103,6 +106,10 @@ public abstract class Function {
                 break;
             }
         }
+    }
+    
+    public void clearActions() {
+        actions.clear();
     }
 
     public boolean isActive() {

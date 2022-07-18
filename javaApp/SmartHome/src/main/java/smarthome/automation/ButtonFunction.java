@@ -34,7 +34,7 @@ public class ButtonFunction extends Function{
     }
 
     public ButtonFunction(Button button, int clicks, ButtonClickType clickType) {
-        super();
+        super(FunctionType.BUTTON);
         logger = LoggerFactory.getLogger(this.getClass());
         reversState = true;
         this.button = button;

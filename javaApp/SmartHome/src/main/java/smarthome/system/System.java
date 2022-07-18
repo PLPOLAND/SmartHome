@@ -34,6 +34,8 @@ import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonClickType;
 import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
+import smarthome.runners.Automation;
+import smarthome.runners.Runners;
 
 /**
  * Główna klasa zarządzająca systemem
@@ -456,7 +458,7 @@ public class System {
             }
         }
         if (lt != null) {
-            // log.debug("Zmiana stanu Światła");
+            log.debug("Zmiana stanu Światła");
             arduino.changeSwitchState(lt.getOnSlaveID(), lt.getSlaveID(), stan);
             lt.setState(stan);
             systemDAO.save();
@@ -482,9 +484,7 @@ public class System {
         Blind bl = (Blind) room.getDeviceById(deviceID);
         log.debug("roleta: {}", bl);
         log.debug("Zmieniam pozycje rolety na: {}",(pozycja?"UP":"DOWN"));
-        // log.debug("Aktualna pozycja rolety: {}", (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
-        bl.changeState(pozycja);
-        // log.debug("Pozycja rolety po zmianie:{}", (bl.getStan()==RoletaStan.UP?"UP":"DOWN"));
+        bl.changeState(pozycja?DeviceState.UP:DeviceState.DOWN);
         if (bl.getState() == DeviceState.UP) {
             arduino.changeBlindState(bl, DeviceState.UP);
         }
@@ -504,7 +504,9 @@ public class System {
      */
     private boolean sendConfigToSlave(int slaveID) {
         boolean toReturn = true;
-        log.debug("Wysyłam konfigurację slave-a {}", slaveID);
+        log.info("Wysyłam konfigurację slave-a {}", slaveID);
+        Automation.pause();//wstrzymaj sprawdzanie automatyki na czas wysyłania konfiguracji.
+        Runners.pause();
         for (Device device : systemDAO.getAllDevicesFromSlave(slaveID)) {
             log.debug("sendingDevice {}", device);
             try {
@@ -550,13 +552,14 @@ public class System {
             }
         }
 
-        try { //TODO odkomentować jeśli wszystko jest ok
+        try {
             this.addUpdateThermometersOnSlave(slaveID);
         } catch (HardwareException e) {
             log.error("Błąd podczas dodawania termometerów: '{}'", e.getMessage());
             toReturn = false;
         }
-
+        Automation.resume();//wznow sprawdzanie automatyki.
+        Runners.resume();
         return toReturn;
     }
 
@@ -604,7 +607,7 @@ public class System {
      * @return false jeśli urządzenie było już inicjowane 
      */
     public boolean initOfBoard(int slaveID) {
-        log.debug("initOfBoard slaveId: {}", slaveID);
+        log.info("Inicjalizacja slave-a o id: {}", slaveID);
         if (arduino.reInitBoard(slaveID)) {
             return sendConfigToSlave(slaveID);
         }

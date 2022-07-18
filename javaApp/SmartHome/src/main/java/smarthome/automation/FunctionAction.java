@@ -19,7 +19,6 @@ import smarthome.system.System;
 @Component
 public class FunctionAction {
 
-    @Autowired
     private static MasterToSlaveConverter slave;
 
     private Device device;

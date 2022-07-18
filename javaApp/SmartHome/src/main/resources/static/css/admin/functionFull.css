@@ -28,7 +28,7 @@
     float: left;
     height: 100%;
     padding: 0 10px;
-    min-width: 100px;
+    min-width: 180px;
 }
 .actions {
     float: left;
@@ -64,7 +64,7 @@
     float: left;
     height: 100%;
     padding: 0 10px;
-    min-width: 100px;
+    min-width: 280px;
 }
 .clicks {
     float: left;

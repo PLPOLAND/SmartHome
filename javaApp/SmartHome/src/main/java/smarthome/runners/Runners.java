@@ -34,6 +34,8 @@ public class Runners {
 
     ArrayList<Termometr> termometrs;
 
+    private static boolean stop = false;
+
     //informujme o (nie)zakończeniu reinicjacji
     boolean isCheckReinitDone = true;
     //informuje o (nie)zakończeniu sprawdzania statusu urządzeń 
@@ -44,7 +46,13 @@ public class Runners {
         
     }
 
-    
+    public static void pause(){
+        Runners.stop = true;
+    }
+
+    public static void resume(){
+        Runners.stop = false;
+    }
 
     // @Scheduled(fixedDelay = 10000)
     // void checkReinit(){
@@ -61,30 +69,34 @@ public class Runners {
     void checkDevicesStatus(){
         if (!system.getArduino().atmega.getDevices().isEmpty()) {
             logger.debug("checkStatus()");
-            if (isCheckDevicesStatusDone && isCheckReinitDone) {
-                isCheckDevicesStatusDone = false;
-                for (Device device : system.getSystemDAO().getDevices()) {
-                    if (system.isSlaveConnected(device.getSlaveID())) {
-                        try {
-                            system.checkInitOfBoard(device.getSlaveID());
-                            system.updateDeviceState(device);
-                        } catch (HardwareException | SoftwareException e ) {
-                            logger.error("{} {Device ID: {}}" , e.getMessage(), device.getId() );
+            if (!stop) {
+                if (isCheckDevicesStatusDone && isCheckReinitDone) {
+                    isCheckDevicesStatusDone = false;
+                    for (Device device : system.getSystemDAO().getDevices()) {
+                        if (system.isSlaveConnected(device.getSlaveID())) {
+                            try {
+                                system.checkInitOfBoard(device.getSlaveID());
+                                system.updateDeviceState(device);
+                            } catch (HardwareException | SoftwareException e) {
+                                logger.error("{} {Device ID: {}}", e.getMessage(), device.getId());
+                            }
                         }
                     }
-                }
-                for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
-                    if (system.isSlaveConnected(termometr.getSlaveAdress())) {
-                        system.updateTemperature(termometr);
+                    for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
+                        if (system.isSlaveConnected(termometr.getSlaveAdress())) {
+                            system.updateTemperature(termometr);
+                        }
                     }
-                }
-                for (I2CDevice device : system.getArduino().atmega.getDevices()) {
-                    if (system.isSlaveConnected(device.getAddress())) {
-                        system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
+                    for (I2CDevice device : system.getArduino().atmega.getDevices()) {
+                        if (system.isSlaveConnected(device.getAddress())) {
+                            system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
+                        }
                     }
+                    isCheckDevicesStatusDone = true;
                 }
-                isCheckDevicesStatusDone = true;
             }
+        } else {
+            logger.debug("checkStatus is paused");
         }
     }
 

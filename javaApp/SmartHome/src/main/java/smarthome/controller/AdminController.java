@@ -201,10 +201,7 @@ public class AdminController {
         Security sec = new Security(request, users);
         if (!sec.isLoged() || !sec.isUserAdmin())
             return this.reredairect(request);
-        Function tmp = this.system.getAutomationDAO().getFunction(functionID);
-        model.addAttribute("functionID", functionID);
-        model.addAttribute("functionName", tmp.getName());
-        model.addAttribute("function", tmp);
+        model.addAttribute("functionId", functionID);
         return "admin/editFunction";
     }
 

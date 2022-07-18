@@ -19,12 +19,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import smarthome.automation.ButtonFunction;
 import smarthome.automation.Function;
 import smarthome.automation.FunctionAction;
+import smarthome.automation.Function.FunctionType;
 import smarthome.database.AutomationDAO;
 import smarthome.database.SystemDAO;
 import smarthome.database.UsersDAO;
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.Response;
 import smarthome.model.Room;
@@ -219,6 +222,10 @@ public class AdminRESTController {
     @RequestMapping("/getFunctions")
     public Response<List<Function>> getFunctions(){
         return new Response<>(new ArrayList<>(this.automationDAO.getAllFunctions().values()));
+    }
+    @RequestMapping("getFunction")
+    public Response<Function> getFunction(@RequestParam("id")int id){
+        return new Response<>(this.automationDAO.getFunction(id));
     }
 
     @RequestMapping("/getButtonClickTypes")
@@ -584,9 +591,8 @@ public class AdminRESTController {
     }
 
     @RequestMapping("/addButtonGlobalFunction")
-    // public Response<String> addButtonFunction(@RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name, HttpServletRequest request) {
     public Response<String> addButtonFunction(@RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name, @RequestParam("actions") String actions) {
-        try {
+        try {//TODO dodać sprawdzanie czy funkcja o takich samych parametrach już nie istnieje!!!
             String[] actionsArray = actions.split("}");
             Button b = (Button) system.getSensorByID(buttonId);
             if (b != null) {
@@ -606,6 +612,48 @@ public class AdminRESTController {
             return new Response<>(null, e.getMessage());
         }
     }
+    @RequestMapping("/editButtonGlobalFunction")
+    public Response<String> editButtonFunction(@RequestParam("functionId")int functionId, @RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name, @RequestParam("actions") String actions) {
+        try {
+            Function function = automationDAO.getFunction(functionId);
+            
+            if (function.getType() != FunctionType.BUTTON) {
+                throw new SoftwareException("Funkcja o podanym id nie jest typu BUTTON");
+            }
+            ButtonFunction fun = (ButtonFunction) function;
+            Button newb = (Button) system.getSensorByID(buttonId);
+            //change button
+            if (newb != null ){
+                if (fun.getButton().getId() != buttonId) {
+                    fun.setButton(newb);
+                } 
+            }
+            else
+                return new Response<>("", "Nie udało znaleźć się Przycisku o id: '" + buttonId + "'. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+            //change clickType
+            if (fun.getClickType() != clickType) {
+                fun.setClickType(clickType);
+            }
+            //change clicks
+            if (fun.getClicks() != clicks) {
+                fun.setClicks(clicks);
+            }
+            //change actions
+            String[] actionsArray = actions.split("}");
+            fun.clearActions();
+            for (int i = 0; i < actionsArray.length-1; i++) {
+                String action = actionsArray[i];
+                system.addActionToFunction(fun.getId(), FunctionAction.valueOf(action));
+            }
+            automationDAO.save(fun);
+            return new Response<>("Funkcja uaktualniona prawidłowo.👌 id = "+ fun.getId());
+            
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania funkcji globalnej przycisku {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
+
 
     @RequestMapping("/removeButtonGlobalFunction")
     public Response<String> rmButtonFunction(@RequestParam("id")int id){
