@@ -49,7 +49,7 @@ public abstract class Sensor {
         this.addres = null;
         this.typ = SensorsTypes.NONE;
         logger = LoggerFactory.getLogger(Sensor.class);
-        logger.info("Stworzono pusty Sensor");
+        logger.debug("Stworzono pusty Sensor");
     }
     
     protected Sensor(SensorsTypes type) {
@@ -59,7 +59,7 @@ public abstract class Sensor {
         this.addres = null;
         this.typ = type;
         logger = LoggerFactory.getLogger(Sensor.class);
-        logger.info(STWORZONO_SENSOR_STRING, this);
+        logger.debug(STWORZONO_SENSOR_STRING, this);
     }
 
     protected Sensor(int slaveID, SensorsTypes type){
@@ -69,7 +69,7 @@ public abstract class Sensor {
         this.addres = null;
         this.typ = type;
         logger = LoggerFactory.getLogger(Sensor.class);
-        logger.info(STWORZONO_SENSOR_STRING, this);
+        logger.debug(STWORZONO_SENSOR_STRING, this);
     }
     
     protected Sensor(int id, int room, int slaveID, int[] addres,SensorsTypes type){

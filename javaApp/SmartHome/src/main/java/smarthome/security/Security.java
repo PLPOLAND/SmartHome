@@ -72,7 +72,7 @@ public class Security {
             session.setAttribute("id", idU);
             session.setAttribute("uprawnienia",resultUsers.getUprawnienia());
             session.setAttribute("opcje",resultUsers.getOpcje());
-            session.setMaxInactiveInterval(60 * 60); // usuniecie pol sesji po 60 minutach
+            session.setMaxInactiveInterval(60 * 60 * 24 * 2); // usuniecie pol sesji po 2 dniach nie aktywności
 
             logger.info("User: " + resultUsers.getNick() + " zalogował się pomyślnie"); //log
 

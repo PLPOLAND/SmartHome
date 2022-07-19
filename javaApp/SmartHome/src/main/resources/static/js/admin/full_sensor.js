@@ -50,7 +50,7 @@ function makeFullSensor(obj, rooms) {
 
     var sensorName = $('<div class="sensorName">' + obj.name + '</div>');
     var roomName = $('<div class="roomName">Room: ' + rooms[obj.room] + '</div>');
-    var slaveAddr = $('<div class="slave">Slave: ' + obj.slaveID + '</div>')
+    var slaveAddr = $('<div class="slave">Slave: ' + obj.slaveAdress + '</div>')
     var device_pin;
     var clikcFunctions;
     var holdFunctions;
@@ -70,7 +70,7 @@ function makeFullSensor(obj, rooms) {
     else if (obj.typ === 'BUTTON') {
         device_pin = $('<div class="pin">Pin: ' + obj.pin + '</div>')
         clikcFunctions = $('<div class="clickFunctionNum">Fun. Kliknięcia: ' + obj.funkcjeKlikniec.length + '</div>')
-        holdFunctions = $('<div class="holdFunctionNum">Fun. Przytrzymania: ' + 0 + '</div>') // TODO dodać po dodaniu funkcjonalności
+        // holdFunctions = $('<div class="holdFunctionNum">Fun. Przytrzymania: ' + 0 + '</div>') // TODO dodać po dodaniu funkcjonalności
         
     }
 

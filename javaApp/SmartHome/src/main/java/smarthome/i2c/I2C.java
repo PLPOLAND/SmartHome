@@ -230,7 +230,6 @@ public class I2C{
      */
     public void restartSlaves() {
         logger.info("Restartowanie slave-ów");
-        pauseIfOcupied();
         setOccupied(true);
         
         pin.setShutdownOptions(true, PinState.HIGH);

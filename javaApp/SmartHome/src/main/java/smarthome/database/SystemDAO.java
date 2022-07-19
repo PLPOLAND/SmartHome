@@ -219,6 +219,8 @@ public class SystemDAO {
         ObjectMapper obj = new ObjectMapper();
         obj.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
         int i = 0;
+        File f = new File(ROOMS_FILES_LOCALISATION);
+        logger.debug("Lokalizacja plików z pokojami: {}", f.getAbsolutePath());
         while (i< Integer.MAX_VALUE) {
             Room room = null;
             try {
@@ -229,8 +231,6 @@ public class SystemDAO {
                 devices.addAll(room.getDevices());
                 sensors.addAll(room.getSensors());
                 i++;
-                File f = new File(ROOMS_FILES_LOCALISATION + i + "_Room.json");
-                logger.info(f.getAbsolutePath());
             } catch (IOException e) {
                 logger.info("Wczytano {} pokoi", i);
 

@@ -206,6 +206,16 @@ public class AdminController {
     }
 
 
+    @RequestMapping("/listOfUsers")
+    public String listOfUsers(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+
+        return "admin/userList";
+    }
+
+
     @RequestMapping("/shutdown")
     public String shutdown(HttpServletRequest request) {
         Security sec = new Security(request, users);

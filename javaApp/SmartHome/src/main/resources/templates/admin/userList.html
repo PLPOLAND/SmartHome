@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lista Użytkowników - SmartHome</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="../css/jqueryUiMin.css">
+    <link rel="stylesheet" href="../css/admin/list.css">
+    <link rel="stylesheet" href="../css/admin/userFull.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/fontello/css/fontello.css">
+    <script src="../js/jQueryMin.js"></script>
+    <script src="../js/jQueryUIMin.js"></script>
+    <script src="../js/admin/main.js"></script>
+    <script src="../js/admin/full_user.js"></script>
+    <script src="../js/admin/pages/userList.js"></script>
+</head>
+
+<body>
+    <div id="err-msg"></div>
+    <div id="msg"></div>
+    <div class="background-container"></div>
+    <div class="banner">
+        <div class="menu">
+            <ul id="topMenu">
+
+            </ul>
+        </div>
+        <div id="usermenu">
+            <ul id="menu">
+                <li id="userLi">
+                    <a href="#">
+                        <img id="userAvatar" class="user_img" alt="user image">
+                        <span id="nickname" class="nickname">Marek</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="main-body">
+        <div class="list">
+            <div class="header"><h1>Lista Użytkowników</h1></div>
+            <table class="userListTable" id="userListTable">
+                <tr>
+                    <th></th>
+                    <th>Nick:</th>
+                    <th>Imie:</th>
+                    <th>Nazwisko:</th>
+                    <th>E-mail:</th>
+                    <th>Administrator:</th>
+                    <th colspan="2"></th>
+                </tr>
+                <!-- <tr uid="1">
+                    <td><img class="uimg" src=""></td>
+                    <td>PLPOLAND</td>
+                    <td>Marek</td>
+                    <td>Pałdyna</td>
+                    <td>marekpaldyna@wp.pl</td>
+                    <td><input type="checkbox" name="admin" id="admin" checked disabled></td>
+                </tr> -->
+            </table>
+        </div>
+
+    </div>
+</body>
+
+</html>

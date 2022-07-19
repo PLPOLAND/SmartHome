@@ -223,7 +223,7 @@ public class AdminRESTController {
     public Response<List<Function>> getFunctions(){
         return new Response<>(new ArrayList<>(this.automationDAO.getAllFunctions().values()));
     }
-    @RequestMapping("getFunction")
+    @RequestMapping("/getFunction")
     public Response<Function> getFunction(@RequestParam("id")int id){
         return new Response<>(this.automationDAO.getFunction(id));
     }
@@ -231,6 +231,11 @@ public class AdminRESTController {
     @RequestMapping("/getButtonClickTypes")
     public Response<String[]> getClickTypes() {
         return new Response<>(ButtonClickType.getNames());
+    }
+
+    @RequestMapping("/getUsers")
+    public Response<List<User>> getUsers() {
+        return new Response<>(users.getUsers());
     }
 
     @GetMapping("/addRoom")

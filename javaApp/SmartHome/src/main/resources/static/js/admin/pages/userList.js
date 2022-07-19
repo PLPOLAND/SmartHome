@@ -14,16 +14,16 @@ $(document).ready(function () {
                 console.log(response.obj);
                 rooms = response.obj;
                 $.ajax({
-                    url: "/admin/api/getSensors",
+                    url: "/admin/api/getUsers",
                     type: 'post',
                     data: {},
                     success: function (sensorsResponse) {
                         if (sensorsResponse.error == null) {
                             console.log(sensorsResponse.obj);
-                            var list = $(".list");
+                            var list = $("#userListTable");
                             sensorsResponse.obj.sort(compareUsers)
                             sensorsResponse.obj.forEach(element => {
-                                list.append(makeFullSensor(element, rooms));
+                                list.append(makeFullUser(element, rooms));
                             });
                         } else {
                             $("#err-msg").html(sensorsResponse.error);
@@ -42,5 +42,5 @@ $(document).ready(function () {
 });
 
 function compareUsers(a,b) {
-    return a.typ.localeCompare(b.typ);
+    return a.id> b.id;
 }

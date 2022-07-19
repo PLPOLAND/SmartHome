@@ -2,11 +2,17 @@ package smarthome.database;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,8 +32,11 @@ import smarthome.security.Hash;
 @Repository
 public class UsersDAO {
 
+	private static final String USER_JSON = "_User.json";
 	private static final String USERS_FILES_LOCATION = "smarthome/database/users/";
 	List<User> userzy = new ArrayList<>();
+
+	private Logger logger = LoggerFactory.getLogger(UsersDAO.class);
 
 	public UsersDAO() {
 		this.readDatabase();
@@ -60,7 +69,7 @@ public class UsersDAO {
 				return user;// znaleziony user
 			}
 		}
-		return null;// nie znaleziono usera
+		throw new IllegalArgumentException("Nie znaleziono uzytkownika o id: " + id);
 	}
 
 	/**
@@ -69,20 +78,33 @@ public class UsersDAO {
 	public void readDatabase() {
 		ObjectMapper obj = new ObjectMapper();
 		int i = 0;
-		while (i<Integer.MAX_VALUE) {
+
+		try (Stream<Path> paths = Files.walk(Paths.get(USERS_FILES_LOCATION))) {
+			paths.filter(Files::isRegularFile).forEach(filePath -> {
 			User user = null;
-			try {
-				user = obj.readValue(new FileInputStream(new File(USERS_FILES_LOCATION + i + "_User.json")),
-						User.class);
+				
+				try {
+					user = obj.readValue(
+							new FileInputStream(new File(filePath.toString())),
+							User.class);
+				} catch (JsonParseException e) {
+					logger.error("Błąd parsowania pliku JSON", e);
+				} catch (JsonMappingException e) {
+					logger.error("Błąd mapowania pliku JSON: {}, error: {}", filePath, e.getMessage());
+				} catch (FileNotFoundException e) {
+					logger.error("Nie znaleziono pliku: {}", filePath);
+					e.printStackTrace();
+				} catch (IOException e) {
+					logger.error("Błąd odczytu pliku: {}", filePath);
+				}
 				userzy.add(user);
-				i++;
-			} catch (Exception e) {
-				Logger logger = LoggerFactory.getLogger(UsersDAO.class);
-				logger.info("Wczytano " + i + " userow");
-				break;
 			}
+			);
+		} catch (IOException e) {
+			logger.info("Wczytano {} userow", userzy.size());
 		}
 	}
+	
 	/**
 	 * Pobieranie bazy danych Jeśli baza danych jest pusta pobiera ją a następnie
 	 * zwraca
@@ -96,6 +118,9 @@ public class UsersDAO {
 		return this.userzy;
 	}
 
+	public List<User> getUsers(){
+		return getDatabase();
+	}
 	/**
 	 * Sprawdza czy baza danych zawiera już to ID
 	 * 
@@ -105,7 +130,7 @@ public class UsersDAO {
 	public boolean contains(Long id) {
 		boolean czyZawiera = false;
 		for (User user : userzy) {
-			if (user.getId() == id) {
+			if (user.getId().equals(id)) {
 				czyZawiera = true;
 			}
 		}
@@ -133,8 +158,8 @@ public class UsersDAO {
 	 * 
 	 * @return Long - następne id
 	 */
-	public Long getNextID() {
-		return new Long(userzy.size() + 1);
+	public long getNextID() {
+		return userzy.size() + 1L;
 	}
 	/**
 	 * Tworzy nowego usera
@@ -167,7 +192,7 @@ public class UsersDAO {
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-				File projFile = new File(USERS_FILES_LOCATION + user.getId() + "_User.json");
+				File projFile = new File(USERS_FILES_LOCATION + user.getId() + USER_JSON);
 				new File(USERS_FILES_LOCATION).mkdirs();
 				projFile.createNewFile();// utworzenie pliku jeśli nie istnieje
 				objectMapper.writeValue(projFile, user);// plik projektu (src)
@@ -182,7 +207,7 @@ public class UsersDAO {
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-				File appFile = new File(TypeReference.class.getResource("/static/database/users/").getPath() + user.getId() + "_User.json");
+				File appFile = new File(TypeReference.class.getResource("/static/database/users/").getPath() + user.getId() + USER_JSON);
 				appFile.createNewFile();// utworzenie pliku jeśli nie istnieje
 				objectMapper.writeValue(appFile, user);// plik aplikacji (target)
 			} catch (JsonGenerationException e) {
