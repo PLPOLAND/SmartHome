@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 
 @Service
 public class I2C{
@@ -37,8 +38,7 @@ public class I2C{
         try {
             gpio = GpioFactory.getInstance();
             pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
-            // restartSlaves();//TODO: zamienić na metodę restartSlaves()
-            findAll();// TODO: zamienić na metodę restartSlaves()
+            findAll();
             // logger.info("Searching for devices");
             
         } catch (UnsatisfiedLinkError e) {
@@ -85,10 +85,18 @@ public class I2C{
         final I2CBus bus;
         // pauseIfOcupied();
         // setOccupied(true);
+        long time =  System.currentTimeMillis();
+
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
             for (int i = 7; i < 128; i++) {
                 try {
+                    long timeFromStart = time - System.currentTimeMillis(); 
+                    if ( timeFromStart>0 && timeFromStart > 1000 * 5 ) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 10 sekund 
+                        logger.error("Sprawdzanie trwa za długo... najprawdopodobniej magistrala jest zablokowana. Restartuje slave-y");
+                        restartSlaves();
+                        return;
+                    }
                     I2CDevice device = bus.getDevice(i);
                     device.write((byte) 0);
                     byte[] buffer = new byte[8];
@@ -251,8 +259,8 @@ public class I2C{
 
         setOccupied(false);
 
-        this.findAll();
         logger.info("Slave-y zrestartowane");
+        this.findAll();
     }
 
 

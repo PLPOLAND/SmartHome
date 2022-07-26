@@ -45,6 +45,16 @@ public class Automation {
         Automation.stop = false;
     }
 
+    /**
+     * Sprawdza co minutę czy są podłączone jakieś slave-y w systemie i jeśli nie ma, to próbuje je znaleźć
+     */
+    @Scheduled(fixedDelay = 1000*60)
+    void checkIfThereIsAnySlaveOnSystem(){
+        if (system.getArduino().atmega.getDevices().isEmpty()) {
+            system.getArduino().atmega.findAll();
+        }
+    }
+
     @Scheduled(fixedDelay = 200)
     void checkAutomationFunctions(){
         if (!stop) {
