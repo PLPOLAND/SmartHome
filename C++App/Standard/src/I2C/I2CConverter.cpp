@@ -444,6 +444,7 @@ void I2CConverter::RequestEvent()
     if (doWyslania.size()>0)
     {
         command = doWyslania.remove(0);//usuń z kolejki
+        //TODO sprawdzić wysyłanie błędnej komendy
         switch (command->getCommandType())
         {
             case Command::KOMENDY::SEND_TEMPERATURA:

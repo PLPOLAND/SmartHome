@@ -477,7 +477,9 @@ public class MasterToSlaveConverter {
                 str.append("Error on checking init of board ");
                 str.append(adres);
                 str.append(". ");
-                str.append("Response[0] != 'I' ");
+                str.append("Response[0] != 'I' ;");
+                str.append("Response = ");
+                str.append(Arrays.toString(buffor));
                 throw new SoftwareException( str.toString());
             }
             return buffor[1] == 1;
