@@ -73,9 +73,8 @@ public class Automation {
             for (I2CDevice device : system.getArduino().atmega.getDevices()) {
                 if (system.isSlaveConnected(device.getAddress())) {
                     try{
-                        if (system.checkInitOfBoard(device.getAddress())) {
-                            system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
-                        }
+                        system.checkInitOfBoard(device.getAddress());
+                        system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
                     }
                     catch (HardwareException | SoftwareException e){
                         logger.error("Error in checkAutomationFunctions. Error: {}", e.getMessage());

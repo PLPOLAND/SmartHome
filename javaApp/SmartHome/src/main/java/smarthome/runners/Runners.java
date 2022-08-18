@@ -54,18 +54,8 @@ public class Runners {
         Runners.stop = false;
     }
 
-    // @Scheduled(fixedDelay = 10000)
-    // void checkReinit(){
-    //     if (isCheckReinitDone && isCheckDevicesStatusDone) {
-    //         isCheckReinitDone = false;
-    //         logger.debug("checkReinit()");
-    //         system.reinitAllBoards();
-    //         isCheckReinitDone = true;
-    //     }
-        
-    // }
     
-    @Scheduled(fixedDelay = 500)
+    // @Scheduled(fixedDelay = 500)
     void checkDevicesStatus(){
         if (!system.getArduino().atmega.getDevices().isEmpty()) {
             logger.debug("checkStatus()");

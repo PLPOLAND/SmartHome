@@ -16,6 +16,7 @@ import smarthome.automation.ButtonFunction;
 import smarthome.automation.FunctionAction;
 import smarthome.controller.AdminRESTController;
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 import smarthome.model.hardware.Button;
 import smarthome.model.hardware.ButtonClickType;
 import smarthome.model.hardware.ButtonLocalFunction;
@@ -230,23 +231,14 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				}
 				else if(in.equals("test")){
 					
-					FunctionAction test =  new FunctionAction();
-					Device dev = system.getSystemDAO().getRoom("Marek").getDeviceById(9);
-					if (dev == null) {
-						log.error("Nie znaleziono urzadzenia");
-					}
-					// test.setDevice(dev);
-					// test.setActiveDeviceState(DeviceState.ON);
-					// test.setAllowReverse(true);
 					
-					// test.activate();
-
-					// Thread.sleep(10000);
-
-					// test.deactivate();
-
-					system.getAutomationDAO().getButtonFunctions().get(0).run();
-
+					if (system.isSlaveConnected(15)) {
+							
+							system.checkInitOfBoard(15);
+							system.checkGetAndExecuteCommandsFromSlave(15);
+							
+					}
+					
 
 					// byte[] data = {67, 4, 3, 67, 0, 0, 0, 0};
 					// ButtonFunction function = new ButtonFunction();

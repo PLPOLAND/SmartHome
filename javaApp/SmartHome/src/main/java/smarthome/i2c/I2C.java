@@ -92,7 +92,7 @@ public class I2C{
             for (int i = 7; i < 128; i++) {
                 try {
                     long timeFromStart = time - System.currentTimeMillis(); 
-                    if ( timeFromStart>0 && timeFromStart > 1000 * 5 ) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 10 sekund 
+                    if ( timeFromStart>0 && timeFromStart > 1000 * 5 ) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund 
                         logger.error("Sprawdzanie trwa za długo... najprawdopodobniej magistrala jest zablokowana. Restartuje slave-y");
                         restartSlaves();
                         return;
@@ -141,6 +141,8 @@ public class I2C{
     
 
     public void writeTo(int adres, byte[] buffer) throws HardwareException{
+        logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
+
         I2CDevice tmp = null;
         for (I2CDevice device : devices) {
             if (device.getAddress() == adres) {
@@ -230,6 +232,7 @@ public class I2C{
                 //e.printStackTrace();
           //  }
         }
+        logger.debug("Got {} <- '{}'", Arrays.toString(buffer), adres);
         return buffer;
     }
     
