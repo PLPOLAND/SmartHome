@@ -215,6 +215,23 @@ public class AdminController {
         return "admin/userList";
     }
 
+    @RequestMapping("/addUser")
+    public String addUser(HttpServletRequest request){
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        
+        return "admin/addUser";
+    }
+
+    @RequestMapping("/editUser")
+    public String editUser(@RequestParam(name = "id") int userID, HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        model.addAttribute("userID", userID);
+        return "admin/editUser";
+    }
 
     @RequestMapping("/shutdown")
     public String shutdown(HttpServletRequest request) {

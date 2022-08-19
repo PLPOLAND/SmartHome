@@ -31,6 +31,8 @@ public class Opcje {
     }
 
     public Opcje(String path){
+        typAvatara = AvatarType.LOCAL;
+        themeSciezka = CSS_THEMES_LOCATION + "blue.css";
         lokalnaSciezka = path;
     }
 
