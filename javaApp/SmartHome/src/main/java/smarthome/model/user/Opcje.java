@@ -26,8 +26,8 @@ public class Opcje {
 
     public Opcje(){
         typAvatara = AvatarType.LOCAL;
-        lokalnaSciezka = "";
-        themeSciezka = "";
+        lokalnaSciezka = "../img/users/deafult.png";
+        themeSciezka = CSS_THEMES_LOCATION + "blue.css";
     }
 
     public Opcje(String path){
@@ -73,6 +73,9 @@ public class Opcje {
         this.themeSciezka = CSS_THEMES_LOCATION + themeSciezka;
     }
 
+    public void setColor(String color) {
+        this.setThemeSciezka(color+".css");
+    }
 
     @Override
     public String toString() {
@@ -82,5 +85,6 @@ public class Opcje {
             ", themeSciezka='" + getThemeSciezka() + "'" +
             "}";
     }
+
 
 }

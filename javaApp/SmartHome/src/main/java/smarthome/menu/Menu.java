@@ -71,16 +71,16 @@ public class Menu {
             else{
                 PozycjaMenu tmp = new PozycjaMenu("<i class=\"icon-home\"></i>", "/");
                 menuGlowne.add(tmp);
-                tmp = new PozycjaMenu("Akcje", "/activities",true);
-                tmp.addDropDown(new PozycjaMenu(DODAJ, "./addActivity"));
-                tmp.addDropDown(new PozycjaMenu("Usuń", "./addActivity"));
-                menuGlowne.add(tmp);
-                tmp = new PozycjaMenu("Pokoje", "/rooms");
-                menuGlowne.add(tmp);
-                tmp = new PozycjaMenu("Urządzenia", "/devices");
-                menuGlowne.add(tmp);
-                tmp = new PozycjaMenu("Sensory", "/sensors");
-                menuGlowne.add(tmp);
+                // tmp = new PozycjaMenu("Akcje", "/activities",true);
+                // tmp.addDropDown(new PozycjaMenu(DODAJ, "./addActivity"));
+                // tmp.addDropDown(new PozycjaMenu("Usuń", "./addActivity"));
+                // menuGlowne.add(tmp);
+                // tmp = new PozycjaMenu("Pokoje", "/rooms");
+                // menuGlowne.add(tmp);
+                // tmp = new PozycjaMenu("Urządzenia", "/devices");
+                // menuGlowne.add(tmp);
+                // tmp = new PozycjaMenu("Sensory", "/sensors");
+                // menuGlowne.add(tmp);
                 
 
                 // MENU USERA

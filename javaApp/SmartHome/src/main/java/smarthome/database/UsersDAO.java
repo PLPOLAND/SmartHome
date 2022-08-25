@@ -159,7 +159,13 @@ public class UsersDAO {
 	 * @return Long - następne id
 	 */
 	public long getNextID() {
-		return userzy.size() + 1L;
+		int min = 0;
+		for (User user : userzy) {
+			if (user.getId()==min) {
+				min++;
+			}
+		}
+		return min;
 	}
 	/**
 	 * Tworzy nowego usera
@@ -222,6 +228,24 @@ public class UsersDAO {
 			return false;
 		}
 	}
+
+    public void addUser(User u) {
+		u.setId(this.getNextID());
+		save(u);
+		userzy.add(u);
+    }
+
+    public User findUserByNick(String nick) {
+		nick = nick.toLowerCase();
+		User u = null;
+		for (User user : userzy) {
+			if (user.getNick().toLowerCase().equals(nick)) {
+				u = user;
+				break;
+			}
+		}
+        return u;
+    }
 
 	
 }

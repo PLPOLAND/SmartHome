@@ -243,6 +243,10 @@ public class AdminController {
     }
 
     String reredairect(HttpServletRequest request){
+        Security sec = new Security(request, users);
+        if (sec.isLoged() && !sec.getUserPremissions().isAdmin()) {
+            return "redirect:/";
+        }
         String str = "redirect:login?l=";
         str += request.getRequestURI();
         str += "?";

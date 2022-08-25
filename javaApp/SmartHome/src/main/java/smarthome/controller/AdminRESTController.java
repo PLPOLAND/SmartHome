@@ -45,6 +45,7 @@ import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
 import smarthome.model.user.Opcje;
 import smarthome.model.user.User;
+import smarthome.security.Hash;
 import smarthome.security.Security;
 
 @RestController
@@ -712,6 +713,40 @@ public class AdminRESTController {
     @RequestMapping("getTestAction")
     public FunctionAction getTestAction(){
         return new FunctionAction(1, DeviceState.DOWN, false);
+    }
+
+
+
+    @RequestMapping("/addUser")
+    public Response<String> addUser(HttpServletRequest request, @RequestParam("name") String name, @RequestParam("surname") String surname, @RequestParam("nick") String nick,  @RequestParam("email")String email, @RequestParam("pass") String pass, @RequestParam("admin") boolean isAdmin, @RequestParam("color") String color){
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return new Response<>(null,"Nie jesteś zalogowany jako administrator!");
+        if (users.findUserByNick(nick)!=null) {
+            return new Response<>(null, "User o takim nicku już istnieje!");
+        }
+        User u = new User();
+        u.setEmail(email);
+        u.setImie(name);
+        u.setNazwisko(surname);
+        u.setNick(nick);
+        u.setPassword(Hash.hash(pass));
+        u.setUprawnienia(new Uprawnienia(isAdmin));
+        u.setOpcje(new Opcje());
+        u.getOpcje().setColor(color);
+        users.addUser(u);
+        return new Response<>("Pomyślnie dodano usera");
+        
+    }
+
+    @RequestMapping("/getTermometrByID")
+    public Response<Float> getTermometrByID(@RequestParam("id") int id){
+        for (Termometr termometr : systemDAO.getAllTermometers()) {
+            if (termometr.getId() == id) {
+                return new Response<> (termometr.getTemperatura());
+            }
+        }
+        return new Response<> (Float.valueOf(-127.f));
     }
 
     @RequestMapping("/restart")

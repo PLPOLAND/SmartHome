@@ -27,31 +27,7 @@ public class SmartHomeAppTest {
 	@Test
 	public void contextLoads() {
 
-		if (!systemDAO.haveAnyRoom()) {
-			Room room = new Room(0, "Kitchen");
-			systemDAO.addRoom(room);
-			Light device = new Light(0, 0, 0, 0);
-			room.addDevice(device);
-			Button b = new Button(0, 0);
-			b.setId(1);
-			room.addSensor(b);
-			systemDAO.save();
-		}
-		else {
-			Room room = systemDAO.getRoom(0);
-			Light device = (Light) room.getDeviceById(0);
-			Button b = (Button) room.getSensors().get(0);
-			if(automationDAO.getAllFunctions().size()<=0){
-				ButtonFunction bf = new ButtonFunction(b, 1, ButtonClickType.CLICKED);
-				automationDAO.addFunction(bf);
-			}
-			else{
-				ButtonFunction bf = (ButtonFunction) automationDAO.getAllFunctions().get(0);
-				if (b.equals(bf.getButton())) {
-					System.out.println( "ButtonFunction is already in the database");
-				}
-			}
-		}
+		
 
 	}
 
