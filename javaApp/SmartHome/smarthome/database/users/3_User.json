@@ -1,0 +1,17 @@
+{
+  "id" : 3,
+  "imie" : "Rafał",
+  "nazwisko" : "Pałdyna",
+  "nick" : "dziadunio",
+  "email" : "rpaldyna@poczta.onet.pl",
+  "password" : "xyiyp",
+  "oldPassword" : "",
+  "uprawnienia" : {
+    "admin" : false
+  },
+  "opcje" : {
+    "typAvatara" : "LOCAL",
+    "lokalnaSciezka" : "../img/users/deafult.png",
+    "themeSciezka" : "../themes/green.css"
+  }
+}
