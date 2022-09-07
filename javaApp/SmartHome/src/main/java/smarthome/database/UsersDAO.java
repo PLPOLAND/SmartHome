@@ -229,6 +229,18 @@ public class UsersDAO {
 		}
 	}
 
+	public void delete(User u){
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+			File projFile = new File(USERS_FILES_LOCATION + u.getId() + USER_JSON);
+			projFile.getParentFile().mkdirs();
+			projFile.delete();// usuń plik
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
     public void addUser(User u) {
 		u.setId(this.getNextID());
 		save(u);
@@ -236,7 +248,7 @@ public class UsersDAO {
     }
 
     public User findUserByNick(String nick) {
-		nick = nick.toLowerCase();
+		// nick = nick.toLowerCase();
 		User u = null;
 		for (User user : userzy) {
 			if (user.getNick().toLowerCase().equals(nick)) {
@@ -245,6 +257,23 @@ public class UsersDAO {
 			}
 		}
         return u;
+    }
+
+    public User getByID(Long id) {
+		
+		for (User user : userzy) {
+			if (user.getId().equals(id)) {
+				return user;
+			}
+		}
+        return null;
+    }
+
+    public void removeUser(User us) {
+		if (userzy.contains(us)){
+			userzy.remove(us);
+			delete(us);
+		}
     }
 
 	

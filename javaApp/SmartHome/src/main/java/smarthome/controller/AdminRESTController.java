@@ -239,6 +239,78 @@ public class AdminRESTController {
         return new Response<>(users.getUsers());
     }
 
+    @RequestMapping("/getUser")
+    public Response<User> getUser(@RequestParam("id") Long id, HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() )
+            return new Response<>(null, "Nie jesteś zalogowany.");
+        if (!sec.isUserAdmin() && !sec.getUserID().equals(id)) {
+            return new Response<>(null, "Nie jesteś zalogowany jako Administrator");
+        }
+        User u = users.getByID(id);
+        if (u == null) {
+            return new Response<>(null, "Brak użytkownika o podanym ID");
+        }
+        else{
+            return new Response<User>(u);
+        }
+
+        
+    }
+
+    @RequestMapping("/editUser")
+    public Response<String> editUser(HttpServletRequest request,@RequestParam("id")Long id, @RequestParam("name") String name, @RequestParam("surname") String surname, @RequestParam("nick") String nick,  @RequestParam("email")String email, @RequestParam("pass") String pass, @RequestParam("admin") boolean isAdmin, String color){
+        User us = users.getByID(id);
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() )
+            return new Response<>(null,"Nie jesteś zalogowany!");
+        if (!sec.isUserAdmin() && !sec.getUserID().equals(id)) {
+            return new Response<>(null, "Nie jesteś zalogowany jako administrator!");
+        }
+        if (us == null) {
+            return new Response<>(null, "W systemie nie ma usera o podanym id!");
+        }
+        if (!us.getNick().equals(nick) && users.findUserByNick(nick)!=null) {
+            return new Response<>(null, "User o takim nicku już istnieje!");
+        }
+        
+        us.setEmail(email);
+        us.setImie(name);
+        us.setNazwisko(surname);
+        us.setNick(nick);
+        if (!pass.equals("xxx")) {
+            us.setOldPassword(us.getPassword());
+            us.setPassword(Hash.hash(pass));
+        }
+        us.setUprawnienia(new Uprawnienia(isAdmin));
+        if (!color.equals("")) {
+            us.getOpcje().setColor(color);
+        }
+        users.save(us);
+        if (sec.getUserID().equals(id)) {
+            sec.reInitLoginData();
+        }
+        return new Response<>("Pomyślnie edytowano usera");
+        
+    }
+
+    @RequestMapping("/removeUserByID")
+    public Response<String> removeUserByID(HttpServletRequest request,@RequestParam("id")Long id){
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return new Response<>(null, "Nie jesteś zalogowany jako administrator!");
+        else{
+            User us = users.getByID(id);
+            if (us == null) {
+                return new Response<>(null, "W systemie nie ma usera o podanym id!");
+            }
+            String nick = us.getNick();
+            users.removeUser(us);
+            return new Response<String>("User "+nick+" został usunięty z systemu!");
+        }
+            
+    }
+
     @GetMapping("/addRoom")
     public Response<String> dodajPokoj(@RequestParam("name") String name){
         Room r = new Room(systemDAO.getRoomsArrayList().size(), name);

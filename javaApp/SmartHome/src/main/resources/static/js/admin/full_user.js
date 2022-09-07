@@ -43,7 +43,7 @@ function makeFullUser(obj, rooms) {
                     console.log(response.obj);
                     $("#msg").html(response.obj);
                     $("#msg").show("bounce", {}, 1000, function () { hideAfter(this, 5000) });
-                    $(this).parent().remove()
+                    deleteMe.parent().remove()
                 } else {
                     $("#err-msg").html(response.error);
                     $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });

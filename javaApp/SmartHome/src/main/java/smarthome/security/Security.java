@@ -81,6 +81,25 @@ public class Security {
 
     }
 
+    public void reInitLoginData(){
+        
+        User resultUsers = database.getByID(this.getUserID());
+        if (resultUsers == null) {
+            return;
+        } else {
+            String name = resultUsers.getImie();
+            String nazwisko = resultUsers.getEmail();
+            Long idU = resultUsers.getId();
+            HttpSession session = request.getSession();
+            session.setAttribute("imie", name); // dodawanie pola do sesji
+            session.setAttribute("nazwisko", nazwisko);
+            session.setAttribute("id", idU);
+            session.setAttribute("uprawnienia",resultUsers.getUprawnienia());
+            session.setAttribute("opcje",resultUsers.getOpcje());
+            session.setMaxInactiveInterval(60 * 60 * 24 * 2); // usuniecie pol sesji po 2 dniach nie aktywności
+        }
+    }
+
     /**
      * 
      * Funkcja sprawdzająca czy użytkownik jest zalogowany
@@ -119,10 +138,10 @@ public class Security {
      * @version 1.0
      * @return Integer ID użytkownika
      */
-    public Integer getUserID() {
+    public Long getUserID() {
         if (isLoged()) {
             HttpSession session = request.getSession();
-            return (Integer) session.getAttribute("id");
+            return (Long) session.getAttribute("id");
         } else {
             return null;
         }

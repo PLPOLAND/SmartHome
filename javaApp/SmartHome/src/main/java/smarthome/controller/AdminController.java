@@ -230,6 +230,17 @@ public class AdminController {
         if (!sec.isLoged() || !sec.isUserAdmin())
             return this.reredairect(request);
         model.addAttribute("userID", userID);
+        model.addAttribute("admin", true);
+        return "admin/editUser";
+    }
+
+    @RequestMapping("/userSetings")
+    public String userSetings(HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        model.addAttribute("userID", sec.getUserID());
+		model.addAttribute("admin", true);
         return "admin/editUser";
     }
 

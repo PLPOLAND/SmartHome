@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  */
 public class Opcje {
     
-    private static final String CSS_THEMES_LOCATION = "../css/themes/";
+    private static final String CSS_THEMES_LOCATION = "/css/themes/";
 
 
     //#region Avatar
@@ -70,7 +70,11 @@ public class Opcje {
     }
 
     public void setThemeSciezka(String themeSciezka) {
-        this.themeSciezka = CSS_THEMES_LOCATION + themeSciezka;
+        if (themeSciezka.contains("/")) {
+            this.themeSciezka = themeSciezka;
+        }
+        else
+            this.themeSciezka = CSS_THEMES_LOCATION + themeSciezka;
     }
 
     public void setColor(String color) {
