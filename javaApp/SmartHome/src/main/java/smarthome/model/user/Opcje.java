@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  */
 public class Opcje {
     
-    private static final String CSS_THEMES_LOCATION = "../css/themes/";
+    private static final String CSS_THEMES_LOCATION = "/css/themes/";
 
 
     //#region Avatar
@@ -26,11 +26,13 @@ public class Opcje {
 
     public Opcje(){
         typAvatara = AvatarType.LOCAL;
-        lokalnaSciezka = "";
-        themeSciezka = "";
+        lokalnaSciezka = "../img/users/deafult.png";
+        themeSciezka = CSS_THEMES_LOCATION + "blue.css";
     }
 
     public Opcje(String path){
+        typAvatara = AvatarType.LOCAL;
+        themeSciezka = CSS_THEMES_LOCATION + "blue.css";
         lokalnaSciezka = path;
     }
 
@@ -68,9 +70,16 @@ public class Opcje {
     }
 
     public void setThemeSciezka(String themeSciezka) {
-        this.themeSciezka = CSS_THEMES_LOCATION + themeSciezka;
+        if (themeSciezka.contains("/")) {
+            this.themeSciezka = themeSciezka;
+        }
+        else
+            this.themeSciezka = CSS_THEMES_LOCATION + themeSciezka;
     }
 
+    public void setColor(String color) {
+        this.setThemeSciezka(color+".css");
+    }
 
     @Override
     public String toString() {
@@ -80,5 +89,6 @@ public class Opcje {
             ", themeSciezka='" + getThemeSciezka() + "'" +
             "}";
     }
+
 
 }

@@ -46,6 +46,9 @@ public class SystemDAO {
         devices = new ArrayList<>();
         sensors = new ArrayList<>();
         this.readDatabase();
+        if (pokoje.isEmpty()) {
+            addRoom(new Room(0, "Brak"));
+        }
     }
 
     /**
@@ -219,6 +222,8 @@ public class SystemDAO {
         ObjectMapper obj = new ObjectMapper();
         obj.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
         int i = 0;
+        File f = new File(ROOMS_FILES_LOCALISATION);
+        logger.debug("Lokalizacja plików z pokojami: {}", f.getAbsolutePath());
         while (i< Integer.MAX_VALUE) {
             Room room = null;
             try {
@@ -231,6 +236,7 @@ public class SystemDAO {
                 i++;
             } catch (IOException e) {
                 logger.info("Wczytano {} pokoi", i);
+
                 break;
             } catch(Exception e){
                 logger.error("Błąd podczas wczytywania pokoi", e);
@@ -352,11 +358,27 @@ public class SystemDAO {
         return list;
     }
 
+    public Device getDeviceByID(int id) {
+        for (Device device : this.getDevices()) {
+            if (device.getId() == id) {
+                return device;
+            }
+        }
+        return null;
+    }
+    public Sensor getSensorByID(int id) {
+        for (Sensor sensor : this.getSensors()) {
+            if (sensor.getId() == id) {
+                return sensor;
+            }
+        }
+        return null;
+    }
 
     @Override
     public String toString() {
-        return "{" + '\n' + " pokoje='" + pokoje + "'" + '\n' + ", devices='" + devices + "'" + '\n' + ", sensors='"
-                + sensors + "'" + '\n' + "}";
+        return "{" + '\n' + " pokoje='" + pokoje + "'" + "\n\n" + ", devices='" + devices + "'" + "\n\n" + ", sensors='"
+                + sensors + "'" + "\n\n}";
     }
 
     

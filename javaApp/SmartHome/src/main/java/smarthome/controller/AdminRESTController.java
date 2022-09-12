@@ -13,13 +13,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import smarthome.automation.ButtonFunction;
+import smarthome.automation.Function;
+import smarthome.automation.FunctionAction;
+import smarthome.automation.Function.FunctionType;
+import smarthome.database.AutomationDAO;
 import smarthome.database.SystemDAO;
 import smarthome.database.UsersDAO;
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 import smarthome.i2c.MasterToSlaveConverter;
 import smarthome.model.Response;
 import smarthome.model.Room;
@@ -27,15 +35,17 @@ import smarthome.model.Uprawnienia;
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Light;
+import smarthome.model.hardware.DeviceState;
 import smarthome.model.hardware.Sensor;
 import smarthome.model.hardware.SensorsTypes;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
-import smarthome.model.hardware.ButtonFunction;
+import smarthome.model.hardware.ButtonClickType;
+import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
-import smarthome.model.hardware.Blind.RoletaStan;
 import smarthome.model.user.Opcje;
 import smarthome.model.user.User;
+import smarthome.security.Hash;
 import smarthome.security.Security;
 
 @RestController
@@ -46,6 +56,9 @@ public class AdminRESTController {
 
     @Autowired
     SystemDAO systemDAO;
+    
+    @Autowired
+    AutomationDAO automationDAO;
 
     @Autowired
     smarthome.system.System system;
@@ -79,11 +92,11 @@ public class AdminRESTController {
             }
         }
         else
-            return new Response<String>("", "Nie znaleziono dopasowania w bazie danych");
+            return new Response<>("", "Nie znaleziono dopasowania w bazie danych");
     }
 
     @RequestMapping("/test")
-    public Response test() {
+    public Response<String> test() {
         users.createUser( new User(0l, "Marek", "Paldyna", "PLPOLAND", "marekpaldyna@wp.pl", "Mareczek", "xxx", new Uprawnienia(true), new Opcje("../img/users/12322601_643168719175369_7590023013141216084_o.jpg") ));
         return new Response<String>("test");
     }
@@ -148,6 +161,10 @@ public class AdminRESTController {
     public Response<ArrayList<Sensor>> getSensors() {
         return new Response<>(systemDAO.getSensors());
     }
+    @RequestMapping("/getButtons")
+    public Response<ArrayList<Button>> getButtons() {
+        return new Response<>(systemDAO.getAllButtons());
+    }
     @RequestMapping("/getTermometers")
     public Response<ArrayList<Termometr>> getThermometers() {
         return new Response<>(systemDAO.getAllTermometers());
@@ -156,6 +173,16 @@ public class AdminRESTController {
     @RequestMapping("/getSensorTypes")
     public Response<String[]> getSensorTypes() {
         return new Response<>(SensorsTypes.getNames());
+    }
+
+    @RequestMapping("/getFunctionTypes")
+    public Response<String[]> getFunctionTypes() {
+        return new Response<>(Function.getFunctionTypes());
+    }
+
+    @RequestMapping("/getDeviceStates")
+    public Response<String[]> getDeviceStates() {
+        return new Response<>(DeviceState.getNames());
     }
 
     @RequestMapping("/getRoomsNamesList")
@@ -189,9 +216,99 @@ public class AdminRESTController {
         return new Response<>(blinds);
     }
     @RequestMapping("/getButtonFunction")
-    public Response<List<ButtonFunction>> getButtonFunctions(@RequestParam("buttonId")int buttonId) {
+    public Response<List<ButtonLocalFunction>> getButtonFunctions(@RequestParam("buttonId")int buttonId) {
         Button b= (Button)system.getSensorByID(buttonId);
         return new Response<>(b.getFunkcjeKlikniec());
+    }
+    @RequestMapping("/getFunctions")
+    public Response<List<Function>> getFunctions(){
+        return new Response<>(new ArrayList<>(this.automationDAO.getAllFunctions().values()));
+    }
+    @RequestMapping("/getFunction")
+    public Response<Function> getFunction(@RequestParam("id")int id){
+        return new Response<>(this.automationDAO.getFunction(id));
+    }
+
+    @RequestMapping("/getButtonClickTypes")
+    public Response<String[]> getClickTypes() {
+        return new Response<>(ButtonClickType.getNames());
+    }
+
+    @RequestMapping("/getUsers")
+    public Response<List<User>> getUsers() {
+        return new Response<>(users.getUsers());
+    }
+
+    @RequestMapping("/getUser")
+    public Response<User> getUser(@RequestParam("id") Long id, HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() )
+            return new Response<>(null, "Nie jesteś zalogowany.");
+        if (!sec.isUserAdmin() && !sec.getUserID().equals(id)) {
+            return new Response<>(null, "Nie jesteś zalogowany jako Administrator");
+        }
+        User u = users.getByID(id);
+        if (u == null) {
+            return new Response<>(null, "Brak użytkownika o podanym ID");
+        }
+        else{
+            return new Response<User>(u);
+        }
+
+        
+    }
+
+    @RequestMapping("/editUser")
+    public Response<String> editUser(HttpServletRequest request,@RequestParam("id")Long id, @RequestParam("name") String name, @RequestParam("surname") String surname, @RequestParam("nick") String nick,  @RequestParam("email")String email, @RequestParam("pass") String pass, @RequestParam("admin") boolean isAdmin, String color){
+        User us = users.getByID(id);
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() )
+            return new Response<>(null,"Nie jesteś zalogowany!");
+        if (!sec.isUserAdmin() && !sec.getUserID().equals(id)) {
+            return new Response<>(null, "Nie jesteś zalogowany jako administrator!");
+        }
+        if (us == null) {
+            return new Response<>(null, "W systemie nie ma usera o podanym id!");
+        }
+        if (!us.getNick().equals(nick) && users.findUserByNick(nick)!=null) {
+            return new Response<>(null, "User o takim nicku już istnieje!");
+        }
+        
+        us.setEmail(email);
+        us.setImie(name);
+        us.setNazwisko(surname);
+        us.setNick(nick);
+        if (!pass.equals("xxx")) {
+            us.setOldPassword(us.getPassword());
+            us.setPassword(Hash.hash(pass));
+        }
+        us.setUprawnienia(new Uprawnienia(isAdmin));
+        if (!color.equals("")) {
+            us.getOpcje().setColor(color);
+        }
+        users.save(us);
+        if (sec.getUserID().equals(id)) {
+            sec.reInitLoginData();
+        }
+        return new Response<>("Pomyślnie edytowano usera");
+        
+    }
+
+    @RequestMapping("/removeUserByID")
+    public Response<String> removeUserByID(HttpServletRequest request,@RequestParam("id")Long id){
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return new Response<>(null, "Nie jesteś zalogowany jako administrator!");
+        else{
+            User us = users.getByID(id);
+            if (us == null) {
+                return new Response<>(null, "W systemie nie ma usera o podanym id!");
+            }
+            String nick = us.getNick();
+            users.removeUser(us);
+            return new Response<String>("User "+nick+" został usunięty z systemu!");
+        }
+            
     }
 
     @GetMapping("/addRoom")
@@ -214,23 +331,8 @@ public class AdminRESTController {
         return new Response<>("Nazwa pokoju: '" + oldName +"' została zmieniona na: '"+name+"'");
     }
 
-    // public Response<String> setIdPlytkiRoom(@RequestParam("name") String name, @RequestParam("id") int id) {
-    //     system.getRoom(name).s
 
-    // }
-
-    // @GetMapping("/addGniazdko")
-    // public Response<String> dodajGniazdko(@RequestParam("name") String nazwaPokoju,@RequestParam("pin") int pin){
-    //     Switch g;
-    //     try {
-    //         g = new Switch(false, pin);
-    //         system.addDeviceToRoom(nazwaPokoju, g);
-    //     } catch (Exception e) {
-    //         return new Response<>("",e.getMessage());
-    //     }
-    //     return new Response<String>("Gniazdko: '" + g.toString() + "' dodane prawidłowo");
-
-    // }
+    
     @GetMapping("/addSwiatlo")
     public Response<String> dodajSwiatlo(@RequestParam("roomName") String nazwaPokoju, @RequestParam("name") String deviceName,@RequestParam("boardID") int boardID, @RequestParam("pin") int pin){
         
@@ -267,7 +369,7 @@ public class AdminRESTController {
             else
                 return new Response<>("","Nie udało znaleźć się Żarówki. Sprawdź konsolę programu w poszukiwaniu szczegółów");
         } catch (Exception e) {
-            logger.error("Błąd podczas dodawania światła",e);
+            logger.error("Błąd podczas edycji światła",e);
             return new Response<>(null, e.getMessage());
         }
     }
@@ -398,7 +500,7 @@ public class AdminRESTController {
         return new Response<>(system.getTemperature(adress));
     }
     @GetMapping("/addButtonClickFunction")
-    public Response<String> addButtonClickFunction(@RequestParam("buttonID") int buttonID,@RequestParam("deviceID") int deviceId, @RequestParam("state") ButtonFunction.State state, @RequestParam("clicks") int clicks ) {
+    public Response<String> addButtonClickFunction(@RequestParam("buttonID") int buttonID,@RequestParam("deviceID") int deviceId, @RequestParam("state") ButtonLocalFunction.State state, @RequestParam("clicks") int clicks ) {
         try {
             Device device = system.getDeviceByID(deviceId);
             system.addFunctionToButton(buttonID, device, state, clicks);
@@ -441,7 +543,7 @@ public class AdminRESTController {
     public Response<String> zmienStanSwiatlaByRoomID(@RequestParam("roomID") int roomID, @RequestParam("idUrzadzenia") int idUrzadzenia, @RequestParam("stan") boolean stan) {
         
         try {
-            Device d =system.changeLightState( roomID, idUrzadzenia, stan);
+            Device d =system.changeLightState( roomID, idUrzadzenia, stan?DeviceState.ON:DeviceState.OFF);
             return new Response<>("Zmieniono stan Swiatla :" +((Light)d).toString()+" na stan: " + (stan == true ? "ON" : "OFF"));
         } catch (Exception e) {
             logger.error("Błąd podczas zmieniania stanu światła! ", e);
@@ -457,7 +559,7 @@ public class AdminRESTController {
         logger.debug("Zmien Stan Rolety w pokoju: "+ nazwaPokoju+ "; id Rolety: " + idUrzadzenia + "; do stanu: " +(pozycja ? "UP":"DOWN"));
         try {
             Device d =system.changeBlindState( nazwaPokoju, idUrzadzenia, pozycja);
-            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getStan() == RoletaStan.UP ? "UP" : "DOWN"));
+            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getState() == DeviceState.UP ? "UP" : "DOWN"));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>("", e.getMessage());
@@ -471,7 +573,7 @@ public class AdminRESTController {
         logger.debug("Zmien Stan Rolety w pokoju: "+ r.getNazwa()+ "; id Rolety: " + idUrzadzenia + "; do stanu: " +(pozycja ? "UP":"DOWN"));
         try {
             Device d =system.changeBlindState( r.getNazwa(), idUrzadzenia, pozycja);
-            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getStan() == RoletaStan.UP ? "UP" : "DOWN"));
+            return new Response<>("Zmieniono stan Rolety :" +((Blind)d).toString()+" na pozycje: " + (((Blind)d).getState() == DeviceState.UP ? "UP" : "DOWN"));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>("", e.getMessage());
@@ -518,8 +620,8 @@ public class AdminRESTController {
             Button b = (Button) system.getSensorByID(buttonId);
             if (b != null){//TODO move to System
                 b.setName(buttonName);
-                int oldSlaveID = b.getSlaveID();
-                b.setSlaveID(newSlaveID);
+                int oldSlaveID = b.getSlaveAdress();
+                b.setSlaveAdress(newSlaveID);
                 b.setPin(pin);
                 systemDAO.getRoom(b.getRoom()).delSensor(b);
                 systemDAO.getRoom(roomName).addSensor(b);
@@ -548,7 +650,7 @@ public class AdminRESTController {
     }
 
     @GetMapping("/editButtonFunction")
-    public Response<String> editButtonFunction(@RequestParam("buttonId") int buttonId,@RequestParam("deviceId") int deviceId, @RequestParam("state") ButtonFunction.State state, @RequestParam("clicks") int clicks,@RequestParam("oldClicks") int oldclicks ) {
+    public Response<String> editButtonFunction(@RequestParam("buttonId") int buttonId,@RequestParam("deviceId") int deviceId, @RequestParam("state") ButtonLocalFunction.State state, @RequestParam("clicks") int clicks,@RequestParam("oldClicks") int oldclicks ) {
 
         try {
             Button b = (Button) system.getSensorByID(buttonId);
@@ -566,16 +668,183 @@ public class AdminRESTController {
         }
     }
 
+    @RequestMapping("/addButtonGlobalFunction")
+    public Response<String> addButtonFunction(@RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name, @RequestParam("actions") String actions) {
+        try {//TODO dodać sprawdzanie czy funkcja o takich samych parametrach już nie istnieje!!!
+            String[] actionsArray = actions.split("}");
+            Button b = (Button) system.getSensorByID(buttonId);
+            if (b != null) {
+                int id = system.addButtonAutomation(b, clicks, clickType, name);
+                for (int i = 0; i < actionsArray.length-1; i++) {
+                    //todo: add actions to function
+                    String action = actionsArray[i];
+                    system.addActionToFunction(id, FunctionAction.valueOf(action));
+                }
+                return new Response<>("Funkcja dodana prawidłowo.👌 id = "+ id);
+            } else
+        
+                return new Response<>("", "Nie udało znaleźć się Przycisku o id: '" + buttonId
+                        + "'. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania funkcji globalnej przycisku {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
+    @RequestMapping("/editButtonGlobalFunction")
+    public Response<String> editButtonFunction(@RequestParam("functionId")int functionId, @RequestParam("buttonId") int buttonId, @RequestParam("clickType")ButtonClickType clickType, @RequestParam("clicks") int clicks, @RequestParam("name") String name, @RequestParam("actions") String actions) {
+        try {
+            Function function = automationDAO.getFunction(functionId);
+            
+            if (function.getType() != FunctionType.BUTTON) {
+                throw new SoftwareException("Funkcja o podanym id nie jest typu BUTTON");
+            }
+            ButtonFunction fun = (ButtonFunction) function;
+            Button newb = (Button) system.getSensorByID(buttonId);
+            //change button
+            if (newb != null ){
+                if (fun.getButton().getId() != buttonId) {
+                    fun.setButton(newb);
+                } 
+            }
+            else
+                return new Response<>("", "Nie udało znaleźć się Przycisku o id: '" + buttonId + "'. Sprawdź konsolę programu w poszukiwaniu szczegółów");
+            //change clickType
+            if (fun.getClickType() != clickType) {
+                fun.setClickType(clickType);
+            }
+            //change clicks
+            if (fun.getClicks() != clicks) {
+                fun.setClicks(clicks);
+            }
+            //change actions
+            String[] actionsArray = actions.split("}");
+            fun.clearActions();
+            for (int i = 0; i < actionsArray.length-1; i++) {
+                String action = actionsArray[i];
+                system.addActionToFunction(fun.getId(), FunctionAction.valueOf(action));
+            }
+            automationDAO.save(fun);
+            return new Response<>("Funkcja uaktualniona prawidłowo.👌 id = "+ fun.getId());
+            
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania funkcji globalnej przycisku {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
+
+
+    @RequestMapping("/removeButtonGlobalFunction")
+    public Response<String> rmButtonFunction(@RequestParam("id")int id){
+        try {
+            system.removeButtonAutomation(id);
+            return new Response<>("Funkcja usunięta prawidłowo ");
+        } catch (Exception e) {
+            logger.error("Błąd podczas usuwania funkcji globalnej przycisku {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
+
+    @RequestMapping("/removeFunction")
+    public Response<String> rmFunction(@RequestParam("id") int id){
+        try {
+            system.removeFunction(id);
+            return new Response<>("Funkcja usunięta prawidłowo ");
+        } catch (Exception e) {
+            logger.error("Błąd podczas usuwania funkcji globalnej przycisku {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
+
+    @RequestMapping("/addAction")
+    public Response<String> addActionToFunction(@RequestParam("functionId")int functionID, @RequestParam("deviceId") int devID, @RequestParam("activeDeviceState") DeviceState activeState, @RequestParam("reverse") boolean reverse){
+        try {
+            Device dev = system.getDeviceByID(devID);
+            system.addActionToFunction(functionID, dev, activeState, reverse);
+            return new Response<>("Akcja dodana prawidłowo");
+        } catch (Exception e) {
+            logger.error("Błąd podczas dodawania akcji do funkcji {}", e.getMessage());
+            return new Response<>(null, e.getMessage());
+        }
+    }
+
+    @RequestMapping("/checkAction")
+    public @ResponseBody Response<Boolean> checkActionCorrectness(HttpServletRequest request){
+        try {
+            String action = request.getParameter("action");
+            FunctionAction a = FunctionAction.valueOf(action);
+            if (a.getDevice().isStateCorrect(a.getActiveDeviceState()))
+                return new Response<>(true);
+            else
+                return new Response<>(false);
+        } catch (Exception e) {
+            logger.error("Błąd podczas sprawdzania poprawności akcji {}", e.getMessage());
+            return new Response<>(false);
+        }
+    }
+
+    @RequestMapping("getTestAction")
+    public FunctionAction getTestAction(){
+        return new FunctionAction(1, DeviceState.DOWN, false);
+    }
 
 
 
+    @RequestMapping("/addUser")
+    public Response<String> addUser(HttpServletRequest request, @RequestParam("name") String name, @RequestParam("surname") String surname, @RequestParam("nick") String nick,  @RequestParam("email")String email, @RequestParam("pass") String pass, @RequestParam("admin") boolean isAdmin, @RequestParam("color") String color){
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return new Response<>(null,"Nie jesteś zalogowany jako administrator!");
+        if (users.findUserByNick(nick)!=null) {
+            return new Response<>(null, "User o takim nicku już istnieje!");
+        }
+        User u = new User();
+        u.setEmail(email);
+        u.setImie(name);
+        u.setNazwisko(surname);
+        u.setNick(nick);
+        u.setPassword(Hash.hash(pass));
+        u.setUprawnienia(new Uprawnienia(isAdmin));
+        u.setOpcje(new Opcje());
+        u.getOpcje().setColor(color);
+        users.addUser(u);
+        return new Response<>("Pomyślnie dodano usera");
+        
+    }
 
+    @RequestMapping("/getTermometrByID")
+    public Response<Float> getTermometrByID(@RequestParam("id") int id){
+        for (Termometr termometr : systemDAO.getAllTermometers()) {
+            if (termometr.getId() == id) {
+                return new Response<> (termometr.getTemperatura());
+            }
+        }
+        return new Response<> (Float.valueOf(-127.f));
+    }
 
+    @RequestMapping("/restart")
+    public Response<String> restartSlaves( HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin()) {
+            return new Response<>("", "Nie jesteś zalogowany jako administrator");
+        }
+        else{
+            system.getArduino().atmega.restartSlaves();
+            return new Response<>("Restartowanie urządzeń zakończone prawidłowo");
+        }
 
+    }
 
+    @RequestMapping("/reboot")
+    public Response<String> restartMe() {
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec("sudo reboot");
 
-
-
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Response<>("Rebooting System");
+    }
 
     @RequestMapping("/shutdown")
     public Response<String> shutdownMe() {
@@ -586,7 +855,7 @@ public class AdminRESTController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Response<>("ShuttingDownSystem");
+        return new Response<>("Reboot System");
     }
 
 }

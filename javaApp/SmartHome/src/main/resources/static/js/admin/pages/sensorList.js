@@ -21,7 +21,7 @@ $(document).ready(function () {
                         if (sensorsResponse.error == null) {
                             console.log(sensorsResponse.obj);
                             var list = $(".list");
-                            sensorsResponse.obj.sort(compareSensors)
+                            sensorsResponse.obj.sort(compareUsers)
                             sensorsResponse.obj.forEach(element => {
                                 list.append(makeFullSensor(element, rooms));
                             });
@@ -41,6 +41,6 @@ $(document).ready(function () {
     
 });
 
-function compareSensors(a,b) {
+function compareUsers(a,b) {
     return a.typ.localeCompare(b.typ);
 }

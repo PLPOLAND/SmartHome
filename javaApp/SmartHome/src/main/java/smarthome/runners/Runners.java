@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.pi4j.io.i2c.I2CDevice;
+
+import smarthome.database.AutomationDAO;
 import smarthome.exception.HardwareException;
 import smarthome.exception.SoftwareException;
 import smarthome.i2c.MasterToSlaveConverter;
@@ -31,6 +34,8 @@ public class Runners {
 
     ArrayList<Termometr> termometrs;
 
+    private static boolean stop = false;
+
     //informujme o (nie)zakończeniu reinicjacji
     boolean isCheckReinitDone = true;
     //informuje o (nie)zakończeniu sprawdzania statusu urządzeń 
@@ -41,51 +46,47 @@ public class Runners {
         
     }
 
-    // @Scheduled(fixedRate = 1000)
-    // void updateTemperature() {
-    //     if (termometrs == null) {
-    //         termometrs = system.getSystemDAO().getAllTermometers();
-    //     }
-    //     for (Termometr termometr : termometrs) {
-    //         system.updateTemperature(termometr);
-    //         logger.debug("Zaaktualizowano temperature termometra id="+termometr.getId()+", t="+termometr.getTemperatura());
-    //     }
-    // }
-
-    // @Scheduled(fixedDelay = 10000)
-    void checkReinit(){
-        if (isCheckReinitDone && isCheckDevicesStatusDone) {
-            isCheckReinitDone = false;
-            logger.debug("checkReinit()");
-            system.reinitAllBoards();
-            isCheckReinitDone = true;
-        }
-        
+    public static void pause(){
+        Runners.stop = true;
     }
+
+    public static void resume(){
+        Runners.stop = false;
+    }
+
     
-    @Scheduled(fixedDelay = 10)
+    @Scheduled(fixedDelay = 500)
     void checkDevicesStatus(){
         if (!system.getArduino().atmega.getDevices().isEmpty()) {
             logger.debug("checkStatus()");
-            if (isCheckDevicesStatusDone && isCheckReinitDone) {
-                isCheckDevicesStatusDone = false;
-                for (Device device : system.getSystemDAO().getDevices()) {
-                    if (system.isSlaveConnected(device.getSlaveID())) {
-                        try {
-                            system.checkInitOfBoard(device.getSlaveID());
-                            system.updateDeviceState(device);
-                        } catch (HardwareException | SoftwareException e ) {
-                            logger.error(e.getMessage());
+            if (!stop) {
+                if (isCheckDevicesStatusDone && isCheckReinitDone) {
+                    isCheckDevicesStatusDone = false;
+                    for (Device device : system.getSystemDAO().getDevices()) {
+                        if (system.isSlaveConnected(device.getSlaveID())) {
+                            try {
+                                system.checkInitOfBoard(device.getSlaveID());
+                                system.updateDeviceState(device);
+                            } catch (HardwareException | SoftwareException e) {
+                                logger.error("{} {Device ID: {}}", e.getMessage(), device.getId());
+                            }
                         }
                     }
-                }
-                for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
-                    if (system.isSlaveConnected(termometr.getSlaveID())) {
-                        system.updateTemperature(termometr);
+                    for (Termometr termometr : system.getSystemDAO().getAllTermometers()) {
+                        if (system.isSlaveConnected(termometr.getSlaveAdress())) {
+                            system.updateTemperature(termometr);
+                        }
                     }
+                    for (I2CDevice device : system.getArduino().atmega.getDevices()) {
+                        if (system.isSlaveConnected(device.getAddress())) {
+                            system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
+                        }
+                    }
+                    isCheckDevicesStatusDone = true;
                 }
-                isCheckDevicesStatusDone = true;
             }
+        } else {
+            logger.debug("checkStatus is paused");
         }
     }
 

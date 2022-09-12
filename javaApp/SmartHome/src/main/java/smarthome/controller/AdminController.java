@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import smarthome.automation.Function;
 import smarthome.database.UsersDAO;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
@@ -156,9 +157,9 @@ public class AdminController {
         if (!sec.isLoged() || !sec.isUserAdmin())
             return this.reredairect(request);
         Button tmp = (Button) system.getSensorByID(buttonID);
-        model.addAttribute("slaveID", tmp.getSlaveID());
+        model.addAttribute("slaveID", tmp.getSlaveAdress());
         model.addAttribute("buttonName", tmp.getName());
-        model.addAttribute("slave", tmp.getSlaveID());
+        model.addAttribute("slave", tmp.getSlaveAdress());
         model.addAttribute("pin", tmp.getPin());
         model.addAttribute("buttonID", buttonID);
 
@@ -170,15 +171,78 @@ public class AdminController {
         if (!sec.isLoged() || !sec.isUserAdmin())
             return this.reredairect(request);
         Termometr tmp = (Termometr) system.getSensorByID(thermometrID);
-        model.addAttribute("slaveID", tmp.getSlaveID());
+        model.addAttribute("slaveID", tmp.getSlaveAdress());
         model.addAttribute("therName", tmp.getName());
-        model.addAttribute("slave", tmp.getSlaveID());
+        model.addAttribute("slave", tmp.getSlaveAdress());
         model.addAttribute("thermometrID", thermometrID);
 
         return "admin/editThermometr";
     }
 
+    @RequestMapping("automationsList")
+    public String automationsList(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
 
+        return "admin/automationsList";
+    }
+    @RequestMapping("addFunction")
+    public String addFunction(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+
+        return "admin/addFunction";
+    }
+
+    @RequestMapping("/editFunction")
+    public String editFunction(@RequestParam(name = "id") int functionID, HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        model.addAttribute("functionId", functionID);
+        return "admin/editFunction";
+    }
+
+
+    @RequestMapping("/listOfUsers")
+    public String listOfUsers(HttpServletRequest request) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+
+        return "admin/userList";
+    }
+
+    @RequestMapping("/addUser")
+    public String addUser(HttpServletRequest request){
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        
+        return "admin/addUser";
+    }
+
+    @RequestMapping("/editUser")
+    public String editUser(@RequestParam(name = "id") int userID, HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        model.addAttribute("userID", userID);
+        model.addAttribute("admin", true);
+        return "admin/editUser";
+    }
+
+    @RequestMapping("/userSetings")
+    public String userSetings(HttpServletRequest request, Model model) {
+        Security sec = new Security(request, users);
+        if (!sec.isLoged() || !sec.isUserAdmin())
+            return this.reredairect(request);
+        model.addAttribute("userID", sec.getUserID());
+		model.addAttribute("admin", true);
+        return "admin/editUser";
+    }
 
     @RequestMapping("/shutdown")
     public String shutdown(HttpServletRequest request) {
@@ -190,6 +254,10 @@ public class AdminController {
     }
 
     String reredairect(HttpServletRequest request){
+        Security sec = new Security(request, users);
+        if (sec.isLoged() && !sec.getUserPremissions().isAdmin()) {
+            return "redirect:/";
+        }
         String str = "redirect:login?l=";
         str += request.getRequestURI();
         str += "?";

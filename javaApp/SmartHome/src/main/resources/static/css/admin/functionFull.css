@@ -1,0 +1,120 @@
+:root{
+    --device-height: 120px;
+}
+
+.fullFunction {
+    display: block;
+    padding: 5px 10px;
+    width: 90%;
+    min-height: 50px;
+    background-color: var(--primaryColor);
+    line-height: 50px;
+    font-size: 20px;
+    margin: 5px auto;
+    border-radius: 10px;
+    overflow: auto;
+}
+
+.fullFunction:hover {
+    background-color: var(--secondaryColor);
+}
+.id{
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    width: 30px;
+}
+.name {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 180px;
+}
+.actions {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 80px;
+}
+.conditions {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.oneWay {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.user {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.private {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.button {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 280px;
+}
+.clicks {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.clickType {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+.room {
+    float: left;
+    height: 100%;
+    padding: 0 10px;
+    min-width: 100px;
+}
+
+
+.stan {
+    float: left;
+    height: 100%;
+    width: 190px;
+    padding: 0 10px;
+}
+
+
+.icon {
+    float: right;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.icon:hover .icon-sliders {
+    color: var(--secondaryTextColor);
+}
+
+.icon:hover .icon-trash {
+    color: var(--errorColor);
+}
+.hide{
+    display: none;
+}
+
+.rm90{
+    transform: rotate(-90deg);
+}
+.rm90::before {
+    transform: rotate(-90deg);
+}
+ 

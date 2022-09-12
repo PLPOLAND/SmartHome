@@ -1,0 +1,5 @@
+
+.invalid{
+    border: 1px solid var(--errorColor) !important;
+    background-color: var(--errorColor) !important;
+}

@@ -1,9 +1,14 @@
 package smarthome.model.hardware;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class ButtonFunction {
+@Component
+public class ButtonLocalFunction {
 
     public enum State {
         NONE,
@@ -11,26 +16,34 @@ public class ButtonFunction {
         DOWN,
         STOP
     }
-
     Device deviceToControl;
     State state = State.NONE;//0 lub U/D/S
+    ButtonClickType type = ButtonClickType.CLICKED;
     int clicks = 0;
     
     @JsonBackReference
     Button button;
 
-    public ButtonFunction() {
+    public ButtonLocalFunction() {
         button = null;
         deviceToControl = null;
         state = State.NONE;// 0 lub U/D/S
         clicks = 0;
     }
 
-    public ButtonFunction(Button button, Device deviceToControl, State state, int clicks) {
+    // public ButtonFunction(Button button, Device deviceToControl, State state, int clicks, smarthome.system.System system) {
+    //     this.button = button;
+    //     this.deviceToControl = deviceToControl;
+    //     setState(state);
+    //     this.clicks = clicks;
+    //     ButtonFunction.system = system;
+    // }
+    public ButtonLocalFunction(Button button, Device deviceToControl, State state, int clicks) {
         this.button = button;
         this.deviceToControl = deviceToControl;
         setState(state);
         this.clicks = clicks;
+        // ButtonFunction.system = system;
     }
 
     public Button getButton() {
@@ -89,6 +102,15 @@ public class ButtonFunction {
     public int getButtonOnSlaveID(){
         return button.getOnSlaveID();
     }
+
+    public void setType( ButtonClickType type) {
+        this.type = type;
+    }
+
+    public ButtonClickType getType() {
+        return this.type;
+    }
+
     /**
      * 
      * @return przekonwertowaną funkcję do postaci tablicy 4 byte-owej 
@@ -104,14 +126,28 @@ public class ButtonFunction {
     }
 
 
+    public boolean isSimilar(ButtonLocalFunction fun){
+        if(fun.getType() == getType() && fun.getClicks() == getClicks() && fun.getButton().equals(button)){
+            return true;
+        }
+        else
+            return false;
+    }
+
     @Override
     public String toString() {
-        return "{" +
-            " button_id='" + button.getId() + "'" +
-            ", deviceToControl='" + deviceToControl.toString() + "'" +
-            ", state='" + getState() + "'" +
+        StringBuilder st = new StringBuilder();
+        st.append("{");
+        if (button != null) {
+            st.append("button_id: " + button.getName() + ",");
+        }
+        if (deviceToControl != null) {
+            st.append(", deviceToControl='" + deviceToControl.toString() + "'" );
+        }
+        st.append(", state='" + getState() + "'" +
             ", clicks='" + getClicks() + "'" +
-            "}";
+            "}");
+        return st.toString();
     }
     
 

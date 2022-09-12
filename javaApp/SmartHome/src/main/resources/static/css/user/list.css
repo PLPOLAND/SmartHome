@@ -1,0 +1,18 @@
+.list{
+    display: block;
+    width: 90%;
+
+    background-color: var(--primaryDarkColor);
+    color: var(--primaryTextColor);
+    margin: 0 auto;
+    padding: 10px;
+    padding-bottom: 30px;
+    min-height: 90vh;
+}
+.header{
+    display: block;
+    margin-top: 20px;
+    width: 20%;
+    text-align: center;
+    margin: 0 auto;
+}

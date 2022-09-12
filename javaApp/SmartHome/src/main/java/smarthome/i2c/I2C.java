@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 
 @Service
 public class I2C{
@@ -37,18 +38,18 @@ public class I2C{
         try {
             gpio = GpioFactory.getInstance();
             pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
-            // restartSlaves();//TODO: zamienić na metodę restartSlaves()
-            findAll();// TODO: zamienić na metodę restartSlaves()
+            findAll();
             // logger.info("Searching for devices");
             
-        } catch (UnsatisfiedLinkError e) {
-            System.err.println("platform does not support this driver");
         }catch (Exception e) {
-            System.err.println("platform does not support this driver");
+            logger.error("platform does not support this driver");
 
         }
     }
-
+    /**
+     * Ustawia flagę, że inny proces aktualnie używa interfejsu I2C
+     * @param isOccup
+     */
     public void setOccupied(boolean isOccup){
         if (isOccup) {
             // logger.debug("Occupied");
@@ -85,10 +86,18 @@ public class I2C{
         final I2CBus bus;
         // pauseIfOcupied();
         // setOccupied(true);
+        long time =  System.currentTimeMillis();
+
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
             for (int i = 7; i < 128; i++) {
                 try {
+                    long timeFromStart = time - System.currentTimeMillis(); 
+                    if ( timeFromStart>0 && timeFromStart > 1000 * 5 ) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund 
+                        logger.error("Sprawdzanie trwa za długo... najprawdopodobniej magistrala jest zablokowana. Restartuje slave-y");
+                        restartSlaves();
+                        return;
+                    }
                     I2CDevice device = bus.getDevice(i);
                     device.write((byte) 0);
                     byte[] buffer = new byte[8];
@@ -133,6 +142,8 @@ public class I2C{
     
 
     public void writeTo(int adres, byte[] buffer) throws HardwareException{
+        logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
+
         I2CDevice tmp = null;
         for (I2CDevice device : devices) {
             if (device.getAddress() == adres) {
@@ -140,27 +151,22 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
         } else {
             try {
 
                 // Thread.sleep(100);
                 tmp.write(buffer);
-            } catch (IOException e) {
-                retryWrite(buffer, tmp);
-                // HardwareException throwable = new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres, e);
-
-                // logger.error(e.getLocalizedMessage(), throwable);
                 
-                // restartSlaves();
+                
+            } catch (IOException e) {
+                try {
+                    retryWrite(buffer, tmp);
+                } catch (HardwareException h) {
+                    this.restartSlaves();
+                    throw h;
+                }
 
-                // logger.warn("Ponowna próba wysłania komendy...");
-                // try {
-                //     tmp.write(buffer);
-                // } catch (Exception e2) {
-                //     throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: " + adres,e2);
-                // }
-                // logger.info("Wysłano!");
             } 
         //     catch (InterruptedException e) {
         //        //TODO Auto-generated catch block
@@ -177,7 +183,7 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
         } else {
             for (int i = 0; i < size; i++) {
                 tmpbuff[i] = buffer[i];
@@ -186,8 +192,13 @@ public class I2C{
                 //Thread.sleep(100);
                 tmp.write(tmpbuff);
             } catch (IOException e) {
-                retryWrite(tmpbuff, tmp);
-                throw new HardwareException("Błąd IO podczas próby wysyłania danych do slave-a o adresie: "+adres, e);
+                try {
+                    retryWrite(buffer, tmp);
+                } catch (HardwareException h) {
+                    this.restartSlaves();
+                    throw h;
+                }
+
             } //catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 //e.printStackTrace();
@@ -203,7 +214,7 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
         }
         else{
             try {
@@ -211,13 +222,18 @@ public class I2C{
                 //Thread.sleep(100);
                 tmp.read(buffer, 0, size);
             } catch (IOException e) {
-                retryRead(tmp, size, buffer);
-                // throw new HardwareException("Błąd IO podczas próby odczytu z slave-a o adresie: "+ adres, e);
+                try {
+                    retryRead(tmp, size, buffer);
+                    
+                } catch (HardwareException h) {
+                    this.restartSlaves();
+                    throw h;
+                }
             } //catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 //e.printStackTrace();
           //  }
         }
+        logger.debug("Got {} <- '{}'", Arrays.toString(buffer), adres);
         return buffer;
     }
     
@@ -226,7 +242,7 @@ public class I2C{
      */
     public void restartSlaves() {
         logger.info("Restartowanie slave-ów");
-
+        setOccupied(true);
         
         pin.setShutdownOptions(true, PinState.HIGH);
         pin.low();
@@ -244,8 +260,11 @@ public class I2C{
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
-        this.findAll();
+
+        setOccupied(false);
+
         logger.info("Slave-y zrestartowane");
+        this.findAll();
     }
 
 
@@ -265,6 +284,7 @@ public class I2C{
             }
         }
         if (!done) {
+            // restartSlaves();
             throw new HardwareException("Błąd IO podczas próby wysyłania do slave-a o adresie: " + slave.getAddress());
         }
     }

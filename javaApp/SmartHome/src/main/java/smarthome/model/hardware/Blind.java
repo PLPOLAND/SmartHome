@@ -6,13 +6,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class Blind extends Device{
-    public enum RoletaStan{
-        DOWN,
-        NOTKNOW,
-        UP
-    }    
-
-    RoletaStan stan;
+    DeviceState stan;
     Switch swtUp;
     Switch swtDown;
 
@@ -23,37 +17,42 @@ public class Blind extends Device{
     
     public Blind(boolean stan, int boardID, int pinUp, int pinDown) {
         super(boardID, DeviceTypes.BLIND);
-        this.stan = stan == true ? RoletaStan.UP : RoletaStan.DOWN;
-        swtUp = new Switch(false, pinUp);
-        swtDown = new Switch(false, pinDown);
+        this.stan = stan? DeviceState.UP : DeviceState.DOWN;
+        swtUp = new Switch(DeviceState.OFF, pinUp);
+        swtDown = new Switch(DeviceState.OFF, pinDown);
         logger = LoggerFactory.getLogger(Blind.class);
     }
 
     public Blind(int id, int room, int boardID, int pinUp, int pinDown){
         super(id, room, boardID, DeviceTypes.BLIND);
-        stan = RoletaStan.DOWN;
-        swtUp = new Switch(false, pinUp);
-        swtDown = new Switch(false, pinDown);
+        stan = DeviceState.NOTKNOW;
+        swtUp = new Switch(DeviceState.OFF, pinUp);
+        swtDown = new Switch(DeviceState.OFF, pinDown);
         logger = LoggerFactory.getLogger(Blind.class);
     }
 
-    public void changeState(RoletaStan stan){
+    @Override
+    public void changeState(DeviceState stan){
+        if (stan != DeviceState.UP && stan != DeviceState.DOWN && stan != DeviceState.NOTKNOW) {
+            throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = UP, DOWN lub NOTKNOW");
+        }
+
         if(this.stan != stan){
             switch (stan) {
                 case DOWN:
                     logger.debug("Zmieniam stan na: DOWN");
-                    swtDown.setStan(true);
-                    swtUp.setStan(false);
-                    this.stan = RoletaStan.DOWN;
+                    swtDown.setStan(DeviceState.ON);
+                    swtUp.setStan(DeviceState.OFF);
+                    this.stan = DeviceState.DOWN;
                     break;
                 case UP:
                     logger.debug("Zmieniam stan na: UP");
-                    swtDown.setStan(false);
-                    swtUp.setStan(true);
-                    this.stan = RoletaStan.UP;
+                    swtDown.setStan(DeviceState.OFF);
+                    swtUp.setStan(DeviceState.ON);
+                    this.stan = DeviceState.UP;
                     break;
                 case NOTKNOW://TODO Co w tedy?
-                    this.stan = RoletaStan.NOTKNOW;
+                    this.stan = DeviceState.NOTKNOW;
                     break;
                 default:
                     break;
@@ -61,16 +60,56 @@ public class Blind extends Device{
         }
     }
 
+    @Override
+    public void changeState(){
+        if(this.stan == DeviceState.DOWN){
+            logger.debug("Zmieniam stan na: UP");
+            swtDown.setStan(DeviceState.OFF);
+            swtUp.setStan(DeviceState.ON);
+            this.stan = DeviceState.UP;
+        }else if (this.stan == DeviceState.UP){
+            logger.debug("Zmieniam stan na: DOWN");
+            swtDown.setStan(DeviceState.ON);
+            swtUp.setStan(DeviceState.OFF);
+            this.stan = DeviceState.DOWN;
+        }
+        else if(this.stan == DeviceState.NOTKNOW){
+            logger.debug("Jest stan NOTKNOW więc nic nie robię");
+        }
+    }
+
+    @Deprecated
     public void changeState(boolean stan){
-        logger.debug("Zmieniam się na stan: " + (stan?"UP":"DOWN"));
-        RoletaStan stan2;
+        logger.debug("Zmieniam się na stan: {}", stan?"UP":"DOWN");
+        DeviceState stan2;
         if (stan) {
-            stan2 = RoletaStan.UP;
+            stan2 = DeviceState.UP;
         } else {
-            stan2 = RoletaStan.DOWN;
+            stan2 = DeviceState.DOWN;
         }
         this.changeState(stan2);
     }
+
+    @Override
+    public void changeToOppositeState( DeviceState stan){
+        if (stan == DeviceState.NOTKNOW) {
+            throw new IllegalArgumentException("Nie ma stanu przeciwnego dla 'NOTKNOW'; oczekiwano stanu 'UP' lub 'DOWN'");
+        }
+        else if (stan!=DeviceState.UP && stan!=DeviceState.DOWN) {
+            throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = 'UP' lub 'DOWN'");
+        }
+        if(this.stan == stan){
+            this.changeState();
+        }
+        else if (this.stan == DeviceState.NOTKNOW){
+            if (stan == DeviceState.DOWN) {
+                this.changeState(DeviceState.UP);
+            } else {
+                this.changeState(DeviceState.DOWN);
+            }
+        }
+    }
+
     @JsonIgnore
     public int getPinUp(){
         return swtUp.getPin();
@@ -103,19 +142,27 @@ public class Blind extends Device{
     }
 
 
-
-    public RoletaStan getStan(){
+    @Override
+    public DeviceState getState(){
+        if (this.stan == null) {
+            this.changeState(DeviceState.NOTKNOW);
+        }
         return this.stan;
     }
 
     @Override
     public String toString() {
         return "{" +
-            " stan='" + getStan() + "'" +
+            " stan='" + getState() + "'" +
             ", swtUp='" + swtUp.toString() + "'" +
             ", swtDown='" + swtDown.toString() + "'" +
             ", super ='' " + super.toString() + "'"+
             "}";
+    }
+
+    @Override
+    public boolean isStateCorrect(DeviceState state) {
+        return state == DeviceState.UP || state == DeviceState.DOWN || state == DeviceState.NOTKNOW;
     }
 
 }

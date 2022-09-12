@@ -257,8 +257,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             {
                 OUT_LN(F("REC_CHECK_INIT"));
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
-                byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                params[0] = System::is_init() == true ? 1:0;
+                byte params[8] = {'I', 0, 0, 0, 0, 0, 0, 0};
+                params[1] = System::is_init() == true ? 1:0;
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
             }
@@ -410,14 +410,22 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             }
             break;
 
-            case Command::KOMENDY::RECEIVE_GET:
+            case Command::KOMENDY::RECEIVE_CHECK_HOW_MANY_TO_SENT:
                 {
+                    OUT_LN(F("RECEIVE_CHECK_HOW_MANY_TO_SENT"));
                     byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
-                komendaZwrotna->setParams(params);
-                doWyslania.add(0, komendaZwrotna);
+                    params[0] = doWyslania.size();
+                    OUT(F("Do wysłania: ")) OUT_LN(doWyslania.size());
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->setParams(params);
+                    doWyslania.add(0, komendaZwrotna);
                 }
                 break;
-
+            case Command::KOMENDY::RECEIVE_GET:
+                {
+                    OUT_LN(F("RECEIVE_GET"));
+                }
+                break;
             default:
                 break;
         };
@@ -436,6 +444,7 @@ void I2CConverter::RequestEvent()
     if (doWyslania.size()>0)
     {
         command = doWyslania.remove(0);//usuń z kolejki
+        //TODO sprawdzić wysyłanie błędnej komendy
         switch (command->getCommandType())
         {
             case Command::KOMENDY::SEND_TEMPERATURA:
@@ -472,6 +481,12 @@ void I2CConverter::RequestEvent()
             case Command::KOMENDY::SEND_STATUS:
                 break;
             default:
+                OUT_LN(F("ERROR - Nieznana komenda"));
+                for (byte i = 0; i < 8; i++)
+                {
+                    Wire.write('E');
+                }
+                Wire.end();
                 break;
         }
         OUT_LN(freeMemory());
@@ -502,6 +517,19 @@ void I2CConverter::RequestEvent()
     }
     
     OUT_LN(F("SENDING DONE"));
+    
+}
+
+void I2CConverter::addToSent(Command *command){
+    if (this->doWyslania.size()<3)
+    {
+        this->doWyslania.add(command);
+    }
+    else
+    {
+        delete this->doWyslania.get(3);
+        this->doWyslania.set(3, command);//TODO Pomyśleć nad lepszym rozwiązaniem 
+    }
     
 }
 

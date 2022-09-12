@@ -1,5 +1,7 @@
 package smarthome.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +13,11 @@ import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import smarthome.database.SystemDAO;
 import smarthome.database.TemperatureDAO;
 import smarthome.database.UsersDAO;
 import smarthome.model.Response;
+import smarthome.model.hardware.Device;
 import smarthome.model.hardware.Termometr;
 import smarthome.security.Security;
 
@@ -25,6 +29,8 @@ import smarthome.security.Security;
 public class MainRESTController {
     @Autowired
     UsersDAO users;
+    @Autowired
+    SystemDAO systemDAO;
 
     @RequestMapping("/login")
     Response<String> login(HttpServletRequest request) {
@@ -49,4 +55,17 @@ public class MainRESTController {
         }       
     }
 
+    @RequestMapping("/getSystemData")
+    public Response<SystemDAO> getSystemData() {
+        return new Response<>(systemDAO);
+    }
+
+    @RequestMapping("/getDevices")
+    public Response<List<Device>> getDevices(){
+        return new Response<>(systemDAO.getDevices());
+    }
+    @RequestMapping("/getTermometers")
+    public Response<List<Termometr>> getTermometers(){
+        return new Response<>(systemDAO.getAllTermometers());
+    }
 }

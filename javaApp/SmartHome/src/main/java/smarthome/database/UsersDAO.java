@@ -2,11 +2,17 @@ package smarthome.database;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Repository;
 
+import smarthome.model.Uprawnienia;
+import smarthome.model.user.Opcje;
 import smarthome.model.user.User;
 import smarthome.security.Hash;
 
@@ -26,11 +34,17 @@ import smarthome.security.Hash;
 @Repository
 public class UsersDAO {
 
+	private static final String USER_JSON = "_User.json";
 	private static final String USERS_FILES_LOCATION = "smarthome/database/users/";
 	List<User> userzy = new ArrayList<>();
 
+	private Logger logger = LoggerFactory.getLogger(UsersDAO.class);
+
 	public UsersDAO() {
 		this.readDatabase();
+		if (userzy.isEmpty()) {
+			this.createUser(new User(0L, "root", "root", "root", "", "root", "", new Uprawnienia(true), new Opcje()));
+		}
 	}
 
 	public User getUserLoginData(String nickname, String pass) {
@@ -60,7 +74,7 @@ public class UsersDAO {
 				return user;// znaleziony user
 			}
 		}
-		return null;// nie znaleziono usera
+		throw new IllegalArgumentException("Nie znaleziono uzytkownika o id: " + id);
 	}
 
 	/**
@@ -69,20 +83,33 @@ public class UsersDAO {
 	public void readDatabase() {
 		ObjectMapper obj = new ObjectMapper();
 		int i = 0;
-		while (i<Integer.MAX_VALUE) {
+
+		try (Stream<Path> paths = Files.walk(Paths.get(USERS_FILES_LOCATION))) {
+			paths.filter(Files::isRegularFile).forEach(filePath -> {
 			User user = null;
-			try {
-				user = obj.readValue(new FileInputStream(new File(USERS_FILES_LOCATION + i + "_User.json")),
-						User.class);
+				
+				try {
+					user = obj.readValue(
+							new FileInputStream(new File(filePath.toString())),
+							User.class);
+				} catch (JsonParseException e) {
+					logger.error("Błąd parsowania pliku JSON", e);
+				} catch (JsonMappingException e) {
+					logger.error("Błąd mapowania pliku JSON: {}, error: {}", filePath, e.getMessage());
+				} catch (FileNotFoundException e) {
+					logger.error("Nie znaleziono pliku: {}", filePath);
+					e.printStackTrace();
+				} catch (IOException e) {
+					logger.error("Błąd odczytu pliku: {}", filePath);
+				}
 				userzy.add(user);
-				i++;
-			} catch (Exception e) {
-				Logger logger = LoggerFactory.getLogger(UsersDAO.class);
-				logger.info("Wczytano " + i + " userow");
-				break;
 			}
+			);
+		} catch (IOException e) {
+			logger.info("Wczytano {} userow", userzy.size());
 		}
 	}
+	
 	/**
 	 * Pobieranie bazy danych Jeśli baza danych jest pusta pobiera ją a następnie
 	 * zwraca
@@ -96,6 +123,9 @@ public class UsersDAO {
 		return this.userzy;
 	}
 
+	public List<User> getUsers(){
+		return getDatabase();
+	}
 	/**
 	 * Sprawdza czy baza danych zawiera już to ID
 	 * 
@@ -105,7 +135,7 @@ public class UsersDAO {
 	public boolean contains(Long id) {
 		boolean czyZawiera = false;
 		for (User user : userzy) {
-			if (user.getId() == id) {
+			if (user.getId().equals(id)) {
 				czyZawiera = true;
 			}
 		}
@@ -133,11 +163,17 @@ public class UsersDAO {
 	 * 
 	 * @return Long - następne id
 	 */
-	public Long getNextID() {
-		return new Long(userzy.size() + 1);
+	public long getNextID() {
+		int min = 0;
+		for (User user : userzy) {
+			if (user.getId()==min) {
+				min++;
+			}
+		}
+		return min;
 	}
 	/**
-	 * Tworzy nowego usera
+	 * Tworzy nowego usera, haszuje hasło, zachowuje id usera przechowywane w argumencie
 	 * 
 	 * @param user - user do stworzenia
 	 */
@@ -146,6 +182,18 @@ public class UsersDAO {
 		this.save(user);
 		this.userzy.add(user);
 	}
+	
+	/**
+	 * Tworzy nowego usera, ustawia poprawne ID
+	 * @warning Nie haszuje hasła!
+	 * @param user - user do stworzenia
+	 */
+	public void addUser(User u) {
+		u.setId(this.getNextID());
+		save(u);
+		userzy.add(u);
+	}
+
 	/**
 	 * Zapisuje całą bazę danych do plików
 	 */
@@ -167,7 +215,7 @@ public class UsersDAO {
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-				File projFile = new File(USERS_FILES_LOCATION + user.getId() + "_User.json");
+				File projFile = new File(USERS_FILES_LOCATION + user.getId() + USER_JSON);
 				new File(USERS_FILES_LOCATION).mkdirs();
 				projFile.createNewFile();// utworzenie pliku jeśli nie istnieje
 				objectMapper.writeValue(projFile, user);// plik projektu (src)
@@ -182,7 +230,7 @@ public class UsersDAO {
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-				File appFile = new File(TypeReference.class.getResource("/static/database/users/").getPath() + user.getId() + "_User.json");
+				File appFile = new File(TypeReference.class.getResource("/static/database/users/").getPath() + user.getId() + USER_JSON);
 				appFile.createNewFile();// utworzenie pliku jeśli nie istnieje
 				objectMapper.writeValue(appFile, user);// plik aplikacji (target)
 			} catch (JsonGenerationException e) {
@@ -197,6 +245,49 @@ public class UsersDAO {
 			return false;
 		}
 	}
+
+	public void delete(User u){
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+			File projFile = new File(USERS_FILES_LOCATION + u.getId() + USER_JSON);
+			projFile.getParentFile().mkdirs();
+			projFile.delete();// usuń plik
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+    
+
+    public User findUserByNick(String nick) {
+		// nick = nick.toLowerCase();
+		User u = null;
+		for (User user : userzy) {
+			if (user.getNick().toLowerCase().equals(nick)) {
+				u = user;
+				break;
+			}
+		}
+        return u;
+    }
+
+    public User getByID(Long id) {
+		
+		for (User user : userzy) {
+			if (user.getId().equals(id)) {
+				return user;
+			}
+		}
+        return null;
+    }
+
+    public void removeUser(User us) {
+		if (userzy.contains(us)){
+			userzy.remove(us);
+			delete(us);
+		}
+    }
 
 	
 }

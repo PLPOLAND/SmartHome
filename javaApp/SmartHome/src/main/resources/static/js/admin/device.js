@@ -3,7 +3,7 @@ $(document).ready(function () {
 });
 
 function addDevice(obj) {
-    
+    var deivceState;
     //TODO dodać inne rodzaje ikonek w znależności od rodzaju urzadzenia
     var deviceTMP = $("<div class=\"device\"></div >");
     deviceTMP.attr("id", obj.id);
@@ -20,15 +20,22 @@ function addDevice(obj) {
     deviceDescribe.append($("<span class=\"deviceDescribeText\">"+obj.name+"</span>"));
     deviceDescribe.append($("<br>"));
     if (obj.typ === "LIGHT") {
-        deviceDescribe.append($("<span class=\"deviceDescribeState\">"+(obj.stan ? "ON" : "OFF" )+"</span>"));
-        deviceTMP.attr("state", obj.stan ? "on" : "off");
+        if (obj.state === "ON") {
+            deivceState = true;
+        } else {
+            deivceState = false;
+        }
+        deviceDescribe.append($("<span class=\"deviceDescribeState\">"+(deivceState ? "ON" : "OFF" )+"</span>"));
+        deviceTMP.attr("state", deivceState ? "on" : "off");
     }
     else if (obj.typ === "BLIND") {
-        if (obj.stan === "DOWN") {
+        if (obj.state === "DOWN") {
+            deivceState = false
             deviceDescribe.append($("<span class=\"deviceDescribeState\">OPUSZCZONE</span>"));
             deviceTMP.attr("state", "off");
         }
         else{
+            deivceState = true;
             deviceDescribe.append($("<span class=\"deviceDescribeState\">PODNIESIONE</span>"));
             deviceTMP.attr("state", "on");
         }
@@ -39,7 +46,7 @@ function addDevice(obj) {
 
     var deviceState = "<div class=\"deviceState\"></div>";
     var deviceStateIcon = $(deviceState);
-    if (obj.stan) {
+    if (deivceState) {
         deviceStateIcon.append($("<i class=\"icon-toggle-on\"></i>"));
     }
     else{
@@ -49,7 +56,7 @@ function addDevice(obj) {
 
     var device = deviceTMP;
 
-    showDeviceState(device, obj.stan, obj.typ);
+    showDeviceState(device, deivceState, obj.typ);
     
     device.click(function () {
         clickDevice(this,obj.id, obj.room, obj.typ);

@@ -22,6 +22,7 @@ public:
         RECEIVE_CHECK_INIT,                     // Czy urządzenie zostało zainicjowane
         RECEIVE_INIT,                           // Reinicjalizuj system
         RECEIVE_GET,                            // Wczytaj następny z kolejki
+        RECEIVE_CHECK_HOW_MANY_TO_SENT,         // Sprawdź ile komend jest do wysłania
         RECEIVE_ADD_PRZYCISK_LOCAL_FUNCTION,    // Dodaj funkcję przycisku lokalnie wywoływaną
         RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION, // Usuń funkcję przycisku lokalnie wywoływaną
         RECEIVE_ADD_PRZYCISK_GLOBAL_FUNCTION,   // Dodaj funkcję przycisku wywoływaną przez slave

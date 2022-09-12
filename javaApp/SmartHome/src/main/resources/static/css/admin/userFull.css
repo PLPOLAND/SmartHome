@@ -1,0 +1,82 @@
+table.userListTable {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--primaryTextColor);
+    background-color: var(--primaryColor);
+    color: var(--primaryTextColor);
+    font-size: 20px;
+    font-weight: normal;
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+}
+
+table.userListTable tr {
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--primaryTextColor);
+    background-color: var(--primaryColor);
+    color: var(--primaryTextColor);
+    font-size: 20px;
+    text-align: center;
+    padding: 5px;
+}
+
+table.userListTable th {
+    font-weight: normal;
+}
+
+table.userListTable td,
+table.userListTable th {
+    border-left: 1px solid var(--primaryTextColor);
+}
+
+table.userListTable td:first-child,
+table.userListTable th:first-child {
+    border-left: none;
+}
+
+table.userListTable td select {
+    width: 100%;
+    border: 0px;
+    font-size: 20px;
+    background-color: var(--primaryDarkColor);
+    color: var(--primaryTextColor);
+}
+table.userListTable .uimg{
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: auto;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+
+.icon {
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.icon:hover.icon-sliders {
+    color: var(--secondaryColor);
+}
+
+.icon:hover.icon-trash {
+    color: var(--errorColor);
+}
+.hide{
+    display: none;
+}
+
+.rm90{
+    transform: rotate(-90deg);
+}
+.rm90::before {
+    transform: rotate(-90deg);
+}
+ 

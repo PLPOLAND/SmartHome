@@ -12,11 +12,16 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import smarthome.automation.ButtonFunction;
+import smarthome.automation.FunctionAction;
 import smarthome.controller.AdminRESTController;
 import smarthome.exception.HardwareException;
+import smarthome.exception.SoftwareException;
 import smarthome.model.hardware.Button;
-import smarthome.model.hardware.ButtonFunction;
+import smarthome.model.hardware.ButtonClickType;
+import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Device;
+import smarthome.model.hardware.DeviceState;
 import smarthome.model.hardware.DeviceTypes;
 import smarthome.model.hardware.Termometr;
 
@@ -30,21 +35,26 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 	static Scanner scanner = new Scanner(System.in);
 	static AdminRESTController adminController;
 	static smarthome.system.System system;
+	private static ConfigurableApplicationContext app;
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(SmartHomeApp.class);
 	}
 
+	public static ConfigurableApplicationContext getApp(){
+		return app;
+	}
+
 	public static void main(String[] args) throws Exception{
-		ConfigurableApplicationContext app = SpringApplication.run(SmartHomeApp.class, args);
-		
+		app = SpringApplication.run(SmartHomeApp.class, args);
+		 
 		while(!app.isRunning())
 			;
 		adminController = app.getAutowireCapableBeanFactory().getBean(AdminRESTController.class);
 		system = app.getAutowireCapableBeanFactory().getBean(smarthome.system.System.class);
 		// system.reinitAllBoards();
 		Logger log = LoggerFactory.getLogger("SmartHomeApp");
-		log.info("Started");;
+		log.info("Started");
 		String in = "";
 
 		while(!in.equals("end") && !in.equals("stop") && ! in.equals("exit")){
@@ -52,6 +62,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 			try{
 				if(in.equals("print")){
 					log.info(adminController.getSystemData().getObj().toString());
+					log.info(system.getAutomationDAO().toString());
 				}
 				else if(in.equals("find")){
 					log.info(adminController.find().getObj().toString());
@@ -137,9 +148,9 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 									int tr = scanner.nextInt();
 									Device d = system.getDeviceByID(deviceID);
 									if (d.getTyp() == DeviceTypes.LIGHT || d.getTyp() == DeviceTypes.GNIAZDKO) {
-										log.info(adminController.addButtonClickFunction(idPrzycisku, deviceID, ButtonFunction.State.NONE, clicks).getObj());
+										log.info(adminController.addButtonClickFunction(idPrzycisku, deviceID, ButtonLocalFunction.State.NONE, clicks).getObj());
 									} else {
-										log.info(adminController.addButtonClickFunction(idPrzycisku, deviceID, tr == 1 ? ButtonFunction.State.UP : ButtonFunction.State.DOWN, clicks).getObj());
+										log.info(adminController.addButtonClickFunction(idPrzycisku, deviceID, tr == 1 ? ButtonLocalFunction.State.UP : ButtonLocalFunction.State.DOWN, clicks).getObj());
 									}
 								}
 							}
@@ -219,12 +230,28 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					}
 				}
 				else if(in.equals("test")){
-					byte[] tmp = {'C','T','N'};
-
 					
-					system.addUpdateThermometersOnSlave(16);
-					Thread.sleep(1000);
-					system.updateTemperature(system.getSystemDAO().getAllTermometers().get(0));
+					
+					if (system.isSlaveConnected(15)) {
+							
+							system.checkInitOfBoard(15);
+							system.checkGetAndExecuteCommandsFromSlave(15);
+							
+					}
+					
+
+					// byte[] data = {67, 4, 3, 67, 0, 0, 0, 0};
+					// ButtonFunction function = new ButtonFunction();
+					// function.fromCommand(15, data);
+
+					// for (ButtonFunction fun : system.getAutomationDAO().getButtonFunctions()) {
+					// 	if (fun.compare(function)) {
+					// 		log.debug("Znaleziono funkcję: {}", fun);
+					// 		fun.run();
+					// 		break;
+					// 	}
+
+					// }
 					// system.getArduino().atmega.writeTo(16, tmp);
 					// Thread.sleep(10);
 					// log.info("reading from 16: {}",system.getArduino().atmega.readFrom(16, 8));

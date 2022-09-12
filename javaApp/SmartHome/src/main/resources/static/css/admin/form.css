@@ -68,6 +68,11 @@
     background-color: var(--primaryDarkColor);
     color: var(--primaryTextColor);
 }
+.body-form input[type="checkbox"]{
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
 .body-form input:focus{
     background-color: var(--primaryLightColor);
 }
@@ -107,4 +112,67 @@
     transition: 500ms;
     color: var(--secondaryColor);
     transform: rotate(180deg);
+}
+
+.icon{
+    transition: 500ms;
+    color: var(--primaryTextColor);
+}
+
+.iconDelete:hover{
+    transition: 500ms;
+    color: var(--errorColor) !important;
+}
+
+.icon:hover{
+    transition: 500ms;
+    color: var(--secondaryColor);
+    cursor: pointer;
+}
+
+table.form_table{
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--primaryTextColor);
+    background-color: var(--primaryColor);
+    color: var(--primaryTextColor);
+    font-size: 20px;
+    font-weight: normal;
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+}
+
+table.form_table tr{
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--primaryTextColor);
+    background-color: var(--primaryColor);
+    color: var(--primaryTextColor);
+    font-size: 20px;
+    text-align: center;
+    padding: 5px;
+}
+table.form_table th{
+    font-weight: normal;
+}
+table.form_table td,
+table.form_table th{
+    border-left: 1px solid var(--primaryTextColor);
+}
+
+table.form_table td:first-child,
+table.form_table th:first-child{
+    border-left: none;
+}
+
+table.form_table td select{
+    width: 100%;
+    border: 0px;
+    font-size: 20px;
+    background-color: var(--primaryDarkColor);
+    color: var(--primaryTextColor);
 }

@@ -1,13 +1,10 @@
 package smarthome.i2c;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.pi4j.io.i2c.I2CDevice;
-import com.pi4j.io.serial.Serial;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,14 +13,12 @@ import smarthome.database.SystemDAO;
 import smarthome.exception.HardwareException;
 import smarthome.exception.SoftwareException;
 import smarthome.model.hardware.Device;
+import smarthome.model.hardware.DeviceState;
 import smarthome.model.hardware.DeviceTypes;
-import smarthome.model.hardware.Switch;
 import smarthome.model.hardware.Light;
 import smarthome.model.hardware.Blind;
 import smarthome.model.hardware.Button;
-import smarthome.model.hardware.ButtonFunction;
-import smarthome.model.hardware.Sensor;
-import smarthome.model.hardware.SensorsTypes;
+import smarthome.model.hardware.ButtonLocalFunction;
 import smarthome.model.hardware.Termometr;
 
 import org.slf4j.Logger;
@@ -72,6 +67,10 @@ public class MasterToSlaveConverter {
     final byte[] SPRAWDZ_STAN_URZADZENIA = { 'S', 'D' };
     /**[C, T, N] */
     final byte[] ILE_TERMOMETROW = { 'C', 'T', 'N' };
+    /**[W] */
+    final byte[] SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA = {'W'};
+    /**[G] */
+    final byte[] ODBIERZ_KOMENDE = {'G'};
     // #endregion
 
     @Autowired
@@ -91,17 +90,17 @@ public class MasterToSlaveConverter {
     /**
      * Zmien stan przekaznika
      * 
-     * @param przekaznik - przekaznik docelowy
+     * @param przekaznik - id przekaźnika na slavie
      * @param stan       - stan przekaznika
      */
-    public void changeSwitchState(int idPrzekaznika, int idPlytki, boolean stan) throws HardwareException {
+    public void changeSwitchState(int idPrzekaznika, int idPlytki, DeviceState stan) throws HardwareException {
         byte[] buffor = new byte[4];
         int i = 0;
         for (byte b : ZMIEN_STAN_PRZEKAZNIKA) {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) idPrzekaznika;
-        buffor[i++] = (byte) (stan == true ? 1 : 0); 
+        buffor[i++] = (byte) (stan == DeviceState.ON ? 1 : 0); 
         atmega.pauseIfOcupied();
         atmega.setOccupied(true);
         atmega.writeTo(idPlytki, buffor);
@@ -110,21 +109,31 @@ public class MasterToSlaveConverter {
         logger.debug("Response from {}: {}" ,idPlytki, Arrays.toString(response));
     }
 
-    public void changeBlindState(Blind roleta, boolean stan) {
+    public void changeBlindState(Blind roleta, DeviceState stan) throws HardwareException{
         byte[] buffor = new byte[4];
         int i = 0;
         for (byte b : ZMIEN_STAN_ROLETY) {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) roleta.getOnSlaveID();
-        if (stan) {
-            buffor[i++] = 'U';
-            logger.debug("Wysyłanie komendy podniesienia Rolety");
+
+        switch (stan) {
+            case UP:
+                buffor[i++] = 'U';
+                logger.debug( "Wysyłanie komendy podniesienia Rolety");
+                break;
+            case DOWN:
+                buffor[i++] = 'D';
+                logger.debug( "Wysyłanie komendy opuszczenia Rolety");
+                break;
+            case NOTKNOW://TODO wymyślić co zrobić z tym ( nie może być NOTKNOW)
+                buffor[i++] = 'S';
+                logger.debug( "Wysyłanie komendy zatrzymania Rolety");
+                break;
+            default:
+                break;
         }
-        else{
-            buffor[i++] = 'D';
-            logger.debug("Wysyłanie komendy opuszczenia Rolety");
-        }
+
         try {
 
             atmega.pauseIfOcupied();
@@ -138,9 +147,9 @@ public class MasterToSlaveConverter {
             } else {
                 logger.debug("No response");
             }
-        } catch (Exception e) {
+        } catch (HardwareException e) {
             atmega.setOccupied(false);
-           logger.error(e.getMessage());
+            throw e;
         }
     }
 
@@ -163,17 +172,17 @@ public class MasterToSlaveConverter {
             bufString += adr + " ";
         }
         try {
-            logger.debug("Writing to addres {} command: '{}'", termometr.getSlaveID(), bufString);
+            // logger.debug("Writing to addres {} command: '{}'", termometr.getSlaveAdress(), bufString);
             
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
-            atmega.writeTo(termometr.getSlaveID(), buffor);
+            atmega.writeTo(termometr.getSlaveAdress(), buffor);
             // Thread.sleep(10);
-            byte[] response = atmega.readFrom(termometr.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);
+            byte[] response = atmega.readFrom(termometr.getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
-            logger.debug("Got response tempetrture from {}: {}", termometr.getSlaveID(), Arrays.toString(response));
+            logger.debug("Got response temperature from {}: {}", termometr.getSlaveAdress(), Arrays.toString(response));
             if (response[0] == 'E') {
-                logger.error("Error in response from {}", termometr.getSlaveID());
+                logger.error("Error in response from {}", termometr.getSlaveAdress());
                 return null;
             }
             String tmp ="";
@@ -189,7 +198,7 @@ public class MasterToSlaveConverter {
                 return temperatura;
             }
             else{
-                throw new HardwareException("Got empty response from " + termometr.getSlaveID());
+                throw new HardwareException("Got empty response from " + termometr.getSlaveAdress());
             }
             
         } catch (Exception e) {
@@ -343,11 +352,11 @@ public class MasterToSlaveConverter {
                 atmega.setOccupied(true);
 
             // try {
-                logger.debug("Writing to addres {}", button.getSlaveID());
-                atmega.writeTo(button.getSlaveID(), buffor);
+                logger.debug("Writing to addres {}", button.getSlaveAdress());
+                atmega.writeTo(button.getSlaveAdress(), buffor);
                 // Thread.sleep(10);// TODO czy jest potrzebne?
-                logger.debug("Reading from addres {}", button.getSlaveID());
-                byte[] response = atmega.readFrom(button.getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                logger.debug("Reading from addres {}", button.getSlaveAdress());
+                byte[] response = atmega.readFrom(button.getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);//
                 atmega.setOccupied(false);
                 return response[0];
             // } catch (InterruptedException e) {
@@ -370,7 +379,7 @@ public class MasterToSlaveConverter {
      * @return
      * @throws HardwareException
      */
-    public int sendClickFunction(ButtonFunction function) throws HardwareException{
+    public int sendClickFunction(ButtonLocalFunction function) throws HardwareException{
         byte[] buffor = new byte[7];
         byte[] tmp2 = function.toCommand();
         int i = 0;
@@ -385,11 +394,11 @@ public class MasterToSlaveConverter {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
             // try {
-                logger.debug("Writing to addres {}", function.getButton().getSlaveID());
-                atmega.writeTo(function.getButton().getSlaveID(), buffor);
+                logger.debug("Writing to addres {}", function.getButton().getSlaveAdress());
+                atmega.writeTo(function.getButton().getSlaveAdress(), buffor);
                 // Thread.sleep(10);// TODO czy jest potrzebne?
-                logger.debug("Reading from addres {}", function.getButton().getSlaveID());
-                byte[] response = atmega.readFrom(function.getButton().getSlaveID(), MAX_ROZMIAR_ODPOWIEDZI);//
+                logger.debug("Reading from addres {}", function.getButton().getSlaveAdress());
+                byte[] response = atmega.readFrom(function.getButton().getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);//
                 atmega.setOccupied(false);
                 return response[0];
             // } catch (InterruptedException e) {
@@ -463,11 +472,17 @@ public class MasterToSlaveConverter {
             // Thread.sleep(10);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             atmega.setOccupied(false);
-            if (buffor[0]=='E') {
-                // logger.error("Error on checking init of board {}", adres);
-                throw new SoftwareException("Error on checking init of board " + adres);
+            if (buffor[0]!='I') {
+                StringBuilder str = new StringBuilder();
+                str.append("Error on checking init of board ");
+                str.append(adres);
+                str.append(". ");
+                str.append("Response[0] != 'I' ;");
+                str.append("Response = ");
+                str.append(Arrays.toString(buffor));
+                throw new SoftwareException( str.toString());
             }
-            return buffor[0] == 1;
+            return buffor[1] == 1;
         } catch (Exception e) {
             atmega.setOccupied(false);
             throw e;
@@ -522,13 +537,12 @@ public class MasterToSlaveConverter {
             // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             atmega.setOccupied(false);
-            if (response[0] == 'E') {
+            if (response[0] == 'E' || response == null) {
                 // logger.error("Error on checking init of board {}", slaveID);
-                throw new HardwareException("Error on checking state of device onslaveID = " + onSlaveDeviceId);
+                throw new HardwareException("Error on checking state of device slaveID = " + slaveID);
             }else {
-                
+                return response[0];
             }
-            return response[0];
         // } catch (InterruptedException e) {
         //     logger.error(e.getMessage());
         //     // logger.debug("Próba kontynuacji");
@@ -572,6 +586,68 @@ public class MasterToSlaveConverter {
                 ile = response[0];
                 return ile;
             }
+        } catch (HardwareException e) {
+            atmega.setOccupied(false);
+            logger.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Reads // TODO
+     * @param slaveAdress
+     * @return
+     * @throws HardwareException
+     */
+    public int howManyCommandToRead(int slaveAdress) throws HardwareException{
+        int ile = -1;
+        // logger.debug("howManyCommandToRead:");
+        atmega.pauseIfOcupied();
+        atmega.setOccupied(true);
+
+        byte[] response;
+        try {
+            atmega.writeTo(slaveAdress, SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA);
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+            // logger.debug("Got: {}", Arrays.toString(response));
+            atmega.setOccupied(false);
+            ile = response[0];
+            return ile;
+        } catch (HardwareException e) {
+            atmega.setOccupied(false);
+            logger.error(e.getMessage());
+            throw e;
+        }
+    }
+    /**
+     * //TODO
+     * @param slaveAdress
+     * @return
+     * @throws HardwareException
+     */
+    public byte[] readCommandFromSlave(int slaveAdress) throws HardwareException{
+        // int ile = -1;
+        logger.debug("readCommandFromSlave:");
+        atmega.pauseIfOcupied();
+        atmega.setOccupied(true);
+
+        byte[] response;
+        try {
+            atmega.writeTo(slaveAdress, ODBIERZ_KOMENDE);
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            response = atmega.readFrom(slaveAdress, MAX_ROZMIAR_ODPOWIEDZI);
+            logger.debug("Got: {}", Arrays.toString(response));
+            atmega.setOccupied(false);
+            return response;
         } catch (HardwareException e) {
             atmega.setOccupied(false);
             logger.error(e.getMessage());

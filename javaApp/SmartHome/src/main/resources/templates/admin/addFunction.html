@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Dodaj Funkcję - SmartHome</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="../css/jqueryUiMin.css">
+    <link rel="stylesheet" href="../css/admin/form.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/fontello/css/fontello.css">
+    <script src="../js/jQueryMin.js"></script>
+    <script src="../js/jQueryUIMin.js"></script>
+    <script src="../js/admin/main.js"></script>
+    <script src="../js/admin/pages/addFunction.js"></script>
+</head>
+
+<body>
+    <div id="err-msg"></div>
+    <div id="msg"></div>
+    <div class="background-container"></div>
+    <div class="banner">
+        <div class="menu">
+            <ul id="topMenu"></ul>
+        </div>
+        <div id="usermenu">
+            <ul id="menu">
+                <li id="userLi">
+                    <a href="#">
+                        <img id="userAvatar" class="user_img" alt="user image">
+                        <span id="nickname" class="nickname">Marek</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="main-body">
+        <div class="body-form">
+            <h1>Dodaj Funkcję</h1>
+            <hr>
+            <div class="wiersz"> Nazwa : <input id="name"></div>
+            <div class="wiersz"> Akcje: <i id="addAction" class="icon-plus icon"></i></div>
+            <table class="form_table" id="actionsTable" >
+                <tr>
+                    <th>Urządzenie</th>
+                    <th>Stan</th>
+                    <th>Odwracalna</th>
+                    <th>Usuń</th>
+                </tr>
+                
+            </table>
+            <!-- <button id="test" class="button">Test</button> -->
+            <div class="wiersz"> Typ: <select id="functionType"><option value="0">Brak</option></select></div>
+            <div class="wiersz automationF"> <label for="oneWay">OneWay: </label> <input type="checkbox" id="oneWay">  </div>
+            <div class="wiersz automationF"> Warunki: <i id="addCondition" class="icon-plus icon"></i></div>
+            <table class="form_table automationF" id="conditionTable"><!--TODO!-->
+                <tr>
+                    <th>Urządzenie</th>
+                    <th>Stan</th>
+                    <th>Odwracalna</th>
+                    <th>Usuń</th>
+                </tr>
+                 
+            </table>
+            <div class="wiersz userF"> Pokój : <select id="room"><option value="0">Brak Pokoi</option></select></div>
+            <div class="wiersz userF"> <label for="private">Prywatna: </label> <input type="checkbox" id="private">  </div>
+            <div class="wiersz buttonF">Przycisk: <select id="button"><option value="-1">ERROR</option></select></div>
+            <div class="wiersz buttonF">Przyciśnięć: <input id="clicks" type="number" min="1" max="10" value="1" size="2" ></div>
+            <div class="wiersz buttonF">Rodzaj Przyciśnięć: <select id="clickType"><option value="-1">ERROR</option></select> </div>
+            <div class="wiersz"></div>
+            <div class="wiersz"><button id="clear">Wyczyść <i class="icon-trash"></i></button><button id="save">Zapisz <i class="icon-save"></i></button></div>
+        </div>
+    </div>
+</body>
+
+</html>

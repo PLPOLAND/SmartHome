@@ -81,5 +81,30 @@ function clicksensor(mee, id, room, typ) {
 }
 
 function showsensorState(sensor, stan, sensorType){
-    
+    var id = sensor.attr("id");
+    console.log(id);
+
+    $.ajax({
+        url: "/admin/api/getTermometrByID",
+        type: 'post',
+        data: {
+            id: id
+        },
+        success: function (sensorsResponse) {
+            if (sensorsResponse.error == null) {
+                console.log("update of termometr id:"+id);
+                console.log(sensorsResponse.obj);
+                sensor.children(".sensorDescribe").children(".sensorDescribeText").html(sensorsResponse.obj)
+            } else {
+                $("#err-msg").html(sensorsResponse.error);
+                $("#err-msg").show("bounce", {}, 1000, function () { hideAfter(this, 10000) });
+            }
+        }
+    });
+
+    //TODO!
+    //jquery by id, id from sensor
+    setTimeout(function () {
+        showsensorState(sensor,stan,sensorType);
+    },10000);
 }

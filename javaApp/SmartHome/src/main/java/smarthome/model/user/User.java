@@ -23,8 +23,16 @@ public class User {
     Opcje opcje;
 
     public User(){
-
+        opcje = new Opcje();
+        uprawnienia = new Uprawnienia(false);
+        imie = "";
+        nazwisko = "";
+        nick = "";
+        email = "";
+        password = "";
+        oldPassword = "";
     }
+
     /**
      * 
      * @param id

@@ -16,6 +16,8 @@ import smarthome.model.user.User;
 @Configurable
 public class Menu {
 
+    private static final String DODAJ = "Dodaj";
+    private static final String LISTA = "Lista";
     ArrayList<PozycjaMenu> menuGlowne;
     ArrayList<PozycjaMenu> menuUsera;
 
@@ -29,30 +31,29 @@ public class Menu {
                 
                 tmp = new PozycjaMenu("Pokoje", "#", true);
                 menuGlowne.add(tmp);
-                tmp.addDropDown(new PozycjaMenu("Lista", "./roomsList"));
-                tmp.addDropDown(new PozycjaMenu("Dodaj", "./addRoom"));
+                tmp.addDropDown(new PozycjaMenu(LISTA, "./roomsList"));
+                tmp.addDropDown(new PozycjaMenu(DODAJ, "./addRoom"));
                 tmp.addDropDown(new PozycjaMenu("Usuń", "./removeRoom"));
                 
-                tmp = new PozycjaMenu("Akcje", "/activities", true);
-                tmp.addDropDown(new PozycjaMenu("Dodaj", "./addActivity"));
-                tmp.addDropDown(new PozycjaMenu("Usuń", "./addActivity"));
 
                 tmp = new PozycjaMenu("Urządzenia", "#", true);
-                tmp.addDropDown(new PozycjaMenu("Lista", "./listOfDevices"));
-                tmp.addDropDown(new PozycjaMenu("Dodaj", "./addDevice"));
-                // tmp.addDropDown(new PozycjaMenu("Usuń", "./removeDevice"));
+                tmp.addDropDown(new PozycjaMenu(LISTA, "./listOfDevices"));
+                tmp.addDropDown(new PozycjaMenu(DODAJ, "./addDevice"));
                 menuGlowne.add(tmp);
 
                 tmp = new PozycjaMenu("Sensory", "#", true);
-                tmp.addDropDown(new PozycjaMenu("Lista", "./listOfSensors"));
-                tmp.addDropDown(new PozycjaMenu("Dodaj", "./addSensor"));
-                // tmp.addDropDown(new PozycjaMenu("Usuń", "./removeSensor"));
+                tmp.addDropDown(new PozycjaMenu(LISTA, "./listOfSensors"));
+                tmp.addDropDown(new PozycjaMenu(DODAJ, "./addSensor"));
+                menuGlowne.add(tmp);
+
+                tmp = new PozycjaMenu("Automatyka", "#", true);
+                tmp.addDropDown(new PozycjaMenu(LISTA, "./automationsList"));
+                tmp.addDropDown(new PozycjaMenu(DODAJ, "./addFunction"));
                 menuGlowne.add(tmp);
 
                 tmp = new PozycjaMenu("Użytkownicy", "#", true);
-                tmp.addDropDown(new PozycjaMenu("Lista", "./listOfUsers"));
-                tmp.addDropDown(new PozycjaMenu("Dodaj", "./addUser"));
-                // tmp.addDropDown(new PozycjaMenu("Usuń", "./removeUser"));
+                tmp.addDropDown(new PozycjaMenu(LISTA, "./listOfUsers"));
+                tmp.addDropDown(new PozycjaMenu(DODAJ, "./addUser"));
                 menuGlowne.add(tmp);
 
                 //MENU USERA
@@ -62,6 +63,7 @@ public class Menu {
                 menuUsera.add(tmp);
                 tmp = new PozycjaMenu("Wyłącz System <i class=\"icon-off\"></i>", "./shutdown");
                 menuUsera.add(tmp);
+                //TODO dodać do menu restartowanie systemu i restartowanie slavea
                 
 
 
@@ -69,16 +71,16 @@ public class Menu {
             else{
                 PozycjaMenu tmp = new PozycjaMenu("<i class=\"icon-home\"></i>", "/");
                 menuGlowne.add(tmp);
-                tmp = new PozycjaMenu("Akcje", "/activities",true);
-                tmp.addDropDown(new PozycjaMenu("Dodaj", "./addActivity"));
-                tmp.addDropDown(new PozycjaMenu("Usuń", "./addActivity"));
-                menuGlowne.add(tmp);
-                tmp = new PozycjaMenu("Pokoje", "/rooms");
-                menuGlowne.add(tmp);
-                tmp = new PozycjaMenu("Urządzenia", "/devices");
-                menuGlowne.add(tmp);
-                tmp = new PozycjaMenu("Sensory", "/sensors");
-                menuGlowne.add(tmp);
+                // tmp = new PozycjaMenu("Akcje", "/activities",true);
+                // tmp.addDropDown(new PozycjaMenu(DODAJ, "./addActivity"));
+                // tmp.addDropDown(new PozycjaMenu("Usuń", "./addActivity"));
+                // menuGlowne.add(tmp);
+                // tmp = new PozycjaMenu("Pokoje", "/rooms");
+                // menuGlowne.add(tmp);
+                // tmp = new PozycjaMenu("Urządzenia", "/devices");
+                // menuGlowne.add(tmp);
+                // tmp = new PozycjaMenu("Sensory", "/sensors");
+                // menuGlowne.add(tmp);
                 
 
                 // MENU USERA
