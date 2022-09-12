@@ -46,6 +46,9 @@ public class SystemDAO {
         devices = new ArrayList<>();
         sensors = new ArrayList<>();
         this.readDatabase();
+        if (pokoje.isEmpty()) {
+            addRoom(new Room(0, "Brak"));
+        }
     }
 
     /**

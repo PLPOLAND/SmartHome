@@ -41,14 +41,15 @@ public class I2C{
             findAll();
             // logger.info("Searching for devices");
             
-        } catch (UnsatisfiedLinkError e) {
-            System.err.println("platform does not support this driver");
         }catch (Exception e) {
-            System.err.println("platform does not support this driver");
+            logger.error("platform does not support this driver");
 
         }
     }
-
+    /**
+     * Ustawia flagę, że inny proces aktualnie używa interfejsu I2C
+     * @param isOccup
+     */
     public void setOccupied(boolean isOccup){
         if (isOccup) {
             // logger.debug("Occupied");
@@ -150,7 +151,7 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
         } else {
             try {
 
@@ -182,7 +183,7 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
         } else {
             for (int i = 0; i < size; i++) {
                 tmpbuff[i] = buffer[i];
@@ -213,7 +214,7 @@ public class I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł urządzenia o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
         }
         else{
             try {

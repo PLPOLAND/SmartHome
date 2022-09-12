@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Repository;
 
+import smarthome.model.Uprawnienia;
+import smarthome.model.user.Opcje;
 import smarthome.model.user.User;
 import smarthome.security.Hash;
 
@@ -40,6 +42,9 @@ public class UsersDAO {
 
 	public UsersDAO() {
 		this.readDatabase();
+		if (userzy.isEmpty()) {
+			this.createUser(new User(0L, "root", "root", "root", "", "root", "", new Uprawnienia(true), new Opcje()));
+		}
 	}
 
 	public User getUserLoginData(String nickname, String pass) {
@@ -168,7 +173,7 @@ public class UsersDAO {
 		return min;
 	}
 	/**
-	 * Tworzy nowego usera
+	 * Tworzy nowego usera, haszuje hasło, zachowuje id usera przechowywane w argumencie
 	 * 
 	 * @param user - user do stworzenia
 	 */
@@ -177,6 +182,18 @@ public class UsersDAO {
 		this.save(user);
 		this.userzy.add(user);
 	}
+	
+	/**
+	 * Tworzy nowego usera, ustawia poprawne ID
+	 * @warning Nie haszuje hasła!
+	 * @param user - user do stworzenia
+	 */
+	public void addUser(User u) {
+		u.setId(this.getNextID());
+		save(u);
+		userzy.add(u);
+	}
+
 	/**
 	 * Zapisuje całą bazę danych do plików
 	 */
@@ -241,11 +258,7 @@ public class UsersDAO {
 		}
 	}
 
-    public void addUser(User u) {
-		u.setId(this.getNextID());
-		save(u);
-		userzy.add(u);
-    }
+    
 
     public User findUserByNick(String nick) {
 		// nick = nick.toLowerCase();
