@@ -1,6 +1,8 @@
 package smarthome.i2c;
 
 import java.net.*;
+import java.util.Arrays;
+import java.util.Random;
 import java.io.*;
 
 public class I2CClient {
@@ -28,7 +30,8 @@ public class I2CClient {
     public String sendMessage(String msg) {
         try {
             out.println(msg);
-            String resp = in.readLine();
+            // String resp = in.readLine();
+            String resp = "";
             return resp;
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,7 +52,12 @@ public class I2CClient {
     public static void main(String[] args) {//for test purposes
         I2CClient i2c = new I2CClient();
         i2c.startConnection("raspi-1", 9803);
-        System.out.println(i2c.sendMessage("It's me Raspi"));
+        for (int i = 0; i < 20; i++) {
+            byte[] tmp = new byte[10];
+            Random rand = new Random( 10);
+            rand.nextBytes(tmp);
+            System.out.println(i2c.sendMessage(Arrays.toString(tmp)));
+        }
         i2c.stopConnection();
     }
 
