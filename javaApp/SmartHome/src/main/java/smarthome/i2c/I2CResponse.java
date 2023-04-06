@@ -7,12 +7,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class I2CResponse {
+    private final int id;
     private Byte[] responseBytes;
     private String responseString;
 
-    public I2CResponse(Byte[] responseBytes, String responseString) {
+    public I2CResponse(int id, Byte[] responseBytes, String responseString) {
+        this.id = id;
         this.responseBytes = responseBytes;
         this.responseString = responseString;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Byte[] getResponseBytes() {
@@ -39,9 +45,10 @@ public class I2CResponse {
         I2CResponse response = null;
         try {
             JsonNode jsonNodeRoot = ow.readTree(json);
-            // Byte[] responseBytes = ow.readValue(jsonNodeRoot.get("responseBytes").toString(), Byte[].class); // TODO check if this works
+            int id = jsonNodeRoot.get("id").asInt();
+            Byte[] responseBytes = ow.readValue(jsonNodeRoot.get("responseBytes").toString(), Byte[].class); // TODO check if this works
             String responseString = jsonNodeRoot.get("responseString").asText();
-            response = new I2CResponse(null, responseString);
+            response = new I2CResponse(id, responseBytes, responseString);
         } catch (Exception e) {
             e.printStackTrace();
         }

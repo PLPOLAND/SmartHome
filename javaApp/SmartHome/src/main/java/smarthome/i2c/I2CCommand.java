@@ -50,7 +50,8 @@ public class I2CCommand {
 
     @Override
     public String toString() {
-        return "I2CCommand [id=" + id + ", command=" + Arrays.toString(command) + ", address=" + address + "]";
+        return "I2CCommand [id=" + id + ", command=" + Arrays.toString(command) + ", address=" + address + ", state="
+                + state + ", response=" + response + "]";
     }
 
     public String toJSONString(){

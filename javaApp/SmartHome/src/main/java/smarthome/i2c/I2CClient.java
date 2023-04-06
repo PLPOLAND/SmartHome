@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 
-
-
 public class I2CClient {
+    private static final Logger logger = LoggerFactory.getLogger(I2CClient.class);
 
     I2CClient(String ip, int port) {
         clientSocket = null;
@@ -18,7 +21,7 @@ public class I2CClient {
         this.startConnection(ip, port);// TODO check if connection was successful
         if (isConnected()) {
             processThread.start();
-            // recieveThread.start(); // TODO: implement recieving then uncomment
+            recievingThread.start(); // TODO: implement recieving then uncomment
         }
     }
 
@@ -26,11 +29,9 @@ public class I2CClient {
     private PrintWriter out; // the output stream to the server
     private BufferedReader in; // the input stream from the server
 
-    private Random random = new Random( System.currentTimeMillis() );
-
+    private Random random = new Random(System.currentTimeMillis());
 
     private List<I2CCommand> toProcess = new ArrayList<>();
-
 
     /**
      * Process the command by sending it to the server and recieving when it is done
@@ -50,12 +51,12 @@ public class I2CClient {
                 // String resp = in.readLine();
                 // I2CResponse response = I2CResponse.fromJSONString(resp);
                 // if (response != null) {
-                //     if (response.getId() == -1) {
-                //         System.out.println("Error: " + response);
-                //     } else {
-                //         System.out.println("Response: " + response);
-                //         recieved.add(response);
-                //     }
+                // if (response.getId() == -1) {
+                // System.out.println("Error: " + response);
+                // } else {
+                // System.out.println("Response: " + response);
+                // recieved.add(response);
+                // }
                 // }
                 String resp = "";
                 return resp;
@@ -74,7 +75,7 @@ public class I2CClient {
                         for (I2CCommand i2cCommand : toProcess) {
                             switch (i2cCommand.getState()) {
                                 case CREATED:
-                                    sendCommand(i2cCommand); 
+                                    sendCommand(i2cCommand);
                                     i2cCommand.setState(I2CCommand.State.SENT);
                                     break;
                                 case SENT:
@@ -91,54 +92,63 @@ public class I2CClient {
                     }
                 } catch (InterruptedException e) {
 
-                    System.out.println("sendThread interrupted while sleeping");
+                    logger.error("processThread interrupted while sleeping", e);
                 }
             }
-            System.out.println("sendThread stopped");
+            logger.info("processThread stopped");
         }
-    });
+    }, "I2CClient-processThread");
 
-    // Thread recieveThread = new Thread(new Runnable() {
-    //     @Override
-    //     public void run() {
-    //         while (isConnected()) {
-    //             try {
-    //                 Thread.sleep(1);// sleep for 1 ms to prevent cpu overload
-    //                 if (!recieved.isEmpty()) {
-    //                     I2CResponse command = recieved.get(0);
-    //                     recieved.remove(0);
-    //                     System.out.println("Recieved: " + command);
-    //                     // TODO: do something with the recieved command
-    //                 }
-    //             } catch (InterruptedException e) {
-    //                 System.out.println("recieveThread interrupted while sleeping");
-    //             }
-
-    //         }
-    //         System.out.println("recieveThread stopped");
-    //     }
-    // });
+    /**
+     * This function returns an I2CCommand object from a list based on its ID.
+     * 
+     * @param id The parameter "id" is an integer value representing the ID of the
+     *           I2C command that
+     *           needs to be retrieved from the commands list.
+     * @return `I2CCommand` object with the specified ID or null if no such command
+     *         exists.
+     */
+    public I2CCommand getCommand(int id) {
+        for (I2CCommand i2cCommand : toProcess) {
+            if (i2cCommand.getId() == id) {
+                return i2cCommand;
+            }
+        }
+        return null;
+    }
 
     /**
      * Thread that recieves messages from the server and processes them.
      * 
      */
-    Thread recievingThread = new Thread(new Runnable() {
-
-        @Override
-        public void run() {
-            while (isConnected()) {
-                String resp;
-                try {
-                    resp = in.readLine();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    break;
+    Thread recievingThread = new Thread(() -> {
+        while (isConnected()) {
+            String resp;
+            try {
+                resp = in.readLine();
+                I2CResponse response = I2CResponse.fromJSONString(resp);
+                if (response != null) {
+                    if (response.getId() == -1) {
+                        logger.debug("Error: {}", response);
+                    } else {
+                        logger.debug("Got: Response: {}", response);
+                        I2CCommand command = getCommand(response.getId());
+                        if (command != null) {
+                            command.setState(I2CCommand.State.RECIEVED);
+                            command.setResponse(response);
+                            logger.debug("Command: {}", command);
+                        } else {
+                            logger.error("Error: Command with id {} not found!", response.getId());
+                        }
+                    }
                 }
-                // TODO 
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                break;
             }
         }
-    });
+    }, "I2CClient-recievingThread");
 
     /**
      * This function attempts to start a connection with a server at a specified IP
@@ -162,11 +172,11 @@ public class I2CClient {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             return true;
         } catch (java.net.ConnectException exception) {
-            System.out.println("Connection refused. You need to initiate the server first.");
+            logger.error("Connection refused. You need to initiate the server first.", exception);
             return false;
             // TODO: add a way to start the server from here
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while connecting to server", e);
             return false;
         }
     }
@@ -181,12 +191,15 @@ public class I2CClient {
     }
 
     /**
-     * This function sends a command with a randomly generated ID to a specified address and adds it to
+     * This function sends a command with a randomly generated ID to a specified
+     * address and adds it to
      * a list of commands to be sent.
      * 
-     * @param command A Byte array representing the command to be sent over I2C communication.
-     * @param address The address parameter is an integer value representing the address of the device
-     * to which the command is being sent.
+     * @param command A Byte array representing the command to be sent over I2C
+     *                communication.
+     * @param address The address parameter is an integer value representing the
+     *                address of the device
+     *                to which the command is being sent.
      * @return An integer value representing the ID of the command.
      */
     public int sendCommand(Byte[] command, int address) {
@@ -215,7 +228,6 @@ public class I2CClient {
         return id; // return the ID of the command
     }
 
-
     /**
      * This function closes the input and output streams and the client socket.
      */
@@ -239,19 +251,18 @@ public class I2CClient {
     }
 
     public static void main(String[] args) {// for test purposes
+        Logger logger = LoggerFactory.getLogger(I2CClient.class);
         I2CClient i2c = new I2CClient("raspi4", 9803);
         if (i2c.isConnected()) {
-            System.out.println("Connection established!");
+            logger.debug("Connection established!");
             for (int i = 0; i < 20; i++) {
                 I2CCommand command = new I2CCommand(i, new Byte[] { 'T', 'A' }, 0x08);
-                System.out.println(command.toJSONString());
+                logger.debug("{}",command.toJSONString());
                 i2c.toProcess.add(command);
-                // System.out.println(i2c.sendMessage(command.toJSONString()));
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    logger.error("Error while sleeping", e);
                 }
             }
         } else {
@@ -261,11 +272,10 @@ public class I2CClient {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.error("Error while sleeping", e);
             }
         }
-        System.out.println("toSent is empty");
+        logger.debug("toSent is empty");
         i2c.stopConnection();
     }
 
