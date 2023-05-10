@@ -1,0 +1,17 @@
+{
+  "id" : 2,
+  "imie" : "Marcin",
+  "nazwisko" : "Pałdyna",
+  "nick" : "wolfikas",
+  "email" : "marcin.paldyna@wp.pl",
+  "password" : "jnlyoeel",
+  "oldPassword" : "",
+  "uprawnienia" : {
+    "admin" : true
+  },
+  "opcje" : {
+    "typAvatara" : "LOCAL",
+    "lokalnaSciezka" : "../img/users/deafult.png",
+    "themeSciezka" : "../themes/green.css"
+  }
+}

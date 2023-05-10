@@ -101,14 +101,14 @@ public class AdminRESTController {
         return new Response<String>("test");
     }
     @RequestMapping("/find")
-    public Response<ArrayList<I2CDevice>> find() {
+    public Response<ArrayList<Integer>> find() {
         try {
             converter.atmega.findAll();
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>(null, e.getMessage());
         }
-        return new Response<>((ArrayList<I2CDevice>)converter.atmega.getDevices());
+        return new Response<>((ArrayList<Integer>)converter.atmega.getDevices());
     }
 
     @RequestMapping("/sendAny")
