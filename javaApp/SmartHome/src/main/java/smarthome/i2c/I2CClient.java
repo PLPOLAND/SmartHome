@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
-public class I2CClient {
+public class I2CClient implements I2C{
     private static final Logger logger = LoggerFactory.getLogger(I2CClient.class);
 
     I2CClient(String ip, int port) {
@@ -250,14 +250,16 @@ public class I2CClient {
         }
     }
 
+    
+
     public static void main(String[] args) {// for test purposes
         Logger logger = LoggerFactory.getLogger(I2CClient.class);
         I2CClient i2c = new I2CClient("raspi4", 9803);
         if (i2c.isConnected()) {
             logger.debug("Connection established!");
-            for (int i = 0; i < 20; i++) {
-                I2CCommand command = new I2CCommand(i, new Byte[] { 'T', 'A' }, 0x08);
-                logger.debug("{}",command.toJSONString());
+            for (int i = 0; i < 2; i++) {
+                I2CCommand command = new I2CCommand(i, new Byte[] { 'I' }, 0x0E);
+                logger.debug("sending: {}",command.toJSONString());
                 i2c.toProcess.add(command);
                 try {
                     Thread.sleep(500);
@@ -277,6 +279,62 @@ public class I2CClient {
         }
         logger.debug("toSent is empty");
         i2c.stopConnection();
+    }
+
+    @Override
+    public void write(int address, byte[] buffer, int size) throws Exception {
+        Byte[] tmpBuf;
+        tmpBuf = new Byte[size];
+        for (int i = 0; i < tmpBuf.length && i<size; i++) {
+            tmpBuf[i] = buffer[i];
+        }
+        sendCommand(tmpBuf, address);// TODO what to do with the id?
+    }
+
+    /**
+     * This function reads a specified number of bytes from a specified address.
+     * @param address - the address of the device to read from
+     * @param size - the number of bytes to read
+     * @param commandID - the ID of the command to read
+     * @return a byte array containing the bytes read
+     * @throws Exception if there are no commands in the toProcess list
+     */
+    @Override
+    public byte[] read(int address, int size, int commandID) throws Exception {
+        if (toProcess.isEmpty()) {
+            throw new Exception("No commands to process!");
+        }
+        I2CCommand command = getCommand(commandID);
+        while(command.getState() != I2CCommand.State.RECIEVED) {
+            Thread.sleep(1);
+        }
+        byte[] buffer = new byte[size];
+        for (int i = 0; i < buffer.length && i<size; i++) {
+            buffer[i] = command.getResponse().getResponseBytes()[i];
+        }
+        return buffer;
+    }
+
+    /**
+     * Makes a call to {@link #read(int adress, int size, int commandID)} with
+     * commandID = 0
+     * 
+     * @see #read(int adress, int size, int commandID)
+     */
+    public byte[] read(int address, int size) throws Exception {
+        return read(address, size, 0);
+    }
+
+    @Override
+    public void restartSlaves() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'restartSlaves'");
+    }
+
+    @Override
+    public List<Integer> getDevices() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getDevices'");
     }
 
 }
