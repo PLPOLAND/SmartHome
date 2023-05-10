@@ -61,6 +61,7 @@ void I2CConverter::onRequestEvent() {
 
 void I2CConverter::RecieveEvent(int howManyBytes)
 {
+    OUT_LN(F("RECIEVE_EVENT START"));
     byte buffReadSize = 0;
     OUT(F("howmanybytes: "));
     OUT_LN(howManyBytes);
@@ -436,10 +437,12 @@ void I2CConverter::RecieveEvent(int howManyBytes)
         OUT_LN(freeMemory());
     }
     
+    OUT_LN(F("END OF RECIEVE EVENT"));
 }
 //TODO kolejka komend
 void I2CConverter::RequestEvent()
 {
+    OUT_LN(F("REQUEST_EVENT START"));
     Command* command = nullptr;
     if (doWyslania.size()>0)
     {
@@ -517,7 +520,8 @@ void I2CConverter::RequestEvent()
     }
     
     OUT_LN(F("SENDING DONE"));
-    
+    OUT_LN(freeMemory());
+    OUT_LN(F("REQUEST_EVENT END"));
 }
 
 void I2CConverter::addToSent(Command *command){
