@@ -27,10 +27,11 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * Klasa odpowiadająca za kompunikację pomiędzy Masterem a Slave-ami
- * 
+ * @deprecated 
  * @author Marek Pałdyna
  */
-@Service
+// @Service
+@Deprecated
 public class MasterToSlaveConverter {
 
     private static final int MAX_ROZMIAR_ODPOWIEDZI = 8;
@@ -74,7 +75,7 @@ public class MasterToSlaveConverter {
     // #endregion
 
     @Autowired
-    public I2C atmega;
+    public I2CHardware atmega;
 
     @Autowired
     SystemDAO system;
@@ -691,20 +692,14 @@ public class MasterToSlaveConverter {
     }
 
     public List<Integer> getSlavesAdresses() {
-        ArrayList<Integer> adresy = new ArrayList<>();
-
-        for (I2CDevice device : atmega.getDevices()) {
-            adresy.add(device.getAddress());
-        }
-
-        return adresy;
+        return atmega.getDevices();
     }
 
-    public boolean isDeviceConnected(int deviceId) {
+    public boolean isSlaveConnected(int slaveAdressToCheck) {
         boolean isConnected = false;
 
-        for (I2CDevice device : atmega.getDevices()) {
-            if (device.getAddress() == deviceId) {
+        for (Integer slaveAdress : atmega.getDevices()) {
+            if (slaveAdress == slaveAdressToCheck) {
                 isConnected = true;
                 break;
             }

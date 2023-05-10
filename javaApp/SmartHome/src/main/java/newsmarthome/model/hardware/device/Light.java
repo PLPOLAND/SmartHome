@@ -1,11 +1,16 @@
-package newsmarthome.model.hardware;
+package newsmarthome.model.hardware.device;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import newsmarthome.i2c.I2C;
+@Component
 public class Light extends Device{
     /** Przekaźnik który odpowiada za sterowanie światłem na slavie */
     Switch swt;
 
+    @Autowired
     public Light(){
         super(DeviceTypes.LIGHT);
         swt = new Switch();

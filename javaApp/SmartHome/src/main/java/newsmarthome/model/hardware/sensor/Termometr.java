@@ -1,4 +1,4 @@
-package newsmarthome.model.hardware;
+package newsmarthome.model.hardware.sensor;
 
 import org.slf4j.LoggerFactory;
 

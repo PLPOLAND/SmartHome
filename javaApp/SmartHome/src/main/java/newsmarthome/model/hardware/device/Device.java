@@ -1,12 +1,17 @@
-package newsmarthome.model.hardware;
+package newsmarthome.model.hardware.device;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import newsmarthome.i2c.I2C;
+import newsmarthome.i2c.I2CHardware;
 
 /**
  * Device
@@ -20,9 +25,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = Light.class, name = "Light"),
     @JsonSubTypes.Type(value = Blind.class, name = "Blind")
     })
+@Component
 public abstract class Device {//TODO Dodać metody do parametru name.
-
     private static final String NOT_IMPLEMENTED_HERE = "Wywołano funkcję nie implementowaną w klasie bazowej Device!";
+    @Autowired
+    public I2CHardware i2c;
 
     @JsonIgnore
     /** Logger Springa */
@@ -42,8 +49,8 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     private String name = "";
 
     DeviceTypes typ;
-    
-    public Device() {
+    // @Autowired
+    protected Device( ) {
         this.id = nextDeviceID++;
         this.room = -1;
         this.slaveID = -1;
@@ -53,7 +60,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
         name = "Undefined";
         // logger.info("Stworzono pusty Device");
     }
-    public Device(DeviceTypes type) {
+    protected Device(DeviceTypes type) {
         this.id = nextDeviceID++;
         this.room = -1;
         this.slaveID = -1;
@@ -64,7 +71,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
         
     }
 
-    public Device(int slaveID, DeviceTypes type){
+    protected Device(int slaveID, DeviceTypes type){
         this.id = nextDeviceID++;
         this.room = -1;
         this.slaveID = slaveID;
@@ -73,7 +80,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
         logger = LoggerFactory.getLogger(Device.class);
     }
     
-    public Device(int id, int room, int slaveID,DeviceTypes type){
+    protected Device(int id, int room, int slaveID,DeviceTypes type){
         this.id = id;
         this.room = room;
         this.slaveID = slaveID;

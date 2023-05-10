@@ -1,4 +1,4 @@
-package smarthome.i2c;
+package newsmarthome.i2c;
 
 import java.io.IOException;
 import java.util.ArrayList;

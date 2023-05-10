@@ -1,16 +1,17 @@
-package newsmarthome.model.hardware;
+package newsmarthome.model.hardware.device;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class Blind extends Device{
     DeviceState stan;
     Switch swtUp;
     Switch swtDown;
 
-    Blind(){
+    public Blind(){
         super(DeviceTypes.BLIND);
         logger = LoggerFactory.getLogger(Blind.class);
     }

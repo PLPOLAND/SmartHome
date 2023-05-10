@@ -1,4 +1,4 @@
-package newsmarthome.model.hardware;
+package newsmarthome.model.hardware.device;
 
 import java.util.Arrays;
 

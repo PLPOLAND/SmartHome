@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Marek Pałdyna
  */
-@Service
+// @Service
 public class MasterToSlaveConverter {
 
     private static final int MAX_ROZMIAR_ODPOWIEDZI = 8;

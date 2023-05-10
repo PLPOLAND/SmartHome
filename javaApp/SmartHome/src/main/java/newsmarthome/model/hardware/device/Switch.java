@@ -1,4 +1,4 @@
-package newsmarthome.model.hardware;
+package newsmarthome.model.hardware.device;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

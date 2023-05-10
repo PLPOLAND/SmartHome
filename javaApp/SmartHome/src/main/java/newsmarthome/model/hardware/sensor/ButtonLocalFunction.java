@@ -1,4 +1,4 @@
-package newsmarthome.model.hardware;
+package newsmarthome.model.hardware.sensor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import newsmarthome.model.hardware.device.Device;
 
 @Component
 public class ButtonLocalFunction {
