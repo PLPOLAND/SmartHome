@@ -1,0 +1,50 @@
+{
+  "id" : 7,
+  "devices" : [ {
+    "@type" : "Light",
+    "id" : 37,
+    "room" : 7,
+    "slaveID" : 8,
+    "onSlaveID" : 2,
+    "name" : "Poziom 1",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 10
+    },
+    "pin" : 10,
+    "state" : "OFF"
+  } ],
+  "sensors" : [ {
+    "@type" : "Button",
+    "id" : 110,
+    "room" : 7,
+    "onSlaveID" : 5,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 9,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 37,
+        "room" : 7,
+        "slaveID" : 8,
+        "onSlaveID" : 2,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 10
+        },
+        "pin" : 10,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 8
+  } ],
+  "nazwa" : "Kotłownia"
+}
