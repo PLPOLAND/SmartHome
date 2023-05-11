@@ -59,11 +59,4 @@ public class HardwareFactory {
     public Blind createBlind(DeviceState stan, int pinUp, int pinDown, int slaveID){
         return beanFactory.getBean(Blind.class, stan, slaveID, pinUp, pinDown);
     }
-
-    
-    
-    
-
-
-
 }
