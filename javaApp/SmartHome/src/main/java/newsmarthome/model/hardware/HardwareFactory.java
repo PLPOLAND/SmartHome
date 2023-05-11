@@ -9,6 +9,7 @@ import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.device.Outlet;
 
 @Service
 public class HardwareFactory {
@@ -24,11 +25,11 @@ public class HardwareFactory {
             case LIGHT:
                 return context.getBean(Light.class);
             case GNIAZDKO:
-                // return new ;
+                return context.getBean(Outlet.class);
             case BLIND:
                 return context.getBean(Blind.class);
             case WENTYLATOR:
-                // return new TemperatureSensor();
+                return context.getBean(Fan.class);
             default:
             throw new IllegalArgumentException("Nie prawidłowy typ urządzenia. Podany typ = " + type);
         }
