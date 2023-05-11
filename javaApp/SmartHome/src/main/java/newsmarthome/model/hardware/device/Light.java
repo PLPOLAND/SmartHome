@@ -1,16 +1,24 @@
 package newsmarthome.model.hardware.device;
 
+import java.util.Arrays;
+
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import newsmarthome.i2c.I2C;
+import smarthome.exception.HardwareException;
+
 @Component
 public class Light extends Device{
+    /** [U,S] */
+    final byte[] ZMIEN_STAN_PRZEKAZNIKA = { 'U', 'S' }; // + id + stan
+    /** [A, S] */
+    final byte[] DODAJ_URZADZENIE = { 'A', 'S' }; // + PIN
+
+
     /** Przekaźnik który odpowiada za sterowanie światłem na slavie */
     Switch swt;
 
-    @Autowired
+    
     public Light(){
         super(DeviceTypes.LIGHT);
         swt = new Switch();
@@ -34,15 +42,68 @@ public class Light extends Device{
         this.swt = new Switch(DeviceState.OFF,pin);
     }    
 
+    @Override
+    public void configureToSlave() {
+        byte[] buffor = new byte[3];
+        int i = 0;
+        for (byte b : DODAJ_URZADZENIE) {
+            buffor[i++] = b;
+        }
+        buffor[i] = (byte) (this.getPin());
+
+        logger.debug("Writing to addres {}", this.getSlaveID());
+
+        try {
+            i2c.write(this.getSlaveID(), buffor, 3);
+            logger.debug("Reading from addres {}", this.getSlaveID());
+            Thread.sleep(10);
+            byte[] response = i2c.read(this.getSlaveID(), 8);
+            this.setOnSlaveID(response[0]);
+            logger.debug("Response from {}: {}", this.getSlaveID(), Arrays.toString(response));
+        } catch (HardwareException e) {
+            // TODO Auto-generated catch block
+            logger.error(e.getMessage(), e);
+        }
+        catch (InterruptedException e1){
+            logger.error(e1.getMessage(), e1);
+        }
+        
+        
+    }
+
     
     @Override
     public DeviceState getState() {
         return this.swt.getStan();
     }
 
-    
+
+    /**
+     * This function sets the state of a device and sends a command to a slave device using I2C
+     * communication protocol.
+     * 
+     * @param stan stan is an object of the DeviceState class, which represents the state of a device
+     * (either ON or OFF). The method sets the state of a device to the specified state
+     * and sends a command to a slave device via I2C communication.
+     */
     public void setState(DeviceState stan) {
         this.swt.setStan(stan);
+        byte[] buffor = new byte[4];
+        int i = 0;
+        for (byte b : ZMIEN_STAN_PRZEKAZNIKA) {
+            buffor[i++] = b;
+        }
+        buffor[i++] = (byte) this.getOnSlaveID();
+        buffor[i] = (byte) (stan == DeviceState.ON ? 1 : 0);
+        try {
+            i2c.writeTo(this.getSlaveID(), buffor);
+            byte[] response = i2c.readFrom(this.getSlaveID(), 8);// TODO obsluga bledu
+            logger.debug("Response from {}: {}", this.getSlaveID(), Arrays.toString(response));
+        } catch (HardwareException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -51,12 +112,12 @@ public class Light extends Device{
             throw new IllegalArgumentException("Nie prawidłowy stan dla światła. Podany stan = " + state);
         }
 
-        this.swt.setStan(state);
+        this.setState(state);
     }
 
     @Override
     public void changeState() {
-        this.swt.setStan(this.swt.getStan().equals(DeviceState.ON) ? DeviceState.OFF : DeviceState.ON);
+        this.setState(this.swt.getStan().equals(DeviceState.ON) ? DeviceState.OFF : DeviceState.ON);
     }
 
     @Override
