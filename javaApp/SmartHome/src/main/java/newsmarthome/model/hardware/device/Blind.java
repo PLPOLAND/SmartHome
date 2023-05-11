@@ -7,9 +7,11 @@ import smarthome.exception.HardwareException;
 import java.util.Arrays;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
+@Scope("prototype")
 public class Blind extends Device{
 
     /** [A, R] */
@@ -25,10 +27,17 @@ public class Blind extends Device{
         super(DeviceTypes.BLIND);
         logger = LoggerFactory.getLogger(Blind.class);
     }
+
+    public Blind(int pinUp, int pinDown){
+        super(DeviceTypes.BLIND);
+        swtUp = new Switch(DeviceState.OFF, pinUp);
+        swtDown = new Switch(DeviceState.OFF, pinDown);
+        logger = LoggerFactory.getLogger(Blind.class);
+    }
     
-    public Blind(boolean stan, int boardID, int pinUp, int pinDown) {
+    public Blind(DeviceState stan, int boardID, int pinUp, int pinDown) {
         super(boardID, DeviceTypes.BLIND);
-        this.stan = stan? DeviceState.UP : DeviceState.DOWN;
+        this.changeState(stan);
         swtUp = new Switch(DeviceState.OFF, pinUp);
         swtDown = new Switch(DeviceState.OFF, pinDown);
         logger = LoggerFactory.getLogger(Blind.class);

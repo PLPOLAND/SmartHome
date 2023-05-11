@@ -3,11 +3,13 @@ package newsmarthome.model.hardware.device;
 import java.util.Arrays;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import smarthome.exception.HardwareException;
 
 @Component
+@Scope("prototype")
 public class Fan extends Device{
     /** [U,S] */
     final byte[] ZMIEN_STAN_PRZEKAZNIKA = { 'U', 'S' }; // + id + stan
@@ -36,11 +38,11 @@ public class Fan extends Device{
         this.swt = new Switch(stan, pin);
     }
 
-    public Fan(int id, int room, int roomID, int pin){
-        super(id, room, roomID, DeviceTypes.WENTYLATOR);
-        logger = LoggerFactory.getLogger(this.getClass());
-        this.swt = new Switch(DeviceState.OFF,pin);
-    }    
+    // public Fan(int id, int room, int roomID, int pin){
+    //     super(id, room, roomID, DeviceTypes.WENTYLATOR);
+    //     logger = LoggerFactory.getLogger(this.getClass());
+    //     this.swt = new Switch(DeviceState.OFF,pin);
+    // }    
 
     @Override
     public void configureToSlave() {

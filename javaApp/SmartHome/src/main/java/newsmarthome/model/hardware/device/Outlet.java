@@ -3,11 +3,13 @@ package newsmarthome.model.hardware.device;
 import java.util.Arrays;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import smarthome.exception.HardwareException;
 
 @Component
+@Scope("prototype")
 public class Outlet extends Device{
     /** [U,S] */
     final byte[] ZMIEN_STAN_PRZEKAZNIKA = { 'U', 'S' }; // + id + stan
