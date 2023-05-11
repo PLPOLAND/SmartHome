@@ -9,17 +9,17 @@ import com.pi4j.io.i2c.I2CDevice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import smarthome.database.SystemDAO;
-import smarthome.exception.HardwareException;
-import smarthome.exception.SoftwareException;
-import smarthome.model.hardware.Device;
-import smarthome.model.hardware.DeviceState;
-import smarthome.model.hardware.DeviceTypes;
-import smarthome.model.hardware.Light;
-import smarthome.model.hardware.Blind;
-import smarthome.model.hardware.Button;
-import smarthome.model.hardware.ButtonLocalFunction;
-import smarthome.model.hardware.Termometr;
+// import newsmarthome.database.SystemDAO;
+import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
+import newsmarthome.model.hardware.device.Blind;
+import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.device.DeviceState;
+import newsmarthome.model.hardware.device.DeviceTypes;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
+import newsmarthome.model.hardware.sensor.Termometr;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +27,9 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * Klasa odpowiadająca za kompunikację pomiędzy Masterem a Slave-ami
- * @deprecated 
  * @author Marek Pałdyna
  */
-// @Service
-@Deprecated
+@Service
 public class MasterToSlaveConverter {
 
     private static final int MAX_ROZMIAR_ODPOWIEDZI = 8;
@@ -77,8 +75,8 @@ public class MasterToSlaveConverter {
     @Autowired
     public I2CHardware atmega;
 
-    @Autowired
-    SystemDAO system;
+    // @Autowired
+    // SystemDAO system;
 
     /** Logger Springa */
     Logger logger;
@@ -101,7 +99,7 @@ public class MasterToSlaveConverter {
             buffor[i++] = b;
         }
         buffor[i++] = (byte) idPrzekaznika;
-        buffor[i++] = (byte) (stan == DeviceState.ON ? 1 : 0); 
+        buffor[i] = (byte) (stan == DeviceState.ON ? 1 : 0); 
         atmega.pauseIfOcupied();
         atmega.setOccupied(true);
         atmega.writeTo(idPlytki, buffor);
@@ -120,15 +118,15 @@ public class MasterToSlaveConverter {
 
         switch (stan) {
             case UP:
-                buffor[i++] = 'U';
+                buffor[i] = 'U';
                 logger.debug( "Wysyłanie komendy podniesienia Rolety");
                 break;
             case DOWN:
-                buffor[i++] = 'D';
+                buffor[i] = 'D';
                 logger.debug( "Wysyłanie komendy opuszczenia Rolety");
                 break;
             case NOTKNOW://TODO wymyślić co zrobić z tym ( nie może być NOTKNOW)
-                buffor[i++] = 'S';
+                buffor[i] = 'S';
                 logger.debug( "Wysyłanie komendy zatrzymania Rolety");
                 break;
             default:
@@ -195,7 +193,7 @@ public class MasterToSlaveConverter {
             if (!tmp.equals("")) {
                 Float temperatura = Float.parseFloat(tmp);
                 logger.debug("Got temperature from {}. Temperature = {} *C",Arrays.toString(termometr.getAddres()),temperatura);
-                termometr.setTemperatura(temperatura);
+                // termometr.setTemperatura(temperatura);
                 return temperatura;
             }
             else{

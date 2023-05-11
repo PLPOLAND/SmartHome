@@ -17,6 +17,7 @@ public class Termometr extends Sensor{
     /**Minimalna Temperaturna */
     Float min;
 
+
     public Termometr(){
         super(SensorsTypes.THERMOMETR);
         this.temperatura = Float.MAX_VALUE;
@@ -34,15 +35,15 @@ public class Termometr extends Sensor{
     }
     /**
      * Konstruktor
-     * @param ID - ID urządzenia w systemie
+     * @param id - ID urządzenia w systemie
      * @param room - ID pokoju w którym jest urządzenie
      * @param idPlytki - ID płytki w systemie slave'a
      * @param temperatura - Aktualna temperatura
      * @param max - max temperatura 
      * @param min - min temperatura 
      */
-    public Termometr(int ID, int room, int idPlytki, int[] addres, Float temperatura, Float max, Float min) {
-        super(ID ,room, idPlytki, addres, SensorsTypes.THERMOMETR);
+    public Termometr(int id, int room, int idPlytki, int[] addres, Float temperatura, Float max, Float min) {
+        super(id ,room, idPlytki, addres, SensorsTypes.THERMOMETR);
         this.temperatura = temperatura;
         this.max = max;
         this.min = min;
@@ -54,7 +55,7 @@ public class Termometr extends Sensor{
         return this.temperatura;
     }
 
-    public void setTemperatura(Float temperatura) {
+    protected void setTemperatura(Float temperatura) {
         this.temperatura = temperatura;
         if (this.max < temperatura) {
             max = temperatura; // ustaw minimalną temperaturę
@@ -79,8 +80,11 @@ public class Termometr extends Sensor{
         this.min = Float.MAX_VALUE;
     }
     
+    /**
+     *  Aktualizuje temperaturę, pobierając ją z slave'a
+     */
     public void update(){
-        
+        this.setTemperatura(slaveSender.checkTemperature(this));
     }
 
     @Override

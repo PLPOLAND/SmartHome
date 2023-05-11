@@ -6,17 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import smarthome.exception.HardwareException;
+import newsmarthome.exception.HardwareException;
 
 @Component
 @Scope("prototype")
 public class Fan extends Device{
-    /** [U,S] */
-    final byte[] ZMIEN_STAN_PRZEKAZNIKA = { 'U', 'S' }; // + id + stan
-    /** [A, S] */
-    final byte[] DODAJ_URZADZENIE = { 'A', 'S' }; // + PIN
-
-
     /** Przekaźnik który odpowiada za sterowanie światłem na slavie */
     Switch swt;
 
@@ -46,30 +40,11 @@ public class Fan extends Device{
 
     @Override
     public void configureToSlave() {
-        byte[] buffor = new byte[3];
-        int i = 0;
-        for (byte b : DODAJ_URZADZENIE) {
-            buffor[i++] = b;
-        }
-        buffor[i] = (byte) (this.getPin());
-
-        logger.debug("Writing to addres {}", this.getSlaveID());
-
         try {
-            i2c.write(this.getSlaveID(), buffor, 3);
-            logger.debug("Reading from addres {}", this.getSlaveID());
-            Thread.sleep(10);
-            byte[] response = i2c.read(this.getSlaveID(), 8);
-            this.setOnSlaveID(response[0]);
-            logger.debug("Response from {}: {}", this.getSlaveID(), Arrays.toString(response));
+            slaveSender.addUrzadzenie(this);
         } catch (HardwareException e) {
-            logger.error(e.getMessage(), e);
+            logger.error("Błąd podczas dodawania urządzenia na Slave-a! -> {}", e.getMessage());
         }
-        catch (InterruptedException e1){
-            logger.error(e1.getMessage(), e1);
-        }
-        
-        
     }
 
     
@@ -89,21 +64,11 @@ public class Fan extends Device{
      */
     public void setState(DeviceState stan) {
         this.swt.setStan(stan);
-        byte[] buffor = new byte[4];
-        int i = 0;
-        for (byte b : ZMIEN_STAN_PRZEKAZNIKA) {
-            buffor[i++] = b;
-        }
-        buffor[i++] = (byte) this.getOnSlaveID();
-        buffor[i] = (byte) (stan == DeviceState.ON ? 1 : 0);
         try {
-            i2c.writeTo(this.getSlaveID(), buffor);
-            byte[] response = i2c.readFrom(this.getSlaveID(), 8);// TODO obsluga bledu
-            logger.debug("Response from {}: {}", this.getSlaveID(), Arrays.toString(response));
+            slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
         } catch (HardwareException e) {
-            logger.error("Error on setting state! -> {}",e.getMessage());
+            logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
         }
-
     }
 
     @Override

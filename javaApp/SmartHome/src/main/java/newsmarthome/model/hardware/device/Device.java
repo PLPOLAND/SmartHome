@@ -12,7 +12,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import newsmarthome.i2c.I2C;
 import newsmarthome.i2c.I2CHardware;
-import smarthome.exception.HardwareException;
+import newsmarthome.i2c.MasterToSlaveConverter;
+import newsmarthome.exception.HardwareException;
 
 /**
  * Device
@@ -23,18 +24,19 @@ import smarthome.exception.HardwareException;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({ 
     @JsonSubTypes.Type(value = Switch.class, name = "Switch"),
-    @JsonSubTypes.Type(value = Fan.class, name = "Light"),
+    @JsonSubTypes.Type(value = Light.class, name = "Light"),
+    @JsonSubTypes.Type(value = Fan.class, name = "Fan"),
+    @JsonSubTypes.Type(value = Outlet.class, name = "Outlet"),
     @JsonSubTypes.Type(value = Blind.class, name = "Blind")
     })
 @Component
 public abstract class Device {//TODO Dodać metody do parametru name.
     private static final String NOT_IMPLEMENTED_HERE = "Wywołano funkcję nie implementowaną w klasie bazowej Device!";
 
-    /** [S, D] */
-    final byte[] SPRAWDZ_STAN_URZADZENIA = { 'S', 'D' };
+    
 
     @Autowired
-    public I2CHardware i2c;
+    public MasterToSlaveConverter slaveSender;
 
     @JsonIgnore
     /** Logger Springa */
@@ -160,52 +162,10 @@ public abstract class Device {//TODO Dodać metody do parametru name.
      * Sprawdza stan urządzenia na slavie i ustawia go w obiekcie.
      */
     public void updateDeviceState(){
-
-        byte[] buffor = new byte[3];
-        int i = 0;
-        for (byte b : SPRAWDZ_STAN_URZADZENIA) {
-            buffor[i++] = b;
-        }
-        buffor[i] = (byte) this.slaveID;
-
         try {
-            i2c.write(this.slaveID, buffor, 3);
-            byte[] response = i2c.read(slaveID, 8);//
-            
-            if (response == null || response[0] == 'E' ) {
-                throw new HardwareException("Error on checking state of device slaveID = " + slaveID);
-            } else {
-                DeviceState newState = DeviceState.NOTKNOW;
-                switch (response[0]) {
-                    case 'U':
-                        newState = DeviceState.UP;
-                        break;
-                    case 'D':
-                        newState = DeviceState.DOWN;
-                        break;
-                    case 0:
-                        newState = DeviceState.OFF;
-                        break;
-                    case 1:
-                        newState = DeviceState.ON;
-                        break;
-                    default:
-                        newState = DeviceState.NOTKNOW;
-                        break;
-                }
-                if(this.isStateCorrect(newState)){
-                    this.changeState(newState);
-                }
-                else{
-                    // logger.error("Otrzymano nieprawidłowy stan urządzenia. Otrzymany stan = {}", newState);
-                    throw new HardwareException("Otrzymano nieprawidłowy stan urządzenia. Otrzymany stan = " + newState);
-                }
-
-
-            }
+            slaveSender.checkDeviceState(slaveID, onSlaveID);
         } catch (HardwareException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Error on checking state: ", e);
         }
     }
 

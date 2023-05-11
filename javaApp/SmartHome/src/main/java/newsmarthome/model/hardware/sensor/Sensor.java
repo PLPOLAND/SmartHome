@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -11,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.Nulls;
+
+import newsmarthome.i2c.MasterToSlaveConverter;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,6 +28,9 @@ public abstract class Sensor {
     /** Logger Springa */
     @JsonIgnore
     Logger logger;
+
+    @Autowired
+    protected MasterToSlaveConverter slaveSender;
 
     /** Id urządzenia w systemie */
     private int id; 

@@ -18,8 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import smarthome.exception.HardwareException;
-import smarthome.exception.SoftwareException;
+import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
 
 @Service
 public class I2CHardware implements I2C{

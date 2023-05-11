@@ -37,7 +37,7 @@ public class SmartHomeAppTest {
 
 	@Test
 	public void i2cOnDevice(){
-		assertNotNull(factory.createLight().i2c );
+		assertNotNull(factory.createLight().slaveSender );
 		// assertEquals(1,light.getPin());
 		assertNotNull(factory.createFan());
 		assertNotNull(factory.createOutlet());
