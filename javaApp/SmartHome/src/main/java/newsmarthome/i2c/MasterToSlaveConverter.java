@@ -344,7 +344,7 @@ public class MasterToSlaveConverter {
         for (byte b : DODAJ_PRZYCISK) {
             buffor[i++] = b;
         }
-        buffor[i++] = (byte) button.getPin();
+        buffor[i] = (byte) button.getPin();
         
         try {
                 atmega.pauseIfOcupied();

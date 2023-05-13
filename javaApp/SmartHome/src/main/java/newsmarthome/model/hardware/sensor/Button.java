@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import newsmarthome.exception.HardwareException;
+
 import org.slf4j.LoggerFactory;
 
 public class Button extends Sensor{
@@ -35,6 +37,21 @@ public class Button extends Sensor{
         funkcjeKlikniec = new ArrayList<>();   
         logger = LoggerFactory.getLogger(Button.class);
         this.pin = pin;
+    }
+    /**
+     * Konfiguruje przycisk na slave-a
+     */
+    public void configure(){
+        logger.info("Wysyłąnie konfiguracji przycisku na slave-a o id: {}", this.getSlaveAdress());
+        try {
+            this.setOnSlaveID(slaveSender.addPrzycisk(this));
+            for (ButtonLocalFunction buttonLocalFunction : funkcjeKlikniec) {
+                slaveSender.sendClickFunction(buttonLocalFunction);
+            }
+        } catch (HardwareException e) {
+            logger.error("Błąd podczas konfiguracji przycisku na slave-a o id: {}", this.getSlaveAdress());
+            // e.printStackTrace();
+        }
     }
 
     public Button funkcjeKlikniec(List<ButtonLocalFunction> funkcjeKlikniec) {
