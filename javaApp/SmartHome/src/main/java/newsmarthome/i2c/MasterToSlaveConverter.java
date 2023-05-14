@@ -81,7 +81,7 @@ public class MasterToSlaveConverter {
     /** Logger Springa */
     Logger logger;
 
-    MasterToSlaveConverter() {
+    public MasterToSlaveConverter() {
         logger = LoggerFactory.getLogger(this.getClass());
         logger.info("Stworzno JtAConverter");
     }
@@ -100,12 +100,18 @@ public class MasterToSlaveConverter {
         }
         buffor[i++] = (byte) idPrzekaznika;
         buffor[i] = (byte) (stan == DeviceState.ON ? 1 : 0); 
-        atmega.pauseIfOcupied();
-        atmega.setOccupied(true);
-        atmega.writeTo(idPlytki, buffor);
-        byte[] response = atmega.readFrom(idPlytki, 8);//TODO obsluga bledu
-        atmega.setOccupied(false);
-        logger.debug("Response from {}: {}" ,idPlytki, Arrays.toString(response));
+        try {
+            atmega.pauseIfOcupied();
+            atmega.setOccupied(true);
+            atmega.writeTo(idPlytki, buffor);
+            byte[] response = atmega.readFrom(idPlytki, 8);//TODO obsluga bledu
+            atmega.setOccupied(false);
+            logger.debug("Response from {}: {}" ,idPlytki, Arrays.toString(response));
+            
+        } catch (HardwareException e) {
+            atmega.setOccupied(false);
+            throw e;
+        }
     }
 
     public void changeBlindState(Blind roleta, DeviceState stan) throws HardwareException{

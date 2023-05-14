@@ -59,7 +59,7 @@ public class Termometr extends Sensor{
         return this.temperatura;
     }
 
-    protected void setTemperatura(Float temperatura) {
+    public void setTemperatura(Float temperatura) {
         this.temperatura = temperatura;
         if (this.max < temperatura) {
             max = temperatura; // ustaw minimalną temperaturę
@@ -83,6 +83,15 @@ public class Termometr extends Sensor{
     public void clearMin() {
         this.min = Float.MAX_VALUE;
     }
+
+    public void setMax(Float max) {
+        this.max = max;
+    }
+
+    public void setMin(Float min) {
+        this.min = min;
+    }
+
     
     /**
      *  Aktualizuje temperaturę, pobierając ją z slave'a

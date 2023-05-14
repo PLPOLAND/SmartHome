@@ -5,18 +5,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import newsmarthome.model.hardware.device.Blind;
+import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
+import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Sensor;
+import newsmarthome.model.hardware.sensor.SensorsTypes;
 import newsmarthome.model.hardware.sensor.Termometr;
 
 /**
  * @author Marek Pałdyna
  * HardwareFactory - klasa fabryki urządzeń i sensorów. Umożliwia tworzenie obiektów pochodnych od device i sensors i autowireowania w nich pola Klasy MasterToSlaveConverter
  */
-@Service
+@Service("hardwareFactory")
 public class HardwareFactory {
     
     @Autowired
@@ -66,6 +70,21 @@ public class HardwareFactory {
         return beanFactory.getBean(Blind.class, stan, slaveID, pinUp, pinDown);
     }
 
+    public Device createDevice(DeviceTypes type){
+        switch(type){
+            case LIGHT:
+                return createLight();
+            case WENTYLATOR:
+                return createFan();
+            case GNIAZDKO:
+                return createOutlet();
+            case BLIND:
+                return createBlind();
+            default:
+                return null;
+        }
+    }
+
 
     // Sensors
     
@@ -81,6 +100,17 @@ public class HardwareFactory {
     }
     public Button createButton(int pin, int slaveID){
         return beanFactory.getBean(Button.class, slaveID, pin);
+    }
+
+    public Sensor createSensor(SensorsTypes valueOf) {
+        switch(valueOf){
+            case BUTTON:
+                return createButton();
+            case THERMOMETR:
+                return createTermometr();
+            default:
+                return null;
+        }
     }
     
 

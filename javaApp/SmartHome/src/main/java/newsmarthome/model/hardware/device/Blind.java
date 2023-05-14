@@ -20,6 +20,8 @@ public class Blind extends Device{
     public Blind(){
         super(DeviceTypes.BLIND);
         logger = LoggerFactory.getLogger(Blind.class);
+        swtDown = new Switch();
+        swtUp = new Switch();
     }
 
     public Blind(int pinUp, int pinDown){
@@ -52,6 +54,10 @@ public class Blind extends Device{
         } catch (HardwareException e) {
             logger.error("Błąd podczas dodawania urządzenia! -> {}", e.getMessage());
         }
+    }
+
+    public void setState(DeviceState stan){
+        this.changeState(stan);
     }
 
     @Override

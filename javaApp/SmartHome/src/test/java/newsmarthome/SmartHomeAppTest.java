@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import newsmarthome.database.SystemDAO;
 import newsmarthome.model.hardware.HardwareFactory;
 import newsmarthome.model.hardware.device.Blind;
 import newsmarthome.model.hardware.device.DeviceTypes;
@@ -23,16 +24,14 @@ public class SmartHomeAppTest {
 	// @Autowired 
 	// AutomationDAO automationDAO;
 
-	// @Autowired
-	// SystemDAO systemDAO;
+	@Autowired
+	SystemDAO systemDAO;
 
 	@Autowired
 	HardwareFactory factory;
 
 	@Test
 	public void contextLoads() {
-		// Light light = (Light) factory.createDevice(DeviceTypes.LIGHT);
-		// assert(light.i2c != null);
 
 	}
 
