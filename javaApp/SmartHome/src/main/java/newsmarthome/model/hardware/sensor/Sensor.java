@@ -88,6 +88,10 @@ public abstract class Sensor {
         logger.info(STWORZONO_SENSOR_STRING, this);
     }
 
+    public MasterToSlaveConverter getSlaveSender() {
+        return this.slaveSender;
+    }
+
 
     public Logger getLogger() {
         return this.logger;

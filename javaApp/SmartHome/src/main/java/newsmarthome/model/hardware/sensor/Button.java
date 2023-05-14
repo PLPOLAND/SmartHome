@@ -8,7 +8,10 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import newsmarthome.exception.HardwareException;
 
 import org.slf4j.LoggerFactory;
-
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+@Component
+@Scope("prototype")
 public class Button extends Sensor{
     
 

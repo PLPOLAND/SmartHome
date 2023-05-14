@@ -9,7 +9,13 @@ import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.device.Outlet;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Termometr;
 
+/**
+ * @author Marek Pałdyna
+ * HardwareFactory - klasa fabryki urządzeń i sensorów. Umożliwia tworzenie obiektów pochodnych od device i sensors i autowireowania w nich pola Klasy MasterToSlaveConverter
+ */
 @Service
 public class HardwareFactory {
     
@@ -59,4 +65,25 @@ public class HardwareFactory {
     public Blind createBlind(DeviceState stan, int pinUp, int pinDown, int slaveID){
         return beanFactory.getBean(Blind.class, stan, slaveID, pinUp, pinDown);
     }
+
+
+    // Sensors
+    
+    public Termometr createTermometr(){
+        return beanFactory.getBean(Termometr.class);
+    }
+
+    public Button createButton(){
+        return beanFactory.getBean(Button.class);
+    }
+    public Button createButton(int slaveID){
+        return beanFactory.getBean(Button.class, slaveID);
+    }
+    public Button createButton(int pin, int slaveID){
+        return beanFactory.getBean(Button.class, slaveID, pin);
+    }
+    
+
+
+
 }

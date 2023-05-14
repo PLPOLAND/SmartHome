@@ -1,6 +1,8 @@
 package newsmarthome.model.hardware.sensor;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Termometr
@@ -8,6 +10,8 @@ import org.slf4j.LoggerFactory;
  * @see Sensor
  * @author Marek Pałdyna 
  */
+@Component
+@Scope("prototype")
 public class Termometr extends Sensor{
 
     /**Aktualna Temperatura */
