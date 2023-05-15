@@ -39,6 +39,10 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     public MasterToSlaveConverter slaveSender;
 
     @JsonIgnore
+    /** Czy urządzenie zostało skonfigurowane na slave-ie */
+    private boolean isConfigured = false;
+
+    @JsonIgnore
     /** Logger Springa */
     Logger logger;
 
@@ -156,6 +160,26 @@ public abstract class Device {//TODO Dodać metody do parametru name.
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Zwraca czy urządzenie jest skonfigurowane na slave-ie
+     */
+    public boolean isConfigured() {
+        return this.isConfigured;
+    }
+    /**
+     * Urządzenie nie jest skonfigurowane na slave'u, nie wysyła komend na slave'a.
+     */
+    public void resetConfigured() {
+        this.isConfigured = false;
+    }
+
+    /**
+     * Urządzenie jest skonfigurowane na slave'u, wysyła komendy na slave'a.
+     */
+    public void setConfigured() {
+        this.isConfigured = true;
     }
 
     /**

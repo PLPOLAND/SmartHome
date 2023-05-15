@@ -86,6 +86,10 @@ public class MasterToSlaveConverter {
         logger.info("Stworzno JtAConverter");
     }
 
+    public void findSlaves() {
+        atmega.findAll();
+    }
+
     /**
      * Zmien stan przekaznika
      * 

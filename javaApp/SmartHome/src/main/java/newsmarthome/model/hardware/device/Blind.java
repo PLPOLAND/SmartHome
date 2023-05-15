@@ -50,10 +50,13 @@ public class Blind extends Device{
     @Override
     public void configureToSlave(){
         try {
-            slaveSender.addUrzadzenie(this);
+            setOnSlaveID(slaveSender.addUrzadzenie(this));
+            setConfigured();
         } catch (HardwareException e) {
             logger.error("Błąd podczas dodawania urządzenia! -> {}", e.getMessage());
+            resetConfigured();
         }
+
     }
 
     public void setState(DeviceState stan){
@@ -87,7 +90,12 @@ public class Blind extends Device{
                     break;
             }
             try {
-                slaveSender.changeBlindState(this, stan);
+                if (isConfigured()) {
+                    slaveSender.changeBlindState(this, stan);
+                }
+                else{
+                    logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
+                }
             } catch (HardwareException e) {
                 logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
             }

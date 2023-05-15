@@ -36,14 +36,17 @@ public class I2CHardware implements I2C{
         logger = LoggerFactory.getLogger(this.getClass());
         devices = new ArrayList<>();
         try {
-            // gpio = GpioFactory.getInstance();
-            // pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
-            // findAll();
-            // logger.info("Searching for devices");
+            gpio = GpioFactory.getInstance();
+            pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
+            findAll();
+            logger.info("Searching for devices");
             
         }catch (Exception e) {
             logger.error("platform does not support this driver");
 
+        }
+        catch (UnsatisfiedLinkError e) {
+            logger.error("platform does not support this driver");
         }
     }
     /**
@@ -82,6 +85,7 @@ public class I2CHardware implements I2C{
     }
 
     public void findAll(){
+        logger.debug("Szukanie Slave-ów");
         List<Integer> validAddresses = new ArrayList<>();
         final I2CBus bus;
         // pauseIfOcupied();
@@ -127,9 +131,9 @@ public class I2CHardware implements I2C{
                     }
                     devices.remove(tmp);
 
-                    // System.out.println("Sprawdzono: "+i+" i nie jest to prawidłowy adres");
+                    System.out.println("Sprawdzono: "+i+" i nie jest to prawidłowy adres");
                     // ignore.printStackTrace();
-                    //ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
+                    // ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
                 }
             }
         } catch (Exception e) {
@@ -151,7 +155,7 @@ public class I2CHardware implements I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie: "+ adres);
         } else {
             try {
 
@@ -183,7 +187,7 @@ public class I2CHardware implements I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie: " + adres);
         } else {
             for (int i = 0; i < size; i++) {
                 tmpbuff[i] = buffer[i];
@@ -214,7 +218,7 @@ public class I2CHardware implements I2C{
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł Slave-a o takim adresie");
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie: " + adres);
         }
         else{
             try {

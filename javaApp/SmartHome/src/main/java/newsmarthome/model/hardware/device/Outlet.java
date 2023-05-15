@@ -42,9 +42,11 @@ public class Outlet extends Device{
     @Override
     public void configureToSlave() {
         try {
-            slaveSender.addUrzadzenie(this);
+            setOnSlaveID( slaveSender.addUrzadzenie(this));
+            setConfigured();
         } catch (HardwareException e) {
             logger.error("Błąd podczas dodawania urządzenia na Slave-a! -> {}", e.getMessage());
+            resetConfigured();
         }
     }
 

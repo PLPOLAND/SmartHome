@@ -45,9 +45,11 @@ public class Light extends Device{
     @Override
     public void configureToSlave() {
        try {
-        slaveSender.addUrzadzenie(this);
+            setOnSlaveID(slaveSender.addUrzadzenie(this));
+            setConfigured();
        } catch (HardwareException e) {
            logger.error("Błąd podczas dodawania urządzenia na Slave-a! -> {}", e.getMessage());
+           resetConfigured();
        }
     }
 
@@ -69,7 +71,12 @@ public class Light extends Device{
     public void setState(DeviceState stan) {
         this.swt.setStan(stan);
         try {
-            slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
+            if (isConfigured()) {
+                slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
+            }
+            else{
+                logger.debug("Urządzenie nie jest skonfigurowane na slave-u!");
+            }
         } catch (HardwareException e) {
             logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
         }
