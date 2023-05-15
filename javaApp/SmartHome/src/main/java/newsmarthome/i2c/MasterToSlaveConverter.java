@@ -90,6 +90,24 @@ public class MasterToSlaveConverter {
         atmega.findAll();
     }
 
+    
+    /**
+     * Zwraca listę adresów slave-ów które są podłączone do mastera
+     */
+
+    public List<Integer> getSlavesAdresses() {
+        return atmega.getDevices();
+    }
+
+    /**
+     * Sprawdza czy slave o podanym adresie jest podłączony do mastera
+     * @param slaveAdress - adres slave-a do sprawdzenia
+     * @return true jeśli slave o podanym adresie jest podłączony do mastera
+     */
+    public boolean isSlaveConnected(int slaveAdress) {
+        return atmega.getDevices().contains(slaveAdress);
+    }
+
     /**
      * Zmien stan przekaznika
      * 
@@ -699,22 +717,6 @@ public class MasterToSlaveConverter {
         return atmega.readFrom(adres, 8);
     }
 
-    public List<Integer> getSlavesAdresses() {
-        return atmega.getDevices();
-    }
-
-    public boolean isSlaveConnected(int slaveAdressToCheck) {
-        boolean isConnected = false;
-
-        for (Integer slaveAdress : atmega.getDevices()) {
-            if (slaveAdress == slaveAdressToCheck) {
-                isConnected = true;
-                break;
-            }
-        }
-
-        return isConnected;
-    }
 
 
 }
