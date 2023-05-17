@@ -107,6 +107,26 @@ public class Outlet extends Device{
         }
     }
 
+    @Override
+    public void updateDeviceState() {
+        try {
+            if (isConfigured()) {
+                int state = slaveSender.checkDeviceState(getOnSlaveID(), getSlaveID());
+                if (state == 1) {
+                    this.setState(DeviceState.ON);
+                } else if (state == 0) {
+                    this.setState(DeviceState.OFF);
+                } else {
+                    logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
+                }
+            } else {
+                logger.debug("Urządzenie nie jest skonfigurowane na slave'u, nie wysyła komend na slave'a.");
+            }
+        } catch (HardwareException e) {
+            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
+        }
+    }
+
     public void setPin(int pin){
         swt.setPin(pin);
     }

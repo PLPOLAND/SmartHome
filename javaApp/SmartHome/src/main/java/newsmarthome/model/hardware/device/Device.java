@@ -185,13 +185,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     /**
      * Sprawdza stan urządzenia na slavie i ustawia go w obiekcie.
      */
-    public void updateDeviceState(){
-        try {
-            slaveSender.checkDeviceState(slaveID, onSlaveID);
-        } catch (HardwareException e) {
-            logger.error("Error on checking state: ", e);
-        }
-    }
+    public abstract void updateDeviceState();
 
     /**
      * Wysyła komendę dodającą urządzenie na slave'a 

@@ -86,6 +86,9 @@ public class MasterToSlaveConverter {
         logger.info("Stworzno JtAConverter");
     }
 
+    /**
+     * Przeprowadza skanowanie magistrali i zapisuje adresy slave-ów do listy
+     */
     public void findSlaves() {
         atmega.findAll();
     }
@@ -483,7 +486,7 @@ public class MasterToSlaveConverter {
     /**
      * Sprawdza czy slave o podanym adresie był już zainicjowany
      * @param adres - adres slave-a który zostanie zapytany
-     * @return stan zainicjowania slave-a
+     * @return true jeśli slave był już zainicjowany
      */
     public boolean checkInitOfBoard(int adres) throws SoftwareException, HardwareException{
         byte[] buffor = new byte[1];
@@ -545,7 +548,28 @@ public class MasterToSlaveConverter {
         atmega.setOccupied(false);
         return false;
     }
+    /**
+     * Sprawdza czy slave o podanym adresie był już zainicjowany i jeśli nie to go inicjuje
+     * @param boardAdress - adres slave-a który zostanie zapytany
+     * @throws SoftwareException
+     * @throws HardwareException
+     * @return true jeśli slave wymagał reinicjalizacji
+     */
+    public boolean checkAndReinitBoard(int boardAdress) throws SoftwareException, HardwareException{
+        if (!checkInitOfBoard(boardAdress)) {
+            reInitBoard(boardAdress);
+            return true;
+        }
+        return false;
+    }
     
+    /**
+     * Sprawdza stan urządzenia o podanym id na slave o podanym adresie
+     * @param slaveID - adres slave-a
+     * @param onSlaveDeviceId - id urządzenia na slave-u
+     * @return stan urządzenia (potrzeba mapowania na DeviceState)
+     * @throws HardwareException - kiedy nastąpi błąd podczas pisania do / odczytu z salve-a
+     */
     public int checkDeviceState(int slaveID, int onSlaveDeviceId) throws HardwareException {
         byte[] buffor = new byte[3];
         int i = 0;

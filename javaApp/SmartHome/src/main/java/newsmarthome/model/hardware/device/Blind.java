@@ -173,6 +173,31 @@ public class Blind extends Device{
         }
         return this.stan;
     }
+    @Override
+    public void updateDeviceState(){
+        try {
+            if (isConfigured()) {
+                int state = slaveSender.checkDeviceState(this.getSlaveID(), this.getOnSlaveID());
+                if (state == 'U') {
+                    this.changeState(DeviceState.UP);
+                }
+                else if (state == 'D') {
+                    this.changeState(DeviceState.DOWN);
+                }
+                else if (state == 'N') {
+                    this.changeState(DeviceState.NOTKNOW);
+                }
+                else{
+                    logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
+                }
+            }
+            else{
+                logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
+            }
+        } catch (HardwareException e) {
+            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
+        }
+    }
 
     @Override
     public String toString() {
