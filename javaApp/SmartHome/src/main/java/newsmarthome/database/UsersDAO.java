@@ -294,4 +294,17 @@ public class UsersDAO {
         }
     }
 
+    public void update(User user) {
+        save(user);
+    }
+
+    public User getUserByToken(String token) {
+        for (User user : userzy) {
+            if (user.getToken().equals(token)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
 }
