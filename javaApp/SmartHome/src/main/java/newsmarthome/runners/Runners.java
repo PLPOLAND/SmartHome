@@ -68,9 +68,13 @@ public class Runners {
         }
         else{
             logger.warn("No devices connected");
+            int time = 1000;
             while (devices.isEmpty()){
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(time);
+                    if (time <60000) {
+                        time += 1000;
+                    }
                     logger.info("Searching for slaves");
                     slaveSender.findSlaves();
                     
