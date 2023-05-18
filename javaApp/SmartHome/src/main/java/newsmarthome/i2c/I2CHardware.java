@@ -13,6 +13,7 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+import com.pi4j.io.i2c.impl.I2CDeviceImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,6 +140,7 @@ public class I2CHardware implements I2C{
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
+        // devices.add(new I2CDeviceImpl(null, 0));
         // setOccupied(false);
 
         logger.debug("Znaleziono Slave-ów: {}", devices.size());

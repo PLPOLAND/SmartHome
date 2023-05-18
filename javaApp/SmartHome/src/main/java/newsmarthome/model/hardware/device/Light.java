@@ -22,7 +22,6 @@ public class Light extends Device{
         super(DeviceTypes.LIGHT);
         swt = new Switch();
         logger = LoggerFactory.getLogger(this.getClass());
-        logger.info("Light created");
     }
     public Light(int pin){
         super(DeviceTypes.LIGHT);
@@ -82,6 +81,13 @@ public class Light extends Device{
         }
 
     }
+    /**
+     * This function sets the state of a device and doesn't send a command to a slave device using I2C
+     * @param stan 
+     */
+    private void setStateLocal(DeviceState stan) {
+        this.swt.setStan(stan);
+    }
 
     @Override
     public void changeState(DeviceState state) {
@@ -120,12 +126,12 @@ public class Light extends Device{
     public void updateDeviceState() {
         try {
             if (isConfigured()) {
-                int state = slaveSender.checkDeviceState(getOnSlaveID(), getSlaveID());
+                int state = slaveSender.checkDeviceState(getSlaveID(), getOnSlaveID());
                 if (state == 1) {
-                    this.setState(DeviceState.ON);
+                    this.setStateLocal(DeviceState.ON);
                 }
                 else if (state == 0) {
-                    this.setState(DeviceState.OFF);
+                    this.setStateLocal(DeviceState.OFF);
                 }
                 else {
                     logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
@@ -135,7 +141,7 @@ public class Light extends Device{
                 logger.debug("Urządzenie nie jest skonfigurowane na slave'u, nie wysyła komend na slave'a.");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
+            logger.error("Błąd podczas pobierania stanu urządzenia{}! -> {}",this, e.getMessage());
         }
     }
 

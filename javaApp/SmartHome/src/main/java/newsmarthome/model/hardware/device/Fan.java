@@ -78,6 +78,16 @@ public class Fan extends Device{
         }
     }
 
+    /**
+     * This function sets the state of a device and doesn't send a command to a
+     * slave device using I2C
+     * 
+     * @param stan
+     */
+    private void setStateLocal(DeviceState stan) {
+        this.swt.setStan(stan);
+    }
+
     @Override
     public void changeState(DeviceState state) {
         if (state != DeviceState.ON && state != DeviceState.OFF) {
@@ -115,12 +125,12 @@ public class Fan extends Device{
     public void updateDeviceState() {
         try {
             if (isConfigured()) {
-                int state = slaveSender.checkDeviceState(getOnSlaveID(), getSlaveID());
+                int state = slaveSender.checkDeviceState(getSlaveID(),getOnSlaveID());
                 if (state == 1) {
-                    this.setState(DeviceState.ON);
+                    this.setStateLocal(DeviceState.ON);
                 }
                 else if (state == 0) {
-                    this.setState(DeviceState.OFF);
+                    this.setStateLocal(DeviceState.OFF);
                 }
                 else {
                     logger.error("Odebrano nieznany stan urządzenia! -> {}", state);

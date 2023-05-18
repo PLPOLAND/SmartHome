@@ -66,12 +66,25 @@ public class Outlet extends Device{
      * and sends a command to a slave device via I2C communication.
      */
     public void setState(DeviceState stan) {
+        
         this.swt.setStan(stan);
         try {
-            slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
+            if (!isConfigured()) {
+                slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
+            }
         } catch (HardwareException e) {
             logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
         }
+    }
+
+    /**
+     * This function sets the state of a device and doesn't send a command to a
+     * slave device using I2C
+     * 
+     * @param stan
+     */
+    private void setStateLocal(DeviceState stan) {
+        this.swt.setStan(stan);
     }
 
     @Override
@@ -111,11 +124,11 @@ public class Outlet extends Device{
     public void updateDeviceState() {
         try {
             if (isConfigured()) {
-                int state = slaveSender.checkDeviceState(getOnSlaveID(), getSlaveID());
+                int state = slaveSender.checkDeviceState(getSlaveID(),getOnSlaveID());
                 if (state == 1) {
-                    this.setState(DeviceState.ON);
+                    this.setStateLocal(DeviceState.ON);
                 } else if (state == 0) {
-                    this.setState(DeviceState.OFF);
+                    this.setStateLocal(DeviceState.OFF);
                 } else {
                     logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
                 }

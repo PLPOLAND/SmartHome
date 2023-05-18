@@ -225,18 +225,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				// else 
 				if(in.equals("test")){
 					log.info("test");
-					List<Device> devices = systemDAO.getDevices();
-					MasterToSlaveConverter slaveSender =  devices.get(0).slaveSender;
-					
-					log.info("find slaves");
-					slaveSender.atmega.restartSlaves();
-					slaveSender.findSlaves();
-					log.info("reinit board");
-					slaveSender.reInitBoard(14);
-					for (Device device : devices) {
-						device.configureToSlave();
-						device.changeState();
-					}
+					log.info("{}", systemDAO);
 
 					// if (system.isSlaveConnected(15)) {
 							

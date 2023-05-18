@@ -35,12 +35,17 @@ public class Runners {
         if (!devices.isEmpty()){
             for(Device device : systemDAO.getDevices()){
                 try {
+                    logger.debug("Checking status of device {}", device);
                     if (slaveSender.isSlaveConnected(device.getSlaveID())){
+                        logger.debug("Slave {} is connected", device.getSlaveID());
                         if (slaveSender.checkInitOfBoard(device.getSlaveID())) {
                             device.setConfigured();
                             device.updateDeviceState();
                         }
-                        system.configureSlave(device.getSlaveID());
+                        else{
+                            device.resetConfigured();
+                            system.configureSlave(device.getSlaveID());
+                        }
     
                     }
                     else{
