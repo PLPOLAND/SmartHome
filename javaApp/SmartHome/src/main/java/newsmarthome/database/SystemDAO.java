@@ -186,6 +186,15 @@ public class SystemDAO {
         return this.sensors;
     }
 
+    public Sensor getSensorByOnSlaveID(int slaveAdress, int onSlaveId) {
+        for (Sensor sensor : this.getSensors()) {
+            if (sensor.getOnSlaveID() == onSlaveId && sensor.getSlaveAdress() == slaveAdress) {
+                return sensor;
+            }
+        }
+        return null;
+    }
+
     public ArrayList<Button> getAllButtons() {
         ArrayList<Button> buttons = new ArrayList<>();
         for (Room room : this.getRoomsArrayList()) {
