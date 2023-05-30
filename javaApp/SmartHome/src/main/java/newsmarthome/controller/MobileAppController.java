@@ -53,7 +53,7 @@ public class MobileAppController {
 		if (user == null) {
 			return new Response<>("", "Nie znaleziono użytkownika, błąd wewnętrzny!");
 		} else {
-			return new Response<>(user.toString());
+			return new Response<>(user.toString());//TODO remove password from response
 		}
 	}
 
