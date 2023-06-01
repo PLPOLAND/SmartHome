@@ -41,7 +41,12 @@ public class I2C{
             findAll();
             // logger.info("Searching for devices");
             
-        }catch (Exception e) {
+        }
+        catch(UnsatisfiedLinkError e)
+        {
+            logger.error("platform does not support this driver");
+        }
+        catch (Exception e) {
             logger.error("platform does not support this driver");
 
         }
