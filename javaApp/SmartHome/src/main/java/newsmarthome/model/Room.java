@@ -45,7 +45,7 @@ public class Room {
         this.id = id;
     }
 
-    public String getNazwa() {
+    public String getName() {
         return this.name;
     }
 
@@ -116,7 +116,7 @@ public class Room {
     public String toString() {
         return "{" +
                 "ID='" + getID() + "'" +
-                ", nazwa='" + getNazwa() + "'" +
+                ", nazwa='" + getName() + "'" +
                 ", devices='" + getDevices() + "'" +
                 ", sensors='" + (ArrayList<Sensor>) getSensors() + "'" +
                 "}";

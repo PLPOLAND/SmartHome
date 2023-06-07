@@ -1,4 +1,4 @@
-package newsmarthome.model;
+package newsmarthome.model.response;
 /**
  *  Klasa przechowująca pola wysyłane do przeglądarki jako odpowiedź
  *  @author Marek Pałdyna

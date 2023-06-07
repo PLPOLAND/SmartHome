@@ -77,6 +77,7 @@ public class MobileSecurity {
      */
     public boolean isLoged() {
         String token = request.getParameter(TOKEN_PARAMETER_NAME);
+        logger.info("Token: " + token);
         if (token == null || token.isEmpty()) {
             return false;
         }
