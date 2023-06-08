@@ -1,0 +1,432 @@
+2023-05-18 14:40:44.663  INFO 86440 --- [main] newsmarthome.SmartHomeApp                : Starting SmartHomeApp on VikingMarek with PID 86440 (/home/marek/Github/SmartHome/javaApp/SmartHome/target/classes started by marek in /home/marek/Github/SmartHome)
+2023-05-18 14:40:44.665  INFO 86440 --- [main] newsmarthome.SmartHomeApp                : No active profile set, falling back to default profiles: default
+2023-05-18 14:40:45.481  INFO 86440 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 80 (http)
+2023-05-18 14:40:45.498  INFO 86440 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-05-18 14:40:45.498  INFO 86440 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.19]
+2023-05-18 14:40:45.588  INFO 86440 --- [main] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2023-05-18 14:40:45.593  INFO 86440 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-05-18 14:40:45.593  INFO 86440 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 903 ms
+2023-05-18 14:40:45.805  INFO 86440 --- [main] newsmarthome.database.UsersDAO           : Wczytywanie bazy danych użytkowników
+2023-05-18 14:40:45.868  INFO 86440 --- [main] newsmarthome.database.UsersDAO           : Wczytano 4 userow
+2023-05-18 14:40:45.872  INFO 86440 --- [main] newsmarthome.database.SystemDAO          : Init System DAO
+2023-05-18 14:40:45.882  INFO 86440 --- [main] newsmarthome.i2c.MasterToSlaveConverter  : Stworzno JtAConverter
+2023-05-18 14:40:45.892 ERROR 86440 --- [main] com.pi4j.util.NativeLibraryLoader        : Unable to load [libpi4j.so] using path: [/lib/raspberrypi/dynamic/libpi4j.so]
+
+java.lang.UnsatisfiedLinkError: /tmp/libpi4j6777457861647505126.so: /tmp/libpi4j6777457861647505126.so: niewłaściwa klasa ELF: ELFCLASS32 (Possible cause: architecture word width mismatch)
+	at java.base/java.lang.ClassLoader$NativeLibrary.load0(Native Method) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.load(ClassLoader.java:2445) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.loadLibrary(ClassLoader.java:2501) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary0(ClassLoader.java:2700) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2630) ~[na:na]
+	at java.base/java.lang.Runtime.load0(Runtime.java:768) ~[na:na]
+	at java.base/java.lang.System.load(System.java:1837) ~[na:na]
+	at com.pi4j.util.NativeLibraryLoader.loadLibraryFromClasspath(NativeLibraryLoader.java:227) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.util.NativeLibraryLoader.load(NativeLibraryLoader.java:172) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.wiringpi.Gpio.<clinit>(Gpio.java:189) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:69) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:51) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.platform.Platform.getGpioProvider(Platform.java:125) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.platform.Platform.getGpioProvider(Platform.java:118) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.GpioFactory.getDefaultProvider(GpioFactory.java:109) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.impl.GpioControllerImpl.<init>(GpioControllerImpl.java:53) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.GpioFactory.getInstance(GpioFactory.java:91) ~[pi4j-core-1.3.jar:na]
+	at newsmarthome.i2c.I2CHardware.<init>(I2CHardware.java:40) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:172) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:87) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1295) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1197) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:338) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:224) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveNamedBean(DefaultListableBeanFactory.java:1116) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveBean(DefaultListableBeanFactory.java:409) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:343) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:337) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at newsmarthome.model.hardware.HardwareFactory.createTermometr(HardwareFactory.java:92) ~[classes/:na]
+	at newsmarthome.model.hardware.HardwareFactory.createSensor(HardwareFactory.java:110) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.readDatabase(SystemDAO.java:284) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.<init>(SystemDAO.java:63) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:172) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:117) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:300) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:285) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:843) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:877) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at newsmarthome.SmartHomeApp.main(SmartHomeApp.java:41) ~[classes/:na]
+
+2023-05-18 14:40:45.895 ERROR 86440 --- [main] newsmarthome.i2c.I2CHardware             : platform does not support this driver
+2023-05-18 14:40:45.903  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='0', room='1', slaveID='8', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.904  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='1', room='1', slaveID='8', onSlaveID='1', name='Garderoba', typ='BLIND'}'}
+2023-05-18 14:40:45.908  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='4', room='2', slaveID='13', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.909  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='12'} super = {, id='5', room='2', slaveID='13', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-05-18 14:40:45.909  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='6', room='2', slaveID='13', onSlaveID='2', name='Marcin', typ='BLIND'}'}
+2023-05-18 14:40:45.910  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='DOWN', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='ON', pin='16'}', super ='' {, id='8', room='3', slaveID='15', onSlaveID='0', name='Marek', typ='BLIND'}'}
+2023-05-18 14:40:45.911  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='9', room='3', slaveID='15', onSlaveID='1', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.911  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='10', room='3', slaveID='15', onSlaveID='2', name='Poziom 2', typ='LIGHT'}}
+2023-05-18 14:40:45.912  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='15'} super = {, id='46', room='3', slaveID='14', onSlaveID='0', name='Gnd TV', typ='LIGHT'}}
+2023-05-18 14:40:45.912  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='16'} super = {, id='47', room='3', slaveID='14', onSlaveID='1', name='Gnd koło łóżka 1', typ='LIGHT'}}
+2023-05-18 14:40:45.912  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='56', room='3', slaveID='14', onSlaveID='2', name='Gniazdko Biurko L', typ='LIGHT'}}
+2023-05-18 14:40:45.913  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='57', room='3', slaveID='14', onSlaveID='3', name='Gniazdko Biurko P', typ='LIGHT'}}
+2023-05-18 14:40:45.914  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='33', room='4', slaveID='16', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.914  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='34', room='4', slaveID='16', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-05-18 14:40:45.914  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='35', room='4', slaveID='16', onSlaveID='2', name='Gościnny', typ='BLIND'}'}
+2023-05-18 14:40:45.915  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='36', room='5', slaveID='12', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.916  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='2', room='6', slaveID='11', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.916  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='3', room='6', slaveID='11', onSlaveID='1', name='Łazienka Duża', typ='BLIND'}'}
+2023-05-18 14:40:45.917  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='37', room='7', slaveID='8', onSlaveID='2', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.918  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='11', room='8', slaveID='9', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.919  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='41', room='9', slaveID='17', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.919  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='42', room='9', slaveID='17', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-05-18 14:40:45.919  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='43', room='9', slaveID='17', onSlaveID='2', name='Rodzice', typ='BLIND'}'}
+2023-05-18 14:40:45.921  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='40', room='10', slaveID='18', onSlaveID='0', name='Taras', typ='BLIND'}'}
+2023-05-18 14:40:45.921  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='38', room='10', slaveID='19', onSlaveID='0', name='Jadalnia', typ='BLIND'}'}
+2023-05-18 14:40:45.921  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='13'}', swtDown='{ stan='OFF', pin='12'}', super ='' {, id='39', room='10', slaveID='18', onSlaveID='1', name='Przy Tarasie', typ='BLIND'}'}
+2023-05-18 14:40:45.922  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='50', room='10', slaveID='21', onSlaveID='0', name='Przedpokój', typ='LIGHT'}}
+2023-05-18 14:40:45.923  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='51', room='10', slaveID='21', onSlaveID='1', name='Przedpokój/Jadalnia', typ='LIGHT'}}
+2023-05-18 14:40:45.924  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='44', room='11', slaveID='10', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:40:45.925  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='45', room='11', slaveID='10', onSlaveID='1', name='Kuchnia', typ='BLIND'}'}
+2023-05-18 14:40:45.926  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='52', room='11', slaveID='10', onSlaveID='2', name='Jadalnia', typ='LIGHT'}}
+2023-05-18 14:40:45.926  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='48', room='12', slaveID='20', onSlaveID='0', name='Boczne', typ='LIGHT'}}
+2023-05-18 14:40:45.927  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='49', room='12', slaveID='20', onSlaveID='1', name='Górne ', typ='LIGHT'}}
+2023-05-18 14:40:45.927  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='53', room='13', slaveID='22', onSlaveID='0', name='Wiatrołap', typ='LIGHT'}}
+2023-05-18 14:40:45.928  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='54', room='13', slaveID='22', onSlaveID='1', name='Podcień', typ='LIGHT'}}
+2023-05-18 14:40:45.928  INFO 86440 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='55', room='13', slaveID='22', onSlaveID='2', name='Kapliczka', typ='LIGHT'}}
+2023-05-18 14:40:45.929  INFO 86440 --- [main] newsmarthome.database.SystemDAO          : Wczytano 14 pokoi
+2023-05-18 14:40:46.028  INFO 86440 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2023-05-18 14:40:46.115  INFO 86440 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2023-05-18 14:40:46.211  INFO 86440 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'taskScheduler'
+2023-05-18 14:40:46.221  INFO 86440 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2023-05-18 14:40:46.249  WARN 86440 --- [scheduling-1] newsmarthome.runners.Runners             : No devices connected
+2023-05-18 14:40:46.253 ERROR 86440 --- [main] org.apache.catalina.util.LifecycleBase   : Failed to start component [Connector[HTTP/1.1-80]]
+
+org.apache.catalina.LifecycleException: Protocol handler start failed
+	at org.apache.catalina.connector.Connector.startInternal(Connector.java:1008) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:183) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	at org.apache.catalina.core.StandardService.addConnector(StandardService.java:226) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.addPreviouslyRemovedConnectors(TomcatWebServer.java:259) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start(TomcatWebServer.java:197) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.startWebServer(ServletWebServerApplicationContext.java:311) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.finishRefresh(ServletWebServerApplicationContext.java:164) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:552) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at newsmarthome.SmartHomeApp.main(SmartHomeApp.java:41) ~[classes/:na]
+Caused by: java.net.SocketException: Brak dostępu
+	at java.base/sun.nio.ch.Net.bind0(Native Method) ~[na:na]
+	at java.base/sun.nio.ch.Net.bind(Net.java:459) ~[na:na]
+	at java.base/sun.nio.ch.Net.bind(Net.java:448) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:227) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:80) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.initServerSocket(NioEndpoint.java:239) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	at org.apache.tomcat.util.net.NioEndpoint.bind(NioEndpoint.java:213) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	at org.apache.tomcat.util.net.AbstractEndpoint.bindWithCleanup(AbstractEndpoint.java:1116) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	at org.apache.tomcat.util.net.AbstractEndpoint.start(AbstractEndpoint.java:1202) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	at org.apache.coyote.AbstractProtocol.start(AbstractProtocol.java:568) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	at org.apache.catalina.connector.Connector.startInternal(Connector.java:1005) ~[tomcat-embed-core-9.0.19.jar:9.0.19]
+	... 14 common frames omitted
+
+2023-05-18 14:40:46.261  INFO 86440 --- [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2023-05-18 14:40:46.266  INFO 86440 --- [main] ConditionEvaluationReportLoggingListener : 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2023-05-18 14:40:46.268 ERROR 86440 --- [main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+The Tomcat connector configured to listen on port 80 failed to start. The port may already be in use or the connector may be misconfigured.
+
+Action:
+
+Verify the connector's configuration, identify and stop any process that's listening on port 80, or configure this application to listen on another port.
+
+2023-05-18 14:40:46.269  INFO 86440 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'taskScheduler'
+2023-05-18 14:40:46.269 ERROR 86440 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-05-18 14:40:46.270 ERROR 86440 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-05-18 14:40:46.270  INFO 86440 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
+2023-05-18 14:40:47.270  INFO 86440 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:40:47.274 ERROR 86440 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:40:49.275  INFO 86440 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:40:49.276 ERROR 86440 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:08.825  INFO 89483 --- [main] newsmarthome.SmartHomeApp                : Starting SmartHomeApp on VikingMarek with PID 89483 (/home/marek/Github/SmartHome/javaApp/SmartHome/target/classes started by marek in /home/marek/Github/SmartHome)
+2023-05-18 14:43:08.827  INFO 89483 --- [main] newsmarthome.SmartHomeApp                : No active profile set, falling back to default profiles: default
+2023-05-18 14:43:09.660  INFO 89483 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-05-18 14:43:09.677  INFO 89483 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-05-18 14:43:09.678  INFO 89483 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.19]
+2023-05-18 14:43:09.765  INFO 89483 --- [main] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2023-05-18 14:43:09.769  INFO 89483 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-05-18 14:43:09.769  INFO 89483 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 918 ms
+2023-05-18 14:43:09.962  INFO 89483 --- [main] newsmarthome.database.UsersDAO           : Wczytywanie bazy danych użytkowników
+2023-05-18 14:43:10.024  INFO 89483 --- [main] newsmarthome.database.UsersDAO           : Wczytano 4 userow
+2023-05-18 14:43:10.028  INFO 89483 --- [main] newsmarthome.database.SystemDAO          : Init System DAO
+2023-05-18 14:43:10.035  INFO 89483 --- [main] newsmarthome.i2c.MasterToSlaveConverter  : Stworzno JtAConverter
+2023-05-18 14:43:10.044 ERROR 89483 --- [main] com.pi4j.util.NativeLibraryLoader        : Unable to load [libpi4j.so] using path: [/lib/raspberrypi/dynamic/libpi4j.so]
+
+java.lang.UnsatisfiedLinkError: /tmp/libpi4j12861514479079378656.so: /tmp/libpi4j12861514479079378656.so: niewłaściwa klasa ELF: ELFCLASS32 (Possible cause: architecture word width mismatch)
+	at java.base/java.lang.ClassLoader$NativeLibrary.load0(Native Method) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.load(ClassLoader.java:2445) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.loadLibrary(ClassLoader.java:2501) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary0(ClassLoader.java:2700) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2630) ~[na:na]
+	at java.base/java.lang.Runtime.load0(Runtime.java:768) ~[na:na]
+	at java.base/java.lang.System.load(System.java:1837) ~[na:na]
+	at com.pi4j.util.NativeLibraryLoader.loadLibraryFromClasspath(NativeLibraryLoader.java:227) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.util.NativeLibraryLoader.load(NativeLibraryLoader.java:172) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.wiringpi.Gpio.<clinit>(Gpio.java:189) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:69) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:51) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.platform.Platform.getGpioProvider(Platform.java:125) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.platform.Platform.getGpioProvider(Platform.java:118) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.GpioFactory.getDefaultProvider(GpioFactory.java:109) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.impl.GpioControllerImpl.<init>(GpioControllerImpl.java:53) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.GpioFactory.getInstance(GpioFactory.java:91) ~[pi4j-core-1.3.jar:na]
+	at newsmarthome.i2c.I2CHardware.<init>(I2CHardware.java:40) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:172) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:87) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1295) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1197) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:338) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:224) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveNamedBean(DefaultListableBeanFactory.java:1116) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveBean(DefaultListableBeanFactory.java:409) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:343) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:337) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at newsmarthome.model.hardware.HardwareFactory.createTermometr(HardwareFactory.java:92) ~[classes/:na]
+	at newsmarthome.model.hardware.HardwareFactory.createSensor(HardwareFactory.java:110) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.readDatabase(SystemDAO.java:284) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.<init>(SystemDAO.java:63) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:172) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:117) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:300) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:285) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:843) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:877) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at newsmarthome.SmartHomeApp.main(SmartHomeApp.java:41) ~[classes/:na]
+
+2023-05-18 14:43:10.046 ERROR 89483 --- [main] newsmarthome.i2c.I2CHardware             : platform does not support this driver
+2023-05-18 14:43:10.050  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='0', room='1', slaveID='8', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.051  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='1', room='1', slaveID='8', onSlaveID='1', name='Garderoba', typ='BLIND'}'}
+2023-05-18 14:43:10.055  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='4', room='2', slaveID='13', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.055  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='12'} super = {, id='5', room='2', slaveID='13', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-05-18 14:43:10.055  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='6', room='2', slaveID='13', onSlaveID='2', name='Marcin', typ='BLIND'}'}
+2023-05-18 14:43:10.056  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='DOWN', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='ON', pin='16'}', super ='' {, id='8', room='3', slaveID='15', onSlaveID='0', name='Marek', typ='BLIND'}'}
+2023-05-18 14:43:10.057  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='9', room='3', slaveID='15', onSlaveID='1', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.057  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='10', room='3', slaveID='15', onSlaveID='2', name='Poziom 2', typ='LIGHT'}}
+2023-05-18 14:43:10.057  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='15'} super = {, id='46', room='3', slaveID='14', onSlaveID='0', name='Gnd TV', typ='LIGHT'}}
+2023-05-18 14:43:10.057  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='16'} super = {, id='47', room='3', slaveID='14', onSlaveID='1', name='Gnd koło łóżka 1', typ='LIGHT'}}
+2023-05-18 14:43:10.058  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='56', room='3', slaveID='14', onSlaveID='2', name='Gniazdko Biurko L', typ='LIGHT'}}
+2023-05-18 14:43:10.058  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='57', room='3', slaveID='14', onSlaveID='3', name='Gniazdko Biurko P', typ='LIGHT'}}
+2023-05-18 14:43:10.059  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='33', room='4', slaveID='16', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.059  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='34', room='4', slaveID='16', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-05-18 14:43:10.059  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='35', room='4', slaveID='16', onSlaveID='2', name='Gościnny', typ='BLIND'}'}
+2023-05-18 14:43:10.060  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='36', room='5', slaveID='12', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.061  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='2', room='6', slaveID='11', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.061  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='3', room='6', slaveID='11', onSlaveID='1', name='Łazienka Duża', typ='BLIND'}'}
+2023-05-18 14:43:10.062  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='37', room='7', slaveID='8', onSlaveID='2', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.062  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='11', room='8', slaveID='9', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.063  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='41', room='9', slaveID='17', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.063  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='42', room='9', slaveID='17', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-05-18 14:43:10.064  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='43', room='9', slaveID='17', onSlaveID='2', name='Rodzice', typ='BLIND'}'}
+2023-05-18 14:43:10.065  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='40', room='10', slaveID='18', onSlaveID='0', name='Taras', typ='BLIND'}'}
+2023-05-18 14:43:10.065  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='38', room='10', slaveID='19', onSlaveID='0', name='Jadalnia', typ='BLIND'}'}
+2023-05-18 14:43:10.066  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='13'}', swtDown='{ stan='OFF', pin='12'}', super ='' {, id='39', room='10', slaveID='18', onSlaveID='1', name='Przy Tarasie', typ='BLIND'}'}
+2023-05-18 14:43:10.066  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='50', room='10', slaveID='21', onSlaveID='0', name='Przedpokój', typ='LIGHT'}}
+2023-05-18 14:43:10.066  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='51', room='10', slaveID='21', onSlaveID='1', name='Przedpokój/Jadalnia', typ='LIGHT'}}
+2023-05-18 14:43:10.067  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='44', room='11', slaveID='10', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-05-18 14:43:10.067  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='45', room='11', slaveID='10', onSlaveID='1', name='Kuchnia', typ='BLIND'}'}
+2023-05-18 14:43:10.068  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='52', room='11', slaveID='10', onSlaveID='2', name='Jadalnia', typ='LIGHT'}}
+2023-05-18 14:43:10.068  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='48', room='12', slaveID='20', onSlaveID='0', name='Boczne', typ='LIGHT'}}
+2023-05-18 14:43:10.069  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='49', room='12', slaveID='20', onSlaveID='1', name='Górne ', typ='LIGHT'}}
+2023-05-18 14:43:10.069  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='53', room='13', slaveID='22', onSlaveID='0', name='Wiatrołap', typ='LIGHT'}}
+2023-05-18 14:43:10.069  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='54', room='13', slaveID='22', onSlaveID='1', name='Podcień', typ='LIGHT'}}
+2023-05-18 14:43:10.070  INFO 89483 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='55', room='13', slaveID='22', onSlaveID='2', name='Kapliczka', typ='LIGHT'}}
+2023-05-18 14:43:10.070  INFO 89483 --- [main] newsmarthome.database.SystemDAO          : Wczytano 14 pokoi
+2023-05-18 14:43:10.158  INFO 89483 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2023-05-18 14:43:10.233  INFO 89483 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2023-05-18 14:43:10.314  INFO 89483 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'taskScheduler'
+2023-05-18 14:43:10.322  INFO 89483 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2023-05-18 14:43:10.347  WARN 89483 --- [scheduling-1] newsmarthome.runners.Runners             : No devices connected
+2023-05-18 14:43:10.362  INFO 89483 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-05-18 14:43:10.365  INFO 89483 --- [main] newsmarthome.SmartHomeApp                : Started SmartHomeApp in 1.775 seconds (JVM running for 1.967)
+2023-05-18 14:43:10.372  INFO 89483 --- [main] Console Menager                          : Started
+2023-05-18 14:43:11.348  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:11.349 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:12.224  INFO 89483 --- [RMI TCP Connection(1)-127.0.0.1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-05-18 14:43:12.224  INFO 89483 --- [RMI TCP Connection(1)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-05-18 14:43:12.228  INFO 89483 --- [RMI TCP Connection(1)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2023-05-18 14:43:13.349  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:13.350 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:16.350  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:16.350 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:20.354  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:20.355 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:25.355  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:25.356 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:31.356  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:31.356 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:38.357  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:38.357 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:46.357  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:46.358 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:43:55.358  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:43:55.359 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:44:05.359  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:44:05.360 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:44:16.360  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:44:16.361 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:44:28.361  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:44:28.362 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:44:41.362  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:44:41.362 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:44:55.362  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:44:55.363 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:45:10.363  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:45:10.364 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:45:26.364  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:45:26.364 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:45:43.365  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:45:43.365 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:46:01.366  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:46:01.366 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:46:20.366  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:46:20.367 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:46:40.367  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:46:40.367 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:47:01.368  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:47:01.368 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:47:23.368  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:47:23.369 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:47:46.369  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:47:46.370 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:48:10.371  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:48:10.371 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:48:35.371  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:48:35.371 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:49:01.371  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:49:01.372 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:49:28.372  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:49:28.372 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:49:56.373  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:49:56.377 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:50:25.378  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:50:25.379 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:50:55.379  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:50:55.380 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:51:26.380  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:51:26.381 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:51:58.382  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:51:58.382 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:52:31.382  INFO 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves
+2023-05-18 14:52:31.383 ERROR 89483 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : null
+2023-05-18 14:52:41.628  INFO 89483 --- [Thread-2] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'taskScheduler'
+2023-05-18 14:52:41.628 ERROR 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-05-18 14:52:41.628 ERROR 89483 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-05-18 14:52:41.629  INFO 89483 --- [Thread-2] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'

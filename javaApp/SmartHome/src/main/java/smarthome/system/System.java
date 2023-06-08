@@ -592,9 +592,9 @@ public class System {
 
  
     public void reinitAllBoards() {
-        for (I2CDevice device : arduino.atmega.getDevices()) {
+        for (Integer device : arduino.atmega.getDevices()) {
             try {
-                checkInitOfBoard(device.getAddress());
+                checkInitOfBoard(device);
             } catch (HardwareException | SoftwareException e) {
                 log.error("Błąd podczas reinicjalizacji płytki: '{}'", e.getMessage());
             }
@@ -741,7 +741,7 @@ public class System {
      * @return
      */
     public boolean isSlaveConnected(int deviceId) {
-        return arduino.isDeviceConnected(deviceId);
+        return arduino.isSlaveConnected(deviceId);
     }
 
     public int checkHowManyCommandsToReadFromSlave(int slaveAdress) throws HardwareException {

@@ -1,0 +1,177 @@
+{
+  "id" : 2,
+  "devices" : [ {
+    "@type" : "Light",
+    "id" : 4,
+    "room" : 2,
+    "slaveID" : 13,
+    "onSlaveID" : 0,
+    "name" : "Poziom 1",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 13
+    },
+    "pin" : 13,
+    "state" : "OFF"
+  }, {
+    "@type" : "Light",
+    "id" : 5,
+    "room" : 2,
+    "slaveID" : 13,
+    "onSlaveID" : 1,
+    "name" : "Poziom 2",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "ON",
+      "pin" : 12
+    },
+    "pin" : 12,
+    "state" : "ON"
+  }, {
+    "@type" : "Blind",
+    "id" : 6,
+    "room" : 2,
+    "slaveID" : 13,
+    "onSlaveID" : 2,
+    "name" : "Marcin",
+    "typ" : "BLIND",
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
+    "state" : "UP"
+  } ],
+  "sensors" : [ {
+    "@type" : "Button",
+    "id" : 105,
+    "room" : 2,
+    "onSlaveID" : 3,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 4,
+        "room" : 2,
+        "slaveID" : 13,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 5,
+        "room" : 2,
+        "slaveID" : 13,
+        "onSlaveID" : 1,
+        "name" : "Poziom 2",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
+        "pin" : 12,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 13
+  }, {
+    "@type" : "Button",
+    "id" : 116,
+    "room" : 2,
+    "onSlaveID" : 4,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Rolety",
+    "typ" : "BUTTON",
+    "pin" : 17,
+    "funkcjeKlikniec" : [ {
+      "state" : "UP",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 6,
+        "room" : 2,
+        "slaveID" : 13,
+        "onSlaveID" : 2,
+        "name" : "Marcin",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "DOWN",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 6,
+        "room" : 2,
+        "slaveID" : 13,
+        "onSlaveID" : 2,
+        "name" : "Marcin",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "STOP",
+      "type" : "CLICKED",
+      "clicks" : 3,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 6,
+        "room" : 2,
+        "slaveID" : 13,
+        "onSlaveID" : 2,
+        "name" : "Marcin",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    } ],
+    "slaveAdress" : 13
+  } ],
+  "nazwa" : "Marcin"
+}
