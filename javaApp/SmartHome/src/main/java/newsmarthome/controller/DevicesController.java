@@ -20,6 +20,7 @@ import newsmarthome.database.UsersDAO;
 import newsmarthome.security.MobileSecurity;
 import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.response.Response;
 import newsmarthome.model.response.RoomResponse;
 import newsmarthome.model.user.User;
@@ -52,6 +53,30 @@ public class DevicesController {
 			return new Response<>(null, "Użytkownik nie jest zalogowany");
 		else{
 			return new Response<>(systemDAO.getRoomsArrayList().stream().map(RoomResponse::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
+		}
+	}
+
+
+	@PostMapping("/changeDeviceState")
+	public Response<String> changeDeviceState(HttpServletRequest request) {
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(null, "Użytkownik nie jest zalogowany");
+		else{
+			int deviceID = Integer.parseInt(request.getParameter("deviceId"));
+			String state = request.getParameter("state");
+			DeviceState deviceState = DeviceState.fromString(state);
+			logger.info("deviceID: {}",deviceID);
+			logger.info("state: {}", deviceState.name());
+			// logger.info("User changed device {} state to {}", deviceID, state);
+			// String deviceID = request.getParameter("deviceID");
+			// String state = request.getParameter("state");
+			// if(deviceID == null || state == null)
+			// 	return new Response<>(null, "Niepoprawne dane");
+			// else{
+			// 	//TODO change device state
+				return new Response<>("OK");
+			// }
 		}
 	}
 
