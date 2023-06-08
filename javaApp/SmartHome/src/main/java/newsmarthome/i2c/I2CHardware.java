@@ -13,6 +13,7 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 import com.pi4j.io.i2c.impl.I2CDeviceImpl;
 
 import org.slf4j.Logger;
@@ -132,16 +133,16 @@ public class I2CHardware implements I2C{
                     }
                     devices.remove(tmp);
 
-                    System.out.println("Sprawdzono: "+i+" i nie jest to prawidłowy adres");
-                    // ignore.printStackTrace();
+                    logger.debug("Sprawdzono: {} i nie jest to prawidłowy adres", i);
                     // ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
                 }
             }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (UnsupportedBusNumberException e) {
+            logger.warn("You are not on a Raspberry Pi so you cannot use I2C!");
         }
-        // devices.add(new I2CDeviceImpl(null, 0));
-        // setOccupied(false);
+        catch (IOException e) {
+            logger.error("Error on searching", e);
+        }
 
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
     }
