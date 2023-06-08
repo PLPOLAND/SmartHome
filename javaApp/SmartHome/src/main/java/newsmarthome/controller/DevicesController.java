@@ -1,7 +1,6 @@
 package newsmarthome.controller;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,48 +26,32 @@ import newsmarthome.model.user.User;
 
 @RestController
 @RequestMapping("/api")
-public class MobileAppController {
+public class DevicesController {
 
 	@Autowired
 	UsersDAO users;
 	@Autowired
 	SystemDAO systemDAO;
 
-	Logger logger = LoggerFactory.getLogger(MobileAppController.class);//logger
+	Logger logger = LoggerFactory.getLogger(DevicesController.class);//logger
 
-	/** 
-	 * For serching server from mobile app
-	 */
-	@GetMapping("/homeData")
-	public String hello() {
-		return "hello";
-	}
-
-	@PostMapping("/login")
-	public Response<TreeMap<String,String>> login(HttpServletRequest request) {
-		MobileSecurity security = new MobileSecurity(request, users);
-		String token = security.login();
-		if (token == null || token.isEmpty()) {
-			return new Response<>(null, "Niepoprawne dane logowania");
-		} else {
-			logger.info("User {} logged in", request.getParameter("nick"));
-			TreeMap<String,String> map = new TreeMap<>();
-			map.put("token", token);
-			return new Response<>(map);
-			// return new Response<>("{\"token\": \""+ token + "\"}");
-		}
-	}
-	@PostMapping("/getUserData")
-	public Response<String> getUserData(HttpServletRequest request) {
+	@GetMapping("/getDevices")
+	public Response<ArrayList<Device>> getDevices(HttpServletRequest request) {
 		MobileSecurity security = new MobileSecurity(request, users);
 		if(!security.isLoged() )
 			return new Response<>(null, "Użytkownik nie jest zalogowany");
-
-		User user = security.getFullUserData();
-		if (user == null) {
-			return new Response<>(null, "Nie znaleziono użytkownika, błąd wewnętrzny!");
-		} else {
-			return new Response<>(user.toString());//TODO remove password from response
+		else{
+			return new Response<>(systemDAO.getDevices());
+		}
+	}
+	
+	@GetMapping("/getRooms")
+	public Response<ArrayList<RoomResponse>> getRooms(HttpServletRequest request) {
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(null, "Użytkownik nie jest zalogowany");
+		else{
+			return new Response<>(systemDAO.getRoomsArrayList().stream().map(RoomResponse::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
 		}
 	}
 
