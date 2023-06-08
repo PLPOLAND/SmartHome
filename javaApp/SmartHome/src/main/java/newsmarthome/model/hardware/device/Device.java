@@ -34,7 +34,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     private static final String NOT_IMPLEMENTED_HERE = "Wywołano funkcję nie implementowaną w klasie bazowej Device!";
 
     
-
+    @JsonIgnore
     @Autowired
     public MasterToSlaveConverter slaveSender;
 

@@ -72,7 +72,7 @@ public class SystemDAO {
      * @param pokoj - pokój do dodania
      */
     public void addRoom(Room pokoj) {
-        this.pokoje.put(pokoj.getNazwa(), pokoj);
+        this.pokoje.put(pokoj.getName(), pokoj);
         save(pokoj);
     }
 
@@ -115,7 +115,7 @@ public class SystemDAO {
         this.sensors.removeAll(r.getSensors());
         r.safeDelete();
 
-        if (pokoje.remove(r.getNazwa()) != null) {
+        if (pokoje.remove(r.getName()) != null) {
             delete(r);
             return true;
         } else
@@ -156,7 +156,7 @@ public class SystemDAO {
         ArrayList<Room> tmp = getRoomsArrayList();
         ArrayList<String> names = new ArrayList<>();
         for (Room room : tmp) {
-            names.add(room.getNazwa());
+            names.add(room.getName());
         }
         return names;
     }
@@ -180,6 +180,18 @@ public class SystemDAO {
 
     public ArrayList<Device> getDevices() {
         return this.devices;
+    }
+
+    public String getDevicesJSON(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        try {
+            return objectMapper.writeValueAsString(this.devices);
+        } catch (Exception e) {
+            logger.error("Błąd podczas zapisywania urządzeń do JSON", e);
+            return "[]";
+        }
+
     }
 
     public ArrayList<Sensor> getSensors() {
@@ -287,7 +299,7 @@ public class SystemDAO {
                     }
 
                     room.addDevice(device);
-                    devices.add(device);
+                    // devices.add(device);
                 }
                 for (JsonNode jsonNode2 : jsonNode.get("sensors")) {
                     Sensor sensor = hardwareFactory.createSensor(SensorsTypes.valueOf( jsonNode2.get("typ").asText()));
@@ -327,11 +339,11 @@ public class SystemDAO {
                     }
 
                     room.addSensor(sensor);
-                    sensors.add(sensor);
+                    // sensors.add(sensor);
                 }
 
                 logger.debug("Wczytano pokój: {}", jsonNode);
-                pokoje.put(room.getNazwa(), room);
+                pokoje.put(room.getName(), room);
                 devices.addAll(room.getDevices());
                 sensors.addAll(room.getSensors());
                 i++;
