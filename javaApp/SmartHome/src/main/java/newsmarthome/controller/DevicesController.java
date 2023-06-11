@@ -21,6 +21,7 @@ import newsmarthome.security.MobileSecurity;
 import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
+import newsmarthome.model.response.DeviceStateResponse;
 import newsmarthome.model.response.Response;
 import newsmarthome.model.response.RoomResponse;
 import newsmarthome.model.user.User;
@@ -65,13 +66,13 @@ public class DevicesController {
 		else{
 			String deviceID = request.getParameter("deviceId");
 			String state = request.getParameter("state");
-			DeviceState deviceState = DeviceState.fromString(state);
-			logger.info("deviceID: {}",deviceID);
-			logger.info("state: {}", deviceState.name());
+			logger.debug("deviceID: {}",deviceID);
+			logger.debug("state: {}", state);
 			if(deviceID == null || state == null)
 				return new Response<>(null, "Nie przesłano wszystkich parametrów");
 			else{
 				try{
+					DeviceState deviceState = DeviceState.fromString(state);
 					int devID = Integer.parseInt(deviceID);
 					Device device = systemDAO.getDeviceByID(devID);
 					if(device == null)
@@ -81,9 +82,19 @@ public class DevicesController {
 						return new Response<>("OK");
 					}
 				}catch(NumberFormatException e){
-					return new Response<>(null, "Pole deviceID musi być liczbą!");
+					return new Response<>(null, "Pole deviceId musi być liczbą!");
 				}
 			}
+		}
+	}
+	
+	@GetMapping("/getDevicesState")
+	public Response<ArrayList<DeviceStateResponse>> getDevicesState(HttpServletRequest request) {
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(null, "Użytkownik nie jest zalogowany");
+		else{
+			return new Response<>(systemDAO.getDevices().stream().map(DeviceStateResponse::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
 		}
 	}
 
