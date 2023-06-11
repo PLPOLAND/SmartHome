@@ -63,20 +63,27 @@ public class DevicesController {
 		if(!security.isLoged() )
 			return new Response<>(null, "Użytkownik nie jest zalogowany");
 		else{
-			int deviceID = Integer.parseInt(request.getParameter("deviceId"));
+			String deviceID = request.getParameter("deviceId");
 			String state = request.getParameter("state");
 			DeviceState deviceState = DeviceState.fromString(state);
 			logger.info("deviceID: {}",deviceID);
 			logger.info("state: {}", deviceState.name());
-			// logger.info("User changed device {} state to {}", deviceID, state);
-			// String deviceID = request.getParameter("deviceID");
-			// String state = request.getParameter("state");
-			// if(deviceID == null || state == null)
-			// 	return new Response<>(null, "Niepoprawne dane");
-			// else{
-			// 	//TODO change device state
-				return new Response<>("OK");
-			// }
+			if(deviceID == null || state == null)
+				return new Response<>(null, "Nie przesłano wszystkich parametrów");
+			else{
+				try{
+					int devID = Integer.parseInt(deviceID);
+					Device device = systemDAO.getDeviceByID(devID);
+					if(device == null)
+						return new Response<>(null, "Nie znaleziono urządzenia o podanym ID");
+					else{
+						device.changeState(deviceState);
+						return new Response<>("OK");
+					}
+				}catch(NumberFormatException e){
+					return new Response<>(null, "Pole deviceID musi być liczbą!");
+				}
+			}
 		}
 	}
 

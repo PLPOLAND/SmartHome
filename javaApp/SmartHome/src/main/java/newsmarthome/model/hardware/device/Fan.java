@@ -69,6 +69,7 @@ public class Fan extends Device{
         try {
             if (isConfigured()) {
                 slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
+                logger.debug("Zmieniono stan urządzenia {}" , this);
             }
             else {
                 logger.warn("Urządzenie nie jest skonfigurowane na slave-u!");

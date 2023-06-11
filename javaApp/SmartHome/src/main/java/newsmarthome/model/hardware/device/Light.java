@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import newsmarthome.exception.HardwareException;
 
 @Component
@@ -72,9 +74,10 @@ public class Light extends Device{
         try {
             if (isConfigured()) {
                 slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
+                logger.debug("Zmieniono stan urządzenia {}" , this);
             }
             else{
-                logger.debug("Urządzenie nie jest skonfigurowane na slave-u!");
+                logger.warn("Urządzenie nie jest skonfigurowane na slave-u!");
             }
         } catch (HardwareException e) {
             logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
@@ -152,7 +155,7 @@ public class Light extends Device{
         return swt.getPin();
     }
 
-
+    @JsonIgnore
     public Switch getSwt() {
         return this.swt;
     }
@@ -165,6 +168,7 @@ public class Light extends Device{
             " super = "+ super.toString() +
             "}";
     }
+    @JsonIgnore
     @Override
     public boolean isStateCorrect(DeviceState state) {
         return state == DeviceState.ON || state == DeviceState.OFF;
