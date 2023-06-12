@@ -1,6 +1,14 @@
 package smarthome.model.user;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import smarthome.model.Uprawnienia;
 
 /**
@@ -19,6 +27,8 @@ public class User {
     String email;
     String password;
     String oldPassword;
+    String token;
+    //TODO dodać czas ważności tokenu
     Uprawnienia uprawnienia;
     Opcje opcje;
 
@@ -31,6 +41,7 @@ public class User {
         email = "";
         password = "";
         oldPassword = "";
+        token = "";
     }
 
     /**
@@ -55,6 +66,7 @@ public class User {
         this.oldPassword = oldPassword;
         this.uprawnienia = uprawnienia;
         this.opcje = opcje;
+        this.token = "";
     }
 
     public Long getId() {
@@ -129,5 +141,40 @@ public class User {
         this.opcje = opcje;
     }
 
-    
+    public String getToken() {
+        return this.token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String toJSON(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        String json = "";
+        OutputStream stream = new OutputStream() {
+            private StringBuilder string = new StringBuilder();
+            @Override
+            public void write(int b) {
+                this.string.append((char) b );
+            }
+            public String toString(){
+                return this.string.toString();
+            }
+        };
+        try {
+            objectMapper.writeValue(stream, this);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return stream.toString();
+    }
+
+    @Override
+    public String toString() {
+        return this.toJSON();
+    }
+
 }

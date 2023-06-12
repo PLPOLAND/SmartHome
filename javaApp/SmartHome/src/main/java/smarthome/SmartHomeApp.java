@@ -28,8 +28,8 @@ import smarthome.model.hardware.Termometr;
 
 
 
-@SpringBootApplication
-@EnableScheduling
+// @SpringBootApplication
+// @EnableScheduling
 public class SmartHomeApp extends SpringBootServletInitializer {
 	
 	static Scanner scanner = new Scanner(System.in);

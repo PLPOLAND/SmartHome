@@ -1,0 +1,233 @@
+{
+  "id" : 3,
+  "devices" : [ {
+    "@type" : "Blind",
+    "id" : 8,
+    "room" : 3,
+    "slaveID" : 15,
+    "onSlaveID" : 0,
+    "name" : "Marek",
+    "typ" : "BLIND",
+    "switchUp" : {
+      "stan" : "OFF",
+      "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "ON",
+      "pin" : 16
+    },
+    "state" : "DOWN"
+  }, {
+    "@type" : "Light",
+    "id" : 9,
+    "room" : 3,
+    "slaveID" : 15,
+    "onSlaveID" : 1,
+    "name" : "Poziom 1",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 13
+    },
+    "pin" : 13,
+    "state" : "OFF"
+  }, {
+    "@type" : "Light",
+    "id" : 10,
+    "room" : 3,
+    "slaveID" : 15,
+    "onSlaveID" : 2,
+    "name" : "Poziom 2",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 12
+    },
+    "pin" : 12,
+    "state" : "OFF"
+  }, {
+    "@type" : "Light",
+    "id" : 46,
+    "room" : 3,
+    "slaveID" : 14,
+    "onSlaveID" : 0,
+    "name" : "Gnd TV",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 15
+    },
+    "pin" : 15,
+    "state" : "OFF"
+  }, {
+    "@type" : "Light",
+    "id" : 47,
+    "room" : 3,
+    "slaveID" : 14,
+    "onSlaveID" : 1,
+    "name" : "Gnd koło łóżka 1",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "ON",
+      "pin" : 16
+    },
+    "pin" : 16,
+    "state" : "ON"
+  }, {
+    "@type" : "Light",
+    "id" : 56,
+    "room" : 3,
+    "slaveID" : 14,
+    "onSlaveID" : 2,
+    "name" : "Gniazdko Biurko L",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "ON",
+      "pin" : 13
+    },
+    "pin" : 13,
+    "state" : "ON"
+  }, {
+    "@type" : "Light",
+    "id" : 57,
+    "room" : 3,
+    "slaveID" : 14,
+    "onSlaveID" : 3,
+    "name" : "Gniazdko Biurko P",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 12
+    },
+    "pin" : 12,
+    "state" : "OFF"
+  } ],
+  "sensors" : [ {
+    "@type" : "Button",
+    "id" : 117,
+    "room" : 3,
+    "onSlaveID" : 3,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Rolety",
+    "typ" : "BUTTON",
+    "pin" : 17,
+    "funkcjeKlikniec" : [ {
+      "state" : "UP",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 8,
+        "room" : 3,
+        "slaveID" : 15,
+        "onSlaveID" : 0,
+        "name" : "Marek",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "DOWN",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 8,
+        "room" : 3,
+        "slaveID" : 15,
+        "onSlaveID" : 0,
+        "name" : "Marek",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "STOP",
+      "type" : "CLICKED",
+      "clicks" : 3,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 8,
+        "room" : 3,
+        "slaveID" : 15,
+        "onSlaveID" : 0,
+        "name" : "Marek",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    } ],
+    "slaveAdress" : 15
+  }, {
+    "@type" : "Button",
+    "id" : 106,
+    "room" : 3,
+    "onSlaveID" : 4,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 9,
+        "room" : 3,
+        "slaveID" : 15,
+        "onSlaveID" : 1,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 10,
+        "room" : 3,
+        "slaveID" : 15,
+        "onSlaveID" : 2,
+        "name" : "Poziom 2",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
+        "pin" : 12,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 15
+  } ],
+  "nazwa" : "Marek"
+}

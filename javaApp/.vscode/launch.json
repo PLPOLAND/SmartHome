@@ -2,10 +2,16 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch I2CClient",
+            "request": "launch",
+            "mainClass": "smarthome.i2c.I2CClient",
+            "projectName": "SmartHomeWebApp"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-SmartHomeApp<SmartHomeWebApp>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            // "console": "internalConsole",
             "console": "integratedTerminal",
             "mainClass": "smarthome.SmartHomeApp",
             "projectName": "SmartHomeWebApp",

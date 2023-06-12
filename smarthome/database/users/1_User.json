@@ -1,0 +1,17 @@
+{
+  "id" : 1,
+  "imie" : "w",
+  "nazwisko" : "s",
+  "nick" : "x",
+  "email" : "x@wp.pl",
+  "password" : "x",
+  "oldPassword" : "",
+  "uprawnienia" : {
+    "admin" : false
+  },
+  "opcje" : {
+    "typAvatara" : "LOCAL",
+    "lokalnaSciezka" : "",
+    "themeSciezka" : "../css/themes/green.css"
+  }
+}
