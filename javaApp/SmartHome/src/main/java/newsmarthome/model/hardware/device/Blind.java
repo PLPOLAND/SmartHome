@@ -188,7 +188,7 @@ public class Blind extends Device{
                     this.changeState(DeviceState.NOTKNOW);
                 }
                 else{
-                    logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
+                    logger.error("Odebrano nieznany stan urządzenia! Stan: {}. DeviceID: {}", state, this.getId());
                 }
             }
             else{
