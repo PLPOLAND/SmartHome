@@ -18,7 +18,7 @@ public enum DeviceState{
             case "down":
                 return DOWN;
             case "notknow":
-            // case "middle":
+            case "middle":
                 return NOTKNOW;
             case "up":
                 return UP;

@@ -69,22 +69,25 @@ public class Blind extends Device{
             throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = UP, DOWN lub NOTKNOW");
         }
 
-        if(this.stan != stan){
+        if (this.stan != stan) {
             switch (stan) {
                 case DOWN:
                     logger.debug("Zmieniam stan na: DOWN");
                     swtDown.setStan(DeviceState.ON);
                     swtUp.setStan(DeviceState.OFF);
                     this.stan = DeviceState.DOWN;
+                    logger.debug("Zmieniono stan urządzenia {}", this);
                     break;
                 case UP:
                     logger.debug("Zmieniam stan na: UP");
                     swtDown.setStan(DeviceState.OFF);
                     swtUp.setStan(DeviceState.ON);
                     this.stan = DeviceState.UP;
+                    logger.debug("Zmieniono stan urządzenia {}", this);
                     break;
-                case NOTKNOW://TODO Co w tedy?
+                case NOTKNOW:// TODO Co w tedy?
                     this.stan = DeviceState.NOTKNOW;
+                    logger.debug("Zmieniono stan urządzenia {}", this);
                     break;
                 default:
                     break;
