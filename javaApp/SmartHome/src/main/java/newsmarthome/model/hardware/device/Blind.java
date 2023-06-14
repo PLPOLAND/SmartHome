@@ -187,7 +187,7 @@ public class Blind extends Device{
                 else if (state == 'D') {
                     this.changeState(DeviceState.DOWN);
                 }
-                else if (state == 'N') {
+                else if (state == 'K') {
                     this.changeState(DeviceState.NOTKNOW);
                 }
                 else{

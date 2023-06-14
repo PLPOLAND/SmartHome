@@ -427,6 +427,7 @@ public class MasterToSlaveConverter {
         try {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
+            logger.debug("Sending click function to slave {}", function.getButton().getSlaveAdress());
             // try {
                 logger.debug("Writing to addres {}", function.getButton().getSlaveAdress());
                 atmega.writeTo(function.getButton().getSlaveAdress(), buffor);

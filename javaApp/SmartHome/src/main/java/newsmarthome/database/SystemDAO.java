@@ -311,6 +311,8 @@ public class SystemDAO {
                         case BUTTON:
                             Button button = (Button) sensor;
                             button.setPin(jsonNode2.get("pin").asInt());
+                            button.setOnSlaveID(jsonNode2.get("onSlaveID").asInt());
+                            button.setSlaveAdress(jsonNode2.get("slaveID").asInt());
                             for (JsonNode funkcjeKlikniecJson : jsonNode2.get("funkcjeKlikniec")) {
                                 ButtonLocalFunction funkcjaKlikniec = new ButtonLocalFunction();
                                 funkcjaKlikniec.setButton(button);

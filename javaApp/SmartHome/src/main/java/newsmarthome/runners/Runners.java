@@ -160,25 +160,31 @@ public class Runners {
      */
     private void configureSlave(int slaveAdress) {
         this.stopCheckingAutomation = true;
+        logger.debug("configureSlave({})", slaveAdress);
         try {
             if (slaveSender.checkAndReinitBoard(slaveAdress)) {
+                logger.debug("Sending devices configuration to slave {}", slaveAdress);
                 for (Device device : systemDAO.getDevices()) {
                     if (device.getSlaveID() == slaveAdress) {
                         device.resetConfigured();
                         device.configureToSlave();
                     }
-
+                    
                 }
+                logger.debug("Sending sensors configuration to slave {}", slaveAdress);
                 for (Sensor sensor : systemDAO.getSensors()) {
                     // jeśli sensor jest przyciskiem i jest na tym slave to wyślij jego konfigurację
                     // na slave'a
+                    logger.debug("Checking sensor {} on slave {}", sensor, slaveAdress);
                     if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
                         Button button = (Button) sensor;
+                        logger.debug("Sending button ({}) configuration to slave {}",button, slaveAdress);
                         button.configure();
                     }
 
                 }
             }
+            logger.debug("Sending Thermometers configuration to slave {}", slaveAdress);
             // sprawdź i dodaj termometry
             int howManyTermometersAreOnSlave = slaveSender.howManyThermometersOnSlave(slaveAdress);
             ArrayList<Termometr> termometry = systemDAO.getAllTermometers();

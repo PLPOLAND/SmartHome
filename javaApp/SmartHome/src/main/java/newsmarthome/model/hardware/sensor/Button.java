@@ -45,7 +45,7 @@ public class Button extends Sensor{
      * Konfiguruje przycisk na slave-a
      */
     public void configure(){
-        logger.info("Wysyłąnie konfiguracji przycisku na slave-a o id: {}", this.getSlaveAdress());
+        logger.debug("Wysyłanie konfiguracji przycisku na slave-a o id: {}", this.getSlaveAdress());
         try {
             this.setOnSlaveID(slaveSender.addPrzycisk(this));
             for (ButtonLocalFunction buttonLocalFunction : funkcjeKlikniec) {
