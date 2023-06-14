@@ -93,6 +93,10 @@ public class MasterToSlaveConverter {
         atmega.findAll();
     }
 
+    public void restartAllSlaves(){
+        atmega.restartSlaves();
+    }
+
     
     /**
      * Zwraca listę adresów slave-ów które są podłączone do mastera

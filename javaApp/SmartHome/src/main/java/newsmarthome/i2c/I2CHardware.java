@@ -14,14 +14,12 @@ import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
-import com.pi4j.io.i2c.impl.I2CDeviceImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import newsmarthome.exception.HardwareException;
-import newsmarthome.exception.SoftwareException;
 
 @Service
 public class I2CHardware implements I2C{
@@ -43,12 +41,12 @@ public class I2CHardware implements I2C{
             findAll();
             logger.info("Searching for devices");
             
-        }catch (Exception e) {
-            logger.error("platform does not support this driver");
-
         }
         catch (UnsatisfiedLinkError e) {
             logger.error("platform does not support this driver");
+        }catch (Exception e) {
+            logger.error("platform does not support this driver");
+
         }
     }
     /**

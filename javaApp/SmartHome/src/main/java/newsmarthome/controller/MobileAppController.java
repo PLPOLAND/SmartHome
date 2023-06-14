@@ -1,6 +1,7 @@
 package newsmarthome.controller;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,13 +45,17 @@ public class MobileAppController {
 	}
 
 	@PostMapping("/login")
-	public Response<String> login(HttpServletRequest request) {
+	public Response<TreeMap<String,String>> login(HttpServletRequest request) {
 		MobileSecurity security = new MobileSecurity(request, users);
 		String token = security.login();
 		if (token == null || token.isEmpty()) {
 			return new Response<>(null, "Niepoprawne dane logowania");
 		} else {
-			return new Response<>("{\"token\": \""+ token + "\"}");
+			logger.info("User {} logged in", request.getParameter("nick"));
+			TreeMap<String,String> map = new TreeMap<>();
+			map.put("token", token);
+			return new Response<>(map);
+			// return new Response<>("{\"token\": \""+ token + "\"}");
 		}
 	}
 	@PostMapping("/getUserData")
@@ -64,25 +69,6 @@ public class MobileAppController {
 			return new Response<>(null, "Nie znaleziono użytkownika, błąd wewnętrzny!");
 		} else {
 			return new Response<>(user.toString());//TODO remove password from response
-		}
-	}
-	@GetMapping("/getDevices")
-	public Response<ArrayList<Device>> getDevices(HttpServletRequest request) {
-		MobileSecurity security = new MobileSecurity(request, users);
-		if(!security.isLoged() )
-			return new Response<>(null, "Użytkownik nie jest zalogowany");
-		else{
-			return new Response<>(systemDAO.getDevices());
-		}
-	}
-	
-	@GetMapping("/getRooms")
-	public Response<ArrayList<RoomResponse>> getRooms(HttpServletRequest request) {
-		MobileSecurity security = new MobileSecurity(request, users);
-		if(!security.isLoged() )
-			return new Response<>(null, "Użytkownik nie jest zalogowany");
-		else{
-			return new Response<>(systemDAO.getRoomsArrayList().stream().map(RoomResponse::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
 		}
 	}
 

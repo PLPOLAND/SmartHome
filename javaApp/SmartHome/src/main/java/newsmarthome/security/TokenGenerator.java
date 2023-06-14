@@ -12,6 +12,6 @@ public class TokenGenerator {
      * @return token
      */
     static String generateToken(String nickname, String password){
-        return Hash.hash(password) + Hash.hash(nickname)+Hash.hash(System.currentTimeMillis()+"");
+        return Hash.hash(password) + Hash.hash(nickname); //TODO zmienić tak, aby token był generowany z czymś randomowym
     }
 }
