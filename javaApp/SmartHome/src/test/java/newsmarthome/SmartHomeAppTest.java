@@ -66,17 +66,18 @@ public class SmartHomeAppTest {
 	}
 	@Test
 	public void fromFileLoad(){
+		//TODO testy wczytywania z pliku
 		for (Device blind : systemDAO.getDevices()) {
 			assertNotNull(blind);
 			if (blind instanceof Blind) {
-				System.out.println(((Blind) blind).getSlaveID());
+				// System.out.println(((Blind) blind).getSlaveID());
 				assertNotEquals(-1, ((Blind) blind).getSlaveID());
 			}
 		}
 		for (Sensor sensor: systemDAO.getAllButtons()){
 			assertNotNull(sensor);
 			if (sensor instanceof Button) {
-				System.out.println(((Button) sensor).getSlaveAdress());
+				// System.out.println(((Button) sensor).getSlaveAdress());
 				assertNotEquals(-1, ((Button) sensor).getSlaveAdress());
 			}
 		}

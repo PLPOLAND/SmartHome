@@ -106,39 +106,39 @@ public class Runners {
     void checkAutomationFunctions() {
         if (!stopCheckingAutomation) {
             logger.debug("checkAutomationFunctions");
-            if (functions.size() != automationDAO.getAutomationFunctions().size()) {
-                functions.clear();
-                functions.addAll(automationDAO.getAutomationFunctions());
+            if (functions.size() != automationDAO.getAutomationFunctions().size()) { // jeśli liczba funkcji zapisanych w systemie się zmieniła
+                functions.clear(); // wyczyść listę funkcji
+                functions.addAll(automationDAO.getAutomationFunctions()); // dodaj wszystkie funkcje z systemu do lokalnej listy
             }
-            for (AutomationFunction fun : functions) {
+            for (AutomationFunction fun : functions) { // dla każdej funkcji
                 try {
-                    fun.run();
+                    fun.run(); // sprawdź czy jej warunki są spełnione i wykonaj ją
                 } catch (HardwareException e) {
                     logger.error("Error in automation function {}. Error: {}", fun.getId(), e.getMessage());
                 }
             }
-            for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {
-                if (slaveSender.isSlaveConnected(slaveAdress)) {
+            for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
+                if (slaveSender.isSlaveConnected(slaveAdress)) { // jeśli jest podłączony
                     try {
-                        slaveSender.checkInitOfBoard(slaveAdress);
-                        // slaveSender.checkGetAndExecuteCommandsFromSlave(slaveAdress);
-                        int howMany = slaveSender.howManyCommandToRead(slaveAdress);
-                        if (howMany > 0) {
+                        if (!slaveSender.checkInitOfBoard(slaveAdress)){// sprawdź czy jest skonfigurowany
+                            configureSlave(slaveAdress); // jeśli nie to wyślij mu konfigurację
+                        } 
+                        int howMany = slaveSender.howManyCommandToRead(slaveAdress); // sprawdź ile komend czeka na odczytanie
+                        if (howMany > 0) { // jeśli są jakieś komendy w kolejce
                             for (int i = 0; i < howMany; i++) {
-                                byte[] command = slaveSender.readCommandFromSlave(slaveAdress);
-                                if (command != null && command[0] == 'C') {
-                                        ButtonFunction buttonFunction = new ButtonFunction();
-                                        buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
-                                        logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
+                                byte[] command = slaveSender.readCommandFromSlave(slaveAdress); // odczytaj komendę
+                                if (command != null && command[0] == 'C') { // jeśli komenda jest komendą
+                                    ButtonFunction buttonFunction = new ButtonFunction();
+                                    buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
+                                    logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
 
-                                        for (ButtonFunction fun : automationDAO.getButtonFunctions()) {
-                                            if (fun.compare(buttonFunction)) {
-                                                logger.debug("Znaleziono funkcję: {}", fun);
-                                                fun.run();
-                                                break;
-                                            }
-
+                                    for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
+                                        if (fun.compare(buttonFunction)) { // sprawdź czy funkcja zapisana w systemie jest taka sama jak ta pobrana z slave-a
+                                            logger.debug("Znaleziono funkcję: {}", fun);
+                                            fun.run();// jeśli tak to wykonaj ją
+                                            break;// i przerwij dalsze sprawdzanie
                                         }
+                                    }
                                 }
                             }
                         }
@@ -168,8 +168,13 @@ public class Runners {
                     if (device.getSlaveID() == slaveAdress) {
                         device.resetConfigured();
                         device.configureToSlave();
+                        try{
+                            Thread.sleep(100);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
                     }
-                    
                 }
                 logger.debug("Sending sensors configuration to slave {}", slaveAdress);
                 for (Sensor sensor : systemDAO.getSensors()) {
@@ -180,6 +185,12 @@ public class Runners {
                         Button button = (Button) sensor;
                         logger.debug("Sending button ({}) configuration to slave {}",button, slaveAdress);
                         button.configure();
+                        try{
+                            Thread.sleep(100);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
                     }
 
                 }

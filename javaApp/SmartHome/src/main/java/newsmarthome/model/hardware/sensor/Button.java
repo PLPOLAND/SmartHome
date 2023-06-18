@@ -57,13 +57,10 @@ public class Button extends Sensor{
         }
     }
 
-    public Button funkcjeKlikniec(List<ButtonLocalFunction> funkcjeKlikniec) {
-        for (ButtonLocalFunction function : funkcjeKlikniec) {
-            this.addFunkcjaKilkniecia(function);
-        }
-        return this;
-    }
     public void setFunkcjeKlikniec(List<ButtonLocalFunction> funkcjeKlikniec) {
+        this.funkcjeKlikniec = (ArrayList<ButtonLocalFunction>)funkcjeKlikniec;
+    }
+    public void addFunkcjeKlikniec(List<ButtonLocalFunction> funkcjeKlikniec) {
         for (ButtonLocalFunction function : funkcjeKlikniec) {
             this.addFunkcjaKilkniecia(function);
         }
