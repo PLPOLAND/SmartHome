@@ -209,7 +209,7 @@ public class Blind extends Device{
         return this.stan;
     }
     @Override
-    public void updateDeviceState(){
+    public void updateDeviceState() throws HardwareException {
         try {
             if (isConfigured()) {
                 int state = slaveSender.checkDeviceState(this.getSlaveID(), this.getOnSlaveID());
@@ -224,13 +224,18 @@ public class Blind extends Device{
                 }
                 else{
                     logger.error("Odebrano nieznany stan urządzenia! Stan: {}. DeviceID: {}", state, this.getId());
+                    throw new HardwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), new int[] {state,0,0,0,0,0,0,0});
                 }
             }
             else{
                 logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
+            logger.error("Błąd podczas pobierania stanu urządzenia (id:{}; slave:{})! -> {}",this.getId(),this.getSlaveID(), e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            if (e.getResponse()[0] == 'E') {
+                throw e;
+            }
         }
     }
 

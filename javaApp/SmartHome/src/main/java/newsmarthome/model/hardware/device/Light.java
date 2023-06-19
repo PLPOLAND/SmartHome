@@ -126,7 +126,7 @@ public class Light extends Device{
     }
 
     @Override
-    public void updateDeviceState() {
+    public void updateDeviceState() throws HardwareException{
         try {
             if (isConfigured()) {
                 int state = slaveSender.checkDeviceState(getSlaveID(), getOnSlaveID());
@@ -144,7 +144,11 @@ public class Light extends Device{
                 logger.debug("Urządzenie nie jest skonfigurowane na slave'u, nie wysyła komend na slave'a.");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia{}! -> {}",this, e.getMessage());
+            logger.error("Błąd podczas pobierania stanu urządzenia (id:{}; slave:{})! -> {}",this.getId(),this.getSlaveID(), e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            if (e.getResponse()[0] == 'E') {
+                throw e;
+            }
         }
     }
 

@@ -185,7 +185,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     /**
      * Sprawdza stan urządzenia na slavie i ustawia go w obiekcie.
      */
-    public abstract void updateDeviceState();
+    public abstract void updateDeviceState() throws HardwareException;
 
     /**
      * Wysyła komendę dodającą urządzenie na slave'a 
