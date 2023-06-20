@@ -51,9 +51,9 @@ public class Runners {
         if (!slaves.isEmpty()){
             for(Device device : systemDAO.getDevices()){
                 try {
-                    logger.debug("Checking status of device {}", device);
                     if (slaveSender.isSlaveConnected(device.getSlaveID())){
                         logger.debug("Slave {} is connected", device.getSlaveID());
+                        logger.debug("Checking status of device {}", device);
                         if (slaveSender.checkInitOfBoard(device.getSlaveID())) {
                             device.setConfigured();
                             device.updateDeviceState();
@@ -67,8 +67,23 @@ public class Runners {
                     else{
                         device.resetConfigured();//jako, że slave nie jest podłączony, to urządznie nie jest na nim skonfigurowane
                     }
-                } catch (HardwareException|SoftwareException e) {
+                } catch (HardwareException e) {
                     logger.error("Bład podczas sprawdzania stanu urządzenia {}: {}", device.getId(), e.getMessage());
+                        if (e.getResponse() != null && e.getResponse()[0] == 'E') {
+                            device.resetConfigured();
+                            configureSlave(device.getSlaveID());
+                        }
+                   
+                }
+                catch(SoftwareException e){
+                    logger.error("Bład podczas sprawdzania stanu urządzenia {}: {}", device.getId(), e.getMessage());
+                        if (e.getExpected() != null ) {
+                            device.resetConfigured();
+                            configureSlave(device.getSlaveID());
+                        }
+                        else{
+                            logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(e.getStackTrace()));
+                        }
                 }
             }
             for (Termometr termometr : systemDAO.getAllTermometers()) {
@@ -76,11 +91,6 @@ public class Runners {
                     termometr.update();
                 }
             }
-            // for (Integer device : slaveSender.getSlavesAdresses()) { //TODO automatyka
-            //     if (slaveSender.isSlaveConnected(device)) {
-            //         system.checkGetAndExecuteCommandsFromSlave(device);
-            //     }
-            // }
         }
         else{
             logger.warn("No slaves detected");
@@ -102,7 +112,7 @@ public class Runners {
         }
     }
 
-    @Scheduled(fixedDelay = 200)
+    // @Scheduled(fixedDelay = 200)
     void checkAutomationFunctions() {
         if (!stopCheckingAutomation) {
             logger.debug("checkAutomationFunctions");
@@ -162,7 +172,7 @@ public class Runners {
         this.stopCheckingAutomation = true;
         logger.debug("configureSlave({})", slaveAdress);
         try {
-            if (slaveSender.checkAndReinitBoard(slaveAdress)) {
+            if (slaveSender.reInitBoard(slaveAdress)) {
                 logger.debug("Sending devices configuration to slave {}", slaveAdress);
                 for (Device device : systemDAO.getDevices()) {
                     if (device.getSlaveID() == slaveAdress) {
@@ -203,6 +213,18 @@ public class Runners {
                 for (int i = 0; i < howManyTermometersAreOnSlave; i++) {
                     int[] addres;
                     addres = slaveSender.addTermometr(slaveAdress);// dodaj termometr na slavie
+                    //Sprawdź czy adres nie jest zawiera samych zer lub samych 255
+                    boolean isCorrect= false;
+                    for (int adr : addres) {
+                        if (adr != 0 && adr != 255) {
+                            isCorrect = true;
+                            break;
+                        }
+                    }
+                    if (!isCorrect) {
+                        logger.error("Niepoprawny adres termometru: {}", Arrays.toString(addres));
+                        continue;
+                    }
                     boolean existed = false;// czy ten termometr był już dodany w systemie
 
                     for (Termometr t : termometry) {// wśród wszystkich dodanych w systemie
@@ -228,7 +250,7 @@ public class Runners {
                     }
                 }
             }
-        } catch (SoftwareException | HardwareException e) {
+        } catch (HardwareException e) {
             logger.error("Błąd podczas wysyłania konfiguracji na slave-a ({})! Error: {}", slaveAdress, e.getMessage());
             this.stopCheckingAutomation = false;
         }

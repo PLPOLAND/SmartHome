@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
 
 @Component
 @Scope("prototype")
@@ -126,7 +127,7 @@ public class Light extends Device{
     }
 
     @Override
-    public void updateDeviceState() {
+    public void updateDeviceState() throws HardwareException, SoftwareException{
         try {
             if (isConfigured()) {
                 int state = slaveSender.checkDeviceState(getSlaveID(), getOnSlaveID());
@@ -138,13 +139,19 @@ public class Light extends Device{
                 }
                 else {
                     logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
+                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "0,1", String.valueOf(state));
+                
                 }
             }
             else{
                 logger.debug("Urządzenie nie jest skonfigurowane na slave'u, nie wysyła komend na slave'a.");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia{}! -> {}",this, e.getMessage());
+            logger.error("Błąd podczas pobierania stanu urządzenia (id:{}; slave:{})! -> {}",this.getId(),this.getSlaveID(), e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            if (e.getResponse()[0] == 'E') {
+                throw e;
+            }
         }
     }
 

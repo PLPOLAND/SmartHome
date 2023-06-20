@@ -595,7 +595,8 @@ public class MasterToSlaveConverter {
             atmega.setOccupied(false);
             if (response[0] == 'E' || response == null) {
                 // logger.error("Error on checking init of board {}", slaveID);
-                throw new HardwareException("Error on checking state of device slaveID = " + slaveID);
+                logger.error("Something went wrong. Got answare: {}", Arrays.toString(response));
+                throw new HardwareException("Error on checking state of device slaveID = " + slaveID, response);
             }else {
                 return response[0];
             }

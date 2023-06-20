@@ -1,5 +1,7 @@
 package newsmarthome;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,8 +15,14 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
 import newsmarthome.i2c.MasterToSlaveConverter;
+import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Sensor;
+import newsmarthome.model.hardware.sensor.Termometr;
 
 
 
@@ -45,9 +53,10 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 		// adminController = app.getAutowireCapableBeanFactory().getBean(AdminRESTController.class);
 		// system = app.getAutowireCapableBeanFactory().getBean(smarthome.system.System.class);
 		systemDAO = app.getAutowireCapableBeanFactory().getBean(newsmarthome.database.SystemDAO.class);
+		MasterToSlaveConverter slaveSender = app.getAutowireCapableBeanFactory().getBean(MasterToSlaveConverter.class);
 		// system.reinitAllBoards();
-		Logger log = LoggerFactory.getLogger("Console Menager");
-		log.info("Started");
+		Logger logger = LoggerFactory.getLogger("Console Menager");
+		logger.info("Started");
 		String in = "";
 
 		while(!in.equals("end") && !in.equals("stop") && ! in.equals("exit")){
@@ -224,8 +233,8 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				// }
 				// else 
 				if(in.equals("test")){
-					log.info("test");
-					log.info("{}", systemDAO);
+					logger.info("test");
+					logger.info("{}", systemDAO);
 
 					// if (system.isSlaveConnected(15)) {
 							
@@ -259,12 +268,83 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				// 		log.info(adminController.sprawdzZainicjowaniePlytki(idUrzadzenia).getObj());
 				// 	}
 				// }
-				// else if (in.equals("init")) {
-				// 	if (scanner.hasNext()) {
-				// 		int idUrzadzenia = scanner.nextInt();
-				// 		log.info(adminController.reainicjowaniePlytki(idUrzadzenia).getObj());
-				// 	}
-				// }
+				else if (in.equals("init")) {
+					if (scanner.hasNext()) {
+						int slaveAdress = scanner.nextInt();
+						slaveSender.reInitBoard(slaveAdress);
+						logger.debug("configureSlave({})", slaveAdress);
+						try {
+							if (slaveSender.checkAndReinitBoard(slaveAdress)) {
+								logger.debug("Sending devices configuration to slave {}", slaveAdress);
+								for (Device device : systemDAO.getDevices()) {
+									if (device.getSlaveID() == slaveAdress) {
+										device.resetConfigured();
+										device.configureToSlave();
+										try{
+											Thread.sleep(100);
+										}
+										catch(InterruptedException e){
+											logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+										}
+									}
+								}
+								logger.debug("Sending sensors configuration to slave {}", slaveAdress);
+								for (Sensor sensor : systemDAO.getSensors()) {
+									// jeśli sensor jest przyciskiem i jest na tym slave to wyślij jego konfigurację
+									// na slave'a
+									logger.debug("Checking sensor {} on slave {}", sensor, slaveAdress);
+									if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
+										Button button = (Button) sensor;
+										logger.debug("Sending button ({}) configuration to slave {}",button, slaveAdress);
+										button.configure();
+										try{
+											Thread.sleep(100);
+										}
+										catch(InterruptedException e){
+											logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+										}
+									}
+
+								}
+							}
+							logger.debug("Sending Thermometers configuration to slave {}", slaveAdress);
+							// sprawdź i dodaj termometry
+							int howManyTermometersAreOnSlave = slaveSender.howManyThermometersOnSlave(slaveAdress);
+							ArrayList<Termometr> termometry = systemDAO.getAllTermometers();
+							if (howManyTermometersAreOnSlave > 0) {
+								for (int i = 0; i < howManyTermometersAreOnSlave; i++) {
+									int[] addres;
+									addres = slaveSender.addTermometr(slaveAdress);// dodaj termometr na slavie
+									boolean existed = false;// czy ten termometr był już dodany w systemie
+
+									for (Termometr t : termometry) {// wśród wszystkich dodanych w systemie
+										if (Arrays.equals(t.getAddres(), addres)) {// znajdź ten który został właśnie dodany
+											t.setSlaveAdress(slaveAdress);// zmień mu adres slave-a
+											existed = true;
+											break;
+										}
+									}
+									if (!existed) {
+										Termometr termometr = new Termometr(slaveAdress);
+										termometr.setAddres(addres);
+										termometr.setName("Dodany automatycznie, slave=" + slaveAdress);
+										Room tmp = systemDAO.getRoom("Brak");
+										if (tmp != null) {
+
+											termometr.setRoom(tmp.getID());
+											tmp.addSensor(termometr);
+											systemDAO.save(tmp);
+										} else {
+											logger.error("Nie znaleziono pokoju '{}' podczas dodawania nowego termometru  ", "Brak");
+										}
+									}
+								}
+							}
+						} catch (SoftwareException | HardwareException e) {
+							logger.error("Błąd podczas wysyłania konfiguracji na slave-a ({})! Error: {}", slaveAdress, e.getMessage());
+						}
+					}
+				}
 				// else if (in.equals("update")){
 				// 	for (Device device : system.getSystemDAO().getDevices()) {
 				// 		try{
