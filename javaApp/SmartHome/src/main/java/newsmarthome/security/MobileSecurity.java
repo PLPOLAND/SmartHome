@@ -26,7 +26,7 @@ public class MobileSecurity {
     UsersDAO database;
     HttpServletRequest request;
 
-    Logger logger = LoggerFactory.getLogger(Security.class);//logger
+    Logger logger = LoggerFactory.getLogger(MobileSecurity.class);//logger
     
     /**
      * Konstruktor Inicjuje Klasę do działania
@@ -77,7 +77,7 @@ public class MobileSecurity {
      */
     public boolean isLoged() {
         String token = request.getParameter(TOKEN_PARAMETER_NAME);
-        logger.info("Token: " + token);
+        // logger.info("Token: " + token);
         if (token == null || token.isEmpty()) {
             return false;
         }

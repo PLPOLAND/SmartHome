@@ -44,32 +44,4 @@ public class MobileAppController {
 		return "hello";
 	}
 
-	@PostMapping("/login")
-	public Response<TreeMap<String,String>> login(HttpServletRequest request) {
-		MobileSecurity security = new MobileSecurity(request, users);
-		String token = security.login();
-		if (token == null || token.isEmpty()) {
-			return new Response<>(null, "Niepoprawne dane logowania");
-		} else {
-			logger.info("User {} logged in", request.getParameter("nick"));
-			TreeMap<String,String> map = new TreeMap<>();
-			map.put("token", token);
-			return new Response<>(map);
-			// return new Response<>("{\"token\": \""+ token + "\"}");
-		}
-	}
-	@PostMapping("/getUserData")
-	public Response<String> getUserData(HttpServletRequest request) {
-		MobileSecurity security = new MobileSecurity(request, users);
-		if(!security.isLoged() )
-			return new Response<>(null, "Użytkownik nie jest zalogowany");
-
-		User user = security.getFullUserData();
-		if (user == null) {
-			return new Response<>(null, "Nie znaleziono użytkownika, błąd wewnętrzny!");
-		} else {
-			return new Response<>(user.toString());//TODO remove password from response
-		}
-	}
-
 }
