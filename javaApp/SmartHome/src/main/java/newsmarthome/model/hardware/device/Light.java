@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
 
 @Component
 @Scope("prototype")
@@ -126,7 +127,7 @@ public class Light extends Device{
     }
 
     @Override
-    public void updateDeviceState() throws HardwareException{
+    public void updateDeviceState() throws HardwareException, SoftwareException{
         try {
             if (isConfigured()) {
                 int state = slaveSender.checkDeviceState(getSlaveID(), getOnSlaveID());
@@ -138,6 +139,8 @@ public class Light extends Device{
                 }
                 else {
                     logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
+                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "0,1", String.valueOf(state));
+                
                 }
             }
             else{

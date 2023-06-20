@@ -67,15 +67,23 @@ public class Runners {
                     else{
                         device.resetConfigured();//jako, że slave nie jest podłączony, to urządznie nie jest na nim skonfigurowane
                     }
-                } catch (HardwareException|SoftwareException e) {
+                } catch (HardwareException e) {
                     logger.error("Bład podczas sprawdzania stanu urządzenia {}: {}", device.getId(), e.getMessage());
-                    if (e instanceof HardwareException) {
-                        HardwareException he = (HardwareException) e;
-                        if (he.getResponse() != null && he.getResponse()[0] == 'E') {
+                        if (e.getResponse() != null && e.getResponse()[0] == 'E') {
                             device.resetConfigured();
                             configureSlave(device.getSlaveID());
                         }
-                    }
+                   
+                }
+                catch(SoftwareException e){
+                    logger.error("Bład podczas sprawdzania stanu urządzenia {}: {}", device.getId(), e.getMessage());
+                        if (e.getExpected() != null ) {
+                            device.resetConfigured();
+                            configureSlave(device.getSlaveID());
+                        }
+                        else{
+                            logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(e.getStackTrace()));
+                        }
                 }
             }
             for (Termometr termometr : systemDAO.getAllTermometers()) {

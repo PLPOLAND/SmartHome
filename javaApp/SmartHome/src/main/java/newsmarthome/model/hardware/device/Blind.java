@@ -3,6 +3,7 @@ package newsmarthome.model.hardware.device;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
 
 import java.util.Arrays;
 
@@ -209,7 +210,7 @@ public class Blind extends Device{
         return this.stan;
     }
     @Override
-    public void updateDeviceState() throws HardwareException {
+    public void updateDeviceState() throws HardwareException,SoftwareException {
         try {
             if (isConfigured()) {
                 int state = slaveSender.checkDeviceState(this.getSlaveID(), this.getOnSlaveID());
@@ -224,7 +225,7 @@ public class Blind extends Device{
                 }
                 else{
                     logger.error("Odebrano nieznany stan urządzenia! Stan: {}. DeviceID: {}", state, this.getId());
-                    throw new HardwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), new int[] {state,0,0,0,0,0,0,0});
+                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "U, D, K", String.valueOf((char)state));
                 }
             }
             else{

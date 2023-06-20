@@ -14,6 +14,7 @@ import newsmarthome.i2c.I2C;
 import newsmarthome.i2c.I2CHardware;
 import newsmarthome.i2c.MasterToSlaveConverter;
 import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
 
 /**
  * Device
@@ -185,7 +186,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     /**
      * Sprawdza stan urządzenia na slavie i ustawia go w obiekcie.
      */
-    public abstract void updateDeviceState() throws HardwareException;
+    public abstract void updateDeviceState() throws HardwareException, SoftwareException;
 
     /**
      * Wysyła komendę dodającą urządzenie na slave'a 
