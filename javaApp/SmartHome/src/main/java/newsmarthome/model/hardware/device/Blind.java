@@ -3,6 +3,7 @@ package newsmarthome.model.hardware.device;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
 
 import java.util.Arrays;
 
@@ -94,6 +95,7 @@ public class Blind extends Device{
             }
             try {
                 if (isConfigured()) {
+                    logger.debug("Wysyłanie stanu urządzenia na slave-a o id: {}", this.getSlaveID());
                     slaveSender.changeBlindState(this, stan);
                 }
                 else{
@@ -114,6 +116,37 @@ public class Blind extends Device{
         }
         else if(this.stan == DeviceState.NOTKNOW){
             logger.debug("Jest stan NOTKNOW więc nic nie robię");
+        }
+    }
+
+    private void changeStateLocal(DeviceState stan){
+        if (stan != DeviceState.UP && stan != DeviceState.DOWN && stan != DeviceState.NOTKNOW) {
+            throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = UP, DOWN lub NOTKNOW");
+        }
+
+        if (this.stan != stan) {
+            switch (stan) {
+                case DOWN:
+                    logger.debug("Zmieniam stan na: DOWN");
+                    swtDown.setStan(DeviceState.ON);
+                    swtUp.setStan(DeviceState.OFF);
+                    this.stan = DeviceState.DOWN;
+                    logger.debug("Zmieniono stan urządzenia {}", this);
+                    break;
+                case UP:
+                    logger.debug("Zmieniam stan na: UP");
+                    swtDown.setStan(DeviceState.OFF);
+                    swtUp.setStan(DeviceState.ON);
+                    this.stan = DeviceState.UP;
+                    logger.debug("Zmieniono stan urządzenia {}", this);
+                    break;
+                case NOTKNOW:// TODO Co w tedy?
+                    this.stan = DeviceState.NOTKNOW;
+                    logger.debug("Zmieniono stan urządzenia {}", this);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -177,28 +210,33 @@ public class Blind extends Device{
         return this.stan;
     }
     @Override
-    public void updateDeviceState(){
+    public void updateDeviceState() throws HardwareException,SoftwareException {
         try {
             if (isConfigured()) {
                 int state = slaveSender.checkDeviceState(this.getSlaveID(), this.getOnSlaveID());
                 if (state == 'U') {
-                    this.changeState(DeviceState.UP);
+                    this.changeStateLocal(DeviceState.UP);
                 }
                 else if (state == 'D') {
-                    this.changeState(DeviceState.DOWN);
+                    this.changeStateLocal(DeviceState.DOWN);
                 }
-                else if (state == 'N') {
-                    this.changeState(DeviceState.NOTKNOW);
+                else if (state == 'K') {
+                    this.changeStateLocal(DeviceState.NOTKNOW);
                 }
                 else{
                     logger.error("Odebrano nieznany stan urządzenia! Stan: {}. DeviceID: {}", state, this.getId());
+                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "U, D, K", String.valueOf((char)state));
                 }
             }
             else{
                 logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
+            logger.error("Błąd podczas pobierania stanu urządzenia (id:{}; slave:{})! -> {}",this.getId(),this.getSlaveID(), e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            if (e.getResponse()[0] == 'E') {
+                throw e;
+            }
         }
     }
 

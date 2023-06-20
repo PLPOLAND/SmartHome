@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
 
 @Component
 @Scope("prototype")
@@ -123,7 +124,7 @@ public class Fan extends Device{
     }
 
     @Override
-    public void updateDeviceState() {
+    public void updateDeviceState() throws SoftwareException, HardwareException{
         try {
             if (isConfigured()) {
                 int state = slaveSender.checkDeviceState(getSlaveID(),getOnSlaveID());
@@ -135,13 +136,18 @@ public class Fan extends Device{
                 }
                 else {
                     logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
+                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "0,1", String.valueOf(state));
+                
                 }
             }
             else {
                 logger.warn("Urządzenie nie jest skonfigurowane na slave-u!");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
+            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());logger.error(Arrays.toString(e.getStackTrace()));
+            if (e.getResponse()[0] == 'E') {
+                throw e;
+            }
         }
     }
 

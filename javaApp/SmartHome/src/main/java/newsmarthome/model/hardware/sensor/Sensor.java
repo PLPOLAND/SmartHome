@@ -87,18 +87,9 @@ public abstract class Sensor {
         logger = LoggerFactory.getLogger(Sensor.class);
         logger.info(STWORZONO_SENSOR_STRING, this);
     }
-
+    @JsonIgnore
     public MasterToSlaveConverter getSlaveSender() {
         return this.slaveSender;
-    }
-
-
-    public Logger getLogger() {
-        return this.logger;
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
     }
 
     public int getId() {

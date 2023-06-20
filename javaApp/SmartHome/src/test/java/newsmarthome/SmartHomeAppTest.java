@@ -1,6 +1,7 @@
 package newsmarthome;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -14,9 +15,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import newsmarthome.database.SystemDAO;
 import newsmarthome.model.hardware.HardwareFactory;
 import newsmarthome.model.hardware.device.Blind;
+import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Sensor;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -60,6 +63,24 @@ public class SmartHomeAppTest {
 		assertEquals(1, button.getPin());
 		
 
+	}
+	@Test
+	public void fromFileLoad(){
+		//TODO testy wczytywania z pliku
+		for (Device blind : systemDAO.getDevices()) {
+			assertNotNull(blind);
+			if (blind instanceof Blind) {
+				// System.out.println(((Blind) blind).getSlaveID());
+				assertNotEquals(-1, ((Blind) blind).getSlaveID());
+			}
+		}
+		for (Sensor sensor: systemDAO.getAllButtons()){
+			assertNotNull(sensor);
+			if (sensor instanceof Button) {
+				// System.out.println(((Button) sensor).getSlaveAdress());
+				assertNotEquals(-1, ((Button) sensor).getSlaveAdress());
+			}
+		}
 	}
 
 }

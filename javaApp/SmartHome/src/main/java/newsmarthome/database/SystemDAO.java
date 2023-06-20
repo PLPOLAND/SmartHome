@@ -299,7 +299,7 @@ public class SystemDAO {
                     }
 
                     room.addDevice(device);
-                    // devices.add(device);
+                    devices.add(device);
                 }
                 for (JsonNode jsonNode2 : jsonNode.get("sensors")) {
                     Sensor sensor = hardwareFactory.createSensor(SensorsTypes.valueOf( jsonNode2.get("typ").asText()));
@@ -311,12 +311,14 @@ public class SystemDAO {
                         case BUTTON:
                             Button button = (Button) sensor;
                             button.setPin(jsonNode2.get("pin").asInt());
+                            button.setOnSlaveID(jsonNode2.get("onSlaveID").asInt());
+                            button.setSlaveAdress(jsonNode2.get("slaveAdress").asInt());
                             for (JsonNode funkcjeKlikniecJson : jsonNode2.get("funkcjeKlikniec")) {
                                 ButtonLocalFunction funkcjaKlikniec = new ButtonLocalFunction();
                                 funkcjaKlikniec.setButton(button);
                                 funkcjaKlikniec.setClicks(funkcjeKlikniecJson.get("clicks").asInt());
                                 funkcjaKlikniec.setType(ButtonClickType.valueOf(funkcjeKlikniecJson.get("type").asText()));
-                                funkcjaKlikniec.setDevice(getDeviceByID(funkcjeKlikniecJson.get("device").asInt()));
+                                funkcjaKlikniec.setDevice(getDeviceByID(funkcjeKlikniecJson.get("device").get("id").asInt()));
                                 funkcjaKlikniec.setState(ButtonLocalFunction.State.valueOf(funkcjeKlikniecJson.get("state").asText()));
                                 button.addFunkcjaKilkniecia(funkcjaKlikniec);
                             }

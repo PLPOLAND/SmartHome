@@ -51,9 +51,9 @@ public class Runners {
         if (!slaves.isEmpty()){
             for(Device device : systemDAO.getDevices()){
                 try {
-                    logger.debug("Checking status of device {}", device);
                     if (slaveSender.isSlaveConnected(device.getSlaveID())){
                         logger.debug("Slave {} is connected", device.getSlaveID());
+                        logger.debug("Checking status of device {}", device);
                         if (slaveSender.checkInitOfBoard(device.getSlaveID())) {
                             device.setConfigured();
                             device.updateDeviceState();
@@ -67,8 +67,23 @@ public class Runners {
                     else{
                         device.resetConfigured();//jako, że slave nie jest podłączony, to urządznie nie jest na nim skonfigurowane
                     }
-                } catch (HardwareException|SoftwareException e) {
+                } catch (HardwareException e) {
                     logger.error("Bład podczas sprawdzania stanu urządzenia {}: {}", device.getId(), e.getMessage());
+                        if (e.getResponse() != null && e.getResponse()[0] == 'E') {
+                            device.resetConfigured();
+                            configureSlave(device.getSlaveID());
+                        }
+                   
+                }
+                catch(SoftwareException e){
+                    logger.error("Bład podczas sprawdzania stanu urządzenia {}: {}", device.getId(), e.getMessage());
+                        if (e.getExpected() != null ) {
+                            device.resetConfigured();
+                            configureSlave(device.getSlaveID());
+                        }
+                        else{
+                            logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(e.getStackTrace()));
+                        }
                 }
             }
             for (Termometr termometr : systemDAO.getAllTermometers()) {
@@ -76,11 +91,6 @@ public class Runners {
                     termometr.update();
                 }
             }
-            // for (Integer device : slaveSender.getSlavesAdresses()) { //TODO automatyka
-            //     if (slaveSender.isSlaveConnected(device)) {
-            //         system.checkGetAndExecuteCommandsFromSlave(device);
-            //     }
-            // }
         }
         else{
             logger.warn("No slaves detected");
@@ -102,43 +112,43 @@ public class Runners {
         }
     }
 
-    @Scheduled(fixedDelay = 200)
+    // @Scheduled(fixedDelay = 200)
     void checkAutomationFunctions() {
         if (!stopCheckingAutomation) {
             logger.debug("checkAutomationFunctions");
-            if (functions.size() != automationDAO.getAutomationFunctions().size()) {
-                functions.clear();
-                functions.addAll(automationDAO.getAutomationFunctions());
+            if (functions.size() != automationDAO.getAutomationFunctions().size()) { // jeśli liczba funkcji zapisanych w systemie się zmieniła
+                functions.clear(); // wyczyść listę funkcji
+                functions.addAll(automationDAO.getAutomationFunctions()); // dodaj wszystkie funkcje z systemu do lokalnej listy
             }
-            for (AutomationFunction fun : functions) {
+            for (AutomationFunction fun : functions) { // dla każdej funkcji
                 try {
-                    fun.run();
+                    fun.run(); // sprawdź czy jej warunki są spełnione i wykonaj ją
                 } catch (HardwareException e) {
                     logger.error("Error in automation function {}. Error: {}", fun.getId(), e.getMessage());
                 }
             }
-            for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {
-                if (slaveSender.isSlaveConnected(slaveAdress)) {
+            for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
+                if (slaveSender.isSlaveConnected(slaveAdress)) { // jeśli jest podłączony
                     try {
-                        slaveSender.checkInitOfBoard(slaveAdress);
-                        // slaveSender.checkGetAndExecuteCommandsFromSlave(slaveAdress);
-                        int howMany = slaveSender.howManyCommandToRead(slaveAdress);
-                        if (howMany > 0) {
+                        if (!slaveSender.checkInitOfBoard(slaveAdress)){// sprawdź czy jest skonfigurowany
+                            configureSlave(slaveAdress); // jeśli nie to wyślij mu konfigurację
+                        } 
+                        int howMany = slaveSender.howManyCommandToRead(slaveAdress); // sprawdź ile komend czeka na odczytanie
+                        if (howMany > 0) { // jeśli są jakieś komendy w kolejce
                             for (int i = 0; i < howMany; i++) {
-                                byte[] command = slaveSender.readCommandFromSlave(slaveAdress);
-                                if (command != null && command[0] == 'C') {
-                                        ButtonFunction buttonFunction = new ButtonFunction();
-                                        buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
-                                        logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
+                                byte[] command = slaveSender.readCommandFromSlave(slaveAdress); // odczytaj komendę
+                                if (command != null && command[0] == 'C') { // jeśli komenda jest komendą
+                                    ButtonFunction buttonFunction = new ButtonFunction();
+                                    buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
+                                    logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
 
-                                        for (ButtonFunction fun : automationDAO.getButtonFunctions()) {
-                                            if (fun.compare(buttonFunction)) {
-                                                logger.debug("Znaleziono funkcję: {}", fun);
-                                                fun.run();
-                                                break;
-                                            }
-
+                                    for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
+                                        if (fun.compare(buttonFunction)) { // sprawdź czy funkcja zapisana w systemie jest taka sama jak ta pobrana z slave-a
+                                            logger.debug("Znaleziono funkcję: {}", fun);
+                                            fun.run();// jeśli tak to wykonaj ją
+                                            break;// i przerwij dalsze sprawdzanie
                                         }
+                                    }
                                 }
                             }
                         }
@@ -160,25 +170,42 @@ public class Runners {
      */
     private void configureSlave(int slaveAdress) {
         this.stopCheckingAutomation = true;
+        logger.debug("configureSlave({})", slaveAdress);
         try {
-            if (slaveSender.checkAndReinitBoard(slaveAdress)) {
+            if (slaveSender.reInitBoard(slaveAdress)) {
+                logger.debug("Sending devices configuration to slave {}", slaveAdress);
                 for (Device device : systemDAO.getDevices()) {
                     if (device.getSlaveID() == slaveAdress) {
                         device.resetConfigured();
                         device.configureToSlave();
+                        try{
+                            Thread.sleep(100);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
                     }
-
                 }
+                logger.debug("Sending sensors configuration to slave {}", slaveAdress);
                 for (Sensor sensor : systemDAO.getSensors()) {
                     // jeśli sensor jest przyciskiem i jest na tym slave to wyślij jego konfigurację
                     // na slave'a
+                    logger.debug("Checking sensor {} on slave {}", sensor, slaveAdress);
                     if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
                         Button button = (Button) sensor;
+                        logger.debug("Sending button ({}) configuration to slave {}",button, slaveAdress);
                         button.configure();
+                        try{
+                            Thread.sleep(100);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
                     }
 
                 }
             }
+            logger.debug("Sending Thermometers configuration to slave {}", slaveAdress);
             // sprawdź i dodaj termometry
             int howManyTermometersAreOnSlave = slaveSender.howManyThermometersOnSlave(slaveAdress);
             ArrayList<Termometr> termometry = systemDAO.getAllTermometers();
@@ -186,6 +213,18 @@ public class Runners {
                 for (int i = 0; i < howManyTermometersAreOnSlave; i++) {
                     int[] addres;
                     addres = slaveSender.addTermometr(slaveAdress);// dodaj termometr na slavie
+                    //Sprawdź czy adres nie jest zawiera samych zer lub samych 255
+                    boolean isCorrect= false;
+                    for (int adr : addres) {
+                        if (adr != 0 && adr != 255) {
+                            isCorrect = true;
+                            break;
+                        }
+                    }
+                    if (!isCorrect) {
+                        logger.error("Niepoprawny adres termometru: {}", Arrays.toString(addres));
+                        continue;
+                    }
                     boolean existed = false;// czy ten termometr był już dodany w systemie
 
                     for (Termometr t : termometry) {// wśród wszystkich dodanych w systemie
@@ -211,7 +250,7 @@ public class Runners {
                     }
                 }
             }
-        } catch (SoftwareException | HardwareException e) {
+        } catch (HardwareException e) {
             logger.error("Błąd podczas wysyłania konfiguracji na slave-a ({})! Error: {}", slaveAdress, e.getMessage());
             this.stopCheckingAutomation = false;
         }
