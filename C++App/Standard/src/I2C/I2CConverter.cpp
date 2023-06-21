@@ -246,6 +246,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     r->opusc();
                     params[0] = 'O';
                 }
+                else if (komenda.getParams()[1] == 'S')
+                {
+                    r->stop();
+                    params[0] = 'O';
+                }
                 else
                 {
                     params[0] = 'E';
