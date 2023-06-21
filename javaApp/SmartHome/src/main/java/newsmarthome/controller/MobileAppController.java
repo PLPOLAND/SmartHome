@@ -18,12 +18,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import newsmarthome.database.SystemDAO;
 import newsmarthome.database.UsersDAO;
+import newsmarthome.i2c.MasterToSlaveConverter;
 import newsmarthome.security.MobileSecurity;
 import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.response.Response;
 import newsmarthome.model.response.RoomResponse;
 import newsmarthome.model.user.User;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api")
@@ -33,6 +36,9 @@ public class MobileAppController {
 	UsersDAO users;
 	@Autowired
 	SystemDAO systemDAO;
+	@Autowired
+	MasterToSlaveConverter masterToSlaveConverter;
+
 
 	Logger logger = LoggerFactory.getLogger(MobileAppController.class);//logger
 
@@ -43,5 +49,12 @@ public class MobileAppController {
 	public String hello() {
 		return "hello";
 	}
+
+	@PostMapping("/restartSlaves")
+	public String restartSlaves() {
+		masterToSlaveConverter.restartAllSlaves();
+		return "ok";
+	}
+	
 
 }
