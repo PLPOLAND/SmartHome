@@ -14,9 +14,11 @@ import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
 import newsmarthome.model.hardware.device.Blind;
 import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.hardware.device.DeviceTypes;
+import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
 import newsmarthome.model.hardware.sensor.Termometr;
@@ -249,7 +251,7 @@ public class MasterToSlaveConverter {
      * @return id na płytce (-1 jeśli nie powiodło się)
      */
     public int addUrzadzenie(Device device) throws HardwareException{
-        if (device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO) {
+        if (device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO || device.getTyp() == DeviceTypes.WENTYLATOR) {
             byte[] buffor = new byte[3];
             int i = 0;
             for (byte b : DODAJ_URZADZENIE) {
@@ -258,8 +260,11 @@ public class MasterToSlaveConverter {
             if(device.getTyp() == DeviceTypes.LIGHT){
                 buffor[i++] = (byte) (((Light) device).getPin());
             }
-            else{
-                // buffor[i++] = (byte) ((() device).getPin());//TODO add Gniazdko
+            else if (device.getTyp() == DeviceTypes.GNIAZDKO) {
+                buffor[i++] = (byte) (((Outlet) device).getPin());
+            }
+            else if (device.getTyp() == DeviceTypes.WENTYLATOR) {
+                buffor[i++] = (byte) (((Fan) device).getPin());
             }
             try {
                 atmega.pauseIfOcupied();
