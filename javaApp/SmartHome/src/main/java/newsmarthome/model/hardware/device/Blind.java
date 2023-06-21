@@ -70,7 +70,6 @@ public class Blind extends Device{
             throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = UP, DOWN lub NOTKNOW");
         }
 
-        if (this.stan != stan) {
             switch (stan) {
                 case DOWN:
                     logger.debug("Zmieniam stan na: DOWN");
@@ -90,6 +89,7 @@ public class Blind extends Device{
                     this.stan = DeviceState.NOTKNOW;
                     logger.debug("Zmieniono stan urządzenia {}", this);
                     break;
+                //TODO case RUN: when blind is moving
                 default:
                     break;
             }
@@ -104,7 +104,6 @@ public class Blind extends Device{
             } catch (HardwareException e) {
                 logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
             }
-        }
     }
 
     @Override
@@ -225,7 +224,7 @@ public class Blind extends Device{
                 }
                 else{
                     logger.error("Odebrano nieznany stan urządzenia! Stan: {}. DeviceID: {}", state, this.getId());
-                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "U, D, K", String.valueOf((char)state));
+                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "U, D, K", String.valueOf(state));
                 }
             }
             else{

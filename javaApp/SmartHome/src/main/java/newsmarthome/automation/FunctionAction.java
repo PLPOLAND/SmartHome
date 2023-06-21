@@ -84,8 +84,6 @@ public class FunctionAction {
      */
     public void activate() throws HardwareException, IllegalArgumentException{
         device.changeState(activeDeviceState);
-
-        changeStateOnSlave();
     }
 
     /**
@@ -96,7 +94,6 @@ public class FunctionAction {
      */
     public void deactivate() throws HardwareException, IllegalArgumentException{
         device.changeToOppositeState(activeDeviceState);
-        changeStateOnSlave();
     }
     /**
      * Zmienia stan urządzenia. Jeśli stan urządzenia jest taki sam jak w stanie "aktywnym" i w akcji zezwolono na odwrócenie stanu, to zmienia stan urządzenia na przeciwny. 
@@ -109,34 +106,11 @@ public class FunctionAction {
             if (device.getState() == activeDeviceState){
                 if (allowReverse) {
                     device.changeState();
-
                 }
             }
             else{
                 device.changeState(activeDeviceState);
             }
-
-            changeStateOnSlave();
-        }
-    }
-
-    /**
-     * Zmień stan urządzenia również na slavie.
-     * @throws HardwareException
-     */
-    private void changeStateOnSlave() throws HardwareException {
-        if (FunctionAction.slave == null) {
-            // FunctionAction.setSlave(SmartHomeApp.getApp().getBean(MasterToSlaveConverter.class)); //TODO zrobić to lepiej
-        }
-        switch (device.getTyp()) {
-            case LIGHT:
-                FunctionAction.slave.changeSwitchState(device.getOnSlaveID(), device.getSlaveID(), device.getState());
-                break;
-            case BLIND:
-                FunctionAction.slave.changeBlindState((Blind) device, device.getState());
-                break;
-            default:
-                throw new IllegalArgumentException("Urządzenie tego typu nie zostało jeszcze zaimplementowane w funkcji activate()");
         }
     }
 
