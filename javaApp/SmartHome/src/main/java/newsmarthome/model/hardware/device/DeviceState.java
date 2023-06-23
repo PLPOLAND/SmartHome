@@ -5,6 +5,7 @@ import java.util.Arrays;
 public enum DeviceState{
     DOWN,
     NOTKNOW,
+    RUN,
     UP,
     OFF,
     ON;
@@ -20,6 +21,8 @@ public enum DeviceState{
             case "notknow":
             case "middle":
                 return NOTKNOW;
+            case "run":
+                return RUN;
             case "up":
                 return UP;
             case "off":

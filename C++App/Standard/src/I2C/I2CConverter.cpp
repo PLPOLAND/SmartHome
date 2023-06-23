@@ -393,6 +393,10 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                             {
                                 params[0] = 'D';
                             }
+                            else if (tmp == StanRolety::PORUSZANIE)
+                            {
+                                params[0] = 'R';
+                            }
                             
                             komendaZwrotna->setParams(params);
                             doWyslania.add(0, komendaZwrotna);

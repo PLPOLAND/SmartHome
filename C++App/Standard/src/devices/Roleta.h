@@ -12,6 +12,7 @@
 
 enum StanRolety {
     OPUSZCZONA,
+    PORUSZANIE,
     NIEOKRESLONY,
     PODNIESIONA
 };
