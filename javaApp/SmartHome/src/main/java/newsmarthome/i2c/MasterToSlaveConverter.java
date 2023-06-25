@@ -594,24 +594,24 @@ public class MasterToSlaveConverter {
             atmega.setOccupied(true);
             // logger.debug("Writing to addres {} {}", slaveID, buffor);
             atmega.writeTo(slaveID, buffor);
-            // Thread.sleep(10);// TODO czy jest potrzebne?
+            Thread.sleep(2);// TODO czy jest potrzebne?
             // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             atmega.setOccupied(false);
             if (response[0] == 'E' || response == null) {
                 // logger.error("Error on checking init of board {}", slaveID);
-                logger.error("Something went wrong. Got answare: {}", Arrays.toString(response));
+                logger.error("Something went wrong while checking state of device ( onSlaveDeviceId:{} ). Got answare: {}", onSlaveDeviceId, Arrays.toString(response));
                 throw new HardwareException("Error on checking state of device slaveID = " + slaveID, response);
             }else {
                 return response[0];
             }
-        // } catch (InterruptedException e) {
-        //     logger.error(e.getMessage());
-        //     // logger.debug("Próba kontynuacji");
-        //     // logger.debug("Reading from addres {}", slaveID);
-        //     byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
-        //     atmega.setOccupied(false);
-        //     return response[0];
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            // logger.debug("Próba kontynuacji");
+            // logger.debug("Reading from addres {}", slaveID);
+            byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
+            atmega.setOccupied(false);
+            return response[0];
         }
         catch (HardwareException e){
             atmega.setOccupied(false);

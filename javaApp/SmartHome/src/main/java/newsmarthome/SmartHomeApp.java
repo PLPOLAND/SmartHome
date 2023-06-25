@@ -272,10 +272,10 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 					if (scanner.hasNext()) {
 						int slaveAdress = scanner.nextInt();
 						slaveSender.reInitBoard(slaveAdress);
-						logger.debug("configureSlave({})", slaveAdress);
+						logger.info("configureSlave({})", slaveAdress);
 						try {
 							if (slaveSender.checkAndReinitBoard(slaveAdress)) {
-								logger.debug("Sending devices configuration to slave {}", slaveAdress);
+								logger.info("Sending devices configuration to slave {}", slaveAdress);
 								for (Device device : systemDAO.getDevices()) {
 									if (device.getSlaveID() == slaveAdress) {
 										device.resetConfigured();
@@ -288,11 +288,10 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 										}
 									}
 								}
-								logger.debug("Sending sensors configuration to slave {}", slaveAdress);
+								logger.info("Sending sensors configuration to slave {}", slaveAdress);
 								for (Sensor sensor : systemDAO.getSensors()) {
 									// jeśli sensor jest przyciskiem i jest na tym slave to wyślij jego konfigurację
 									// na slave'a
-									logger.debug("Checking sensor {} on slave {}", sensor, slaveAdress);
 									if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
 										Button button = (Button) sensor;
 										logger.debug("Sending button ({}) configuration to slave {}",button, slaveAdress);
@@ -307,7 +306,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 
 								}
 							}
-							logger.debug("Sending Thermometers configuration to slave {}", slaveAdress);
+							logger.info("Sending Thermometers configuration to slave {}", slaveAdress);
 							// sprawdź i dodaj termometry
 							int howManyTermometersAreOnSlave = slaveSender.howManyThermometersOnSlave(slaveAdress);
 							ArrayList<Termometr> termometry = systemDAO.getAllTermometers();
@@ -339,6 +338,9 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 										}
 									}
 								}
+							}
+							else{
+								logger.info("No thermometers on slave {}", slaveAdress);
 							}
 						} catch (SoftwareException | HardwareException e) {
 							logger.error("Błąd podczas wysyłania konfiguracji na slave-a ({})! Error: {}", slaveAdress, e.getMessage());

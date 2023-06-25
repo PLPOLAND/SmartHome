@@ -79,10 +79,36 @@ public class Runners {
                     }
                 } catch (HardwareException e) {
                     logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
-                        if (e.getResponse() != null && e.getResponse()[0] == 'E') {
-                            device.resetConfigured();
-                            configureSlave(device.getSlaveID());
-                        }
+                        // if (e.getResponse() != null && e.getResponse()[0] == 'E') {
+                        //     try{
+                        //         Thread.sleep(100);
+                        //         device.updateDeviceState();
+                        //     }
+                        //     catch(InterruptedException ex){
+                        //         logger.error("Błąd podczas usypiania wątku: {}", ex.getMessage());
+                        //     }
+                        //     catch(HardwareException ex){
+                        //     device.resetConfigured();
+                        //     configureSlave(device.getSlaveID());
+                        //     }
+                        //     catch(SoftwareException ex){
+                        //         logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), ex.getMessage());
+                        //         if (ex.getExpected() != null ) {
+                        //             if (device instanceof Light || device instanceof Fan || device instanceof Outlet){
+                        //                 logger.debug("Trying to turn off device");
+                        //                 device.changeState(DeviceState.OFF);
+                        //             } 
+                        //             else if (device instanceof Blind){
+                        //                 logger.debug("Trying to stop blind");
+                        //                 device.changeState(DeviceState.UP);
+                        //                 device.changeState(DeviceState.NOTKNOW);
+                        //             }
+                        //         }
+                        //         else{
+                        //             logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(ex.getStackTrace()));
+                        //         }
+                        //     }
+                        // }
                    
                 }
                 catch(SoftwareException e){
@@ -187,7 +213,7 @@ public class Runners {
      */
     private void configureSlave(int slaveAdress) {
         this.stopCheckingAutomation = true;
-        logger.debug("configureSlave({})", slaveAdress);
+        logger.info("Send configuration to Slave({})", slaveAdress);
         try {
             if (slaveSender.reInitBoard(slaveAdress)) {
                 logger.debug("Sending devices configuration to slave {}", slaveAdress);
