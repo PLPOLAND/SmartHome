@@ -66,44 +66,17 @@ public class Blind extends Device{
 
     @Override
     public void changeState(DeviceState stan){
-        if (stan != DeviceState.UP && stan != DeviceState.DOWN && stan != DeviceState.NOTKNOW) {
-            throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = UP, DOWN lub NOTKNOW");
-        }
-
-        if (this.stan != stan) {
-            switch (stan) {
-                case DOWN:
-                    logger.debug("Zmieniam stan na: DOWN");
-                    swtDown.setStan(DeviceState.ON);
-                    swtUp.setStan(DeviceState.OFF);
-                    this.stan = DeviceState.DOWN;
-                    logger.debug("Zmieniono stan urządzenia {}", this);
-                    break;
-                case UP:
-                    logger.debug("Zmieniam stan na: UP");
-                    swtDown.setStan(DeviceState.OFF);
-                    swtUp.setStan(DeviceState.ON);
-                    this.stan = DeviceState.UP;
-                    logger.debug("Zmieniono stan urządzenia {}", this);
-                    break;
-                case NOTKNOW:// TODO Co w tedy?
-                    this.stan = DeviceState.NOTKNOW;
-                    logger.debug("Zmieniono stan urządzenia {}", this);
-                    break;
-                default:
-                    break;
+        changeStateLocal(stan);
+        try {
+            if (isConfigured()) {
+                logger.debug("Wysyłanie stanu urządzenia na slave-a o id: {}", this.getSlaveID());
+                slaveSender.changeBlindState(this, stan);
             }
-            try {
-                if (isConfigured()) {
-                    logger.debug("Wysyłanie stanu urządzenia na slave-a o id: {}", this.getSlaveID());
-                    slaveSender.changeBlindState(this, stan);
-                }
-                else{
-                    logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
-                }
-            } catch (HardwareException e) {
-                logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
+            else{
+                logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
             }
+        } catch (HardwareException e) {
+            logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
         }
     }
 
@@ -114,18 +87,25 @@ public class Blind extends Device{
         }else if (this.stan == DeviceState.UP){
             this.changeState(DeviceState.DOWN);
         }
+        else if(this.stan == DeviceState.RUN){
+            this.changeState(DeviceState.NOTKNOW);
+        }
         else if(this.stan == DeviceState.NOTKNOW){
             logger.debug("Jest stan NOTKNOW więc nic nie robię");
         }
     }
 
-    private void changeStateLocal(DeviceState stan){
-        if (stan != DeviceState.UP && stan != DeviceState.DOWN && stan != DeviceState.NOTKNOW) {
-            throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = UP, DOWN lub NOTKNOW");
+    /**
+     * Zmienia stan urządzenia na podany w parametrze. Stan urządzenia jest zmieniany bez wysyłania do slave-a.
+     * @param state - stan na jaki ma zostać zmienione urządzenie.
+     */
+    private void changeStateLocal(DeviceState state){
+        if (state != DeviceState.UP && state != DeviceState.DOWN && state != DeviceState.NOTKNOW && state != DeviceState.RUN) {
+            throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + state + ". Oczekiwany stan = UP, DOWN lub NOTKNOW");
         }
 
-        if (this.stan != stan) {
-            switch (stan) {
+        if (this.stan != state) {
+            switch (state) {
                 case DOWN:
                     logger.debug("Zmieniam stan na: DOWN");
                     swtDown.setStan(DeviceState.ON);
@@ -142,6 +122,11 @@ public class Blind extends Device{
                     break;
                 case NOTKNOW:// TODO Co w tedy?
                     this.stan = DeviceState.NOTKNOW;
+                    logger.debug("Zmieniono stan urządzenia {}", this);
+                    break;
+                case RUN:
+                    logger.debug("Zmieniam stan na: RUN");
+                    this.stan = DeviceState.RUN;
                     logger.debug("Zmieniono stan urządzenia {}", this);
                     break;
                 default:
@@ -153,10 +138,10 @@ public class Blind extends Device{
     @Override
     public void changeToOppositeState( DeviceState stan){
         if (stan == DeviceState.NOTKNOW) {
-            throw new IllegalArgumentException("Nie ma stanu przeciwnego dla 'NOTKNOW'; oczekiwano stanu 'UP' lub 'DOWN'");
+            throw new IllegalArgumentException("Nie ma stanu przeciwnego dla 'NOTKNOW'; oczekiwano stanu 'UP' lub 'DOWN' lub 'RUN'");
         }
-        else if (stan!=DeviceState.UP && stan!=DeviceState.DOWN) {
-            throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = 'UP' lub 'DOWN'");
+        else if (stan!=DeviceState.UP && stan!=DeviceState.DOWN && stan!=DeviceState.RUN) {
+            throw new IllegalArgumentException("Nieprawidłowy stan dla Rolety. Podany stan = " + stan + ". Oczekiwany stan = 'UP' lub 'DOWN' lub 'RUN'");
         }
         if(this.stan == stan){
             this.changeState();
@@ -164,9 +149,12 @@ public class Blind extends Device{
         else if (this.stan == DeviceState.NOTKNOW){
             if (stan == DeviceState.DOWN) {
                 this.changeState(DeviceState.UP);
-            } else {
+            } else if (stan == DeviceState.UP) {
                 this.changeState(DeviceState.DOWN);
+            } else{
+                this.changeState(DeviceState.NOTKNOW);
             }
+            
         }
     }
 
@@ -223,9 +211,12 @@ public class Blind extends Device{
                 else if (state == 'K') {
                     this.changeStateLocal(DeviceState.NOTKNOW);
                 }
+                else if (state == 'R') {
+                    this.changeStateLocal(DeviceState.RUN);
+                }
                 else{
                     logger.error("Odebrano nieznany stan urządzenia! Stan: {}. DeviceID: {}", state, this.getId());
-                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "U, D, K", String.valueOf((char)state));
+                    throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "U, D, K", String.valueOf(state));
                 }
             }
             else{

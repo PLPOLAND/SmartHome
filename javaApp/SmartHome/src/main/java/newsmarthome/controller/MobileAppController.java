@@ -18,12 +18,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import newsmarthome.database.SystemDAO;
 import newsmarthome.database.UsersDAO;
+import newsmarthome.i2c.MasterToSlaveConverter;
 import newsmarthome.security.MobileSecurity;
 import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.response.Response;
 import newsmarthome.model.response.RoomResponse;
 import newsmarthome.model.user.User;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api")
@@ -33,6 +36,9 @@ public class MobileAppController {
 	UsersDAO users;
 	@Autowired
 	SystemDAO systemDAO;
+	@Autowired
+	MasterToSlaveConverter masterToSlaveConverter;
+
 
 	Logger logger = LoggerFactory.getLogger(MobileAppController.class);//logger
 
@@ -44,32 +50,11 @@ public class MobileAppController {
 		return "hello";
 	}
 
-	@PostMapping("/login")
-	public Response<TreeMap<String,String>> login(HttpServletRequest request) {
-		MobileSecurity security = new MobileSecurity(request, users);
-		String token = security.login();
-		if (token == null || token.isEmpty()) {
-			return new Response<>(null, "Niepoprawne dane logowania");
-		} else {
-			logger.info("User {} logged in", request.getParameter("nick"));
-			TreeMap<String,String> map = new TreeMap<>();
-			map.put("token", token);
-			return new Response<>(map);
-			// return new Response<>("{\"token\": \""+ token + "\"}");
-		}
+	@PostMapping("/restartSlaves")
+	public String restartSlaves() {
+		masterToSlaveConverter.restartAllSlaves();
+		return "ok";
 	}
-	@PostMapping("/getUserData")
-	public Response<String> getUserData(HttpServletRequest request) {
-		MobileSecurity security = new MobileSecurity(request, users);
-		if(!security.isLoged() )
-			return new Response<>(null, "Użytkownik nie jest zalogowany");
-
-		User user = security.getFullUserData();
-		if (user == null) {
-			return new Response<>(null, "Nie znaleziono użytkownika, błąd wewnętrzny!");
-		} else {
-			return new Response<>(user.toString());//TODO remove password from response
-		}
-	}
+	
 
 }

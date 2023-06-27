@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,12 @@ import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
 import newsmarthome.i2c.MasterToSlaveConverter;
 import newsmarthome.model.Room;
+import newsmarthome.model.hardware.device.Blind;
 import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.device.DeviceState;
+import newsmarthome.model.hardware.device.Fan;
+import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.Termometr;
@@ -34,6 +40,9 @@ public class Runners {
 
     @Autowired
     AutomationDAO automationDAO;
+
+    @Autowired
+    BeanFactory beanFactory; //potrzebne do tworzenia nowych obiektów w trakcie działania programu
 
     /** Tymczasowo przechowuje funkcje automatyki */
     ArrayList<AutomationFunction> functions = new ArrayList<>();
@@ -52,8 +61,8 @@ public class Runners {
             for(Device device : systemDAO.getDevices()){
                 try {
                     if (slaveSender.isSlaveConnected(device.getSlaveID())){
-                        logger.debug("Slave {} is connected", device.getSlaveID());
-                        logger.debug("Checking status of device {}", device);
+                        // logger.debug("Slave {} is connected", device.getSlaveID());
+                        logger.debug("Checking status of device (id: {}, name:{}, type: {}, configured: {}) ", device.getId(), device.getName(), device.getTyp(), device.isConfigured());
                         if (slaveSender.checkInitOfBoard(device.getSlaveID())) {
                             device.setConfigured();
                             device.updateDeviceState();
@@ -62,24 +71,58 @@ public class Runners {
                             device.resetConfigured();
                             configureSlave(device.getSlaveID());
                         }
-    
+                        
                     }
                     else{
+                        logger.debug("Slave {} is not connected", device.getSlaveID());
                         device.resetConfigured();//jako, że slave nie jest podłączony, to urządznie nie jest na nim skonfigurowane
                     }
                 } catch (HardwareException e) {
-                    logger.error("Bład podczas sprawdzania stanu urządzenia {}: {}", device.getId(), e.getMessage());
-                        if (e.getResponse() != null && e.getResponse()[0] == 'E') {
-                            device.resetConfigured();
-                            configureSlave(device.getSlaveID());
-                        }
+                    logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
+                        // if (e.getResponse() != null && e.getResponse()[0] == 'E') {
+                        //     try{
+                        //         Thread.sleep(100);
+                        //         device.updateDeviceState();
+                        //     }
+                        //     catch(InterruptedException ex){
+                        //         logger.error("Błąd podczas usypiania wątku: {}", ex.getMessage());
+                        //     }
+                        //     catch(HardwareException ex){
+                        //     device.resetConfigured();
+                        //     configureSlave(device.getSlaveID());
+                        //     }
+                        //     catch(SoftwareException ex){
+                        //         logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), ex.getMessage());
+                        //         if (ex.getExpected() != null ) {
+                        //             if (device instanceof Light || device instanceof Fan || device instanceof Outlet){
+                        //                 logger.debug("Trying to turn off device");
+                        //                 device.changeState(DeviceState.OFF);
+                        //             } 
+                        //             else if (device instanceof Blind){
+                        //                 logger.debug("Trying to stop blind");
+                        //                 device.changeState(DeviceState.UP);
+                        //                 device.changeState(DeviceState.NOTKNOW);
+                        //             }
+                        //         }
+                        //         else{
+                        //             logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(ex.getStackTrace()));
+                        //         }
+                        //     }
+                        // }
                    
                 }
                 catch(SoftwareException e){
-                    logger.error("Bład podczas sprawdzania stanu urządzenia {}: {}", device.getId(), e.getMessage());
+                    logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
                         if (e.getExpected() != null ) {
-                            device.resetConfigured();
-                            configureSlave(device.getSlaveID());
+                            if (device instanceof Light || device instanceof Fan || device instanceof Outlet){
+                                logger.debug("Trying to turn off device");
+                                device.changeState(DeviceState.OFF);
+                            } 
+                            else if (device instanceof Blind){
+                                logger.debug("Trying to stop blind");
+                                device.changeState(DeviceState.UP);
+                                device.changeState(DeviceState.NOTKNOW);
+                            }
                         }
                         else{
                             logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(e.getStackTrace()));
@@ -112,7 +155,7 @@ public class Runners {
         }
     }
 
-    // @Scheduled(fixedDelay = 200)
+    @Scheduled(fixedDelay = 200)
     void checkAutomationFunctions() {
         if (!stopCheckingAutomation) {
             logger.debug("checkAutomationFunctions");
@@ -138,7 +181,7 @@ public class Runners {
                             for (int i = 0; i < howMany; i++) {
                                 byte[] command = slaveSender.readCommandFromSlave(slaveAdress); // odczytaj komendę
                                 if (command != null && command[0] == 'C') { // jeśli komenda jest komendą
-                                    ButtonFunction buttonFunction = new ButtonFunction();
+                                    ButtonFunction buttonFunction = beanFactory.getBean(ButtonFunction.class);
                                     buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
                                     logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
 
@@ -170,7 +213,7 @@ public class Runners {
      */
     private void configureSlave(int slaveAdress) {
         this.stopCheckingAutomation = true;
-        logger.debug("configureSlave({})", slaveAdress);
+        logger.info("Send configuration to Slave({})", slaveAdress);
         try {
             if (slaveSender.reInitBoard(slaveAdress)) {
                 logger.debug("Sending devices configuration to slave {}", slaveAdress);
@@ -190,10 +233,10 @@ public class Runners {
                 for (Sensor sensor : systemDAO.getSensors()) {
                     // jeśli sensor jest przyciskiem i jest na tym slave to wyślij jego konfigurację
                     // na slave'a
-                    logger.debug("Checking sensor {} on slave {}", sensor, slaveAdress);
+                    // logger.debug("Checking sensor {} on slave {}", sensor, slaveAdress);
                     if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
                         Button button = (Button) sensor;
-                        logger.debug("Sending button ({}) configuration to slave {}",button, slaveAdress);
+                        logger.debug("Sending button (id:{}) configuration to slave {}",button.getId(), slaveAdress);
                         button.configure();
                         try{
                             Thread.sleep(100);
@@ -214,14 +257,7 @@ public class Runners {
                     int[] addres;
                     addres = slaveSender.addTermometr(slaveAdress);// dodaj termometr na slavie
                     //Sprawdź czy adres nie jest zawiera samych zer lub samych 255
-                    boolean isCorrect= false;
-                    for (int adr : addres) {
-                        if (adr != 0 && adr != 255) {
-                            isCorrect = true;
-                            break;
-                        }
-                    }
-                    if (!isCorrect) {
+                    if (!checkAdress(addres)) {
                         logger.error("Niepoprawny adres termometru: {}", Arrays.toString(addres));
                         continue;
                     }
@@ -255,6 +291,19 @@ public class Runners {
             this.stopCheckingAutomation = false;
         }
         this.stopCheckingAutomation = false;
+    }
+     /**
+      * Sprawdź czy adres nie jest zawiera samych zer lub samych 255
+      */
+    private boolean checkAdress(int[] addres) {
+        boolean isCorrect= false;
+        for (int adr : addres) {
+            if (adr != 0 && adr != 255) {
+                isCorrect = true;
+                break;
+            }
+        }
+        return isCorrect;
     }
 
 }

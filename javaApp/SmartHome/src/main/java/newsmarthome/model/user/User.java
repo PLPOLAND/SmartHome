@@ -3,12 +3,17 @@ package newsmarthome.model.user;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import newsmarthome.database.UsersDAO;
+
 @Component
+@Scope("prototype")
 public class User {
     protected Long id;
     protected String imie;
@@ -18,8 +23,11 @@ public class User {
     protected String password;
     protected String oldPassword;
     protected String token;
+    protected String favoriteRooms;
     // Uprawnienia uprawnienia;
     // Opcje opcje;
+
+    private UsersDAO dao;
 
     public User(){
         imie = "";
@@ -29,10 +37,11 @@ public class User {
         password = "";
         oldPassword = "";
         token = "";
+        favoriteRooms = "";
     }
 
     
-    public User(Long id, String imie, String nazwisko, String nick, String email, String password, String oldPassword, String token) {
+    public User(Long id, String imie, String nazwisko, String nick, String email, String password, String oldPassword, String token, String favoriteRooms) {
         this.id = id;
         this.imie = imie;
         this.nazwisko = nazwisko;
@@ -41,6 +50,7 @@ public class User {
         this.password = password;
         this.oldPassword = oldPassword;
         this.token = token;
+        this.favoriteRooms = favoriteRooms;
     }
 
 
@@ -108,6 +118,64 @@ public class User {
         this.token = token;
     }
 
+    public void setFavoriteRooms(String favoriteRooms) {
+        this.favoriteRooms = favoriteRooms;
+        update();
+    }
+
+    public String getFavoriteRooms() {
+        return this.favoriteRooms;
+    }
+
+    public void addFavoriteRoom(String roomName) {
+        if (this.favoriteRooms == null || this.favoriteRooms.equals("")) {
+            this.favoriteRooms = roomName;
+        } else {
+            String[] rooms = this.favoriteRooms.split(",");
+            for (String room : rooms) {
+                if (room==null || room.equals("")) {
+                    continue;
+                }
+                if (room.equals(roomName)) {
+                    return;
+                }
+            }
+            this.favoriteRooms += "," + roomName;
+        }
+        update();
+    }
+
+    public void addFavoriteRoom(int roomID) {
+        if (this.favoriteRooms == null || this.favoriteRooms.equals("")) {
+            this.favoriteRooms = String.valueOf(roomID);
+        } else {
+            String[] rooms = this.favoriteRooms.split(",");
+            for (String room : rooms) {
+                if (room==null || room.equals("")) {
+                    continue;
+                }
+                if (Integer.parseInt(room) == roomID) {
+                    return;
+                }
+            }
+            this.favoriteRooms += "," + roomID;
+        }
+        update();
+    }
+    
+    public void removeFavoriteRoom(int roomName) {
+        if (this.favoriteRooms != null) {
+            String[] rooms = this.favoriteRooms.split(",");
+            setFavoriteRooms("");
+            for (String room : rooms) {
+                if (Integer.parseInt(room) != roomName) {
+                    this.addFavoriteRoom(Integer.parseInt(room));
+                }
+            }
+        }
+        update();
+    }
+
     public String toJSON(){
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
@@ -134,4 +202,13 @@ public class User {
         return this.toJSON();
     }
 
+    private void update(){
+        if (dao != null) {
+            dao.update(this);
+        }
+    }
+
+    public void setDao(UsersDAO dao) {
+        this.dao = dao;
+    }
 }

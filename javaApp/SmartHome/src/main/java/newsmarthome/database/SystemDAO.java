@@ -346,7 +346,6 @@ public class SystemDAO {
 
                 logger.debug("Wczytano pokój: {}", jsonNode);
                 pokoje.put(room.getName(), room);
-                devices.addAll(room.getDevices());
                 sensors.addAll(room.getSensors());
                 i++;
             } catch (JsonGenerationException | JsonMappingException e) {

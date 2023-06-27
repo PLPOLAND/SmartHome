@@ -1,9 +1,13 @@
 package newsmarthome.automation;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import newsmarthome.SmartHomeApp;
 import newsmarthome.database.SystemDAO;
 import newsmarthome.exception.HardwareException;
 import newsmarthome.model.hardware.sensor.Button;
@@ -14,9 +18,11 @@ import newsmarthome.model.hardware.device.DeviceState;
 /**
  * ButtonFunction
  */
+@Component
+@Scope("prototype")
 public class ButtonFunction extends Function{
-
-    private static SystemDAO systemDAO;
+    @Autowired
+    private SystemDAO systemDAO;
 
     Logger logger;
     
@@ -77,6 +83,14 @@ public class ButtonFunction extends Function{
      * @param command - komenda z slave-a. (tablica nie mniejsza niż 4 elementy)
      */
     public void fromCommand(int slaveAdress, byte[] command) {
+        if (command == null) {
+            throw new IllegalArgumentException("command is null");
+        }
+        logger.debug("Creating button function from command ({})", Arrays.toString(command));
+        if (command.length < 4) {
+            logger.error("Command is too short");
+            return;
+        }
         button = (Button) systemDAO.getSensorByOnSlaveID(slaveAdress, command[1]);
         clicks = command[2];
         switch (command[3]) {

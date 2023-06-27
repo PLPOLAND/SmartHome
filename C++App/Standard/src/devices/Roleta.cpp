@@ -39,6 +39,26 @@ Roleta::Roleta(byte id, byte pinup, byte pindown)
     time->time(STOP);
 }
 
+/**
+ * 
+ * Konstruktor 
+ * 
+ * @param pinup pin przekaznika od ruchu w gore
+ * @param pindown pin przekaznika od ruchu w dol
+ * 
+ */
+Roleta::Roleta(byte pinup, byte pindown){
+    Device(Device::TYPE::ROLETA,rand()%100);//losowe id
+    this->setPinUp(pinup);
+    this->setPinDown(pindown);
+
+
+    akcja = Akcja::POSTOJ;
+    time = new Timer();
+    time->time(STOP);
+}
+
+
 byte Roleta::getPinUp() { return this->p_up.getPin(); };
 void Roleta::setPinUp(byte pin)
 {
@@ -112,7 +132,8 @@ void Roleta::podnies()
     // OUT_LN(time->available() ? "yes" : "no")
     // OUT("ROLETA time(): ")
     // OUT_LN(time->time())
-    stan = StanRolety::NIEOKRESLONY;
+    // stan = StanRolety::NIEOKRESLONY;
+    stan = StanRolety::PORUSZANIE;
     setPinUpState(true); //Zalacza pin sterowania roleta do gory i wylacza pin sterowania roleta do dolu
 };
 /**
@@ -122,7 +143,8 @@ void Roleta::opusc()
 {
     akcja = Akcja::OPUSZCZANIE_CALKOWITE;
     time->begin(CZAS_CALKOWITEJ_ZMIANY_POLOZENIA);
-    stan = StanRolety::NIEOKRESLONY;
+    // stan = StanRolety::NIEOKRESLONY;
+    stan = StanRolety::PORUSZANIE;
     setPinDownState(true); //Zalacza pin sterowania roleta do dolu i wylacza pin sterowania roleta do gory
 };
 /**
@@ -131,7 +153,8 @@ void Roleta::opusc()
 void Roleta::up()
 {
     akcja = Akcja::PODNOSZENIE;
-    stan = StanRolety::NIEOKRESLONY;
+    // stan = StanRolety::NIEOKRESLONY;
+    stan = StanRolety::PORUSZANIE;
     setPinUpState(true); //Zalacza pin sterowania roleta do gory i wylacza pin sterowania roleta do dolu
 };
 /**
@@ -140,7 +163,8 @@ void Roleta::up()
 void Roleta::down()
 {
     akcja = Akcja::OPUSZCZANIE;
-    stan = StanRolety::NIEOKRESLONY;
+    // stan = StanRolety::NIEOKRESLONY;
+    stan = StanRolety::PORUSZANIE;
     setPinDownState(true); //Zalacza pin sterowania roleta do dolu i wylacza pin sterowania roleta do gory
 };
 
@@ -151,6 +175,7 @@ void Roleta::stop()
 {
     akcja = Akcja::POSTOJ;
     time->time(STOP); //zeruj minutnik
+    stan = StanRolety::NIEOKRESLONY;
     forcePinDownState(false);
     forcePinUpState(false);
 };
@@ -237,7 +262,11 @@ String Roleta::toString()
     {
         str+="UP";
     }
-    else
+    else if (stan == StanRolety::PORUSZANIE)
+    {
+        str+="MOVING";
+    }
+    else if (stan == StanRolety::NIEOKRESLONY)    
     {
         str+="MIDDLE";
     }

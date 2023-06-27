@@ -52,7 +52,7 @@ public class Button extends Sensor{
                 slaveSender.sendClickFunction(buttonLocalFunction);
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas konfiguracji przycisku na slave-a o id: {}", this.getSlaveAdress());
+            logger.error("Błąd podczas konfiguracji przycisku na slave-a o id: {}! error: {}", this.getSlaveAdress(), e.getMessage());
             // e.printStackTrace();
         }
     }

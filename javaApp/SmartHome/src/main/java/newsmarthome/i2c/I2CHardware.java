@@ -285,12 +285,16 @@ public class I2CHardware implements I2C{
     public void retryWrite(byte[] toWrite, I2CDevice slave) throws HardwareException{
         boolean done = false;
         for (int i = 0; i < 10 && !done; i++) {
-            logger.warn("Retring to write '{}' to device: {}",Arrays.toString(toWrite), slave.getAddress());
             try{
+                Thread.sleep(i*50l);
+                logger.warn("Retring to write '{}' to device: {}",Arrays.toString(toWrite), slave.getAddress());
                 slave.write(toWrite);
                 done = true;
             } catch (IOException e) {
-                logger.error("error");
+                logger.error("error while retry to write : {}", e.getMessage(), e);
+            }
+            catch (InterruptedException e) {
+                logger.error("Sleep error while writing: {}", e.getMessage());
             }
         }
         if (!done) {
@@ -302,12 +306,16 @@ public class I2CHardware implements I2C{
         boolean done = false;
         // byte[] buff = new byte[size];
         for (int i = 0; i < 10 && !done; i++) {
-            logger.warn("Retring to read from device: {}", slave.getAddress());
             try{
+                Thread.sleep(i*50l);
+                logger.warn("Retring to read from device: {}", slave.getAddress());
                 slave.read(buff, 0, size);
                 done = true;
             } catch (IOException e) {
-                logger.error("error");
+                logger.error("error while retry to read : {}", e.getMessage(), e);
+            }
+            catch (InterruptedException e) {
+                logger.error("Sleep error while reading: {}", e.getMessage());
             }
         }
         if (!done) {
@@ -318,7 +326,7 @@ public class I2CHardware implements I2C{
     }
     @Override
     public void write(int address, byte[] buffer, int size) throws HardwareException{
-        write(address, buffer, size);
+        writeTo(address, buffer, size);
     }
     @Override
     public byte[] read(int address, int size, int commandID) throws HardwareException{

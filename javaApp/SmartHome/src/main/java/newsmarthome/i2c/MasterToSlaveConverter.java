@@ -14,9 +14,11 @@ import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
 import newsmarthome.model.hardware.device.Blind;
 import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.hardware.device.DeviceTypes;
+import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
 import newsmarthome.model.hardware.sensor.Termometr;
@@ -249,7 +251,7 @@ public class MasterToSlaveConverter {
      * @return id na płytce (-1 jeśli nie powiodło się)
      */
     public int addUrzadzenie(Device device) throws HardwareException{
-        if (device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO) {
+        if (device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO || device.getTyp() == DeviceTypes.WENTYLATOR) {
             byte[] buffor = new byte[3];
             int i = 0;
             for (byte b : DODAJ_URZADZENIE) {
@@ -258,8 +260,11 @@ public class MasterToSlaveConverter {
             if(device.getTyp() == DeviceTypes.LIGHT){
                 buffor[i++] = (byte) (((Light) device).getPin());
             }
-            else{
-                // buffor[i++] = (byte) ((() device).getPin());//TODO add Gniazdko
+            else if (device.getTyp() == DeviceTypes.GNIAZDKO) {
+                buffor[i++] = (byte) (((Outlet) device).getPin());
+            }
+            else if (device.getTyp() == DeviceTypes.WENTYLATOR) {
+                buffor[i++] = (byte) (((Fan) device).getPin());
             }
             try {
                 atmega.pauseIfOcupied();
@@ -589,24 +594,24 @@ public class MasterToSlaveConverter {
             atmega.setOccupied(true);
             // logger.debug("Writing to addres {} {}", slaveID, buffor);
             atmega.writeTo(slaveID, buffor);
-            // Thread.sleep(10);// TODO czy jest potrzebne?
+            Thread.sleep(2);// TODO czy jest potrzebne?
             // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             atmega.setOccupied(false);
             if (response[0] == 'E' || response == null) {
                 // logger.error("Error on checking init of board {}", slaveID);
-                logger.error("Something went wrong. Got answare: {}", Arrays.toString(response));
+                logger.error("Something went wrong while checking state of device ( onSlaveDeviceId:{} ). Got answare: {}", onSlaveDeviceId, Arrays.toString(response));
                 throw new HardwareException("Error on checking state of device slaveID = " + slaveID, response);
             }else {
                 return response[0];
             }
-        // } catch (InterruptedException e) {
-        //     logger.error(e.getMessage());
-        //     // logger.debug("Próba kontynuacji");
-        //     // logger.debug("Reading from addres {}", slaveID);
-        //     byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
-        //     atmega.setOccupied(false);
-        //     return response[0];
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            // logger.debug("Próba kontynuacji");
+            // logger.debug("Reading from addres {}", slaveID);
+            byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
+            atmega.setOccupied(false);
+            return response[0];
         }
         catch (HardwareException e){
             atmega.setOccupied(false);

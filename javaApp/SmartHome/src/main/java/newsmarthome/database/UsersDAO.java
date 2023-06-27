@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -42,7 +43,7 @@ public class UsersDAO {
     public UsersDAO() {
         this.readDatabase();
         if (userzy.isEmpty()) {
-            this.createUser(new User(0L, "root", "root", "root", "", Hash.hash("root"), "",""));
+            this.createUser(new User(0L, "root", "root", "root", "", Hash.hash("root"), "","", ""));
         }
     }
 
@@ -96,14 +97,17 @@ public class UsersDAO {
                 } catch (JsonParseException e) {
                     logger.error("Błąd parsowania pliku JSON", e);
                 } catch (JsonMappingException e) {
-                    logger.error("Błąd mapowania pliku JSON: {}, error: {}", filePath, e.getMessage());
+                    logger.error("Błąd mapowania pliku JSON: {}, error: {}", filePath, Arrays.toString(e.getStackTrace()));
                 } catch (FileNotFoundException e) {
                     logger.error("Nie znaleziono pliku: {}", filePath);
                     e.printStackTrace();
                 } catch (IOException e) {
                     logger.error("Błąd odczytu pliku: {}", filePath);
                 }
-                userzy.add(user);
+                if (user != null) {
+                    user.setDao(this);
+                    userzy.add(user);
+                }
             });
         } catch (IOException e) {
             logger.info("Wczytano {} userow", userzy.size());
@@ -117,7 +121,7 @@ public class UsersDAO {
      * 
      * @return List<User> - baza danych
      */
-    public List<User> getDatabase() {
+    protected List<User> getDatabase() {
         if (userzy.isEmpty()) {
             this.readDatabase();
         }
