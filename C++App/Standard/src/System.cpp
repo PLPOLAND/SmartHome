@@ -6,6 +6,7 @@ bool System::is_initiated = false;
 byte System::idDevice = 0;
 LinkedList<Device *> System::devices = LinkedList<Device *>();
 LinkedList<Termometr *> System::termometry = LinkedList<Termometr*>();
+LinkedList<Higrometr *> System::higrometry = LinkedList<Higrometr*>();
 LinkedList<Przekaznik *> System::przekazniki = LinkedList<Przekaznik*>();
 LinkedList<Przycisk *> System::przyciski = LinkedList<Przycisk*>();
 LinkedList<Roleta *> System::rolety = LinkedList<Roleta*>();
@@ -140,6 +141,19 @@ void System::tic(){
             // OUT_LN(this->termometry.get(i)->getTemperature());
         }
     }
+    if (this->higrometry.size() > 0)
+    {
+        for (byte i = 0; i < this->higrometry.size(); i++)
+        {
+            this->higrometry.get(i)->update();
+            // OUT("Higrometr: ");
+            // OUT(i);
+            // OUT(" = ");
+            // OUT_LN(this->higrometry.get(i)->getHumidity());
+        }
+        
+    }
+    
     if (this->rolety.size() > 0) 
     {
         for (byte i = 0; i < this->rolety.size(); i++)
@@ -190,10 +204,28 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             }
             break;
         }
+        case Device::TYPE::HIGROMETR:
+            {
+                OUT_LN(F("---Add Higro---"))
+                Higrometr *tmp = new Higrometr;
+                if (tmp->isCorrect())
+                { //spr. skonfigurować kolejny termometr
+                    tmp->setId(idDevice++);
+                    this->devices.add(tmp);    //dodaj do głównej listy urządzeń
+                    this->higrometry.add(tmp); //dodaj do listy termometrów w systemie
+                    return tmp;
+                }
+                else
+                {
+                    delete tmp;
+                    return nullptr; 
+                }
+                break;
+            }
         case Device::TYPE::PRZEKAZNIK:
             {
                 OUT_LN(F("---Add Switch---"))
-                Przekaznik * tmp = new Przekaznik();
+                Przekaznik * tmp = new Przekaznik;
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     tmp->setId(idDevice++);//nadaj mu id
                     this->devices.add(tmp->getId(), tmp);//dodaj do listy urzadzen
@@ -210,7 +242,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                 OUT_LN(F("---Add Button---"))
                 // OUT("pin1:")
                 // OUT_LN(pin1);
-                Przycisk * tmp = new Przycisk();
+                Przycisk * tmp = new Przycisk;
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     // OUT(F("Poprawnie dodano Przycisk"))
                     tmp->setId(idDevice++);//nadaj mu id
@@ -236,7 +268,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                 // OUT_LN(pin1);
                 // OUT("pin2:");
                 // OUT_LN(pin2);
-                Roleta *tmp = new Roleta();
+                Roleta *tmp = new Roleta;
                 if (tmp->begin(pin1, pin2))
                 { //jeśli uda się poparawnie dodać przekaźnik do systemu
                     // OUT_LN(F("Poprawnie dodano Roletę"))

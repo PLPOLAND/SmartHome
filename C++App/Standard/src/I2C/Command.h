@@ -12,10 +12,12 @@ public:
         NIC,
         // Odbieranie
         RECEIVE_ADD_THERMOMETR,                 // Dodaj nowy termometr do systemu
+        RECEIVE_ADD_HIGROMETR,                  // Dodaj nowy higrometr do systemu
         RECEIVE_ADD_ROLETA,                     // Dodaj nową roletę do systemu
         RECEIVE_ADD_PRZYCISK,                   // Dodaj nowy przycisk do systemu
         RECEIVE_ADD_PRZEKAZNIK,                 // Dodaj nowy przekaznik do systemu
         RECEIVE_GET_TEMPERATURE,                // Pobierz temperaturę z termometru
+        RECEIVE_GET_HUMIDITY_AND_TEMPERATURE,   // Pobierz wilgotność i temperaturę z higrometru
         RECEIVE_HOW_MANY_THERMOMETR,            // Ile termometrów podłączonych do płytki
         RECEIVE_ZMIEN_STAN_PRZEKAZNIKA,         // Zmien stan konkretnego urzadzenia
         RECEIVE_ZMIEN_STAN_ROLETY,              // Podnies opuść konkretną roletę.

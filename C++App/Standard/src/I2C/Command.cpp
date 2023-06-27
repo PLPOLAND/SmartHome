@@ -70,6 +70,8 @@ void Command::convert(const byte *c, byte size)
             this->komenda = Command::KOMENDY::RECEIVE_GET;
         if (c[0] == 'R')
             this->komenda = Command::KOMENDY::RECEIVE_INIT;
+        if (c[0] == 'H')
+            this->komenda = Command::KOMENDY::RECEIVE_GET_HUMIDITY_AND_TEMPERATURE;
         if (c[0] == 0)
             this->komenda = Command::KOMENDY::NIC;
         }
@@ -81,6 +83,11 @@ void Command::convert(const byte *c, byte size)
             {
                 this->komenda = Command::KOMENDY::RECEIVE_ADD_THERMOMETR;
             }
+            if (c[1] == 'H')//Add Higrometr
+            {
+                this->komenda = Command::KOMENDY::RECEIVE_ADD_HIGROMETR;
+            }
+            
         }
 
         break;

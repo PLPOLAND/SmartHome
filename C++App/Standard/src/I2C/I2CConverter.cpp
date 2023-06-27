@@ -136,6 +136,26 @@ void I2CConverter::RecieveEvent(int howManyBytes)
 
             }
             break;
+            case Command::KOMENDY::RECEIVE_ADD_HIGROMETR:
+            {
+                OUT_LN(F("REC_ADD_HIGROMETR"));
+                Higrometr *tmpDev = (Higrometr*)System::getSystem()->addDevice(Device::TYPE::HIGROMETR);
+                if (tmpDev == nullptr)
+                {
+                    byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
+                    komendaZwrotna->setParams(params);
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                }
+                else
+                {
+                    byte params[8] = { 'O', 0, 0, 0, 0, 0, 0, 0 };
+                    OUT_LN()
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->setParams(params);
+                    komendaZwrotna->printParametry();
+                }
+            }
+            break;
             case Command::KOMENDY::RECEIVE_HOW_MANY_THERMOMETR:
             {
                 OUT_LN(F("REC_HOW_MANY_THER"))
@@ -211,6 +231,30 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 komendaZwrotna->setParams(params);
 
                 
+                doWyslania.add(0, komendaZwrotna);
+            }
+            break;
+            case Command::KOMENDY::RECEIVE_GET_HUMIDITY_AND_TEMPERATURE:
+            {
+                OUT_LN(F("REC_GET_HUMIDITY_AND_TEMPERATURE"))
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                byte params[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+                Higrometr* higrometr = (Higrometr*) komenda.getDevice();
+                if (higrometr == nullptr)
+                {
+                    params[0] = 'E';
+                }
+                else
+                {
+                    byte* tmp = higrometr->getStateAsByteArray();
+                    for (byte i = 0; i < 6; i++)
+                    {
+                        params[i] = tmp[i];
+                    }
+                    delete[] tmp;
+                }
+                komendaZwrotna->setParams(params);
+                komendaZwrotna->printParametry();
                 doWyslania.add(0, komendaZwrotna);
             }
             break;
