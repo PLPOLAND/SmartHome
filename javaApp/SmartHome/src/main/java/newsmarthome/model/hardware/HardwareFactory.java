@@ -12,6 +12,7 @@ import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
 import newsmarthome.model.hardware.sensor.Termometr;
@@ -89,7 +90,11 @@ public class HardwareFactory {
     // Sensors
     
     public Termometr createTermometr(){
-        return beanFactory.getBean(Termometr.class);
+        return beanFactory.getBean("termometr", Termometr.class);
+    }
+
+    public Higrometr createHigrometr(){
+        return beanFactory.getBean(Higrometr.class);
     }
 
     public Button createButton(){
@@ -108,6 +113,8 @@ public class HardwareFactory {
                 return createButton();
             case THERMOMETR:
                 return createTermometr();
+            case THERMOMETR_HYGROMETR:
+                return createHigrometr();
             default:
                 return null;
         }

@@ -17,6 +17,7 @@ import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonClickType;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
 import newsmarthome.model.hardware.sensor.Termometr;
@@ -304,9 +305,9 @@ public class SystemDAO {
                 for (JsonNode jsonNode2 : jsonNode.get("sensors")) {
                     Sensor sensor = hardwareFactory.createSensor(SensorsTypes.valueOf( jsonNode2.get("typ").asText()));
                     sensor.setId(jsonNode2.get("id").asInt());
-                    sensor.setOnSlaveID(jsonNode2.get("onSlaveID").asInt());
+                    sensor.setSlaveAdress(jsonNode2.get("slaveAdress").asInt());
                     sensor.setRoom(jsonNode2.get("room").asInt());
-                    sensor.setName(jsonNode2.get("name").asText());
+                    sensor.setNazwa(jsonNode2.get("name").asText());
                     switch (sensor.getTyp()) {
                         case BUTTON:
                             Button button = (Button) sensor;
@@ -332,8 +333,16 @@ public class SystemDAO {
                             }
                             termometr.setAddres(addres);
                             termometr.setTemperatura( (float) jsonNode2.get("temperatura").asDouble());
-                            termometr.setMax((float) jsonNode2.get("max").asDouble());
-                            termometr.setMin((float) jsonNode2.get("min").asDouble());
+                            // termometr.setMaxTemperatura((float) jsonNode2.get("max").asDouble());
+                            // termometr.setMinTemperatura((float) jsonNode2.get("min").asDouble());
+                            break;
+                        case THERMOMETR_HYGROMETR:
+                            Higrometr higrometr = (Higrometr) sensor;
+                            higrometr.setTemperatura( (float) jsonNode2.get("temperatura").asDouble());
+                            higrometr.setHumidity(jsonNode2.get("humidity").asInt());
+
+                            //TODO                            
+
                             break;
                         //TODO dodać pozostałe sensory
                         default:
@@ -349,7 +358,7 @@ public class SystemDAO {
                 sensors.addAll(room.getSensors());
                 i++;
             } catch (JsonGenerationException | JsonMappingException e) {
-                logger.error("Błąd podczas wczytywania pokoi", e);
+                logger.error("Błąd podczas wczytywania pokoji", e);
                 break;
             }
             catch (IOException e) {
@@ -357,7 +366,7 @@ public class SystemDAO {
 
                 break;
             } catch (Exception e) {
-                logger.error("Błąd podczas wczytywania pokoi", e);
+                logger.error("Błąd podczas wczytywania pokoji", e);
                 break;
             }
         }

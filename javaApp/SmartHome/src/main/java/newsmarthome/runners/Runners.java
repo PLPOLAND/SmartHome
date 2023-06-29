@@ -273,7 +273,7 @@ public class Runners {
                     if (!existed) {
                         Termometr termometr = new Termometr(slaveAdress);
                         termometr.setAddres(addres);
-                        termometr.setName("Dodany automatycznie, slave=" + slaveAdress);
+                        termometr.setNazwa("Dodany automatycznie, slave=" + slaveAdress);
                         Room tmp = systemDAO.getRoom("Brak");
                         if (tmp != null) {
 
