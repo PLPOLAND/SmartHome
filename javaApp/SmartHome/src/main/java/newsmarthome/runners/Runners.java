@@ -116,12 +116,11 @@ public class Runners {
                         if (e.getExpected() != null ) {
                             if (device instanceof Light || device instanceof Fan || device instanceof Outlet){
                                 logger.debug("Trying to turn off device");
-                                device.changeState(DeviceState.OFF);
+                                device.changeState(device.getState());
                             } 
                             else if (device instanceof Blind){
                                 logger.debug("Trying to stop blind");
-                                device.changeState(DeviceState.UP);
-                                device.changeState(DeviceState.NOTKNOW);
+                                device.changeState(device.getState());
                             }
                         }
                         else{
