@@ -46,13 +46,13 @@
     "pin" : 12,
     "state" : "OFF"
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 46,
     "room" : 3,
     "slaveID" : 14,
     "onSlaveID" : 0,
     "name" : "Gnd TV",
-    "typ" : "LIGHT",
+    "typ" : "GNIAZDKO",
     "swt" : {
       "stan" : "OFF",
       "pin" : 15
@@ -60,13 +60,13 @@
     "pin" : 15,
     "state" : "OFF"
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 47,
     "room" : 3,
     "slaveID" : 14,
     "onSlaveID" : 1,
     "name" : "Gnd koło łóżka 1",
-    "typ" : "LIGHT",
+    "typ" : "GNIAZDKO",
     "swt" : {
       "stan" : "ON",
       "pin" : 16
@@ -74,13 +74,13 @@
     "pin" : 16,
     "state" : "ON"
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 56,
     "room" : 3,
     "slaveID" : 14,
     "onSlaveID" : 2,
     "name" : "Gniazdko Biurko L",
-    "typ" : "LIGHT",
+    "typ" : "GNIAZDKO",
     "swt" : {
       "stan" : "ON",
       "pin" : 13
@@ -88,13 +88,13 @@
     "pin" : 13,
     "state" : "ON"
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 57,
     "room" : 3,
     "slaveID" : 14,
     "onSlaveID" : 3,
     "name" : "Gniazdko Biurko P",
-    "typ" : "LIGHT",
+    "typ" : "GNIAZDKO",
     "swt" : {
       "stan" : "OFF",
       "pin" : 12
@@ -103,6 +103,27 @@
     "state" : "OFF"
   } ],
   "sensors" : [ {
+      "@type": "Termometr",
+      "id": 102,
+      "room": 3,
+      "onSlaveID": -1,
+      "addres": [
+        40,
+        97,
+        100,
+        17,
+        144,
+        126,
+        153,
+        156
+      ],
+      "name": "Marek",
+      "typ": "THERMOMETR",
+      "temperatura": 24.06,
+      "max": 3541565.0,
+      "min": 0.0,
+      "slaveAdress": 15
+    },{
     "@type" : "Button",
     "id" : 117,
     "room" : 3,
