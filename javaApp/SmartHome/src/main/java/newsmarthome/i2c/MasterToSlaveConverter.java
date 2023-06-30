@@ -53,6 +53,8 @@ public class MasterToSlaveConverter {
     final byte[] ZMIEN_STAN_ROLETY = { 'U' , 'B'}; // + id + stan
     /**[T]*/
     final byte[] POBIERZ_TEMPERATURE = { 'T' }; // + ADRESS (8byte)
+    /**[H]*/
+    final byte[] POBIERZ_TEMPERATURE_I_WILGOTNOSC = { 'H' }; // + id
     /**[A, S]*/
     final byte[] DODAJ_URZADZENIE = { 'A', 'S' }; // + PIN
     /**[A, R]*/
@@ -250,7 +252,12 @@ public class MasterToSlaveConverter {
 
     public byte[] checkHighrometr(Higrometr higrometr) throws SoftwareException, HardwareException{
 
-        byte[] buffor = {'H'};
+        byte[] buffor = new byte[2];
+        int i = 0;
+        for (byte b : POBIERZ_TEMPERATURE_I_WILGOTNOSC) {
+            buffor[i++] = b;
+        }
+        buffor[i] = (byte) higrometr.getOnSlaveID();
         try {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
@@ -409,7 +416,7 @@ public class MasterToSlaveConverter {
         }
     }
 
-    public int addHigrometr(Higrometr higrometr) throws HardwareException{
+    public int addHigrometr(Higrometr higrometr) throws HardwareException, SoftwareException{
         byte[] buffor = new byte[2];
         int i = 0;
         for (byte b : DODAJ_HIGROMETR) {
@@ -428,8 +435,16 @@ public class MasterToSlaveConverter {
             buffor = atmega.readFrom(higrometr.getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);
             logger.debug("Got: {}", buffor);
             atmega.setOccupied(false);
-            return buffor[0];
-        } catch (HardwareException e) {
+            if (buffor[0] == 'E') {
+                throw new HardwareException("Błąd podczas dodawania higrometru!", buffor);
+            }
+            else if (buffor[0] == 'O') {
+                return buffor[1];
+            }
+            else{
+                throw new SoftwareException("Błąd podczas dodawania higrometru! Nieoczekiwana odpowiedź", "O/E", buffor[0] + "");
+            }
+        } catch (HardwareException|SoftwareException e) {
             atmega.setOccupied(false);
             throw e;
         }

@@ -145,15 +145,17 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
                     komendaZwrotna->setParams(params);
                     komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->printParametry();
                 }
                 else
                 {
-                    byte params[8] = { 'O', 0, 0, 0, 0, 0, 0, 0 };
-                    OUT_LN()
+                    byte params[8] = { 'O', tmpDev->getId() , 0, 0, 0, 0, 0, 0 };//"O", "ID", "0", "0", "0", "0", "0", "0
+                    // OUT_LN()
                     komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                     komendaZwrotna->setParams(params);
                     komendaZwrotna->printParametry();
                 }
+                doWyslania.add(0, komendaZwrotna);
             }
             break;
             case Command::KOMENDY::RECEIVE_HOW_MANY_THERMOMETR:
@@ -161,22 +163,22 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 OUT_LN(F("REC_HOW_MANY_THER"))
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
 
-                OUT_LN(F("BEFORE"))
+                // OUT_LN(F("BEFORE"))
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = Termometr::howManyThermometers();
-                OUT_LN(F("AFTER"))
+                // OUT_LN(F("AFTER"))
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
-                OUT_LN(F("END"))
+                // OUT_LN(F("END"))
             }
             break;
             case Command::KOMENDY::RECEIVE_ADD_ROLETA:
             {
                 OUT_LN(F("REC_ADD_ROLETA"));
-                OUT(F("pinUp: "))
-                OUT_LN(komenda.getParams()[0]);
-                OUT(F("pinDown: "))
-                OUT_LN(komenda.getParams()[1]);
+                // OUT(F("pinUp: "))
+                // OUT_LN(komenda.getParams()[0]);
+                // OUT(F("pinDown: "))
+                // OUT_LN(komenda.getParams()[1]);
                 Roleta* tmp = (Roleta*)System::getSystem()->addDevice(Device::TYPE::ROLETA, komenda.getParams()[0], komenda.getParams()[1]);
                 komendaZwrotna->setDevice(tmp);
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
@@ -236,10 +238,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             break;
             case Command::KOMENDY::RECEIVE_GET_HUMIDITY_AND_TEMPERATURE:
             {
-                OUT_LN(F("REC_GET_HUMIDITY_AND_TEMPERATURE"))
+                OUT_LN(F("REC_GET_HUM_AND_TEMP"))
+                komenda.printParametry();
                     komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 byte params[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-                Higrometr* higrometr = (Higrometr*) komenda.getDevice();
+                Higrometr* higrometr = (Higrometr*) System::getSystem()->getDevice(komenda.getParams()[1]);
                 if (higrometr == nullptr)
                 {
                     params[0] = 'E';
@@ -264,8 +267,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
 
                 Przekaznik* p = (Przekaznik*) System::getSystem()->getDevice(komenda.getParams()[0]);
-                OUT_LN(F("Przekaznik: "))
-                OUT_LN(p->toString())
+                // OUT_LN(F("Przekaznik: "))
+                // OUT_LN(p->toString())
                 p->setStan(komenda.getParams()[1] == 1 ? true : false);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0]= 'O';
@@ -345,9 +348,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     {
                         Command* funkcja = new Command;
                         funkcja->setDevice(dev);
-                        OUT(F("device type: "))
-                        OUT_LN(dev->getType())
-                        OUT_LN(funkcja->getDevice()->getType())
+                        // OUT(F("device type: "))
+                        // OUT_LN(dev->getType())
+                        // OUT_LN(funkcja->getDevice()->getType())
                         switch (dev->getType())
                         {
                             case Device::PRZEKAZNIK:
@@ -469,7 +472,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     OUT_LN(F("RECEIVE_CHECK_HOW_MANY_TO_SENT"));
                     byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
                     params[0] = doWyslania.size();
-                    OUT(F("Do wysłania: ")) OUT_LN(doWyslania.size());
+                    // OUT(F("Do wysłania: ")) OUT_LN(doWyslania.size());
                     komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                     komendaZwrotna->setParams(params);
                     doWyslania.add(0, komendaZwrotna);
@@ -537,7 +540,7 @@ void I2CConverter::RequestEvent()
             case Command::KOMENDY::SEND_STATUS:
                 break;
             default:
-                OUT_LN(F("ERROR - Nieznana komenda"));
+                // OUT_LN(F("ERROR - Nieznana komenda"));
                 for (byte i = 0; i < 8; i++)
                 {
                     Wire.write('E');
@@ -572,7 +575,7 @@ void I2CConverter::RequestEvent()
         delete command;
     }
     
-    OUT_LN(F("SENDING DONE"));
+    // OUT_LN(F("SENDING DONE"));
     OUT_LN(freeMemory());
     OUT_LN(F("REQUEST_EVENT END"));
 }

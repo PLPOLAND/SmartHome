@@ -1,4 +1,5 @@
 #include "Higrometr.h"
+#include "Stale.h"
 
 Higrometr::Higrometr() : Device(TYPE::HIGROMETR)
 {
@@ -30,6 +31,7 @@ void Higrometr::update()
 {
     if(timer->available())
     {
+        OUT_LN("H::up()");
         timer->restart();
         float tmpHum = dht->readHumidity();
         if (isnan(tmpHum))
@@ -41,12 +43,18 @@ void Higrometr::update()
             humidity = (int) (tmpHum+0.5);
         }
         temperature = dht->readTemperature();
+        OUT("isCorr: ")
+        OUT_LN(this->isCorrect())
+        OUT("H: ")
+        OUT_LN(this->getHumidity())
+        // OUT("T: ")
+        // OUT_LN(this->getTemperature())
     }
 }
 
 bool Higrometr::isCorrect()
 {
-    return (humidity != NAN && temperature != NAN);
+    return (humidity != 0 && temperature != NAN);
 }
 
 byte* Higrometr::getStateAsByteArray()

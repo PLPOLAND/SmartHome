@@ -4,6 +4,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
+
 @Component
 @Scope("prototype")
 public class Higrometr extends Termometr{
@@ -73,8 +76,21 @@ public class Higrometr extends Termometr{
             }
             this.setTemperatura(Float.parseFloat(tmp));
             this.setHumidity((int) response[5]);
-        } catch (Exception e) {
-            // TODO: handle exceptions
+        } catch (HardwareException|SoftwareException e) {
+            logger.error("Nie udało się zaktualizować higrometru: {}", e.getMessage());
+        } catch (NumberFormatException e) {
+            logger.error("Wartość temperatury nie jest liczbą: {}", e.getMessage());
         }
+
+    }
+
+    public void configure(){
+        try{
+            this.setOnSlaveID(slaveSender.addHigrometr(this));
+        }
+        catch(HardwareException|SoftwareException e){
+            logger.error("Nie udało się skonfigurować higrometru!: {}", e.getMessage());
+        }
+
     }
 }
