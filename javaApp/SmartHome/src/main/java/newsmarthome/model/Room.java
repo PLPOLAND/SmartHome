@@ -6,6 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import newsmarthome.database.SystemDAO;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.sensor.Sensor;
 
@@ -22,6 +25,12 @@ public class Room {
 
     List<Device> devices;// urządzenia w pokoju
     List<Sensor> sensors;// sensory w pokoju
+
+    @JsonIgnore
+    private SystemDAO systemDAO;
+    @JsonIgnore
+    /** Czy pokój jest w pełni wczytany zainicjowany */
+    private boolean isLoaded = false;
 
     public Room() {
         logger = LoggerFactory.getLogger(Room.class);
@@ -43,6 +52,7 @@ public class Room {
 
     public void setID(int id) {
         this.id = id;
+        save();
     }
 
     public String getName() {
@@ -51,6 +61,7 @@ public class Room {
 
     public void setNazwa(String nazwa) {
         this.name = nazwa;
+        save();
     }
 
     public List<Device> getDevices() {
@@ -68,6 +79,7 @@ public class Room {
         
         device.setRoom(this.id);// ustaw id tego pokoju w urządzeniu
         devices.add(device);
+        save();
         logger.info("Dodano urządzenie:{}", device);
     }
 
@@ -76,14 +88,16 @@ public class Room {
             throw new IllegalArgumentException("Podane urządzenie nie należy do tego pokoju");
         }
         devices.remove(urz);
+        save();
     }
-
+    
     public void addSensor(Sensor sens) throws IllegalArgumentException {
         if (sens.getId() < 0) {
             throw new IllegalArgumentException("Błędne ID urządzenia");
         }
         sens.setRoom(this.getID());
         sensors.add(sens);
+        save();
     }
 
     public void delSensor(Sensor sens) throws IllegalArgumentException {
@@ -91,6 +105,7 @@ public class Room {
             throw new IllegalArgumentException("Podane urządzenie nie należy do tego pokoju");
         }
         sensors.remove(sens);
+        save();
     }
 
     public Device getDeviceById(int id) {
@@ -109,6 +124,28 @@ public class Room {
         }
         for (Sensor sensor : sensors) {
             // TODO usuwanie sensorów z slave-a
+        }
+    }
+
+    public void setSystemDAO(SystemDAO systemDAO) {
+        this.systemDAO = systemDAO;
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
+    }
+    
+    public void setLoaded() {
+        this.isLoaded = true;
+    }
+
+    public void setLoaded(boolean isLoaded) {
+        this.isLoaded = isLoaded;
+    }
+
+    public void save() {
+        if (systemDAO != null) {
+            systemDAO.save(this);
         }
     }
 

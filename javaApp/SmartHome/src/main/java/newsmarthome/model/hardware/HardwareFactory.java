@@ -85,6 +85,29 @@ public class HardwareFactory {
         }
     }
 
+    public Device createDevice(DeviceTypes type, int slaveID){
+        switch(type){
+            case LIGHT:
+                Light light = createLight();
+                light.setSlaveID(slaveID);
+                return light;
+            case WENTYLATOR:
+                Fan fan = createFan();
+                fan.setSlaveID(slaveID);
+                return fan;
+            case GNIAZDKO:
+                Outlet outlet = createOutlet();
+                outlet.setSlaveID(slaveID);
+                return outlet;
+            case BLIND:
+                Blind blind = createBlind();
+                blind.setSlaveID(slaveID);
+                return blind;
+            default:
+                return null;
+        }
+    }
+
 
     // Sensors
     

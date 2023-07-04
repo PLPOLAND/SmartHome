@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import newsmarthome.i2c.I2C;
 import newsmarthome.i2c.I2CHardware;
 import newsmarthome.i2c.MasterToSlaveConverter;
+import newsmarthome.database.SystemDAO;
 import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
 
@@ -47,6 +48,9 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     /** Logger Springa */
     Logger logger;
 
+    @JsonIgnore
+    SystemDAO systemDAO; //TODO implement save() method
+
     /** Id urządzenia w systemie */
     private int id; 
     /** ID Pokoju w, którym jest urządzenie */
@@ -56,7 +60,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     /** ID urzadzenia na płytce drukowanej */
     private int onSlaveID;
     /** ID kolejnego urządzenia w systemie */
-    protected static int nextDeviceID = 0;
+    protected static int nextDeviceID = 1;
     
     private String name = "";
 
@@ -108,6 +112,9 @@ public abstract class Device {//TODO Dodać metody do parametru name.
 
     public void setId(int id) {
         this.id = id;
+        if (id >= nextDeviceID) {
+            nextDeviceID = id + 1;
+        }
     }
 
     public int getRoom() {
@@ -231,6 +238,10 @@ public abstract class Device {//TODO Dodać metody do parametru name.
             ", name='" + getName() + "'" +
             ", typ='" + getTyp() + "'" +
             "}";
+    }
+
+    public void setSystemDAO(SystemDAO systemDAO) {
+        this.systemDAO = systemDAO;
     }
 
     

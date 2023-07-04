@@ -3,6 +3,7 @@ package newsmarthome.database;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import newsmarthome.model.Room;
@@ -72,8 +73,10 @@ public class SystemDAO {
      * @param pokoj - pokój do dodania
      */
     public void addRoom(Room pokoj) {
+        pokoj.setSystemDAO(this);
         this.pokoje.put(pokoj.getName(), pokoj);
         save(pokoj);
+        pokoj.setLoaded();
     }
 
     /**
@@ -261,7 +264,12 @@ public class SystemDAO {
             Room room = new Room(i, "Brak");
             try {
                 JsonNode jsonNode = obj.readTree(new File(ROOMS_FILES_LOCALISATION + i + "_Room.json"));
-                room.setNazwa(jsonNode.get("nazwa").asText());
+                JsonNode roomNameNode = jsonNode.get("nazwa");
+                if (roomNameNode == null) {
+                    roomNameNode = jsonNode.get("name");
+                }
+                room.setNazwa(roomNameNode.asText());
+                room.setSystemDAO(this);
                 for (JsonNode jsonNode2 : jsonNode.get("devices")) {
                     Device device = hardwareFactory.createDevice(DeviceTypes.valueOf( jsonNode2.get("typ").asText()));
                     device.setId(jsonNode2.get("id").asInt());
@@ -347,6 +355,8 @@ public class SystemDAO {
                 logger.debug("Wczytano pokój: {}", jsonNode);
                 pokoje.put(room.getName(), room);
                 sensors.addAll(room.getSensors());
+                room.setLoaded();
+
                 i++;
             } catch (JsonGenerationException | JsonMappingException e) {
                 logger.error("Błąd podczas wczytywania pokoi", e);
@@ -497,10 +507,62 @@ public class SystemDAO {
         return null;
     }
 
+    public void addDevice(Device device) {
+        this.devices.add(device);
+    }
+
+    public void addDevice(Room room, Device device) {
+        this.devices.add(device);
+        room.addDevice(device);
+        device.configureToSlave();
+        save(room);
+    }
+
+    public Device addDevice(Room room, String name, DeviceTypes type, int slaveID, Integer pin, Integer pin2){
+        Device device = hardwareFactory.createDevice(type, slaveID);
+        device.setName(name);
+        switch (type) {
+            case LIGHT:
+                Light light = (Light) device;
+                light.setPin(pin);
+                break;
+            case BLIND:
+                Blind blind = (Blind) device;
+                blind.setPinUp(pin);
+                blind.setPinDown(pin2);
+                break;
+            case WENTYLATOR:
+                Fan fan = (Fan) device;
+                fan.setPin(pin);
+                break;
+            case GNIAZDKO:
+                Outlet outlet = (Outlet) device;
+                outlet.setPin(pin);
+                break;
+            default:
+                logger.error("Nieznany typ urządzenia");
+                break;
+        }
+        addDevice(room, device);
+        return device;
+    }
+
     @Override
     public String toString() {
         return "{" + '\n' + " pokoje='" + pokoje + "'" + "\n\n" + ", devices='" + devices + "'" + "\n\n" + ", sensors='"
                 + sensors + "'" + "\n\n}";
     }
+
+	public boolean removeDevice(int devID) {
+        Device device = getDeviceByID(devID);
+        if(device != null){
+            Room room = getRoom(device.getRoom());
+            devices.remove(device);
+            room.delDevice(device);
+            save(room);
+            return true;
+        }
+        return false;
+	}
 
 }
