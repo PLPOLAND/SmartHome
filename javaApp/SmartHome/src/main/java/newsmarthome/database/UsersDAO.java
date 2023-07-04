@@ -236,21 +236,6 @@ public class UsersDAO {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            try {
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-                File appFile = new File(TypeReference.class.getResource("/static/database/users/").getPath()
-                        + user.getId() + USER_JSON);
-                appFile.createNewFile();// utworzenie pliku jeśli nie istnieje
-                objectMapper.writeValue(appFile, user);// plik aplikacji (target)
-            } catch (JsonGenerationException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             return true;
         } else {
             return false;
