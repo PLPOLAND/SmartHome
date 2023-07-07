@@ -12,4 +12,8 @@ public enum DeviceTypes {
     public static String[] getNames() {
         return Arrays.stream(DeviceTypes.class.getEnumConstants()).map(Enum::name).toArray(String[]::new);
     }
+
+    public static DeviceTypes fromString(String type) {
+        return DeviceTypes.valueOf(type);
+    }
 }
