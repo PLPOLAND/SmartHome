@@ -342,6 +342,7 @@ public class SystemDAO {
                             termometr.setTemperatura( (float) jsonNode2.get("temperatura").asDouble());
                             termometr.setMax((float) jsonNode2.get("max").asDouble());
                             termometr.setMin((float) jsonNode2.get("min").asDouble());
+                            termometr.setSlaveAdress(jsonNode2.get("slaveAdress").asInt());
                             break;
                         //TODO dodać pozostałe sensory
                         default:

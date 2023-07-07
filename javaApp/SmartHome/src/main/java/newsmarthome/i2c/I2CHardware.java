@@ -291,7 +291,7 @@ public class I2CHardware implements I2C{
                 slave.write(toWrite);
                 done = true;
             } catch (IOException e) {
-                logger.error("error while retry to write : {}", e.getMessage(), e);
+                logger.error("error while retry to write : {}  (IOException)", e.getMessage());
             }
             catch (InterruptedException e) {
                 logger.error("Sleep error while writing: {}", e.getMessage());
@@ -312,7 +312,7 @@ public class I2CHardware implements I2C{
                 slave.read(buff, 0, size);
                 done = true;
             } catch (IOException e) {
-                logger.error("error while retry to read : {}", e.getMessage(), e);
+                logger.error("Error while retring to read: {}  (IOException)", e.getMessage());
             }
             catch (InterruptedException e) {
                 logger.error("Sleep error while reading: {}", e.getMessage());

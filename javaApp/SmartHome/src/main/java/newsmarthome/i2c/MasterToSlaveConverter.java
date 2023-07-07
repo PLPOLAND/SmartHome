@@ -499,6 +499,7 @@ public class MasterToSlaveConverter {
      * @return true jeśli slave był już zainicjowany
      */
     public boolean checkInitOfBoard(int adres) throws SoftwareException, HardwareException{
+        
         byte[] buffor = new byte[1];
         int i = 0;
         for (byte b : CHECK_INIT) {
@@ -509,10 +510,24 @@ public class MasterToSlaveConverter {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
             atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
-            // Thread.sleep(10);
+            // Thread.sleep(1);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
-            atmega.setOccupied(false);
             if (buffor[0]!='I') {
+                for (int j = 0; j < 5; j++) {
+                    logger.warn("Error on checking init of board {}. Response[0] != 'I' ; Response = {}", adres, Arrays.toString(buffor));
+                    logger.warn("Trying again");
+                    atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage());
+                    }
+                    buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
+                    if (buffor[0]=='I') {
+                        atmega.setOccupied(false);
+                        return buffor[1] == 1;
+                    }
+                }
                 StringBuilder str = new StringBuilder();
                 str.append("Error on checking init of board ");
                 str.append(adres);
@@ -522,8 +537,10 @@ public class MasterToSlaveConverter {
                 str.append(Arrays.toString(buffor));
                 throw new SoftwareException( str.toString());
             }
+            atmega.setOccupied(false);
             return buffor[1] == 1;
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
             atmega.setOccupied(false);
             throw e;
         }
