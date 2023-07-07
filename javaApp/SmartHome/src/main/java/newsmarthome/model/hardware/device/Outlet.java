@@ -47,6 +47,7 @@ public class Outlet extends Device{
         try {
             setOnSlaveID( slaveSender.addUrzadzenie(this));
             setConfigured();
+            sendStateToSlave(this.getState());
         } catch (HardwareException e) {
             logger.error("Błąd podczas dodawania urządzenia na Slave-a! -> {}", e.getMessage());
             resetConfigured();
@@ -69,8 +70,15 @@ public class Outlet extends Device{
      * and sends a command to a slave device via I2C communication.
      */
     public void setState(DeviceState stan) {
-        
-        this.swt.setStan(stan);
+        setStateLocal(stan);
+        sendStateToSlave(stan);
+    }
+
+    /**
+     * Wyślij stan urządzenia do slave'a
+     * @param stan stan urządzenia
+     */
+    private void sendStateToSlave(DeviceState stan) {
         try {
             if (!isConfigured()) {
                 slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);

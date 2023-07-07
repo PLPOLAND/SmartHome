@@ -53,6 +53,7 @@ public class Blind extends Device{
         try {
             setOnSlaveID(slaveSender.addUrzadzenie(this));
             setConfigured();
+            sendStateToSlave(this.stan);
         } catch (HardwareException e) {
             logger.error("Błąd podczas dodawania urządzenia! -> {}", e.getMessage());
             resetConfigured();
@@ -67,6 +68,14 @@ public class Blind extends Device{
     @Override
     public void changeState(DeviceState stan){
         changeStateLocal(stan);
+        sendStateToSlave(stan);
+    }
+
+    /**
+     * Wysyła stan urządzenia do slave-a.
+     * @param stan - stan urządzenia do wysłania.
+     */
+    private void sendStateToSlave(DeviceState stan) {
         try {
             if (isConfigured()) {
                 logger.debug("Wysyłanie stanu urządzenia na slave-a o id: {}", this.getSlaveID());

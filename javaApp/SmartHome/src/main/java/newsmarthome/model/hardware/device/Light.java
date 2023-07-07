@@ -49,6 +49,7 @@ public class Light extends Device{
        try {
             setOnSlaveID(slaveSender.addUrzadzenie(this));
             setConfigured();
+            sendStateToSlave(this.getState());
        } catch (HardwareException e) {
            logger.error("Błąd podczas dodawania urządzenia na Slave-a! -> {}", e.getMessage());
            resetConfigured();
@@ -71,7 +72,15 @@ public class Light extends Device{
      * and sends a command to a slave device via I2C communication.
      */
     public void setState(DeviceState stan) {
-        this.swt.setStan(stan);
+        setStateLocal(stan);
+        sendStateToSlave(stan);
+    }
+
+    /**
+     * Wyślij stan urządzenia do slave-a
+     * @param stan - stan urządzenia do wysłania
+     */
+    private void sendStateToSlave(DeviceState stan) {
         try {
             if (isConfigured()) {
                 slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
@@ -83,7 +92,6 @@ public class Light extends Device{
         } catch (HardwareException e) {
             logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
         }
-
     }
     /**
      * This function sets the state of a device and doesn't send a command to a slave device using I2C
