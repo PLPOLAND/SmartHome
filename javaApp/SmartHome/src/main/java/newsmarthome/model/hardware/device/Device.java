@@ -173,6 +173,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     /**
      * Zwraca czy urządzenie jest skonfigurowane na slave-ie
      */
+    @JsonIgnore
     public boolean isConfigured() {
         return this.isConfigured;
     }

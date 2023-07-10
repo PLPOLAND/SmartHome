@@ -50,10 +50,17 @@ public class Runners {
     /** Zatrzymuje sprawdzanie automatyki*/
     private boolean stopCheckingAutomation = false; 
 
+    @Scheduled(fixedDelay = 200)
+    void queue(){
+        checkAutomationFunctions();
+        statusCheck();
+        checkAutomationFunctions();
+    }
+
     /**
      * Sprawdza czy slave jest podłączony i czy jest skonfigurowany. Jeśli tak to sprawdza stan urządzeń i sensorów
      */
-    @Scheduled(fixedDelay = 500)
+    // @Scheduled(fixedDelay = 500)
     void statusCheck(){
         
         List<Integer> slaves = slaveSender.getSlavesAdresses();
@@ -154,7 +161,10 @@ public class Runners {
         }
     }
 
-    @Scheduled(fixedDelay = 200)
+    /**
+     * Sprawdza czy na slave'ie są jakieś komendy do wykonania. Jeśli tak to wykonuje je.
+     */
+    // @Scheduled(fixedDelay = 200)
     void checkAutomationFunctions() {
         if (!stopCheckingAutomation) {
             logger.debug("checkAutomationFunctions");

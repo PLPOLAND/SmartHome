@@ -262,7 +262,7 @@ public class I2CHardware implements I2C{
         pin.high();
         
         try {
-            Thread.sleep(2000);//oczekiwanie na uruchomienie się slave-ów
+            Thread.sleep(3000);//oczekiwanie na uruchomienie się slave-ów
         } catch (InterruptedException e) {
             logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
         }
