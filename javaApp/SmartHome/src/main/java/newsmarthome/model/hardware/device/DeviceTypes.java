@@ -14,6 +14,20 @@ public enum DeviceTypes {
     }
 
     public static DeviceTypes fromString(String type) {
-        return DeviceTypes.valueOf(type);
+        type = type.toUpperCase();
+        switch (type) {
+            case "LIGHT":
+                return LIGHT;
+            case "OUTLET":
+            case "GNIAZDKO":
+                return GNIAZDKO;
+            case "BLIND":
+                return BLIND;
+            case "FAN":
+            case "WENTYLATOR":
+                return WENTYLATOR;
+            default:
+                return NONE;
+        }
     }
 }

@@ -56,6 +56,33 @@ public class DevicesController {
 		}
 	}
 	
+	@GetMapping("/getDevice")
+	public Response<Device> getDevice(HttpServletRequest request){
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(null, "Użytkownik nie jest zalogowany");
+		else{
+			String deviceID = request.getParameter("deviceId");
+			logger.debug("getDevice");
+			logger.debug("deviceID: {}",deviceID);
+			if(deviceID == null)
+				return new Response<>(null, "Nie przesłano wszystkich parametrów");
+			else{
+				try{
+					int devID = Integer.parseInt(deviceID);
+					Device dev = systemDAO.getDeviceByID(devID);
+					if(dev == null)
+						return new Response<>(null, "Nie znaleziono urządzenia o podanym ID");
+					else{
+						return new Response<>(dev);
+					}
+				}catch(NumberFormatException e){
+					return new Response<>(null, "Pole deviceId musi być liczbą!");
+				}
+			}
+		} 
+	}
+	
 	@GetMapping("/getRooms")
 	public Response<ArrayList<RoomResponse>> getRooms(HttpServletRequest request) {
 		MobileSecurity security = new MobileSecurity(request, users);
@@ -144,7 +171,7 @@ public class DevicesController {
 						return new Response<>(dev);
 					}
 				}catch(NumberFormatException e){
-					return new Response<>(null, "Pole deviceId musi być liczbą!");
+					return new Response<>(null, "Pole devicePin|slaveID|pin2 musi być liczbą!");
 				}
 			}
 			
@@ -176,7 +203,7 @@ public class DevicesController {
 		}
 	}
 
-	@PostMapping("updateDevice")
+	@PostMapping("/updateDevice")
 	public Response<String> updateDevice(HttpServletRequest request) {
 		MobileSecurity security = new MobileSecurity(request, users);
 		if(!security.isLoged() )
@@ -187,6 +214,7 @@ public class DevicesController {
 			String pin = request.getParameter("pin");
 			String pin2 = request.getParameter("pin2");
 			String room = request.getParameter("room");
+			String slaveId = request.getParameter("slaveId");
 			logger.debug("updateDevice");
 			logger.debug("deviceID: {}",deviceID);
 			logger.debug("name: {}", name);
@@ -214,32 +242,36 @@ public class DevicesController {
 				try{
 					int devID = Integer.parseInt(deviceID);
 					Device dev = systemDAO.getDeviceByID(devID);
-					if (!(dev instanceof Blind)) {
-						switch (dev.getTyp()) {
-							case LIGHT:
-								((Light)dev).setPin(Integer.parseInt(pin));
-								return new Response<>("OK");
-							case GNIAZDKO:
-								((Outlet)dev).setPin(Integer.parseInt(pin));
-								return new Response<>("OK");
-							case WENTYLATOR:
-								((Fan)dev).setPin(Integer.parseInt(pin));
-								return new Response<>("OK");
-							default:
-								logger.error ("Nie udało się zmienić pinu urządzenia: nieznany typ urządzenia");
-								return new Response<>(null, "Nie udało się zmienić pinu urządzenia: nieznany typ urządzenia");
-						}
-					} else{
-						if (pin2 != null) {
-							((Blind)dev).setPinUp(Integer.parseInt(pin));
-							((Blind)dev).setPinDown(Integer.parseInt(pin2));
+				
+					switch (dev.getTyp()) {
+						case LIGHT:
+							((Light)dev).setPin(Integer.parseInt(pin));
 							return new Response<>("OK");
-						} else {
-							return new Response<>(null, "Nie udało się zmienić pinu urządzenia: nie podano pinu2");
-						}
+						case GNIAZDKO:
+							((Outlet)dev).setPin(Integer.parseInt(pin));
+							return new Response<>("OK");
+						case WENTYLATOR:
+							((Fan)dev).setPin(Integer.parseInt(pin));
+							return new Response<>("OK");
+						case BLIND:
+							((Blind)dev).setPinUp(Integer.parseInt(pin));
+							return new Response<>("OK");
+						default:
+							logger.error ("Nie udało się zmienić pinu urządzenia: nieznany typ urządzenia");
+							return new Response<>(null, "Nie udało się zmienić pinu urządzenia: nieznany typ urządzenia");
 					}
 				} catch(NumberFormatException e){
 					return new Response<>(null, "Pole deviceId || pin || pin2 muszą być liczbami!");
+				}
+			}
+			if (pin2 != null) {
+				try {
+					int devID = Integer.parseInt(deviceID);
+					Device dev = systemDAO.getDeviceByID(devID);
+					((Blind) dev).setPinDown(Integer.parseInt(pin2));
+					return new Response<>("OK");
+				} catch (NumberFormatException e) {
+					return new Response<>(null, "Pole deviceID | pin2  muszą być liczbami!");
 				}
 			}
 			if (room !=null){
@@ -263,6 +295,20 @@ public class DevicesController {
 					return new Response<>(null, "Pole deviceId musi być liczbą!");
 				}
 			
+			}
+			if (slaveId !=null){
+				try{
+					int devID = Integer.parseInt(deviceID);
+					Device dev = systemDAO.getDeviceByID(devID);
+					if (dev !=null) {
+						dev.setSlaveID(Integer.parseInt(slaveId));
+						return new Response<>("OK");
+					} else {
+						return new Response<>(null, "Nie udało się zmienić slaveId urządzenia: nie znaleziono urządzenia o podanym ID");
+					}
+				} catch(NumberFormatException e){
+					return new Response<>(null, "Pole deviceId musi być liczbą!");
+				}
 			}
 			else{
 				return new Response<>(null, "Nie przesłano żadnych parametrów");

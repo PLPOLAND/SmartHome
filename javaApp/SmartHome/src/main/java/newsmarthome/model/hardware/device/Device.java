@@ -131,6 +131,7 @@ public abstract class Device {//TODO Dodać metody do parametru name.
     
     public void setSlaveID(int idPlytki) {
         this.slaveID = idPlytki;
+        resetConfigured();
     }
     
     public DeviceTypes getTyp() {
