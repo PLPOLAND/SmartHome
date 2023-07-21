@@ -62,10 +62,12 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 		while(!in.equals("end") && !in.equals("stop") && ! in.equals("exit")){
 			in = scanner.next();
 			try{
-				// if(in.equals("print")){
-				// 	log.info(adminController.getSystemData().getObj().toString());
-				// 	log.info(system.getAutomationDAO().toString());
-				// }
+				if(in.equals("print")){
+					logger.info("{}", systemDAO);
+				}
+				else if(in.equals("restart")){
+					slaveSender.restartAllSlaves();
+				}
 				// else if(in.equals("find")){
 				// 	log.info(adminController.find().getObj().toString());
 				// }

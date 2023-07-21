@@ -611,7 +611,7 @@ public class MasterToSlaveConverter {
             atmega.setOccupied(true);
             // logger.debug("Writing to addres {} {}", slaveID, buffor);
             atmega.writeTo(slaveID, buffor);
-            Thread.sleep(2);// TODO czy jest potrzebne?
+            Thread.sleep(0);// TODO czy jest potrzebne?
             // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             atmega.setOccupied(false);

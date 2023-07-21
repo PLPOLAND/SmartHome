@@ -61,11 +61,11 @@ public class I2CHardware implements I2C{
         else{
             // logger.debug("END Occupied start");
             // new Thread(()->{
-                try {
-                    Thread.sleep(5);//opóźnienie przed kolejną operacją odczytu/wysłania
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                // try {
+                //     Thread.sleep(5);//opóźnienie przed kolejną operacją odczytu/wysłania
+                // } catch (InterruptedException e) {
+                //     e.printStackTrace();
+                // }
                 this.isOccupied = false;
                 // logger.debug("END Occupied stop");
             // }).start();
