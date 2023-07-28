@@ -1,10 +1,11 @@
 {
   "id" : 0,
+  "name" : "Brak",
   "devices" : [ ],
   "sensors" : [ {
     "@type" : "Termometr",
     "id" : 100,
-    "room" : 7,
+    "room" : 0,
     "onSlaveID" : -1,
     "addres" : [ 40, 97, 100, 17, 141, 245, 237, 83 ],
     "name" : "Kotłownia",
@@ -16,7 +17,7 @@
   }, {
     "@type" : "Termometr",
     "id" : 101,
-    "room" : 2,
+    "room" : 0,
     "onSlaveID" : -1,
     "addres" : [ 40, 97, 100, 17, 141, 241, 21, 222 ],
     "name" : "Marcin",
@@ -28,7 +29,7 @@
   }, {
     "@type" : "Termometr",
     "id" : 102,
-    "room" : 3,
+    "room" : 0,
     "onSlaveID" : -1,
     "addres" : [ 40, 97, 100, 17, 144, 126, 153, 156 ],
     "name" : "Marek",
@@ -40,7 +41,7 @@
   }, {
     "@type" : "Termometr",
     "id" : 103,
-    "room" : 8,
+    "room" : 0,
     "onSlaveID" : -1,
     "addres" : [ 40, 137, 24, 112, 13, 0, 0, 152 ],
     "name" : "Korytarz",
@@ -50,5 +51,5 @@
     "min" : 0.0,
     "slaveAdress" : 11
   } ],
-  "nazwa" : "Brak"
+  "loaded" : false
 }

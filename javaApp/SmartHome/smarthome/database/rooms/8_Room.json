@@ -1,5 +1,6 @@
 {
   "id" : 8,
+  "name" : "Korytarz",
   "devices" : [ {
     "@type" : "Light",
     "id" : 11,
@@ -8,19 +9,15 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 111,
     "room" : 8,
     "onSlaveID" : 1,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
@@ -36,15 +33,11 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     } ],
     "slaveAdress" : 9
   } ],
-  "nazwa" : "Korytarz"
+  "loaded" : false
 }

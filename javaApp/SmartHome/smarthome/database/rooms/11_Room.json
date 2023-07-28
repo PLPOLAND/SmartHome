@@ -1,5 +1,6 @@
 {
   "id" : 11,
+  "name" : "Kuchnia",
   "devices" : [ {
     "@type" : "Light",
     "id" : 44,
@@ -8,12 +9,8 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Blind",
     "id" : 45,
@@ -22,15 +19,15 @@
     "onSlaveID" : 1,
     "name" : "Kuchnia",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
     "switchUp" : {
-      "stan" : "ON",
+      "stan" : "OFF",
       "pin" : 15
     },
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
-    },
-    "state" : "NOTKNOW"
+    }
   }, {
     "@type" : "Light",
     "id" : 52,
@@ -39,19 +36,15 @@
     "onSlaveID" : 2,
     "name" : "Jadalnia",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 12
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 113,
     "room" : 11,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
@@ -67,12 +60,8 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     }, {
       "state" : "NONE",
@@ -86,12 +75,8 @@
         "onSlaveID" : 2,
         "name" : "Jadalnia",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "ON",
-          "pin" : 12
-        },
-        "pin" : 12,
-        "state" : "ON"
+        "state" : "OFF",
+        "pin" : 12
       }
     } ],
     "slaveAdress" : 10
@@ -100,7 +85,7 @@
     "id" : 114,
     "room" : 11,
     "onSlaveID" : 4,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Rolety",
     "typ" : "BUTTON",
     "pin" : 17,
@@ -116,15 +101,15 @@
         "onSlaveID" : 1,
         "name" : "Kuchnia",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
-        "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     }, {
       "state" : "DOWN",
@@ -138,15 +123,15 @@
         "onSlaveID" : 1,
         "name" : "Kuchnia",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
-        "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     }, {
       "state" : "STOP",
@@ -160,18 +145,18 @@
         "onSlaveID" : 1,
         "name" : "Kuchnia",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
-        "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     } ],
     "slaveAdress" : 10
   } ],
-  "nazwa" : "Kuchnia"
+  "loaded" : false
 }

@@ -1,5 +1,6 @@
 {
   "id" : 2,
+  "name" : "Marcin",
   "devices" : [ {
     "@type" : "Light",
     "id" : 4,
@@ -8,12 +9,8 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Light",
     "id" : 5,
@@ -22,12 +19,8 @@
     "onSlaveID" : 1,
     "name" : "Poziom 2",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "ON",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "ON"
+    "state" : "ON",
+    "pin" : 12
   }, {
     "@type" : "Blind",
     "id" : 6,
@@ -36,6 +29,7 @@
     "onSlaveID" : 2,
     "name" : "Marcin",
     "typ" : "BLIND",
+    "state" : "UP",
     "switchUp" : {
       "stan" : "ON",
       "pin" : 15
@@ -43,15 +37,14 @@
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
-    },
-    "state" : "UP"
+    }
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 105,
     "room" : 2,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
@@ -67,12 +60,8 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     }, {
       "state" : "NONE",
@@ -86,12 +75,8 @@
         "onSlaveID" : 1,
         "name" : "Poziom 2",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
-        "pin" : 12,
-        "state" : "OFF"
+        "state" : "ON",
+        "pin" : 12
       }
     } ],
     "slaveAdress" : 13
@@ -100,7 +85,7 @@
     "id" : 116,
     "room" : 2,
     "onSlaveID" : 4,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Rolety",
     "typ" : "BUTTON",
     "pin" : 17,
@@ -116,15 +101,15 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
+        "state" : "UP",
         "switchUp" : {
-          "stan" : "OFF",
+          "stan" : "ON",
           "pin" : 15
         },
         "switchDown" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "DOWN",
@@ -138,15 +123,15 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
+        "state" : "UP",
         "switchUp" : {
-          "stan" : "OFF",
+          "stan" : "ON",
           "pin" : 15
         },
         "switchDown" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "STOP",
@@ -160,18 +145,18 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
+        "state" : "UP",
         "switchUp" : {
-          "stan" : "OFF",
+          "stan" : "ON",
           "pin" : 15
         },
         "switchDown" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
-        },
-        "state" : "NOTKNOW"
+        }
       }
     } ],
     "slaveAdress" : 13
   } ],
-  "nazwa" : "Marcin"
+  "loaded" : false
 }

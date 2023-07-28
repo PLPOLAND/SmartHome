@@ -219,7 +219,7 @@ public class MasterToSlaveConverter {
             logger.debug("Got response temperature from {}: {}", termometr.getSlaveAdress(), Arrays.toString(response));
             if (response[0] == 'E') {
                 logger.error("Error in response from {}", termometr.getSlaveAdress());
-                return null;
+                return -127.0f;
             }
             String tmp ="";
             for (byte b : response) {
