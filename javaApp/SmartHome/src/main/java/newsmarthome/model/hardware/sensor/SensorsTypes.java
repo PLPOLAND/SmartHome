@@ -18,7 +18,7 @@ public enum SensorsTypes {
         switch (type) {
             case "THERMOMETR":
                 return THERMOMETR;
-            case "THERMOMETR_HYGROMETR":
+            case "HYGROTHERMOMETER":
                 return THERMOMETR_HYGROMETR;
             case "TWILIGHT":
                 return TWILIGHT;

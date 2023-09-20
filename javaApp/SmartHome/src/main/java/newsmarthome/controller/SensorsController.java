@@ -25,6 +25,7 @@ import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
 // import newsmarthome.model.hardware.sensor.Higrometr; //TODO uncomment after adding higrometr
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
@@ -121,17 +122,19 @@ public class SensorsController {
 		}
 	}
 
-	@PostMapping("./addSensor")
+	@PostMapping("/addSensor")
 	public Response<Sensor> addSensor(HttpServletRequest request) {
 		MobileSecurity security = new MobileSecurity(request, users);
 		if(!security.isLoged() )
 			return new Response<>(null, "Użytkownik nie jest zalogowany");
 		else{
-			String roomIDString = request.getParameter("room");
+			String roomIDString = request.getParameter("roomID");
 			String slaveID = request.getParameter("slaveID");
 			String name = request.getParameter("name");
 			String type = request.getParameter("type");
-			String automations = request.getParameter("automations");
+			// String automations = request.getParameter("automations");
+			String pin = request.getParameter("pin");
+			String automations = request.getParameter("funkcjeKlikniec");
 			logger.debug("addSensor");
 			logger.debug("room: {}",roomIDString);
 			logger.debug("slaveID: {}",slaveID);
@@ -156,12 +159,21 @@ public class SensorsController {
 							return new Response<Sensor>(null, "Not implemented yet");
 						case BUTTON:
 							Room room = systemDAO.getRoom(roomID);
-						 	Button button = systemDAO.addButton(room, name, slaveIDint, slaveIDint);
+						 	Button button = systemDAO.addButton(room, name, slaveIDint, Integer.parseInt(pin));
 							if(automations != null){
 								ObjectMapper mapper = new ObjectMapper();
 								mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
 								JsonNode jsonNode = mapper.readTree(automations);
 								//TODO: load automations for button
+								for (JsonNode jsonNode2 : jsonNode) {
+									ButtonLocalFunction function = new ButtonLocalFunction();
+									function.setButton(button);
+									function.setClicks(jsonNode2.get("clicks").asInt());
+									function.setState(ButtonLocalFunction.State.fromString(jsonNode2.get("state").asText()));
+									function.setDevice(systemDAO.getDeviceByID(jsonNode2.get("device").asInt()));
+									button.addFunkcjaKilkniecia(function);
+								}
+								logger.info(button.toString());
 							}
 							return new Response<Sensor>(button);
 						default:
