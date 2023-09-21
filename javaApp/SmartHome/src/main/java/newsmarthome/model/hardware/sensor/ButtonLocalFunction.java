@@ -13,10 +13,24 @@ import newsmarthome.model.hardware.device.Device;
 public class ButtonLocalFunction {
 
     public enum State {
-        NONE,
+        NONE,//for 2 state devices
         UP,
         DOWN,
-        STOP
+        STOP;
+
+        public static State fromString(String name) {
+            name = name.toUpperCase();
+            switch (name) {
+                case "UP":
+                    return UP;
+                case "DOWN":
+                    return DOWN;
+                case "STOP":
+                    return STOP;
+                default:
+                    return NONE;
+            }
+        }
     }
     Device deviceToControl;
     State state = State.NONE;//0 lub U/D/S

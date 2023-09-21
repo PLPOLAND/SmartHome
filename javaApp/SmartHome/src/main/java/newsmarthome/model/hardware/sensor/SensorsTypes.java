@@ -13,4 +13,21 @@ public enum SensorsTypes {
     public static String[] getNames() {
         return Arrays.stream(SensorsTypes.class.getEnumConstants()).map(Enum::name).toArray(String[]::new);
     }
+    public static SensorsTypes fromString(String type) {
+        type = type.toUpperCase();
+        switch (type) {
+            case "THERMOMETR":
+                return THERMOMETR;
+            case "HYGROTHERMOMETER":
+                return THERMOMETR_HYGROMETR;
+            case "TWILIGHT":
+                return TWILIGHT;
+            case "MOTION":
+                return MOTION;
+            case "BUTTON":
+                return BUTTON;
+            default:
+                return NONE;
+        }
+    }
 }

@@ -218,6 +218,20 @@ public class SystemDAO {
         return this.sensors;
     }
 
+    /**
+     * Zwraca sensor o podanym id
+     * @param id - id sensora
+     * @return znaleziony sensor / null jeśli brak sensora o podanym id
+     */
+    public Sensor getSensor(int id){
+        for (Sensor sensor : this.getSensors()) {
+            if (sensor.getId() == id) {
+                return sensor;
+            }
+        }
+        return null;
+    }
+
     public Sensor getSensorByOnSlaveID(int slaveAdress, int onSlaveId) {
         for (Sensor sensor : this.getSensors()) {
             if (sensor.getOnSlaveID() == onSlaveId && sensor.getSlaveAdress() == slaveAdress) {
@@ -601,6 +615,40 @@ public class SystemDAO {
         }
         addDevice(room, device);
         return device;
+    }
+
+    /**
+     * Dodaje sensor do systemu i pokoju. Zapisuje pokój do pliku. Konfiguruje sensor jeśli sensor obsługuje konfigurację ręczną na slave-ie
+     * @param room - pokój do którego ma być dodany sensor
+     * @param sensor - sensor do dodania
+     * @return dodany sensor
+     */
+    public Sensor addSensor(Room room, Sensor sensor){
+        this.sensors.add(sensor);
+        room.addSensor(sensor);
+        if(sensor.getTyp() == SensorsTypes.BUTTON)
+            ((Button) sensor).configure();
+        else if(sensor.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR){
+            ((Higrometr) sensor).configure();
+        }
+        save(room);
+        return sensor;
+    }
+
+    public Button addButton(Room room, String name, int slaveID, int pin){
+        Button button = (Button) hardwareFactory.createSensor(SensorsTypes.BUTTON);
+        button.setSlaveAdress(slaveID);
+        button.setNazwa(name);
+        button.setPin(pin);
+        button = (Button) addSensor(room, button);
+        return button;
+    }
+    public Higrometr addHigrometr(Room room, String name, int slaveID){
+        Higrometr higrometr = (Higrometr) hardwareFactory.createSensor(SensorsTypes.THERMOMETR_HYGROMETR);
+        higrometr.setSlaveAdress(slaveID);
+        higrometr.setNazwa(name);
+        higrometr = (Higrometr) addSensor(room, higrometr);
+        return higrometr;
     }
 
     @Override
