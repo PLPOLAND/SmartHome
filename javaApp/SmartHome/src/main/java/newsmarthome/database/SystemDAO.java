@@ -635,7 +635,7 @@ public class SystemDAO {
     public Button addButton(Room room, String name, int slaveID, int pin){
         Button button = (Button) hardwareFactory.createSensor(SensorsTypes.BUTTON);
         button.setSlaveAdress(slaveID);
-        button.setName(name);
+        button.setNazwa(name);
         button.setPin(pin);
         button = (Button) addSensor(room, button);
         return button;
