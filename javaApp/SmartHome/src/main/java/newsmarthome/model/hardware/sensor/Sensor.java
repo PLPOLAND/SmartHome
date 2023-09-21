@@ -19,8 +19,10 @@ import newsmarthome.i2c.MasterToSlaveConverter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({ 
+    @JsonSubTypes.Type(value = Higrometr.class, name = "Higrometr"),
     @JsonSubTypes.Type(value = Termometr.class, name = "Termometr"),
     @JsonSubTypes.Type(value = Button.class, name = "Button")
+
     })
 public abstract class Sensor {
     private static final String STWORZONO_SENSOR_STRING = "Stworzono Sensor: {}";
@@ -44,7 +46,7 @@ public abstract class Sensor {
     private int[] addres;//int ponieważ w arduino byte jest 0-255 a w javie -128-127
     /** ID kolejnego urządzenia w systemie */
     protected static int nextSensorID = 0;
-    private String name = "";
+    private String nazwa = "";
 
     SensorsTypes typ;
     
@@ -164,12 +166,12 @@ public abstract class Sensor {
 
 
 
-    public String getName() {
-        return this.name;
+    public String getNazwa() {
+        return this.nazwa;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNazwa(String name) {
+        this.nazwa = name;
     }
 
 
@@ -177,7 +179,7 @@ public abstract class Sensor {
     public String toString() {
         return "{" +
             " id='" + getId() + "'" +
-            ", name='" + getName() + "'" +
+            ", name='" + getNazwa() + "'" +
             ", room='" + getRoom() + "'" +
             ", slaveID='" + getSlaveAdress() + "'" +
             ", onSlaveID='" + getOnSlaveID() + "'" +

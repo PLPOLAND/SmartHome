@@ -6,6 +6,7 @@ bool System::is_initiated = false;
 byte System::idDevice = 0;
 LinkedList<Device *> System::devices = LinkedList<Device *>();
 LinkedList<Termometr *> System::termometry = LinkedList<Termometr*>();
+LinkedList<Higrometr *> System::higrometry = LinkedList<Higrometr*>();
 LinkedList<Przekaznik *> System::przekazniki = LinkedList<Przekaznik*>();
 LinkedList<Przycisk *> System::przyciski = LinkedList<Przycisk*>();
 LinkedList<Roleta *> System::rolety = LinkedList<Roleta*>();
@@ -38,8 +39,8 @@ System::~System(){
 
 void System::begin(){
     // Serial.begin(115200); // start serial for output
-    OUT_LN(freeMemory());
-    OUT_LN(F("SerialStarted"));
+    // OUT_LN(freeMemory());
+    // OUT_LN(F("SerialStarted"));
     comunication = I2CConverter::getInstance();
     comunication->begin();
     // OUT_LN(F("comunication->begin();"));
@@ -140,6 +141,19 @@ void System::tic(){
             // OUT_LN(this->termometry.get(i)->getTemperature());
         }
     }
+    if (this->higrometry.size() > 0)
+    {
+        for (byte i = 0; i < this->higrometry.size(); i++)
+        {
+            this->higrometry.get(i)->update();
+            // OUT("Higrometr: ");
+            // OUT(i);
+            // OUT(" = ");
+            // OUT_LN(this->higrometry.get(i)->getHumidity());
+        }
+        
+    }
+    
     if (this->rolety.size() > 0) 
     {
         for (byte i = 0; i < this->rolety.size(); i++)
@@ -170,16 +184,16 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             Termometr *tmp = new Termometr;
             if (tmp->begin())
             { //spr. skonfigurować kolejny termometr
-                OUT_LN(F("TMP = notnull"))
+                // OUT_LN(F("TMP = notnull"))
                 tmp->setId(idDevice++);
-                OUT(F("ID: "));
-                OUT_LN(tmp->getId());
+                // OUT(F("ID: "));
+                // OUT_LN(tmp->getId());
                 this->devices.add(tmp);    //dodaj do głównej listy urządzeń
                 this->termometry.add(tmp); //dodaj do listy termometrów w systemie
-                OUT(F("ID: "));
-                OUT_LN(tmp->getId());
-                OUT("DEV TYPE: ");
-                OUT_LN(tmp->getType());
+                // OUT(F("ID: "));
+                // OUT_LN(tmp->getId());
+                // OUT("DEV TYPE: ");
+                // OUT_LN(tmp->getType());
                 return tmp;
             }
             else
@@ -190,10 +204,29 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             }
             break;
         }
+        case Device::TYPE::HIGROMETR:
+            {
+                OUT_LN(F("---Add Higro---"))
+                Higrometr *tmp = new Higrometr;
+                if (tmp->isCorrect())
+                { //spr. skonfigurować kolejny termometr
+                    tmp->setId(idDevice++);
+                    this->devices.add(tmp);    //dodaj do głównej listy urządzeń
+                    this->higrometry.add(tmp); //dodaj do listy termometrów w systemie
+                    OUT_LN(F("HIGRO CORRECT"));
+                    return tmp;
+                }
+                else
+                {
+                    delete tmp;
+                    return nullptr; 
+                }
+                break;
+            }
         case Device::TYPE::PRZEKAZNIK:
             {
                 OUT_LN(F("---Add Switch---"))
-                Przekaznik * tmp = new Przekaznik();
+                Przekaznik * tmp = new Przekaznik;
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     tmp->setId(idDevice++);//nadaj mu id
                     this->devices.add(tmp->getId(), tmp);//dodaj do listy urzadzen
@@ -210,7 +243,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                 OUT_LN(F("---Add Button---"))
                 // OUT("pin1:")
                 // OUT_LN(pin1);
-                Przycisk * tmp = new Przycisk();
+                Przycisk * tmp = new Przycisk;
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     // OUT(F("Poprawnie dodano Przycisk"))
                     tmp->setId(idDevice++);//nadaj mu id
@@ -236,7 +269,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
                 // OUT_LN(pin1);
                 // OUT("pin2:");
                 // OUT_LN(pin2);
-                Roleta *tmp = new Roleta();
+                Roleta *tmp = new Roleta;
                 if (tmp->begin(pin1, pin2))
                 { //jeśli uda się poparawnie dodać przekaźnik do systemu
                     // OUT_LN(F("Poprawnie dodano Roletę"))
@@ -341,17 +374,17 @@ Termometr* System::getTermometr(const byte* adress){
     for (int i = 0; i < termometry.size(); i++)
     {
         if (termometry.get(i)->compare2Adresses(termometry.get(i)->getAddres(), adress)){
-            OUT(F("FOUND ADRESS : "));
+            // OUT(F("FOUND ADRESS : "));
             Termometr *termometr = termometry.get(i);
-            for (int j = 0; j < 8; j++)
-            {
-                OUT(termometr->getAddres()[j])
-                OUT(" ")
-            }
-            OUT_LN(" ")
-            OUT(F("FOUND DEV TYPE: "))
-            OUT(termometr->getType());
-            OUT_LN(termometr->getType() == Device::TERMOMETR ? " - OK" : " - NOT TER");
+            // for (int j = 0; j < 8; j++)
+            // {
+            //     OUT(termometr->getAddres()[j])
+            //     OUT(" ")
+            // }
+            // OUT_LN(" ")
+            // OUT(F("FOUND DEV TYPE: "))
+            // OUT(termometr->getType());
+            // OUT_LN(termometr->getType() == Device::TERMOMETR ? " - OK" : " - NOT TER");
             return termometr;
         }
             
@@ -412,11 +445,11 @@ bool System::getStartUpVariant(){
 }
 
 void System::setNextStartupVariant(bool variant){
-    OUT(F("EEPROM bef change: "))
-    OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
+    // OUT(F("EEPROM bef change: "))
+    // OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
     EEPROM.update(EEPROM_ADRES_OF_STARTUP_BYTE,variant?1:0);
-    OUT(F("EEPROM aft change: "))
-    OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
+    // OUT(F("EEPROM aft change: "))
+    // OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
 }
 
 byte System::howManyThermometers(){

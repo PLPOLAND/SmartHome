@@ -13,6 +13,27 @@
     "pin" : 10
   } ],
   "sensors" : [ {
+      "@type": "Termometr",
+      "id": 100,
+      "room": 7,
+      "onSlaveID": -1,
+      "addres": [
+        40,
+        97,
+        100,
+        17,
+        141,
+        245,
+        237,
+        83
+      ],
+      "name": "Kotłownia",
+      "typ": "THERMOMETR",
+      "temperatura": 22.56,
+      "max": 225.0,
+      "min": 0.0,
+      "slaveAdress": 8
+    },{
     "@type" : "Button",
     "id" : 110,
     "room" : 7,

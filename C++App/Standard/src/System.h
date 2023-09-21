@@ -12,6 +12,8 @@
 #include "devices/Przekaznik.h"
 #include "devices/Przycisk.h"
 #include "devices/Roleta.h"
+#include "devices/Termometr.h"
+#include "devices/Higrometr.h"
 
 //Główna klasa obsługująca "slave-a"
 class I2CConverter;
@@ -35,6 +37,7 @@ protected:
 
     static LinkedList<Device *> devices;
     static LinkedList<Termometr *> termometry;
+    static LinkedList<Higrometr *> higrometry;
     static LinkedList<Przekaznik *> przekazniki;
     static LinkedList<Roleta *> rolety;
 

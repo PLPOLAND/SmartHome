@@ -21,6 +21,7 @@ import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Termometr;
 
 import org.slf4j.Logger;
@@ -52,6 +53,8 @@ public class MasterToSlaveConverter {
     final byte[] ZMIEN_STAN_ROLETY = { 'U' , 'B'}; // + id + stan
     /**[T]*/
     final byte[] POBIERZ_TEMPERATURE = { 'T' }; // + ADRESS (8byte)
+    /**[H]*/
+    final byte[] POBIERZ_TEMPERATURE_I_WILGOTNOSC = { 'H' }; // + id
     /**[A, S]*/
     final byte[] DODAJ_URZADZENIE = { 'A', 'S' }; // + PIN
     /**[A, R]*/
@@ -60,6 +63,8 @@ public class MasterToSlaveConverter {
     final byte[] DODAJ_PRZYCISK = { 'A', 'P' }; // + PIN
     /**[A, T]*/
     final byte[] DODAJ_TERMOMETR = { 'A', 'T' };
+    /**[A, H]*/
+    final byte[] DODAJ_HIGROMETR = { 'A', 'H' };
     /**[P, K, L] */
     final byte[] DODAJ_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L' };
     /**[P, K, L, D] */
@@ -245,6 +250,39 @@ public class MasterToSlaveConverter {
 
     }
 
+    public byte[] checkHighrometr(Higrometr higrometr) throws SoftwareException, HardwareException{
+
+        byte[] buffor = new byte[2];
+        int i = 0;
+        for (byte b : POBIERZ_TEMPERATURE_I_WILGOTNOSC) {
+            buffor[i++] = b;
+        }
+        buffor[i] = (byte) higrometr.getOnSlaveID();
+        try {
+            atmega.pauseIfOcupied();
+            atmega.setOccupied(true);
+            atmega.writeTo(higrometr.getSlaveAdress(), buffor);
+            try{
+                Thread.sleep(10);
+            }
+            catch(InterruptedException e){
+                logger.error(e.getMessage());
+            }
+            byte[] response = atmega.readFrom(higrometr.getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);
+            atmega.setOccupied(false);
+            logger.debug("Got response humidity from {}: {}", higrometr.getSlaveAdress(), Arrays.toString(response));
+            if (response[0] == 'E') {
+                logger.error("Error in response from {}", higrometr.getSlaveAdress());
+                throw new SoftwareException("Error while updating state of higrometr! Got error in response from slave: " + higrometr.getSlaveAdress());
+            }
+            return response;
+        } catch (HardwareException|SoftwareException e) {
+            atmega.setOccupied(false);
+            throw e;
+        }
+
+    }
+
     /**
      * Wysyła komendę dodającą nowe urządzenia (LIGHT/GNIAZDKO)
      * @param device urządzenie do dodania
@@ -373,6 +411,40 @@ public class MasterToSlaveConverter {
                 return adress;
             }
         } catch (HardwareException e) {
+            atmega.setOccupied(false);
+            throw e;
+        }
+    }
+
+    public int addHigrometr(Higrometr higrometr) throws HardwareException, SoftwareException{
+        byte[] buffor = new byte[2];
+        int i = 0;
+        for (byte b : DODAJ_HIGROMETR) {
+            buffor[i++] = b;
+        }
+        try {
+            atmega.pauseIfOcupied();
+            atmega.setOccupied(true);
+            logger.debug("addHigrometr");
+            atmega.writeTo(higrometr.getSlaveAdress(), buffor);// Wyślij prośbę o dodanie nowego termometru na płytce
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+            }
+            buffor = atmega.readFrom(higrometr.getSlaveAdress(), MAX_ROZMIAR_ODPOWIEDZI);
+            logger.debug("Got: {}", buffor);
+            atmega.setOccupied(false);
+            if (buffor[0] == 'E') {
+                throw new HardwareException("Błąd podczas dodawania higrometru!", buffor);
+            }
+            else if (buffor[0] == 'O') {
+                return buffor[1];
+            }
+            else{
+                throw new SoftwareException("Błąd podczas dodawania higrometru! Nieoczekiwana odpowiedź", "O/E", buffor[0] + "");
+            }
+        } catch (HardwareException|SoftwareException e) {
             atmega.setOccupied(false);
             throw e;
         }

@@ -6,6 +6,7 @@
 #include "Command.h"
 #include "devices/Termometr.h"
 #include "devices/Przekaznik.h"
+#include "devices/Higrometr.h"
 #include "LinkedList.h"
 // #include "System.h"6
 

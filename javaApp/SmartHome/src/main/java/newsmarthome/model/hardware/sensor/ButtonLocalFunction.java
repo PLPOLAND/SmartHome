@@ -141,7 +141,7 @@ public class ButtonLocalFunction {
         StringBuilder st = new StringBuilder();
         st.append("{");
         if (button != null) {
-            st.append("button_id: " + button.getName() + ",");
+            st.append("button_id: " + button.getNazwa() + ",");
         }
         if (deviceToControl != null) {
             st.append(", deviceToControl='" + deviceToControl.toString() + "'" );

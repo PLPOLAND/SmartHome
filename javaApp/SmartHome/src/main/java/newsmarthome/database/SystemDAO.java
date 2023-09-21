@@ -18,6 +18,7 @@ import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonClickType;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
 import newsmarthome.model.hardware.sensor.Termometr;
@@ -167,7 +168,7 @@ public class SystemDAO {
     /**
      * Zwraca listę wszystkich termometrów
      * 
-     * @return
+     * @return  lista termometrów
      */
     public ArrayList<Termometr> getAllTermometers() {// TODO pomyśleć jak można to usprawnić np. przez robienie od razu
                                                      // takiej listy w momencie dodawania termometrów do systemu
@@ -180,6 +181,22 @@ public class SystemDAO {
         }
         return termometry;
     }
+
+    /**
+     * Zwraca listę wszystkich higrometrów
+     * @return lista higrometrów
+     */
+    public List<Higrometr> getAllHigrometers() {
+        ArrayList<Higrometr> higrometry = new ArrayList<>();
+        for (Room room : this.getRoomsArrayList()) {
+            for (Sensor higrometr : room.getSensors()) {
+                if (higrometr.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR)
+                    higrometry.add((Higrometr) higrometr);
+            }
+        }
+        return higrometry;
+    }
+
 
     public ArrayList<Device> getDevices() {
         return this.devices;
@@ -222,22 +239,40 @@ public class SystemDAO {
     }
 
     /**
-     * Dodaje urządzenie do wskazanego pokoju
-     * 
-     * @param name - klucz pokoju / nazwa w systemie
-     * @param d    - urządzenie do dodania
-     * @throws Exception
+     * Dodaje sensor do systemu i zapisuje go 
+     * @param sensor - sensor do dodania
+     * @throws IllegalArgumentException - jeśli sensor ma błędne ID pokoju
      */
-    public void addDeviceToRoom(String name, Device d) throws IllegalArgumentException {
-        this.pokoje.get(name).addDevice(d);
-        save(this.pokoje.get(name));
-        logger.debug("Dodano urzadzenie do pokoju i zapisano");
+    public void addSensor(Sensor sensor) throws IllegalArgumentException {
+        this.sensors.add(sensor);
+        Room r ;
+        for (Room room : this.pokoje.values()) {
+            if(room.getID() == sensor.getRoom()){
+                r = room;
+                r.addSensor(sensor);
+                save(r);
+                logger.debug("Dodano sensor do pokoju i zapisano");
+                return;
+            }
+        }
     }
-
-    public void addSensorToRoom(String name, Sensor s) throws IllegalArgumentException {
-        this.pokoje.get(name).addSensor(s);
-        save(this.pokoje.get(name));
-        logger.debug("Dodano sensor do pokoju i zapisano");
+    /**
+     * Dodaje urządzenie do systemu i zapisuje go
+     * @param device - urządzenie do dodania
+     * @throws IllegalArgumentException - jeśli urządzenie ma błędne ID pokoju
+     */
+    public void addDevice(Device device) throws IllegalArgumentException {
+        this.devices.add(device);
+        Room r ;
+        for (Room room : this.pokoje.values()) {
+            if(room.getID() == device.getRoom()){
+                r = room;
+                r.addDevice(device);
+                save(r);
+                logger.debug("Dodano urzadzenie do pokoju i zapisano");
+                return;
+            }
+        }
     }
 
     /**
@@ -267,6 +302,10 @@ public class SystemDAO {
                 JsonNode roomNameNode = jsonNode.get("nazwa");
                 if (roomNameNode == null) {
                     roomNameNode = jsonNode.get("name");
+                    if (roomNameNode == null) {
+                        logger.error("Błąd podczas wczytywania pokoji, brak nazwy pokoju");
+                        break;
+                    }
                 }
                 room.setNazwa(roomNameNode.asText());
                 room.setSystemDAO(this);
@@ -311,10 +350,18 @@ public class SystemDAO {
                 }
                 for (JsonNode jsonNode2 : jsonNode.get("sensors")) {
                     Sensor sensor = hardwareFactory.createSensor(SensorsTypes.valueOf( jsonNode2.get("typ").asText()));
+                    JsonNode sensorNameNode = jsonNode2.get("nazwa");
+                    if (sensorNameNode == null) {
+                        sensorNameNode = jsonNode2.get("name");
+                        if (sensorNameNode == null) {
+                            logger.error("Błąd podczas wczytywania pokoji, brak nazwy sensora");
+                            break;
+                        }
+                    }
                     sensor.setId(jsonNode2.get("id").asInt());
-                    sensor.setOnSlaveID(jsonNode2.get("onSlaveID").asInt());
+                    sensor.setSlaveAdress(jsonNode2.get("slaveAdress").asInt());
                     sensor.setRoom(jsonNode2.get("room").asInt());
-                    sensor.setName(jsonNode2.get("name").asText());
+                    sensor.setNazwa(sensorNameNode.asText());
                     switch (sensor.getTyp()) {
                         case BUTTON:
                             Button button = (Button) sensor;
@@ -340,9 +387,17 @@ public class SystemDAO {
                             }
                             termometr.setAddres(addres);
                             termometr.setTemperatura( (float) jsonNode2.get("temperatura").asDouble());
-                            termometr.setMax((float) jsonNode2.get("max").asDouble());
-                            termometr.setMin((float) jsonNode2.get("min").asDouble());
+                            // termometr.setMaxTemperatura((float) jsonNode2.get("max").asDouble());
+                            // termometr.setMinTemperatura((float) jsonNode2.get("min").asDouble());
                             termometr.setSlaveAdress(jsonNode2.get("slaveAdress").asInt());
+                            break;
+                        case THERMOMETR_HYGROMETR:
+                            Higrometr higrometr = (Higrometr) sensor;
+                            higrometr.setTemperatura( (float) jsonNode2.get("temperatura").asDouble());
+                            higrometr.setHumidity(jsonNode2.get("humidity").asInt());
+
+                            //TODO                            
+
                             break;
                         //TODO dodać pozostałe sensory
                         default:
@@ -360,7 +415,7 @@ public class SystemDAO {
 
                 i++;
             } catch (JsonGenerationException | JsonMappingException e) {
-                logger.error("Błąd podczas wczytywania pokoi", e);
+                logger.error("Błąd podczas wczytywania pokoji", e);
                 break;
             }
             catch (IOException e) {
@@ -368,7 +423,7 @@ public class SystemDAO {
 
                 break;
             } catch (Exception e) {
-                logger.error("Błąd podczas wczytywania pokoi", e);
+                logger.error("Błąd podczas wczytywania pokoji", e);
                 break;
             }
         }

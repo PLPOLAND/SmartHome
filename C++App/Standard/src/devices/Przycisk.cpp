@@ -111,8 +111,8 @@ void Przycisk::updateStan(){
         time->begin(BUTTON_CLICK_TIME);
         stan = PRZYCISNIETY;
         klikniecia++;
-        OUT(F("clicks: "))
-        OUT_LN(klikniecia);
+        // OUT(F("clicks: "))
+        // OUT_LN(klikniecia);
         this->dioda.on(200);
     }
     else if (tmpStan == 1 && stan == BRAK_AKCJI) //Przyciśniecie po raz pierwszy
@@ -222,8 +222,8 @@ bool Przycisk::wykonaj(){
     case PUSZCZONY:// Przycisk nie był przytrzymywany i skończył się czas na kolejne przyciśnięcie
         {
             //OUT_LN(F("Wykonywanie PUSZCZONY"))
-            OUT(F("klikniec: "))
-            OUT_LN(klikniecia);
+            // OUT(F("klikniec: "))
+            // OUT_LN(klikniecia);
             if (funkcje_klikniecia.size()-1 >= klikniecia && funkcje_klikniecia.get(klikniecia)->getCommandType() != Command::KOMENDY::NIC)
             {
                 Command *command = funkcje_klikniecia.get(klikniecia);
@@ -248,9 +248,9 @@ bool Przycisk::wykonaj(){
         break;
     case BRAK_AKCJI://Przycisk był przytrzymany i został właśnie puszczony
         {
-            OUT_LN(F("Po przytrzymaniu"))
-            OUT(F("klikniec: "))
-            OUT_LN(klikniecia);
+            // OUT_LN(F("Po przytrzymaniu"))
+            // OUT(F("klikniec: "))
+            // OUT_LN(klikniecia);
             Command* command = new Command;
             byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
             params[0] = 'C';
@@ -271,14 +271,14 @@ bool Przycisk::wykonaj(){
 
 bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
     //OUT_LN(F("DODAJ FUNKCJE KLIKNIECIE"))
-    OUT(F("Przyski id: "))
-    OUT_LN(this->getId());
-    OUT("Klikniec: ")
-    OUT_LN(klikniec);
-    OUT_LN(command->toString());
-    OUT(F("Device ID: "))
-    OUT_LN(command->getDevice()->getId());
-    OUT_LN();
+    // OUT(F("Przyski id: "))
+    // OUT_LN(this->getId());
+    // OUT("Klikniec: ")
+    // OUT_LN(klikniec);
+    // OUT_LN(command->toString());
+    // OUT(F("Device ID: "))
+    // OUT_LN(command->getDevice()->getId());
+    // OUT_LN();
     Command* tmp = new Command;
     tmp->makeCopy(command);
     if(!this->funkcje_klikniecia.set(klikniec,tmp)){//TODO: Wyciek pamięci!
@@ -290,11 +290,11 @@ bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
 }
 bool Przycisk::usunFunkcjeKlikniecia(byte klikniec){
     //OUT_LN(F("USUN FUNKCJE KLIKNIECIE"))
-    OUT(F("Przyski id: "))
-    OUT_LN(this->getId());
-    OUT("Klikniec: ")
-    OUT_LN(klikniec);
-    OUT_LN();
+    // OUT(F("Przyski id: "))
+    // OUT_LN(this->getId());
+    // OUT("Klikniec: ")
+    // OUT_LN(klikniec);
+    // OUT_LN();
     delete this->funkcje_klikniecia.get(klikniec);
     if (!this->funkcje_klikniecia.set(klikniec, const_cast<Command *> (zapychacz))){
         this->funkcje_klikniecia.add(klikniec, const_cast<Command *>(zapychacz)); // jeśli komenda dla tylu kliknięć jeszcze nie istnieje to dodaj ją.
@@ -314,9 +314,9 @@ bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klik
 
 bool Przycisk::runCommand(Command *command)
 {
-    OUT_LN()
+    // OUT_LN()
     //OUT_LN(F("RUN_COMMAND:"))
-    OUT_LN(command->toString())
+    // OUT_LN(command->toString())
 
     if (this->isCzyPominac())
     {
@@ -335,7 +335,7 @@ bool Przycisk::runCommand(Command *command)
         {
             Przekaznik *tmp = (Przekaznik *)System::getSystem()->getDevice(command->getDevice()->getId());
             //OUT_LN(F("PRZEKAZNIK"))
-            OUT_LN(tmp->toString());
+            // OUT_LN(tmp->toString());
             if (tmp->getStan())
             {
                 tmp->setStan(false);

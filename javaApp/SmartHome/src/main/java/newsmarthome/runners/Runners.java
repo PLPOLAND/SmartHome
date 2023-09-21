@@ -27,6 +27,7 @@ import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.Termometr;
 
@@ -115,6 +116,22 @@ public class Runners {
             for (Termometr termometr : systemDAO.getAllTermometers()) {
                 if (slaveSender.isSlaveConnected(termometr.getSlaveAdress())) {
                     termometr.update();
+                }
+            }
+            for (Higrometr higrometr : systemDAO.getAllHigrometers()) {
+                try{
+                    if (slaveSender.isSlaveConnected(higrometr.getSlaveAdress())) {
+                        if (slaveSender.checkInitOfBoard(higrometr.getSlaveAdress())) {
+                            higrometr.update();
+                        }
+                        else{
+                            configureSlave(higrometr.getSlaveAdress());
+                        }
+                    }
+
+                }
+                catch (HardwareException|SoftwareException e) {
+                    logger.error("Bład podczas sprawdzania stanu higrometru o id: {}: {}", higrometr.getId(), e.getMessage());
                 }
             }
         }
@@ -231,15 +248,25 @@ public class Runners {
                 }
                 logger.debug("Sending sensors configuration to slave {}", slaveAdress);
                 for (Sensor sensor : systemDAO.getSensors()) {
-                    // jeśli sensor jest przyciskiem i jest na tym slave to wyślij jego konfigurację
+                    // jeśli sensor jest przyciskiem lub higrometrem i jest na tym slave to wyślij jego konfigurację
                     // na slave'a
-                    // logger.debug("Checking sensor {} on slave {}", sensor, slaveAdress);
                     if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
                         Button button = (Button) sensor;
                         logger.debug("Sending button (id:{}) configuration to slave {}",button.getId(), slaveAdress);
                         button.configure();
                         try{
-                            Thread.sleep(100);
+                            Thread.sleep(10);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
+                    }
+                    else if(sensor.getSlaveAdress() == slaveAdress && sensor instanceof Higrometr){
+                        Higrometr higrometr = (Higrometr) sensor;
+                        logger.debug("Sending higrometr (id:{}) configuration to slave {}",higrometr.getId(), slaveAdress);
+                        higrometr.configure();
+                        try{
+                            Thread.sleep(10);
                         }
                         catch(InterruptedException e){
                             logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
@@ -276,7 +303,7 @@ public class Runners {
                         logger.info("Dodano nowy termometr do systemu: slave -> {}; adres -> {}", slaveAdress, Arrays.toString(addres));
                         Termometr termometr = new Termometr(slaveAdress);
                         termometr.setAddres(addres);
-                        termometr.setName("Dodany automatycznie, slave=" + slaveAdress);
+                        termometr.setNazwa("Dodany automatycznie, slave=" + slaveAdress);
                         Room tmp = systemDAO.getRoom("Brak");
                         if (tmp != null) {
 
