@@ -26,6 +26,7 @@ import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
+import newsmarthome.model.hardware.sensor.Higrometr;
 // import newsmarthome.model.hardware.sensor.Higrometr; //TODO uncomment after adding higrometr
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
@@ -151,33 +152,39 @@ public class SensorsController {
 					switch (typeSensora) {
 						case THERMOMETR:
 							return new Response<>(null, "Nie można dodać termometru ręcznie! Termometry dodawane są automatycznie po wykryciu na slave-ie.");
-						case THERMOMETR_HYGROMETR:
-							return new Response<Sensor>(null, "Not implemented yet");
-						case TWILIGHT:
-							return new Response<Sensor>(null, "Not implemented yet");
-						case MOTION:
-							return new Response<Sensor>(null, "Not implemented yet");
-						case BUTTON:
+						case THERMOMETR_HYGROMETR: {
 							Room room = systemDAO.getRoom(roomID);
-						 	Button button = systemDAO.addButton(room, name, slaveIDint, Integer.parseInt(pin));
-							if(automations != null){
+							Higrometr higrometr = systemDAO.addHigrometr(room, name, slaveIDint);
+							return new Response<>(higrometr);
+						}
+
+						case TWILIGHT:
+							return new Response<>(null, "Not implemented yet");
+						case MOTION:
+							return new Response<>(null, "Not implemented yet");
+						case BUTTON: {
+							Room room = systemDAO.getRoom(roomID);
+							Button button = systemDAO.addButton(room, name, slaveIDint, Integer.parseInt(pin));
+							if (automations != null) {
 								ObjectMapper mapper = new ObjectMapper();
 								mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
 								JsonNode jsonNode = mapper.readTree(automations);
-								//TODO: load automations for button
+								// TODO: load automations for button
 								for (JsonNode jsonNode2 : jsonNode) {
 									ButtonLocalFunction function = new ButtonLocalFunction();
 									function.setButton(button);
 									function.setClicks(jsonNode2.get("clicks").asInt());
-									function.setState(ButtonLocalFunction.State.fromString(jsonNode2.get("state").asText()));
+									function.setState(
+											ButtonLocalFunction.State.fromString(jsonNode2.get("state").asText()));
 									function.setDevice(systemDAO.getDeviceByID(jsonNode2.get("device").asInt()));
 									button.addFunkcjaKilkniecia(function);
 								}
 								logger.info(button.toString());
 							}
-							return new Response<Sensor>(button);
+							return new Response<>(button);
+						}
 						default:
-							return new Response<Sensor>(null, "Nieznany typ czujnika");
+							return new Response<>(null, "Nieznany typ czujnika");
 					}
 				}
 				catch(IOException e){

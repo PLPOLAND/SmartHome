@@ -628,6 +628,9 @@ public class SystemDAO {
         room.addSensor(sensor);
         if(sensor.getTyp() == SensorsTypes.BUTTON)
             ((Button) sensor).configure();
+        else if(sensor.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR){
+            ((Higrometr) sensor).configure();
+        }
         save(room);
         return sensor;
     }
@@ -639,6 +642,13 @@ public class SystemDAO {
         button.setPin(pin);
         button = (Button) addSensor(room, button);
         return button;
+    }
+    public Higrometr addHigrometr(Room room, String name, int slaveID){
+        Higrometr higrometr = (Higrometr) hardwareFactory.createSensor(SensorsTypes.THERMOMETR_HYGROMETR);
+        higrometr.setSlaveAdress(slaveID);
+        higrometr.setNazwa(name);
+        higrometr = (Higrometr) addSensor(room, higrometr);
+        return higrometr;
     }
 
     @Override
