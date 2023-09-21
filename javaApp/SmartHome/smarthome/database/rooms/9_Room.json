@@ -1,5 +1,6 @@
 {
   "id" : 9,
+  "name" : "Rodzice",
   "devices" : [ {
     "@type" : "Light",
     "id" : 41,
@@ -8,12 +9,8 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Light",
     "id" : 42,
@@ -22,12 +19,8 @@
     "onSlaveID" : 1,
     "name" : "Poziom 2",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 12
   }, {
     "@type" : "Blind",
     "id" : 43,
@@ -36,22 +29,22 @@
     "onSlaveID" : 2,
     "name" : "Rodzice",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
     "switchUp" : {
-      "stan" : "ON",
+      "stan" : "OFF",
       "pin" : 15
     },
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
-    },
-    "state" : "NOTKNOW"
+    }
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 112,
     "room" : 9,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
@@ -67,12 +60,8 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     } ],
     "slaveAdress" : 17
@@ -81,7 +70,7 @@
     "id" : 120,
     "room" : 9,
     "onSlaveID" : 4,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Taras",
     "typ" : "BUTTON",
     "pin" : 17,
@@ -97,15 +86,15 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 15
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "DOWN",
@@ -119,15 +108,15 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 15
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "STOP",
@@ -141,18 +130,18 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 15
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
-        },
-        "state" : "NOTKNOW"
+        }
       }
     } ],
     "slaveAdress" : 17
   } ],
-  "nazwa" : "Rodzice"
+  "loaded" : false
 }

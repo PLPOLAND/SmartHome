@@ -6,12 +6,6 @@
   "email" : "marekpaldyna@wp.pl",
   "password" : "gzrcoeel",
   "oldPassword" : "xxx",
-  "uprawnienia" : {
-    "admin" : true
-  },
-  "opcje" : {
-    "typAvatara" : null,
-    "lokalnaSciezka" : "../img/users/12322601_643168719175369_7590023013141216084_o.jpg",
-    "themeSciezka" : "yellow.css"
-  }
+  "token" : "gyraajemjejgrzhy",
+  "favoriteRooms" : ""
 }

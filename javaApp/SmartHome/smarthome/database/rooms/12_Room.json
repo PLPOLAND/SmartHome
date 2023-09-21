@@ -1,5 +1,6 @@
 {
   "id" : 12,
+  "name" : "Taras",
   "devices" : [ {
     "@type" : "Light",
     "id" : 48,
@@ -8,12 +9,8 @@
     "onSlaveID" : 0,
     "name" : "Boczne",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Light",
     "id" : 49,
@@ -22,19 +19,15 @@
     "onSlaveID" : 1,
     "name" : "Górne ",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 12
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 124,
     "room" : 12,
     "onSlaveID" : 2,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
@@ -50,12 +43,8 @@
         "onSlaveID" : 0,
         "name" : "Boczne",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     }, {
       "state" : "NONE",
@@ -69,15 +58,11 @@
         "onSlaveID" : 1,
         "name" : "Górne ",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
-        "pin" : 12,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 12
       }
     } ],
     "slaveAdress" : 20
   } ],
-  "nazwa" : "Taras"
+  "loaded" : false
 }

@@ -1,5 +1,6 @@
 {
   "id" : 10,
+  "name" : "Salon",
   "devices" : [ {
     "@type" : "Blind",
     "id" : 40,
@@ -8,15 +9,15 @@
     "onSlaveID" : 0,
     "name" : "Taras",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 16
     },
     "switchDown" : {
-      "stan" : "ON",
+      "stan" : "OFF",
       "pin" : 15
-    },
-    "state" : "NOTKNOW"
+    }
   }, {
     "@type" : "Blind",
     "id" : 38,
@@ -25,15 +26,15 @@
     "onSlaveID" : 0,
     "name" : "Jadalnia",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 16
     },
     "switchDown" : {
-      "stan" : "ON",
+      "stan" : "OFF",
       "pin" : 15
-    },
-    "state" : "NOTKNOW"
+    }
   }, {
     "@type" : "Blind",
     "id" : 39,
@@ -42,15 +43,15 @@
     "onSlaveID" : 1,
     "name" : "Przy Tarasie",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 13
     },
     "switchDown" : {
-      "stan" : "ON",
+      "stan" : "OFF",
       "pin" : 12
-    },
-    "state" : "NOTKNOW"
+    }
   }, {
     "@type" : "Light",
     "id" : 50,
@@ -59,12 +60,8 @@
     "onSlaveID" : 0,
     "name" : "Przedpokój",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Light",
     "id" : 51,
@@ -73,19 +70,15 @@
     "onSlaveID" : 1,
     "name" : "Przedpokój/Jadalnia",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 12
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 123,
     "room" : 10,
     "onSlaveID" : 1,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Jadalnia",
     "typ" : "BUTTON",
     "pin" : 17,
@@ -101,15 +94,15 @@
         "onSlaveID" : 0,
         "name" : "Jadalnia",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "DOWN",
@@ -123,15 +116,15 @@
         "onSlaveID" : 0,
         "name" : "Jadalnia",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "STOP",
@@ -145,15 +138,15 @@
         "onSlaveID" : 0,
         "name" : "Jadalnia",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "state" : "NOTKNOW"
+        }
       }
     } ],
     "slaveAdress" : 19
@@ -162,7 +155,7 @@
     "id" : 121,
     "room" : 10,
     "onSlaveID" : 2,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Taras",
     "typ" : "BUTTON",
     "pin" : 17,
@@ -178,15 +171,15 @@
         "onSlaveID" : 0,
         "name" : "Taras",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "UP",
@@ -200,15 +193,15 @@
         "onSlaveID" : 0,
         "name" : "Taras",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "STOP",
@@ -222,15 +215,15 @@
         "onSlaveID" : 0,
         "name" : "Taras",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "state" : "NOTKNOW"
+        }
       }
     } ],
     "slaveAdress" : 18
@@ -239,7 +232,7 @@
     "id" : 122,
     "room" : 10,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Przy Tarasie",
     "typ" : "BUTTON",
     "pin" : 14,
@@ -255,15 +248,15 @@
         "onSlaveID" : 1,
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 13
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 12
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "DOWN",
@@ -277,15 +270,15 @@
         "onSlaveID" : 1,
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 13
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 12
-        },
-        "state" : "NOTKNOW"
+        }
       }
     }, {
       "state" : "STOP",
@@ -299,15 +292,15 @@
         "onSlaveID" : 1,
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
+        "state" : "NOTKNOW",
         "switchUp" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 13
         },
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 12
-        },
-        "state" : "NOTKNOW"
+        }
       }
     } ],
     "slaveAdress" : 18
@@ -316,7 +309,7 @@
     "id" : 125,
     "room" : 10,
     "onSlaveID" : 2,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "addres" : null,
     "name" : "Światło Przedsionek",
     "typ" : "BUTTON",
     "pin" : 14,
@@ -332,12 +325,8 @@
         "onSlaveID" : 0,
         "name" : "Przedpokój",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     }, {
       "state" : "NONE",
@@ -351,15 +340,11 @@
         "onSlaveID" : 1,
         "name" : "Przedpokój/Jadalnia",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
-        "pin" : 12,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 12
       }
     } ],
     "slaveAdress" : 21
   } ],
-  "nazwa" : "Salon"
+  "loaded" : false
 }
