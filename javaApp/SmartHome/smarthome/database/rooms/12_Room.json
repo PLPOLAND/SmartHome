@@ -28,7 +28,7 @@
     "room" : 12,
     "onSlaveID" : 2,
     "addres" : null,
-    "name" : "Światło",
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {

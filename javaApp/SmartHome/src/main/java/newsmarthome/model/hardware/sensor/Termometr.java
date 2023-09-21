@@ -4,6 +4,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Termometr
  * Dziedziczy po Sensor.
@@ -12,29 +16,35 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonSubTypes({ 
+    @JsonSubTypes.Type(value = Higrometr.class, name = "Higrometr"),
+    })
 public class Termometr extends Sensor{
 
     /**Aktualna Temperatura */
     Float temperatura;
     /**Maxymalna Temperatura */
-    Float max;
+    Float maxTemperatura;
     /**Minimalna Temperaturna */
-    Float min;
+    Float minTemperatura;
 
 
     public Termometr(){
         super(SensorsTypes.THERMOMETR);
         this.temperatura = Float.MAX_VALUE;
-        this.max = Float.MIN_VALUE;
-        this.min = Float.MAX_VALUE;
+        this.maxTemperatura = Float.MIN_VALUE;
+        this.minTemperatura = Float.MAX_VALUE;
         logger = LoggerFactory.getLogger(Termometr.class);
     }
 
     public Termometr(int slaveID){
         super(slaveID, SensorsTypes.THERMOMETR);
         this.temperatura = Float.MAX_VALUE;
-        this.max = Float.MIN_VALUE;
-        this.min = Float.MAX_VALUE;
+        this.maxTemperatura = Float.MIN_VALUE;
+        this.minTemperatura = Float.MAX_VALUE;
         logger = LoggerFactory.getLogger(Termometr.class);
     }
     /**
@@ -49,8 +59,8 @@ public class Termometr extends Sensor{
     public Termometr(int id, int room, int idPlytki, int[] addres, Float temperatura, Float max, Float min) {
         super(id ,room, idPlytki, addres, SensorsTypes.THERMOMETR);
         this.temperatura = temperatura;
-        this.max = max;
-        this.min = min;
+        this.maxTemperatura = max;
+        this.minTemperatura = min;
         logger = LoggerFactory.getLogger(Termometr.class);
     }
     
@@ -61,35 +71,34 @@ public class Termometr extends Sensor{
 
     public void setTemperatura(Float temperatura) {
         this.temperatura = temperatura;
-        if (this.max < temperatura) {
-            max = temperatura; // ustaw minimalną temperaturę
+        if (this.maxTemperatura < temperatura) {
+            setMinTemperatura(temperatura); // ustaw minimalną temperaturę 
         }
-        if (this.min > temperatura) {
-            min = temperatura; // ustaw maxymalną temperaturę
+        if (this.minTemperatura > temperatura) {
+            setMaxTemperatura(temperatura); // ustaw maxymalną temperaturę
         }
     }
-
-    public Float getMax() {
-        return this.max;
+    public Float getMaxTemperatura() {
+        return this.maxTemperatura;
     }
     public void clearMax(){
-        this.max=Float.MIN_VALUE;
+        this.maxTemperatura=Float.MIN_VALUE;
     }
 
-    public Float getMin() {
-        return this.min;
+    public Float getMinTemperatura() {
+        return this.minTemperatura;
     }
 
     public void clearMin() {
-        this.min = Float.MAX_VALUE;
+        this.minTemperatura = Float.MAX_VALUE;
     }
 
-    public void setMax(Float max) {
-        this.max = max;
+    public void setMaxTemperatura(Float max) {
+        this.maxTemperatura = max;
     }
 
-    public void setMin(Float min) {
-        this.min = min;
+    public void setMinTemperatura(Float min) {
+        this.minTemperatura = min;
     }
 
     
@@ -104,8 +113,8 @@ public class Termometr extends Sensor{
     public String toString() {
         return "{" +
             " temperatura='" + getTemperatura() + "'" +
-            ", max='" + getMax() + "'" +
-            ", min='" + getMin() + "'" +
+            ", maxTemperatura='" + getMaxTemperatura() + "'" +
+            ", minTemperatura='" + getMinTemperatura() + "'" +
             ", super = '"+super.toString()+"'}";
     }
 

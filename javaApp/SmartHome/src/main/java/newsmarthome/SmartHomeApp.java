@@ -21,6 +21,7 @@ import newsmarthome.i2c.MasterToSlaveConverter;
 import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.Termometr;
 
@@ -62,10 +63,12 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 		while(!in.equals("end") && !in.equals("stop") && ! in.equals("exit")){
 			in = scanner.next();
 			try{
-				// if(in.equals("print")){
-				// 	log.info(adminController.getSystemData().getObj().toString());
-				// 	log.info(system.getAutomationDAO().toString());
-				// }
+				if(in.equals("print")){
+					logger.info("{}", systemDAO);
+				}
+				else if(in.equals("restart")){
+					slaveSender.restartAllSlaves();
+				}
 				// else if(in.equals("find")){
 				// 	log.info(adminController.find().getObj().toString());
 				// }
@@ -235,6 +238,13 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 				if(in.equals("test")){
 					logger.info("test");
 					logger.info("{}", systemDAO);
+					Higrometr higrometr = new Higrometr(1);
+					higrometr.setSlaveAdress(10);
+					higrometr.setNazwa("test");
+					higrometr.setRoom(0);
+					systemDAO.addSensor(higrometr);
+					logger.info("{}", systemDAO);
+
 
 					// if (system.isSlaveConnected(15)) {
 							
@@ -326,7 +336,7 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 									if (!existed) {
 										Termometr termometr = new Termometr(slaveAdress);
 										termometr.setAddres(addres);
-										termometr.setName("Dodany automatycznie, slave=" + slaveAdress);
+										termometr.setNazwa("Dodany automatycznie, slave=" + slaveAdress);
 										Room tmp = systemDAO.getRoom("Brak");
 										if (tmp != null) {
 

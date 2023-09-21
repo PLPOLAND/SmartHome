@@ -14,7 +14,8 @@ class Device
 			ROLETA,
 			PRZYCISK,
 			PRZYCISK_ROLETA,
-			TERMOMETR
+			TERMOMETR,
+			HIGROMETR
 		};
 		Device();
 		Device(TYPE type);

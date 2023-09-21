@@ -13,12 +13,24 @@
     "pin" : 13
   } ],
   "sensors" : [ {
+    "@type" : "Termometr",
+    "id" : 103,
+    "room" : 8,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 137, 24, 112, 13, 0, 0, 152 ],
+    "nazwa" : "Korytarz",
+    "typ" : "THERMOMETR",
+    "temperatura" : 24.0,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 24.0,
+    "slaveAdress" : 11
+  }, {
     "@type" : "Button",
     "id" : 111,
     "room" : 8,
     "onSlaveID" : 1,
     "addres" : null,
-    "name" : "Światło",
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {

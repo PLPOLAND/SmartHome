@@ -35,7 +35,7 @@
     "room" : 1,
     "onSlaveID" : 3,
     "addres" : null,
-    "name" : "Światło",
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -61,7 +61,7 @@
     "room" : 1,
     "onSlaveID" : 4,
     "addres" : null,
-    "name" : "Rolety",
+    "nazwa" : "Rolety",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -132,149 +132,6 @@
       }
     } ],
     "slaveAdress" : 8
-  }, {
-    "@type" : "Button",
-    "id" : 29,
-    "room" : 1,
-    "onSlaveID" : -1,
-    "addres" : null,
-    "name" : "testowy",
-    "typ" : "BUTTON",
-    "pin" : 12,
-    "funkcjeKlikniec" : [ {
-      "state" : "NONE",
-      "type" : "CLICKED",
-      "clicks" : 2,
-      "device" : {
-        "@type" : "Blind",
-        "id" : 1,
-        "room" : 1,
-        "slaveID" : 8,
-        "onSlaveID" : 1,
-        "name" : "Garderoba",
-        "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
-      }
-    }, {
-      "state" : "DOWN",
-      "type" : "CLICKED",
-      "clicks" : 3,
-      "device" : {
-        "@type" : "Blind",
-        "id" : 1,
-        "room" : 1,
-        "slaveID" : 8,
-        "onSlaveID" : 1,
-        "name" : "Garderoba",
-        "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
-      }
-    } ],
-    "slaveAdress" : 13
-  }, {
-    "@type" : "Button",
-    "id" : 30,
-    "room" : 1,
-    "onSlaveID" : -1,
-    "addres" : null,
-    "name" : "Sensor Testowy 2",
-    "typ" : "BUTTON",
-    "pin" : 13,
-    "funkcjeKlikniec" : [ ],
-    "slaveAdress" : 13
-  }, {
-    "@type" : "Button",
-    "id" : 31,
-    "room" : 1,
-    "onSlaveID" : -1,
-    "addres" : null,
-    "name" : "test",
-    "typ" : "BUTTON",
-    "pin" : 12,
-    "funkcjeKlikniec" : [ {
-      "state" : "DOWN",
-      "type" : "CLICKED",
-      "clicks" : 3,
-      "device" : {
-        "@type" : "Blind",
-        "id" : 1,
-        "room" : 1,
-        "slaveID" : 8,
-        "onSlaveID" : 1,
-        "name" : "Garderoba",
-        "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
-      }
-    } ],
-    "slaveAdress" : 12
-  }, {
-    "@type" : "Button",
-    "id" : 32,
-    "room" : 1,
-    "onSlaveID" : -1,
-    "addres" : null,
-    "name" : "testyu",
-    "typ" : "BUTTON",
-    "pin" : 13,
-    "funkcjeKlikniec" : [ {
-      "state" : "UP",
-      "type" : "CLICKED",
-      "clicks" : 1,
-      "device" : {
-        "@type" : "Blind",
-        "id" : 1,
-        "room" : 1,
-        "slaveID" : 8,
-        "onSlaveID" : 1,
-        "name" : "Garderoba",
-        "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
-      }
-    } ],
-    "slaveAdress" : 13
-  }, {
-    "@type" : "Button",
-    "id" : 33,
-    "room" : 1,
-    "onSlaveID" : -1,
-    "addres" : null,
-    "name" : "testujemy",
-    "typ" : "BUTTON",
-    "pin" : 12,
-    "funkcjeKlikniec" : [ ],
-    "slaveAdress" : 13
   } ],
-  "loaded" : true
+  "loaded" : false
 }

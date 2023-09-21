@@ -39,53 +39,65 @@
     "state" : "OFF",
     "pin" : 12
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 46,
     "room" : 3,
     "slaveID" : 14,
     "onSlaveID" : 0,
     "name" : "Gnd TV",
-    "typ" : "LIGHT",
+    "typ" : "GNIAZDKO",
     "state" : "OFF",
     "pin" : 15
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 47,
     "room" : 3,
     "slaveID" : 14,
     "onSlaveID" : 1,
     "name" : "Gnd koło łóżka 1",
-    "typ" : "LIGHT",
+    "typ" : "GNIAZDKO",
     "state" : "ON",
     "pin" : 16
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 56,
     "room" : 3,
     "slaveID" : 14,
     "onSlaveID" : 2,
     "name" : "Gniazdko Biurko L",
-    "typ" : "LIGHT",
+    "typ" : "GNIAZDKO",
     "state" : "ON",
     "pin" : 13
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 57,
     "room" : 3,
     "slaveID" : 14,
     "onSlaveID" : 3,
     "name" : "Gniazdko Biurko P",
-    "typ" : "LIGHT",
+    "typ" : "GNIAZDKO",
     "state" : "OFF",
     "pin" : 12
   } ],
   "sensors" : [ {
+    "@type" : "Termometr",
+    "id" : 102,
+    "room" : 3,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 144, 126, 153, 156 ],
+    "nazwa" : "Marek",
+    "typ" : "THERMOMETR",
+    "temperatura" : 24.06,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 24.06,
+    "slaveAdress" : 15
+  }, {
     "@type" : "Button",
     "id" : 117,
     "room" : 3,
     "onSlaveID" : 3,
     "addres" : null,
-    "name" : "Rolety",
+    "nazwa" : "Rolety",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -162,7 +174,7 @@
     "room" : 3,
     "onSlaveID" : 4,
     "addres" : null,
-    "name" : "Światło",
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {

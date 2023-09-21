@@ -79,7 +79,7 @@
     "room" : 10,
     "onSlaveID" : 1,
     "addres" : null,
-    "name" : "Jadalnia",
+    "nazwa" : "Jadalnia",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -156,7 +156,7 @@
     "room" : 10,
     "onSlaveID" : 2,
     "addres" : null,
-    "name" : "Taras",
+    "nazwa" : "Taras",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -233,7 +233,7 @@
     "room" : 10,
     "onSlaveID" : 3,
     "addres" : null,
-    "name" : "Przy Tarasie",
+    "nazwa" : "Przy Tarasie",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -310,7 +310,7 @@
     "room" : 10,
     "onSlaveID" : 2,
     "addres" : null,
-    "name" : "Światło Przedsionek",
+    "nazwa" : "Światło Przedsionek",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {

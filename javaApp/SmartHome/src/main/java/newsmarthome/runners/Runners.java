@@ -22,10 +22,12 @@ import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Blind;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
+import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.device.Fan;
 import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.Termometr;
 
@@ -50,11 +52,26 @@ public class Runners {
     /** Zatrzymuje sprawdzanie automatyki*/
     private boolean stopCheckingAutomation = false; 
 
-    @Scheduled(fixedDelay = 200)
+    @Scheduled(fixedDelay = 2)
     void queue(){
+        // long time = System.currentTimeMillis();
+        // long sumTime = 0;
         checkAutomationFunctions();
+        // logger.info("autmations RunTime: {}", System.currentTimeMillis() - time);
+        // sumTime += System.currentTimeMillis() - time;
+        // time = System.currentTimeMillis();
         statusCheck();
+        // logger.info("status RunTime: {}", System.currentTimeMillis() - time);
+        // sumTime += System.currentTimeMillis() - time;
+        // time = System.currentTimeMillis();
         checkAutomationFunctions();
+        // logger.info("autmations RunTime: {}", System.currentTimeMillis() - time);
+        // sumTime += System.currentTimeMillis() - time;
+        // time = System.currentTimeMillis();
+        checkInitOfBoards();
+        // logger.info("checkInit RunTime: {}", System.currentTimeMillis() - time);
+        // sumTime += System.currentTimeMillis() - time;
+        // logger.info("all RunTime: {}", sumTime);
     }
 
     /**
@@ -70,15 +87,7 @@ public class Runners {
                     if (slaveSender.isSlaveConnected(device.getSlaveID())){
                         // logger.debug("Slave {} is connected", device.getSlaveID());
                         logger.debug("Checking status of device (id: {}, name:{}, type: {}, configured: {}) ", device.getId(), device.getName(), device.getTyp(), device.isConfigured());
-                        if (slaveSender.checkInitOfBoard(device.getSlaveID())) {
-                            device.setConfigured();
-                            device.updateDeviceState();
-                        }
-                        else{
-                            device.resetConfigured();
-                            configureSlave(device.getSlaveID());
-                        }
-                        
+                        device.updateDeviceState();
                     }
                     else{
                         logger.debug("Slave {} is not connected", device.getSlaveID());
@@ -86,37 +95,6 @@ public class Runners {
                     }
                 } catch (HardwareException e) {
                     logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
-                        // if (e.getResponse() != null && e.getResponse()[0] == 'E') {
-                        //     try{
-                        //         Thread.sleep(100);
-                        //         device.updateDeviceState();
-                        //     }
-                        //     catch(InterruptedException ex){
-                        //         logger.error("Błąd podczas usypiania wątku: {}", ex.getMessage());
-                        //     }
-                        //     catch(HardwareException ex){
-                        //     device.resetConfigured();
-                        //     configureSlave(device.getSlaveID());
-                        //     }
-                        //     catch(SoftwareException ex){
-                        //         logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), ex.getMessage());
-                        //         if (ex.getExpected() != null ) {
-                        //             if (device instanceof Light || device instanceof Fan || device instanceof Outlet){
-                        //                 logger.debug("Trying to turn off device");
-                        //                 device.changeState(DeviceState.OFF);
-                        //             } 
-                        //             else if (device instanceof Blind){
-                        //                 logger.debug("Trying to stop blind");
-                        //                 device.changeState(DeviceState.UP);
-                        //                 device.changeState(DeviceState.NOTKNOW);
-                        //             }
-                        //         }
-                        //         else{
-                        //             logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(ex.getStackTrace()));
-                        //         }
-                        //     }
-                        // }
-                   
                 }
                 catch(SoftwareException e){
                     logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
@@ -138,6 +116,22 @@ public class Runners {
             for (Termometr termometr : systemDAO.getAllTermometers()) {
                 if (slaveSender.isSlaveConnected(termometr.getSlaveAdress())) {
                     termometr.update();
+                }
+            }
+            for (Higrometr higrometr : systemDAO.getAllHigrometers()) {
+                try{
+                    if (slaveSender.isSlaveConnected(higrometr.getSlaveAdress())) {
+                        if (slaveSender.checkInitOfBoard(higrometr.getSlaveAdress())) {
+                            higrometr.update();
+                        }
+                        else{
+                            configureSlave(higrometr.getSlaveAdress());
+                        }
+                    }
+
+                }
+                catch (HardwareException|SoftwareException e) {
+                    logger.error("Bład podczas sprawdzania stanu higrometru o id: {}: {}", higrometr.getId(), e.getMessage());
                 }
             }
         }
@@ -182,9 +176,6 @@ public class Runners {
             for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
                 if (slaveSender.isSlaveConnected(slaveAdress)) { // jeśli jest podłączony
                     try {
-                        if (!slaveSender.checkInitOfBoard(slaveAdress)){// sprawdź czy jest skonfigurowany
-                            configureSlave(slaveAdress); // jeśli nie to wyślij mu konfigurację
-                        } 
                         int howMany = slaveSender.howManyCommandToRead(slaveAdress); // sprawdź ile komend czeka na odczytanie
                         if (howMany > 0) { // jeśli są jakieś komendy w kolejce
                             for (int i = 0; i < howMany; i++) {
@@ -204,13 +195,30 @@ public class Runners {
                                 }
                             }
                         }
-                    } catch (HardwareException | SoftwareException e) {
+                    } catch (HardwareException e) {
                         logger.error("Error in checkAutomationFunctions. Error: {}", e.getMessage());
                     }
                 }
             }
         } else {
             logger.debug("checkAutomationFunctions is paused");
+        }
+    }
+
+    private void checkInitOfBoards(){
+        for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
+            if (slaveSender.isSlaveConnected(slaveAdress)) { // jeśli jest podłączony
+                try {
+                    if (!slaveSender.checkInitOfBoard(slaveAdress)){// sprawdź czy jest skonfigurowany
+                        configureSlave(slaveAdress); // jeśli nie to wyślij mu konfigurację
+                    } else{
+                        logger.debug("Slave {} is configured", slaveAdress);
+                        systemDAO.getAllDevicesFromSlave(slaveAdress).forEach(Device::setConfigured);
+                    }
+                } catch (HardwareException|SoftwareException e) {
+                    logger.error("Error in checkInitOfBoards. Error: {}", e.getMessage());
+                }
+            }
         }
     }
 
@@ -231,7 +239,7 @@ public class Runners {
                         device.resetConfigured();
                         device.configureToSlave();
                         try{
-                            Thread.sleep(100);
+                            Thread.sleep(10);
                         }
                         catch(InterruptedException e){
                             logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
@@ -240,15 +248,25 @@ public class Runners {
                 }
                 logger.debug("Sending sensors configuration to slave {}", slaveAdress);
                 for (Sensor sensor : systemDAO.getSensors()) {
-                    // jeśli sensor jest przyciskiem i jest na tym slave to wyślij jego konfigurację
+                    // jeśli sensor jest przyciskiem lub higrometrem i jest na tym slave to wyślij jego konfigurację
                     // na slave'a
-                    // logger.debug("Checking sensor {} on slave {}", sensor, slaveAdress);
                     if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
                         Button button = (Button) sensor;
                         logger.debug("Sending button (id:{}) configuration to slave {}",button.getId(), slaveAdress);
                         button.configure();
                         try{
-                            Thread.sleep(100);
+                            Thread.sleep(10);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
+                    }
+                    else if(sensor.getSlaveAdress() == slaveAdress && sensor instanceof Higrometr){
+                        Higrometr higrometr = (Higrometr) sensor;
+                        logger.debug("Sending higrometr (id:{}) configuration to slave {}",higrometr.getId(), slaveAdress);
+                        higrometr.configure();
+                        try{
+                            Thread.sleep(10);
                         }
                         catch(InterruptedException e){
                             logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
@@ -257,7 +275,7 @@ public class Runners {
 
                 }
             }
-            logger.debug("Sending Thermometers configuration to slave {}", slaveAdress);
+            logger.info("Sending Thermometers configuration to slave {}", slaveAdress);
             // sprawdź i dodaj termometry
             int howManyTermometersAreOnSlave = slaveSender.howManyThermometersOnSlave(slaveAdress);
             ArrayList<Termometr> termometry = systemDAO.getAllTermometers();
@@ -265,6 +283,7 @@ public class Runners {
                 for (int i = 0; i < howManyTermometersAreOnSlave; i++) {
                     int[] addres;
                     addres = slaveSender.addTermometr(slaveAdress);// dodaj termometr na slavie
+                    logger.info("Otrzymano adres termometru: {}", Arrays.toString(addres));
                     //Sprawdź czy adres nie jest zawiera samych zer lub samych 255
                     if (!checkAdress(addres)) {
                         logger.error("Niepoprawny adres termometru: {}", Arrays.toString(addres));
@@ -275,14 +294,16 @@ public class Runners {
                     for (Termometr t : termometry) {// wśród wszystkich dodanych w systemie
                         if (Arrays.equals(t.getAddres(), addres)) {// znajdź ten który został właśnie dodany
                             t.setSlaveAdress(slaveAdress);// zmień mu adres slave-a
+                            logger.info("Termometr {} jest już w systemie. Zmieniono mu adres slave-a na {}", t, slaveAdress);
                             existed = true;
                             break;
                         }
                     }
                     if (!existed) {
+                        logger.info("Dodano nowy termometr do systemu: slave -> {}; adres -> {}", slaveAdress, Arrays.toString(addres));
                         Termometr termometr = new Termometr(slaveAdress);
                         termometr.setAddres(addres);
-                        termometr.setName("Dodany automatycznie, slave=" + slaveAdress);
+                        termometr.setNazwa("Dodany automatycznie, slave=" + slaveAdress);
                         Room tmp = systemDAO.getRoom("Brak");
                         if (tmp != null) {
 
