@@ -38,7 +38,7 @@
     "room" : 13,
     "onSlaveID" : 3,
     "addres" : null,
-    "name" : "Światło",
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -79,7 +79,7 @@
     "room" : 13,
     "onSlaveID" : 4,
     "addres" : null,
-    "name" : "Podcień",
+    "nazwa" : "Podcień",
     "typ" : "BUTTON",
     "pin" : 9,
     "funkcjeKlikniec" : [ {

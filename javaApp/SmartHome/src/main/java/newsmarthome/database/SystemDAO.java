@@ -563,9 +563,9 @@ public class SystemDAO {
         return null;
     }
 
-    public void addDevice(Device device) {
-        this.devices.add(device);
-    }
+    // public void addDevice(Device device) {
+    //     this.devices.add(device);
+    // }
 
     public void addDevice(Room room, Device device) {
         this.devices.add(device);

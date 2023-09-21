@@ -39,35 +39,25 @@
       "pin" : 16
     }
   } ],
-  "sensors" : [
-    {
-      "@type": "Termometr",
-      "id": 101,
-      "room": 2,
-      "onSlaveID": -1,
-      "addres": [
-        40,
-        97,
-        100,
-        17,
-        141,
-        241,
-        21,
-        222
-      ],
-      "name": "Marcin",
-      "typ": "THERMOMETR",
-      "temperatura": 23.56,
-      "max": 127.0,
-      "min": 0.0,
-      "slaveAdress": 13
-    },{
+  "sensors" : [ {
+    "@type" : "Termometr",
+    "id" : 101,
+    "room" : 2,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 141, 241, 21, 222 ],
+    "nazwa" : "Marcin",
+    "typ" : "THERMOMETR",
+    "temperatura" : 23.56,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 23.56,
+    "slaveAdress" : 13
+  }, {
     "@type" : "Button",
     "id" : 105,
     "room" : 2,
     "onSlaveID" : 3,
     "addres" : null,
-    "name" : "Światło",
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -108,7 +98,7 @@
     "room" : 2,
     "onSlaveID" : 4,
     "addres" : null,
-    "name" : "Rolety",
+    "nazwa" : "Rolety",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
