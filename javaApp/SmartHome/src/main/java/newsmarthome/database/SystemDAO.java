@@ -669,4 +669,15 @@ public class SystemDAO {
         return false;
 	}
 
+    public boolean removeSensor(int sensorID) {
+        Sensor sensor = getSensor(sensorID);
+        if(sensor != null){
+            Room room = getRoom(sensor.getRoom());
+            sensors.remove(sensor);
+            room.delSensor(sensor);
+            save(room);
+            return true;
+        }
+        return false;
+    }
 }
