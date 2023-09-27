@@ -79,13 +79,13 @@ public class SensorsController {
 						sensorsState.add(sensorState);
 						break;
 					case THERMOMETR_HYGROMETR:
-						//TODO: uncomment after adding higrometr
-						// Higrometr higrometr = (Higrometr) sensor;
-						// SensorsStateResponse<Float> sensorState2 = new SensorsStateResponse<>();
-						// sensorState2.setId(sensor.getId());
-						// sensorState2.addState(higrometr.getTemperatura());
-						// sensorState2.addState((float)higrometr.getHumidity());
-						// sensorsState.add(sensorState2);
+						//TODO: check if it works
+						Higrometr higrometr = (Higrometr) sensor;
+						SensorsStateResponse<Float> sensorState2 = new SensorsStateResponse<>();
+						sensorState2.setId(sensor.getId());
+						sensorState2.addState(higrometr.getTemperatura());
+						sensorState2.addState((float)higrometr.getHumidity());
+						sensorsState.add(sensorState2);
 						break;
 					case TWILIGHT:
 						//TODO dodać obsługę po dodaniu czujnika zmierzchu
