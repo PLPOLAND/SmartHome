@@ -168,15 +168,14 @@ public class SensorsController {
 							if (automations != null) {
 								ObjectMapper mapper = new ObjectMapper();
 								mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-								JsonNode jsonNode = mapper.readTree(automations);
-								// TODO: load automations for button
-								for (JsonNode jsonNode2 : jsonNode) {
+								JsonNode automationsJSONList = mapper.readTree(automations);
+								for (JsonNode automationJSON : automationsJSONList) {
 									ButtonLocalFunction function = new ButtonLocalFunction();
 									function.setButton(button);
-									function.setClicks(jsonNode2.get("clicks").asInt());
+									function.setClicks(automationJSON.get("clicks").asInt());
 									function.setState(
-											ButtonLocalFunction.State.fromString(jsonNode2.get("state").asText()));
-									function.setDevice(systemDAO.getDeviceByID(jsonNode2.get("device").asInt()));
+											ButtonLocalFunction.State.fromString(automationJSON.get("state").asText()));
+									function.setDevice(systemDAO.getDeviceByID(automationJSON.get("device").asInt()));
 									button.addFunkcjaKilkniecia(function);
 								}
 								logger.info(button.toString());
@@ -191,12 +190,95 @@ public class SensorsController {
 					return new Response<>(null, "Błąd podczas parsowania automatyzacji");
 				}
 				catch(NumberFormatException e){
-					return new Response<>(null, "");
+					return new Response<>(null, "Parametr liczbowy nie jest liczbą");
 				}
 			}
 		}
 
 	}
-	
+	@PostMapping("/removeSensor")
+	Response<Boolean> removeSensor(HttpServletRequest request){
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(false, "Użytkownik nie jest zalogowany");
+		else{
+			String idString = request.getParameter("id");
+			if(idString == null)
+				return new Response<>(false, "Nie podano ID");
+			else{
+				try {
+					int id = Integer.parseInt(idString);
+					if (systemDAO.removeSensor(id)) {
+						return new Response<>(true);
+					} else {
+						return new Response<>(false, "Nie znaleziono czujnika o podanym ID");
+					}
+				}
+				catch(NumberFormatException e){
+					return new Response<>(false, "ID nie jest liczbą");
+				}
+			}
+		}
+	}
+
+	@PostMapping("/updateSensor")
+	Response<Sensor> updateSensor(HttpServletRequest request){
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(null, "Użytkownik nie jest zalogowany");
+		else{
+			String idString = request.getParameter("id");
+			String name = request.getParameter("name");
+			String slaveID = request.getParameter("slaveID");
+			String pin = request.getParameter("pin");
+			String automations = request.getParameter("funkcjeKlikniec");
+			if(idString == null)
+				return new Response<>(null, "Nie podano ID");
+			else{
+				try {
+					int id = Integer.parseInt(idString);
+					Sensor sensor = systemDAO.getSensor(id);
+					if(sensor == null)
+						return new Response<>(null, "Nie znaleziono czujnika o podanym ID");
+					else{
+						if(name != null)
+							sensor.setNazwa(name);
+						if(slaveID != null && sensor instanceof Button)
+							sensor.setSlaveAdress(Integer.parseInt(slaveID));
+						else if (slaveID != null)
+							return new Response<>(null, "Nie można zmienić slaveID czujnika innego typu niż przycisk");
+						if(pin != null && sensor instanceof Button){
+							((Button)sensor).setPin(Integer.parseInt(pin));
+						}
+						else if (pin != null)
+							return new Response<>(null, "Nie można zmienić pinu czujnika innego typu niż przycisk");
+						if(automations != null){
+							ObjectMapper mapper = new ObjectMapper();
+							mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+							((Button)sensor).clearFunkcjeKlikniec();
+							JsonNode automationsJSONList = mapper.readTree(automations);
+								for (JsonNode automationJSON : automationsJSONList) {
+									ButtonLocalFunction function = new ButtonLocalFunction();
+									function.setButton( (Button)sensor);
+									function.setClicks(automationJSON.get("clicks").asInt());
+									function.setState(
+											ButtonLocalFunction.State.fromString(automationJSON.get("state").asText()));
+									function.setDevice(systemDAO.getDeviceByID(automationJSON.get("device").asInt()));
+									((Button)sensor).addFunkcjaKilkniecia(function);
+								}
+						}
+						return new Response<>(sensor);
+					}
+				}
+				catch(IOException e){
+					return new Response<>(null, "Błąd podczas parsowania automatyzacji");
+				}
+				catch(NumberFormatException e){
+					return new Response<>(null, "ID nie jest liczbą");
+				}
+			}
+		}
+	}
+
 
 }

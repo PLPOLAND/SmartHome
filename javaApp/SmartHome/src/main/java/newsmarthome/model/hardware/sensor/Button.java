@@ -79,6 +79,10 @@ public class Button extends Sensor{
         }
     }
     
+    public void clearFunkcjeKlikniec() {
+        this.funkcjeKlikniec.clear();
+    }
+
     public List<ButtonLocalFunction> getFunkcjeKlikniec(){
         return this.funkcjeKlikniec;
     }
@@ -117,6 +121,7 @@ public class Button extends Sensor{
         ", super= '" + super.toString()+
             "}";
     }
+
     
     
 
