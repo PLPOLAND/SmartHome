@@ -5,10 +5,11 @@ Higrometr::Higrometr() : Device(TYPE::HIGROMETR)
 {
 
     dht = new DHT(DHTPIN, DHTTYPE);
-    timer = new Timer();
-    timer->begin(2000U);
+    timer = new Timer;
+    timer->begin(2500);
     timer->restart();
     dht->begin();
+    this->update(true);
 }
 
 Higrometr::~Higrometr()
@@ -27,13 +28,14 @@ float Higrometr::getTemperature()
     return this->temperature;
 }
 
-void Higrometr::update()
+void Higrometr::update(bool force)
 {
-    if(timer->available())
+    // OUT_LN(timer->time())
+    if(timer->available() || force)
     {
-        OUT_LN("H::up()");
+        OUT_LN(F("H()"));
         timer->restart();
-        float tmpHum = dht->readHumidity();
+        float tmpHum = dht->readHumidity(force);
         if (isnan(tmpHum))
         {
             humidity = 0;
@@ -42,13 +44,18 @@ void Higrometr::update()
         {
             humidity = (int) (tmpHum+0.5);
         }
-        temperature = dht->readTemperature();
-        OUT("isCorr: ")
-        OUT_LN(this->isCorrect())
-        OUT("H: ")
-        OUT_LN(this->getHumidity())
+        if (isnan(temperature = dht->readTemperature(false, force)))
+        {
+            temperature = 0;
+        }
+        
+        // temperature = dht->readTemperature(false, force);
+        // OUT(F("isCorr: "))
+        // OUT_LN(this->isCorrect())
+        // OUT("H: ")
+        // OUT_LN(this->getHumidity())
         // OUT("T: ")
-        // OUT_LN(this->getTemperature())
+        // Serial.println(this->getTemperature());
     }
 }
 

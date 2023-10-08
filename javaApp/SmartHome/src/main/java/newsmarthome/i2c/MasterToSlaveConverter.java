@@ -428,7 +428,7 @@ public class MasterToSlaveConverter {
             logger.debug("addHigrometr");
             atmega.writeTo(higrometr.getSlaveAdress(), buffor);// Wyślij prośbę o dodanie nowego termometru na płytce
             try {
-                Thread.sleep(100);
+                Thread.sleep(1200);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
             }

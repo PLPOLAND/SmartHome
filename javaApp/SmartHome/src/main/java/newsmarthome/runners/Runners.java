@@ -52,7 +52,7 @@ public class Runners {
     /** Zatrzymuje sprawdzanie automatyki*/
     private boolean stopCheckingAutomation = false; 
 
-    @Scheduled(fixedDelay = 2)
+    @Scheduled(fixedDelay = 50)
     void queue(){
         // long time = System.currentTimeMillis();
         // long sumTime = 0;

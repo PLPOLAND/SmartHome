@@ -149,8 +149,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 }
                 else
                 {
-                    byte params[8] = { 'O', tmpDev->getId() , 0, 0, 0, 0, 0, 0 };//"O", "ID", "0", "0", "0", "0", "0", "0
+                    byte params[8] = { 'O', 0 , 0, 0, 0, 0, 0, 0 };//"O", "ID", "0", "0", "0", "0", "0", "0
                     // OUT_LN()
+                    params[1] = tmpDev->getId();
                     komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                     komendaZwrotna->setParams(params);
                     komendaZwrotna->printParametry();

@@ -63,6 +63,7 @@ void System::begin(){
         Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 15, 16);
         Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
         Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
+        Higrometr *h1 = (Higrometr*) this->addDevice(Device::TYPE::HIGROMETR );
         // p1->setCzyPominac(true);
         // p2->setCzyPominac(true);
         Command *tmp = new Command;
@@ -180,7 +181,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         break;
 
         case Device::TYPE::TERMOMETR:{
-                OUT_LN(F("---Add Ther---"))
+                OUT_LN(F("-Add Ther-"))
             Termometr *tmp = new Termometr;
             if (tmp->begin())
             { //spr. skonfigurować kolejny termometr
@@ -206,26 +207,29 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
         }
         case Device::TYPE::HIGROMETR:
             {
-                OUT_LN(F("---Add Higro---"))
+                OUT_LN(F("-Add Hig-"))
+                // OUT_LN(millis())
                 Higrometr *tmp = new Higrometr;
-                if (tmp->isCorrect())
-                { //spr. skonfigurować kolejny termometr
+                // if (tmp->isCorrect())
+                // { //spr. skonfigurować kolejny termometr
                     tmp->setId(idDevice++);
                     this->devices.add(tmp);    //dodaj do głównej listy urządzeń
                     this->higrometry.add(tmp); //dodaj do listy termometrów w systemie
-                    OUT_LN(F("HIGRO CORRECT"));
+                    OUT_LN("H CORR");
+                    // OUT_LN(millis())
                     return tmp;
-                }
-                else
-                {
-                    delete tmp;
-                    return nullptr; 
-                }
+                // }
+                // else
+                // {
+                //     delete tmp;
+                //     OUT_LN(F("HIGRO N COR"));
+                //     return nullptr; 
+                // }
                 break;
             }
         case Device::TYPE::PRZEKAZNIK:
             {
-                OUT_LN(F("---Add Switch---"))
+                OUT_LN(F("-Add Switch-"))
                 Przekaznik * tmp = new Przekaznik;
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     tmp->setId(idDevice++);//nadaj mu id
@@ -240,15 +244,15 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::PRZYCISK:
             {
-                OUT_LN(F("---Add Button---"))
+                OUT_LN(F("-Add Button-"))
                 // OUT("pin1:")
                 // OUT_LN(pin1);
                 Przycisk * tmp = new Przycisk;
                 if(tmp->begin(pin1)){//jeśli uda się poparawnie dodać przekaźnik do systemu
                     // OUT(F("Poprawnie dodano Przycisk"))
                     tmp->setId(idDevice++);//nadaj mu id
-                    OUT("\t id: ")
-                    OUT_LN(tmp->getId());
+                    // OUT("\t id: ")
+                    // OUT_LN(tmp->getId());
                     this->devices.add(tmp->getId(), tmp);//dodaj do listy urzadzen
                     this->przyciski.add(tmp);//dodaj do listy urzadzen
                     return tmp;
@@ -264,7 +268,7 @@ Device* System::addDevice(Device::TYPE typeOfDevice, byte pin1, byte pin2){
             break;
         case Device::TYPE::ROLETA:
             {
-                OUT_LN(F("---Dodaj Blind---"));
+                OUT_LN(F("-Dodaj Blind-"));
                 // OUT("pin1:");
                 // OUT_LN(pin1);
                 // OUT("pin2:");
@@ -359,11 +363,11 @@ bool System::removeDevice(byte id){
     return true;
 }
 Device* System::getDevice(byte id){
-    OUT(F("Search dev id:\t"))
-    OUT_LN(id);
+    // OUT(F("Search dev id:\t"))
+    // OUT_LN(id);
     if (devices.get(id) == nullptr)
     {
-        OUT_LN("NO SUCH DEV!")
+        // OUT_LN("NO SUCH DEV!")
     }
     
     return devices.get(id);
@@ -439,8 +443,8 @@ bool System::is_init(){
 }
 
 bool System::getStartUpVariant(){
-    OUT(F("EEPROM: "))
-    OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
+    // OUT(F("EEPROM: "))
+    // OUT_LN(EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE]);
     return EEPROM[EEPROM_ADRES_OF_STARTUP_BYTE] == 1;
 }
 

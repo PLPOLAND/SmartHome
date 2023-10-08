@@ -1,5 +1,7 @@
 package newsmarthome.model.hardware.sensor;
 
+import java.util.Arrays;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -64,8 +66,9 @@ public class Higrometr extends Termometr{
 
     @Override
     public void update(){
+        byte[] response = null;
         try {
-            byte[] response = slaveSender.checkHighrometr(this);
+             response = slaveSender.checkHighrometr(this);
             
             String tmp ="";
             for (int i = 0; i < 5; i++) {
@@ -79,7 +82,11 @@ public class Higrometr extends Termometr{
         } catch (HardwareException|SoftwareException e) {
             logger.error("Nie udało się zaktualizować higrometru: {}", e.getMessage());
         } catch (NumberFormatException e) {
+            
             logger.error("Wartość temperatury nie jest liczbą: {}", e.getMessage());
+            if (response != null) {
+                logger.error("Otrzymana odpowiedź: {}", Arrays.toString(response));
+            }
         }
 
     }

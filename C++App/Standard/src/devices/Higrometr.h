@@ -17,7 +17,7 @@ public:
 
     int getHumidity();
     float getTemperature();
-    void update();
+    void update(bool force = false);
     bool isCorrect();
     ///Returns byte[7]
     byte* getStateAsByteArray();
