@@ -4,8 +4,14 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import newsmarthome.automation.conditions.AutomationCondition;
+import newsmarthome.automation.conditions.Condition;
 import newsmarthome.exception.HardwareException;
 
+/**
+ * AutomationFunction
+ * funkcja reagująca na warunki
+ */
 public class AutomationFunction extends Function {
 
     /**

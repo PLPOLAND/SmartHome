@@ -1,5 +1,9 @@
-package newsmarthome.automation;
+package newsmarthome.automation.conditions;
 
+/**
+ * Condition
+ * interfejs warunku
+ */
 public interface Condition {
     
     /**

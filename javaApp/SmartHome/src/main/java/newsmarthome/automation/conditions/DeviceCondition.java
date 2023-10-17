@@ -1,4 +1,4 @@
-package newsmarthome.automation;
+package newsmarthome.automation.conditions;
 
 import smarthome.model.hardware.Device;
 import smarthome.model.hardware.DeviceState;
