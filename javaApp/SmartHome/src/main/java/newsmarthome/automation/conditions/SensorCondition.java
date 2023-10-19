@@ -23,7 +23,7 @@ public abstract class SensorCondition<T> implements Condition {
     Sensor sensor;
     
     /** 
-     * yp sprawdzania wartości 
+     * Typ sprawdzania wartości 
     */
     ValueCheckType valueCheckType;
     /** 
