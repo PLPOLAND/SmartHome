@@ -2,36 +2,56 @@ package newsmarthome.automation.conditions;
 
 import newsmarthome.model.hardware.sensor.Sensor;
 
+/**
+ * An abstract class representing a condition that can be checked against a sensor's value.
+ * A SensorCondition can be constructed with either a single value to check against or a range of values.
+ * The type of value check to perform is determined by the ValueCheckType enum.
+ * @param <T> the type of value to check against
+ */
 public abstract class SensorCondition<T> implements Condition {
 
+    /**
+     * Constructs a SensorCondition with a single value to check against.
+     * @param sensor the sensor to check
+     * @param valueCheckType the type of value check to perform
+     * @param value the value to check against
+     */
     protected SensorCondition(Sensor sensor, ValueCheckType valueCheckType, T value) {
         this.sensor = sensor;
         this.valueCheckType = valueCheckType;
         this.value = value;
     }
 
-    protected SensorCondition(Sensor sensor, ValueCheckType valueCheckType, T value, T value2) {
+    /**
+     * Constructs a SensorCondition with a range of values to check against.
+     * @param sensor the sensor to check
+     * @param value the lower bound of the range to check against
+     * @param value2 the upper bound of the range to check against
+     */
+    protected SensorCondition(Sensor sensor, T value, T value2) {
         this.sensor = sensor;
-        this.valueCheckType = valueCheckType;
+        this.valueCheckType = ValueCheckType.IN_RANGE;
         this.value = value;
         this.value2 = value2;
     }
 
     /** 
-     * Urządzenie którego stan należy sprawdzić 
+     * The sensor to check.
      */
     Sensor sensor;
     
     /** 
-     * Typ sprawdzania wartości 
-    */
+     * The type of value check to perform.
+     */
     ValueCheckType valueCheckType;
+    
     /** 
-     * Wartość "graniczna" dla warunków jedno-wartościowych i przedziałowych 
+     * The value to check against for single-value checks or the first bound of the range for range checks.
      */
     T value;
+    
     /** 
-     * Druga wartość "graniczna dla warunków przedziałowych" 
+     * The second bound of the range to check against for range checks.
      */
     T value2;
     
