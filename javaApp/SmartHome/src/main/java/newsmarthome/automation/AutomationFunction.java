@@ -19,6 +19,9 @@ public class AutomationFunction extends Function {
      */
     boolean oneWay; 
 
+    /** true - funkcja jest aktywna i sprawdzana, false - funkcja jest nieaktywna - nie sprawdzana */
+    boolean on;
+
     List<Condition> conditions;
 
 
@@ -27,6 +30,7 @@ public class AutomationFunction extends Function {
         super( FunctionType.AUTOMATION );
         oneWay = false;
         conditions = null;
+        on = true;
     }
 
     @JsonIgnore

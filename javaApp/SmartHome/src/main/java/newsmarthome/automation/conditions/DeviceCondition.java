@@ -9,9 +9,9 @@ import smarthome.model.hardware.DeviceState;
 public class DeviceCondition implements Condition{
 
     /** Urządzenie którego stan należy sprawdzić */
-    Device device;
+    private Device device;
     /** Stan urządzenia w którym warunek jest prawdziwy */
-    DeviceState activeDeviceState;
+    private DeviceState activeDeviceState;
     
     static final ConditionType conditionType = ConditionType.DEVICE;
 

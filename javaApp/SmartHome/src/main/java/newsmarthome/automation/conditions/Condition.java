@@ -20,5 +20,5 @@ public interface Condition {
 }
 
 enum ConditionType {
-    TIME, SENSOR, DEVICE
+    TIME, SENSOR, DEVICE, CLOCK_SPAN
 }

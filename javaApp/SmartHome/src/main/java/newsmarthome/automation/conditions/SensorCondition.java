@@ -87,16 +87,6 @@ public abstract class SensorCondition<T> implements Condition {
     public ConditionType getConditionType() {
         return conditionType;
     }
-
-    /**
-     * An abstract method that checks if the sensor's value satisfies the condition.
-     * @return true if the condition is satisfied, false otherwise
-     */
-
-    @Override
-    public abstract boolean checkCondition();
-
-    
     
     /**
      * An enum representing the different types of value checks that can be performed in a SensorCondition.
