@@ -1,5 +1,7 @@
 package newsmarthome.automation.conditions;
 
+import org.springframework.stereotype.Component;
+
 import newsmarthome.model.hardware.sensor.Sensor;
 
 /**
@@ -8,7 +10,32 @@ import newsmarthome.model.hardware.sensor.Sensor;
  * The type of value check to perform is determined by the ValueCheckType enum.
  * @param <T> the type of value to check against
  */
+@Component
 public abstract class SensorCondition<T> implements Condition {
+    /**
+     * The type of condition.
+     */
+    static final ConditionType conditionType = ConditionType.SENSOR;
+    
+    /** 
+     * The sensor to check.
+     */
+    final Sensor sensor;
+    
+    /** 
+     * The type of value check to perform.
+     */
+    final ValueCheckType valueCheckType;
+    
+    /** 
+     * The value to check against for single-value checks or the first bound of the range for range checks.
+     */
+    final T value;
+    
+    /** 
+     * The second bound of the range to check against for range checks.
+     */
+    final T value2;
 
     /**
      * Constructs a SensorCondition with a single value to check against.
@@ -20,8 +47,8 @@ public abstract class SensorCondition<T> implements Condition {
         this.sensor = sensor;
         this.valueCheckType = valueCheckType;
         this.value = value;
+        this.value2 = null;
     }
-
     /**
      * Constructs a SensorCondition with a range of values to check against.
      * @param sensor the sensor to check
@@ -33,27 +60,43 @@ public abstract class SensorCondition<T> implements Condition {
         this.valueCheckType = ValueCheckType.IN_RANGE;
         this.value = value;
         this.value2 = value2;
+    
     }
 
-    /** 
-     * The sensor to check.
+    public Sensor getSensor() {
+        return sensor;
+    }
+
+    public ValueCheckType getValueCheckType() {
+        return valueCheckType;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public T getValue2() {
+        return value2;
+    }
+
+    /**
+     * Returns the type of condition.
+     * @return type of condition
      */
-    Sensor sensor;
+    @Override
+    public ConditionType getConditionType() {
+        return conditionType;
+    }
+
+    /**
+     * An abstract method that checks if the sensor's value satisfies the condition.
+     * @return true if the condition is satisfied, false otherwise
+     */
+
+    @Override
+    public abstract boolean checkCondition();
+
     
-    /** 
-     * The type of value check to perform.
-     */
-    ValueCheckType valueCheckType;
-    
-    /** 
-     * The value to check against for single-value checks or the first bound of the range for range checks.
-     */
-    T value;
-    
-    /** 
-     * The second bound of the range to check against for range checks.
-     */
-    T value2;
     
     /**
      * An enum representing the different types of value checks that can be performed in a SensorCondition.

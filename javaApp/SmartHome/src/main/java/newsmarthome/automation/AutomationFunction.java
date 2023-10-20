@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import newsmarthome.automation.conditions.AutomationCondition;
 import newsmarthome.automation.conditions.Condition;
 import newsmarthome.exception.HardwareException;
 
@@ -20,31 +19,27 @@ public class AutomationFunction extends Function {
      */
     boolean oneWay; 
 
-    AutomationCondition condition;
+    List<Condition> conditions;
 
 
 
     public AutomationFunction() {
         super( FunctionType.AUTOMATION );
         oneWay = false;
-        condition = null;
-    }
-
-    public AutomationCondition getCondition() {
-        return condition;
+        conditions = null;
     }
 
     @JsonIgnore
     public List<Condition> getConditions() {
-        return condition.getConditions();
+        return conditions;
     }
 
-    public void setCondition(AutomationCondition condition) {
-        this.condition = condition;
+    public void setCondition(List<Condition> conditions) {
+        this.conditions = conditions;
     }
 
     public void addCondition(Condition condition) {
-        this.condition.addCondition(condition);
+        this.conditions.add(condition);
     }
 
     public boolean isOneWay() {
@@ -56,21 +51,34 @@ public class AutomationFunction extends Function {
     }
 
     /**
-     * Sprawdza czy zaszedł warunek i wykonuje akcje.
+     * Check if all conditions are met.
+     * @return true if all conditions are met, false otherwise
+     */
+    private boolean checkConditions(){
+        for (Condition condition : this.conditions) {
+            if (!condition.checkCondition()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check if any condition is met. If so, activate the function.
      */
     @Override
     public void run() throws HardwareException {
         
         if (oneWay) {
-            if (!this.isActive() && this.condition.checkCondition()) {
-                    this.activate();
+            if (!this.isActive() && checkConditions()) {
+                this.activate();
             }
         }
         else {
-            if (!this.isActive() && this.condition.checkCondition()) {
+            if (!this.isActive() && checkConditions()) {
                 this.activate();
             }
-            else if( this.isActive() && !this.condition.checkCondition()) {
+            else if( this.isActive() && !checkConditions()) {
                 this.deactivate();
             }
         }
