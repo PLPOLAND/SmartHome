@@ -2,21 +2,6 @@
   "id" : 0,
   "name" : "Brak",
   "devices" : [ ],
-  "sensors" : [ {
-    "@type" : "Higrometr",
-    "id" : 2,
-    "room" : 0,
-    "onSlaveID" : -1,
-    "addres" : null,
-    "nazwa" : "test",
-    "typ" : "THERMOMETR_HYGROMETR",
-    "temperatura" : 0.0,
-    "maxTemperatura" : 0.0,
-    "minTemperatura" : 3.4028235E38,
-    "humidity" : 15,
-    "maxHumidity" : 15,
-    "minHumidity" : 15,
-    "slaveAdress" : 10
-  } ],
+  "sensors" : [ ],
   "loaded" : false
 }

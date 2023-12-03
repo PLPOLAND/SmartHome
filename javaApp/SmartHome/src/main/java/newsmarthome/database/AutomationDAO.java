@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -25,11 +26,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.ButtonClickType;
 import newsmarthome.automation.AutomationFunction;
 import newsmarthome.automation.ButtonFunction;
 import newsmarthome.automation.Function;
 import newsmarthome.automation.FunctionAction;
 import newsmarthome.automation.UserFunction;
+import newsmarthome.model.hardware.HardwareFactory;
 import newsmarthome.model.hardware.device.Device;
 
 @Repository
@@ -135,8 +138,11 @@ public class AutomationDAO {
         }
     }
 
-    public HashMap<Integer, Function> getAllFunctions() {
+    public Map<Integer, Function> getAllFunctions() {
         return functions;
+    }
+    public List<Function> getAllFunctionsList() {
+        return new ArrayList<>(functions.values());
     }
 
     /**
@@ -267,5 +273,11 @@ public class AutomationDAO {
         return "AutomationDAO [functions=" + functions + ",\n\n buttonFunctions=" + buttonFunctions
                 + ",\n\n automationFunctions=" + automationFunctions + ",\n\n userFunctions=" + userFunctions + "]";
     }
+
+
+    // public static void main(String[] args) {
+    //     AutomationDAO dao = new AutomationDAO(new SystemDAO(new HardwareFactory()));
+    //     dao.addFunction(new ButtonFunction(new Button(8, 14), 3, ButtonClickType.CLICKED));
+    // }
 
 }

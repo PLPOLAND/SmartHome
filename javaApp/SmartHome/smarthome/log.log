@@ -1,13 +1,26 @@
-2023-07-27 11:52:16.389  INFO 30904 --- [main] newsmarthome.SmartHomeAppTest            : Starting SmartHomeAppTest on marktop with PID 30904 (started by marek in c:\Users\marek\github\SmartHome\javaApp\SmartHome)
-2023-07-27 11:52:16.396  INFO 30904 --- [main] newsmarthome.SmartHomeAppTest            : No active profile set, falling back to default profiles: default
-2023-07-27 11:52:17.744  INFO 30904 --- [main] newsmarthome.database.UsersDAO           : Wczytywanie bazy danych u�ytkownik�w
-2023-07-27 11:52:17.794  INFO 30904 --- [main] newsmarthome.database.UsersDAO           : Wczytano 4 userow
-2023-07-27 11:52:17.804  INFO 30904 --- [main] newsmarthome.database.SystemDAO          : Init System DAO
-2023-07-27 11:52:17.822  INFO 30904 --- [main] newsmarthome.i2c.MasterToSlaveConverter  : Stworzno JtAConverter
-2023-07-27 11:52:17.838 ERROR 30904 --- [main] com.pi4j.util.NativeLibraryLoader        : Unable to load [libpi4j.so] using path: [/lib/raspberrypi/dynamic/libpi4j.so]
+2023-11-26 10:25:15.013  INFO 27501 --- [main] newsmarthome.SmartHomeApp                : Starting SmartHomeApp on VikingMarek with PID 27501 (/home/marek/Github/SmartHome/javaApp/SmartHome/target/classes started by marek in /home/marek/Github/SmartHome/javaApp/SmartHome)
+2023-11-26 10:25:15.017  INFO 27501 --- [main] newsmarthome.SmartHomeApp                : No active profile set, falling back to default profiles: default
+2023-11-26 10:25:15.983  INFO 27501 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-11-26 10:25:16.000  INFO 27501 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-11-26 10:25:16.001  INFO 27501 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.19]
+2023-11-26 10:25:16.101  INFO 27501 --- [main] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2023-11-26 10:25:16.105  INFO 27501 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-11-26 10:25:16.105  INFO 27501 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 1063 ms
+2023-11-26 10:25:16.399  INFO 27501 --- [main] newsmarthome.database.UsersDAO           : Wczytywanie bazy danych użytkowników
+2023-11-26 10:25:16.437  INFO 27501 --- [main] newsmarthome.database.UsersDAO           : Wczytano 4 userow
+2023-11-26 10:25:16.443  INFO 27501 --- [main] newsmarthome.database.SystemDAO          : Init System DAO
+2023-11-26 10:25:16.452  INFO 27501 --- [main] newsmarthome.i2c.MasterToSlaveConverter  : Stworzno JtAConverter
+2023-11-26 10:25:16.471 ERROR 27501 --- [main] com.pi4j.util.NativeLibraryLoader        : Unable to load [libpi4j.so] using path: [/lib/raspberrypi/dynamic/libpi4j.so]
 
-java.lang.IllegalArgumentException: The path has to be absolute, but found: \lib\raspberrypi\dynamic\libpi4j.so
-	at com.pi4j.util.NativeLibraryLoader.loadLibraryFromClasspath(NativeLibraryLoader.java:204) ~[pi4j-core-1.3.jar:na]
+java.lang.UnsatisfiedLinkError: /tmp/libpi4j775401220277489961.so: /tmp/libpi4j775401220277489961.so: niewłaściwa klasa ELF: ELFCLASS32 (Possible cause: architecture word width mismatch)
+	at java.base/java.lang.ClassLoader$NativeLibrary.load0(Native Method) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.load(ClassLoader.java:2450) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.loadLibrary(ClassLoader.java:2506) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary0(ClassLoader.java:2705) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2635) ~[na:na]
+	at java.base/java.lang.Runtime.load0(Runtime.java:768) ~[na:na]
+	at java.base/java.lang.System.load(System.java:1850) ~[na:na]
+	at com.pi4j.util.NativeLibraryLoader.loadLibraryFromClasspath(NativeLibraryLoader.java:227) ~[pi4j-core-1.3.jar:na]
 	at com.pi4j.util.NativeLibraryLoader.load(NativeLibraryLoader.java:172) ~[pi4j-core-1.3.jar:na]
 	at com.pi4j.wiringpi.Gpio.<clinit>(Gpio.java:189) ~[pi4j-core-1.3.jar:na]
 	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:69) ~[pi4j-core-1.3.jar:na]
@@ -60,10 +73,10 @@ java.lang.IllegalArgumentException: The path has to be absolute, but found: \lib
 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveBean(DefaultListableBeanFactory.java:409) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:343) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:337) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at newsmarthome.model.hardware.HardwareFactory.createTermometr(HardwareFactory.java:115) ~[classes/:na]
-	at newsmarthome.model.hardware.HardwareFactory.createSensor(HardwareFactory.java:133) ~[classes/:na]
-	at newsmarthome.database.SystemDAO.readDatabase(SystemDAO.java:313) ~[classes/:na]
-	at newsmarthome.database.SystemDAO.<init>(SystemDAO.java:64) ~[classes/:na]
+	at newsmarthome.model.hardware.HardwareFactory.createHigrometr(HardwareFactory.java:120) ~[classes/:na]
+	at newsmarthome.model.hardware.HardwareFactory.createSensor(HardwareFactory.java:140) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.readDatabase(SystemDAO.java:366) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.<init>(SystemDAO.java:65) ~[classes/:na]
 	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
 	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
 	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
@@ -83,6 +96,244 @@ java.lang.IllegalArgumentException: The path has to be absolute, but found: \lib
 	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:857) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:760) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:218) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:843) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:877) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at newsmarthome.SmartHomeApp.main(SmartHomeApp.java:50) ~[classes/:na]
+
+2023-11-26 10:25:16.475 ERROR 27501 --- [main] newsmarthome.i2c.I2CHardware             : platform does not support this driver
+2023-11-26 10:25:16.501  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.505  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='0', room='1', slaveID='8', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.511  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='1', room='1', slaveID='8', onSlaveID='1', name='Garderoba', typ='BLIND'}'}
+2023-11-26 10:25:16.531  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.537  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='4', room='2', slaveID='13', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.538  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.541  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='12'} super = {, id='5', room='2', slaveID='13', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:25:16.546  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='6', room='2', slaveID='13', onSlaveID='2', name='Marcin', typ='BLIND'}'}
+2023-11-26 10:25:16.570  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='DOWN', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='ON', pin='16'}', super ='' {, id='8', room='3', slaveID='15', onSlaveID='0', name='Marek', typ='BLIND'}'}
+2023-11-26 10:25:16.571  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.573  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='9', room='3', slaveID='15', onSlaveID='1', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.574  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.577  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='10', room='3', slaveID='15', onSlaveID='2', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:25:16.578 ERROR 27501 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:25:16.582  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='15'} super = {, id='46', room='3', slaveID='14', onSlaveID='0', name='Gnd TV', typ='GNIAZDKO'}}
+2023-11-26 10:25:16.582 ERROR 27501 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:25:16.587  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='16'} super = {, id='47', room='3', slaveID='14', onSlaveID='1', name='Gnd koło łóżka 1', typ='GNIAZDKO'}}
+2023-11-26 10:25:16.588 ERROR 27501 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:25:16.591  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='56', room='3', slaveID='14', onSlaveID='2', name='Gniazdko Biurko L', typ='GNIAZDKO'}}
+2023-11-26 10:25:16.592 ERROR 27501 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:25:16.595  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='57', room='3', slaveID='14', onSlaveID='3', name='Gniazdko Biurko P', typ='GNIAZDKO'}}
+2023-11-26 10:25:16.613  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.615  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='33', room='4', slaveID='16', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.615  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.616  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='34', room='4', slaveID='16', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:25:16.619  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='35', room='4', slaveID='16', onSlaveID='2', name='Gościnny', typ='BLIND'}'}
+2023-11-26 10:25:16.627  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.629  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='36', room='5', slaveID='12', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.633  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.635  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='2', room='6', slaveID='11', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.638  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='3', room='6', slaveID='11', onSlaveID='1', name='Łazienka Duża', typ='BLIND'}'}
+2023-11-26 10:25:16.648  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.650  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='37', room='7', slaveID='8', onSlaveID='2', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.656  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.658  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='11', room='8', slaveID='9', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.665  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.666  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='41', room='9', slaveID='17', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.667  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.668  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='42', room='9', slaveID='17', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:25:16.670  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='43', room='9', slaveID='17', onSlaveID='2', name='Rodzice', typ='BLIND'}'}
+2023-11-26 10:25:16.680  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='40', room='10', slaveID='18', onSlaveID='0', name='Taras', typ='BLIND'}'}
+2023-11-26 10:25:16.682  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='38', room='10', slaveID='19', onSlaveID='0', name='Jadalnia', typ='BLIND'}'}
+2023-11-26 10:25:16.684  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='13'}', swtDown='{ stan='OFF', pin='12'}', super ='' {, id='39', room='10', slaveID='18', onSlaveID='1', name='Przy Tarasie', typ='BLIND'}'}
+2023-11-26 10:25:16.684  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.686  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='50', room='10', slaveID='21', onSlaveID='0', name='Przedpokój', typ='LIGHT'}}
+2023-11-26 10:25:16.687  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.689  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='51', room='10', slaveID='21', onSlaveID='1', name='Przedpokój/Jadalnia', typ='LIGHT'}}
+2023-11-26 10:25:16.701  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.703  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='44', room='11', slaveID='10', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:25:16.705  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='45', room='11', slaveID='10', onSlaveID='1', name='Kuchnia', typ='BLIND'}'}
+2023-11-26 10:25:16.706  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.707  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='52', room='11', slaveID='10', onSlaveID='2', name='Jadalnia', typ='LIGHT'}}
+2023-11-26 10:25:16.713  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.714  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='48', room='12', slaveID='20', onSlaveID='0', name='Boczne', typ='LIGHT'}}
+2023-11-26 10:25:16.715  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.716  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='49', room='12', slaveID='20', onSlaveID='1', name='Górne ', typ='LIGHT'}}
+2023-11-26 10:25:16.719  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.720  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='53', room='13', slaveID='22', onSlaveID='0', name='Wiatrołap', typ='LIGHT'}}
+2023-11-26 10:25:16.720  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.722  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='54', room='13', slaveID='22', onSlaveID='1', name='Podcień', typ='LIGHT'}}
+2023-11-26 10:25:16.723  WARN 27501 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:25:16.724  INFO 27501 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='55', room='13', slaveID='22', onSlaveID='2', name='Kapliczka', typ='LIGHT'}}
+2023-11-26 10:25:16.733  INFO 27501 --- [main] newsmarthome.database.SystemDAO          : Wczytano 14 pokoi
+2023-11-26 10:25:16.752  INFO 27501 --- [main] newsmarthome.database.AutomationDAO      : Wczytano 1 funkcji
+2023-11-26 10:25:16.854  INFO 27501 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2023-11-26 10:25:16.949  INFO 27501 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2023-11-26 10:25:17.040  INFO 27501 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'taskScheduler'
+2023-11-26 10:25:17.049  INFO 27501 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2023-11-26 10:25:17.077  WARN 27501 --- [scheduling-1] newsmarthome.runners.Runners             : No slaves detected
+2023-11-26 10:25:17.096  INFO 27501 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-11-26 10:25:17.098  INFO 27501 --- [main] newsmarthome.SmartHomeApp                : Started SmartHomeApp in 2.342 seconds (JVM running for 2.552)
+2023-11-26 10:25:17.106  INFO 27501 --- [main] Console Menager                          : Started
+2023-11-26 10:25:18.078  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:25:18.086  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:25:18.539  INFO 27501 --- [RMI TCP Connection(1)-127.0.0.1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-11-26 10:25:18.540  INFO 27501 --- [RMI TCP Connection(1)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-11-26 10:25:18.544  INFO 27501 --- [RMI TCP Connection(1)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2023-11-26 10:25:20.087  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:25:20.088  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:25:23.088  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:25:23.089  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:25:27.090  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:25:27.090  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:25:32.091  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:25:32.091  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:25:38.091  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:25:38.091  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:25:45.091  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:25:45.092  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:25:53.092  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:25:53.092  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:26:02.092  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:26:02.092  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:26:12.093  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:26:12.093  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:26:23.094  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:26:23.094  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:26:33.536  INFO 27501 --- [http-nio-8080-exec-5] newsmarthome.controller.UserController   : User PLPOLAND logged in
+2023-11-26 10:26:35.095  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:26:35.095  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:26:48.096  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:26:48.096  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:27:02.096  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:27:02.097  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:27:17.097  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:27:17.097  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:27:33.098  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:27:33.098  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:27:50.099  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:27:50.099  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:28:08.099  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:28:08.100  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:28:27.100  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:28:27.100  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:28:47.100  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:28:47.101  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:29:08.101  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:29:08.101  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:29:30.015  INFO 27501 --- [http-nio-8080-exec-5] newsmarthome.controller.UserController   : User PLPOLAND logged in
+2023-11-26 10:29:30.101  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:29:30.101  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:29:53.101  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:29:53.102  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:30:17.103  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:30:17.103  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:30:42.104  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:30:42.104  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:31:08.104  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:31:08.105  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:31:35.106  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:31:35.106  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:32:03.107  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:32:03.107  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:32:32.108  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:32:32.108  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:33:02.108  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:33:02.108  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:33:33.108  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:33:33.109  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:34:05.109  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:34:05.109  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:34:31.371 DEBUG 27501 --- [http-nio-8080-exec-8] n.controller.DevicesController           : deviceID: 9
+2023-11-26 10:34:31.371 DEBUG 27501 --- [http-nio-8080-exec-8] n.controller.DevicesController           : state: on
+2023-11-26 10:34:31.371  WARN 27501 --- [http-nio-8080-exec-8] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:34:31.372 DEBUG 27501 --- [http-nio-8080-exec-9] n.controller.DevicesController           : deviceID: 10
+2023-11-26 10:34:31.373 DEBUG 27501 --- [http-nio-8080-exec-9] n.controller.DevicesController           : state: on
+2023-11-26 10:34:31.373  WARN 27501 --- [http-nio-8080-exec-9] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:34:32.912 DEBUG 27501 --- [http-nio-8080-exec-3] n.controller.DevicesController           : deviceID: 9
+2023-11-26 10:34:32.912 DEBUG 27501 --- [http-nio-8080-exec-3] n.controller.DevicesController           : state: off
+2023-11-26 10:34:32.912  WARN 27501 --- [http-nio-8080-exec-3] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:34:32.913 DEBUG 27501 --- [http-nio-8080-exec-2] n.controller.DevicesController           : deviceID: 10
+2023-11-26 10:34:32.913 DEBUG 27501 --- [http-nio-8080-exec-2] n.controller.DevicesController           : state: off
+2023-11-26 10:34:32.913  WARN 27501 --- [http-nio-8080-exec-2] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:34:38.110  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:34:38.110  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:35:12.110  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:35:12.111  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:35:47.111  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:35:47.112  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:36:23.112  INFO 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:36:23.113  WARN 27501 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:36:43.046 ERROR 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-11-26 10:36:43.046  INFO 27501 --- [Thread-2] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'taskScheduler'
+2023-11-26 10:36:43.047 ERROR 27501 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-11-26 10:36:43.047  INFO 27501 --- [Thread-2] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
+2023-11-26 10:39:56.552  INFO 39668 --- [main] newsmarthome.SmartHomeApp                : Starting SmartHomeApp on VikingMarek with PID 39668 (/home/marek/Github/SmartHome/javaApp/SmartHome/target/classes started by marek in /home/marek/Github/SmartHome/javaApp/SmartHome)
+2023-11-26 10:39:56.554  INFO 39668 --- [main] newsmarthome.SmartHomeApp                : No active profile set, falling back to default profiles: default
+2023-11-26 10:39:57.515  INFO 39668 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-11-26 10:39:57.535  INFO 39668 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-11-26 10:39:57.535  INFO 39668 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.19]
+2023-11-26 10:39:57.633  INFO 39668 --- [main] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2023-11-26 10:39:57.636  INFO 39668 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-11-26 10:39:57.636  INFO 39668 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 1056 ms
+2023-11-26 10:39:57.868  INFO 39668 --- [main] newsmarthome.database.UsersDAO           : Wczytywanie bazy danych użytkowników
+2023-11-26 10:39:57.921  INFO 39668 --- [main] newsmarthome.database.UsersDAO           : Wczytano 4 userow
+2023-11-26 10:39:57.926  INFO 39668 --- [main] newsmarthome.database.SystemDAO          : Init System DAO
+2023-11-26 10:39:57.933  INFO 39668 --- [main] newsmarthome.i2c.MasterToSlaveConverter  : Stworzno JtAConverter
+2023-11-26 10:39:57.944 ERROR 39668 --- [main] com.pi4j.util.NativeLibraryLoader        : Unable to load [libpi4j.so] using path: [/lib/raspberrypi/dynamic/libpi4j.so]
+
+java.lang.UnsatisfiedLinkError: /tmp/libpi4j2364268460340209706.so: /tmp/libpi4j2364268460340209706.so: niewłaściwa klasa ELF: ELFCLASS32 (Possible cause: architecture word width mismatch)
+	at java.base/java.lang.ClassLoader$NativeLibrary.load0(Native Method) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.load(ClassLoader.java:2450) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.loadLibrary(ClassLoader.java:2506) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary0(ClassLoader.java:2705) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2635) ~[na:na]
+	at java.base/java.lang.Runtime.load0(Runtime.java:768) ~[na:na]
+	at java.base/java.lang.System.load(System.java:1850) ~[na:na]
+	at com.pi4j.util.NativeLibraryLoader.loadLibraryFromClasspath(NativeLibraryLoader.java:227) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.util.NativeLibraryLoader.load(NativeLibraryLoader.java:172) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.wiringpi.Gpio.<clinit>(Gpio.java:189) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:69) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:51) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.platform.Platform.getGpioProvider(Platform.java:125) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.platform.Platform.getGpioProvider(Platform.java:118) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.GpioFactory.getDefaultProvider(GpioFactory.java:109) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.impl.GpioControllerImpl.<init>(GpioControllerImpl.java:53) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.GpioFactory.getInstance(GpioFactory.java:91) ~[pi4j-core-1.3.jar:na]
+	at newsmarthome.i2c.I2CHardware.<init>(I2CHardware.java:39) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:172) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:87) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1295) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1197) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
@@ -93,115 +344,786 @@ java.lang.IllegalArgumentException: The path has to be absolute, but found: \lib
 	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:338) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:224) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveNamedBean(DefaultListableBeanFactory.java:1116) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveBean(DefaultListableBeanFactory.java:409) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:343) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:337) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at newsmarthome.model.hardware.HardwareFactory.createLight(HardwareFactory.java:34) ~[classes/:na]
+	at newsmarthome.model.hardware.HardwareFactory.createDevice(HardwareFactory.java:77) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.readDatabase(SystemDAO.java:327) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.<init>(SystemDAO.java:65) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:172) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:117) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:300) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:285) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:857) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:760) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:218) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:843) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:877) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
 	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
 	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
-	at org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:127) ~[spring-boot-test-2.1.5.RELEASE.jar:2.1.5.RELEASE]
-	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContextInternal(DefaultCacheAwareContextLoaderDelegate.java:99) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:117) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:108) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.web.ServletTestExecutionListener.setUpRequestContextIfNecessary(ServletTestExecutionListener.java:190) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.web.ServletTestExecutionListener.prepareTestInstance(ServletTestExecutionListener.java:132) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:246) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.junit4.SpringJUnit4ClassRunner.createTest(SpringJUnit4ClassRunner.java:227) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.junit4.SpringJUnit4ClassRunner$1.runReflectiveCall(SpringJUnit4ClassRunner.java:289) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12) ~[junit-4.12.jar:4.12]
-	at org.springframework.test.context.junit4.SpringJUnit4ClassRunner.methodBlock(SpringJUnit4ClassRunner.java:291) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.junit4.SpringJUnit4ClassRunner.runChild(SpringJUnit4ClassRunner.java:246) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.junit4.SpringJUnit4ClassRunner.runChild(SpringJUnit4ClassRunner.java:97) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290) ~[junit-4.12.jar:4.12]
-	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71) ~[junit-4.12.jar:4.12]
-	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288) ~[junit-4.12.jar:4.12]
-	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58) ~[junit-4.12.jar:4.12]
-	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268) ~[junit-4.12.jar:4.12]
-	at org.springframework.test.context.junit4.statements.RunBeforeTestClassCallbacks.evaluate(RunBeforeTestClassCallbacks.java:61) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.springframework.test.context.junit4.statements.RunAfterTestClassCallbacks.evaluate(RunAfterTestClassCallbacks.java:70) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.junit.runners.ParentRunner.run(ParentRunner.java:363) ~[junit-4.12.jar:4.12]
-	at org.springframework.test.context.junit4.SpringJUnit4ClassRunner.run(SpringJUnit4ClassRunner.java:190) ~[spring-test-5.1.7.RELEASE.jar:5.1.7.RELEASE]
-	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365) ~[surefire-junit4-2.22.2.jar:2.22.2]
-	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273) ~[surefire-junit4-2.22.2.jar:2.22.2]
-	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238) ~[surefire-junit4-2.22.2.jar:2.22.2]
-	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159) ~[surefire-junit4-2.22.2.jar:2.22.2]
-	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384) ~[surefire-booter-2.22.2.jar:2.22.2]
-	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345) ~[surefire-booter-2.22.2.jar:2.22.2]
-	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126) ~[surefire-booter-2.22.2.jar:2.22.2]
-	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at newsmarthome.SmartHomeApp.main(SmartHomeApp.java:50) ~[classes/:na]
 
-2023-07-27 11:52:17.840 ERROR 30904 --- [main] newsmarthome.i2c.I2CHardware             : platform does not support this driver
-2023-07-27 11:52:17.889  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:17.893  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='0', room='1', slaveID='8', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:17.905  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='1', room='1', slaveID='8', onSlaveID='1', name='Garderoba', typ='BLIND'}'}
-2023-07-27 11:52:17.930  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:17.934  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='4', room='2', slaveID='13', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:17.935  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:17.937  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='ON', pin='12'} super = {, id='5', room='2', slaveID='13', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
-2023-07-27 11:52:17.944  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='6', room='2', slaveID='13', onSlaveID='2', name='Marcin', typ='BLIND'}'}
-2023-07-27 11:52:17.967  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='DOWN', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='ON', pin='16'}', super ='' {, id='8', room='3', slaveID='15', onSlaveID='0', name='Marek', typ='BLIND'}'}
-2023-07-27 11:52:17.969  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:17.973  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='9', room='3', slaveID='15', onSlaveID='1', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:17.974  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:17.992  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='12'} super = {, id='10', room='3', slaveID='15', onSlaveID='2', name='Poziom 2', typ='LIGHT'}}
-2023-07-27 11:52:17.994  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.014  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='15'} super = {, id='46', room='3', slaveID='14', onSlaveID='0', name='Gnd TV', typ='LIGHT'}}
-2023-07-27 11:52:18.016  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.022  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='ON', pin='16'} super = {, id='47', room='3', slaveID='14', onSlaveID='1', name='Gnd ko�o ��ka 1', typ='LIGHT'}}
-2023-07-27 11:52:18.023  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.027  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='ON', pin='13'} super = {, id='56', room='3', slaveID='14', onSlaveID='2', name='Gniazdko Biurko L', typ='LIGHT'}}
-2023-07-27 11:52:18.028  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.032  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='12'} super = {, id='57', room='3', slaveID='14', onSlaveID='3', name='Gniazdko Biurko P', typ='LIGHT'}}
-2023-07-27 11:52:18.062  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.065  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='33', room='4', slaveID='16', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:18.067  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.070  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='12'} super = {, id='34', room='4', slaveID='16', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
-2023-07-27 11:52:18.074  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='35', room='4', slaveID='16', onSlaveID='2', name='Go�cinny', typ='BLIND'}'}
-2023-07-27 11:52:18.087  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.090  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='36', room='5', slaveID='12', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:18.098  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.101  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='ON', pin='13'} super = {, id='2', room='6', slaveID='11', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:18.104  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='3', room='6', slaveID='11', onSlaveID='1', name='�azienka Du�a', typ='BLIND'}'}
-2023-07-27 11:52:18.118  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.122  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='10'} super = {, id='37', room='7', slaveID='8', onSlaveID='2', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:18.138  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.140  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='11', room='8', slaveID='9', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:18.148  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.151  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='41', room='9', slaveID='17', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:18.152  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.154  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='12'} super = {, id='42', room='9', slaveID='17', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
-2023-07-27 11:52:18.158  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='43', room='9', slaveID='17', onSlaveID='2', name='Rodzice', typ='BLIND'}'}
-2023-07-27 11:52:18.173  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='40', room='10', slaveID='18', onSlaveID='0', name='Taras', typ='BLIND'}'}
-2023-07-27 11:52:18.177  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='38', room='10', slaveID='19', onSlaveID='0', name='Jadalnia', typ='BLIND'}'}
-2023-07-27 11:52:18.180  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='13'}', swtDown='{ stan='OFF', pin='12'}', super ='' {, id='39', room='10', slaveID='18', onSlaveID='1', name='Przy Tarasie', typ='BLIND'}'}
-2023-07-27 11:52:18.181  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.184  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='50', room='10', slaveID='21', onSlaveID='0', name='Przedpok�j', typ='LIGHT'}}
-2023-07-27 11:52:18.185  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.188  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='12'} super = {, id='51', room='10', slaveID='21', onSlaveID='1', name='Przedpok�j/Jadalnia', typ='LIGHT'}}
-2023-07-27 11:52:18.208  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.211  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='44', room='11', slaveID='10', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
-2023-07-27 11:52:18.214  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='45', room='11', slaveID='10', onSlaveID='1', name='Kuchnia', typ='BLIND'}'}
-2023-07-27 11:52:18.215  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.217  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='12'} super = {, id='52', room='11', slaveID='10', onSlaveID='2', name='Jadalnia', typ='LIGHT'}}
-2023-07-27 11:52:18.228  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.230  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='48', room='12', slaveID='20', onSlaveID='0', name='Boczne', typ='LIGHT'}}
-2023-07-27 11:52:18.230  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.231  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='12'} super = {, id='49', room='12', slaveID='20', onSlaveID='1', name='G�rne ', typ='LIGHT'}}
-2023-07-27 11:52:18.236  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.238  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='13'} super = {, id='53', room='13', slaveID='22', onSlaveID='0', name='Wiatro�ap', typ='LIGHT'}}
-2023-07-27 11:52:18.239  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.241  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='12'} super = {, id='54', room='13', slaveID='22', onSlaveID='1', name='Podcie�', typ='LIGHT'}}
-2023-07-27 11:52:18.241  WARN 30904 --- [main] n.model.hardware.device.Light            : Urz�dzenie nie jest skonfigurowane na slave-u!
-2023-07-27 11:52:18.243  INFO 30904 --- [main] newsmarthome.model.Room                  : Dodano urz�dzenie:{ swt={ stan='OFF', pin='10'} super = {, id='55', room='13', slaveID='22', onSlaveID='2', name='Kapliczka', typ='LIGHT'}}
-2023-07-27 11:52:18.248  INFO 30904 --- [main] newsmarthome.database.SystemDAO          : Wczytano 14 pokoi
-2023-07-27 11:52:18.288  INFO 30904 --- [main] newsmarthome.database.AutomationDAO      : Wczytano 1 funkcji
-2023-07-27 11:52:19.082  INFO 30904 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
-2023-07-27 11:52:19.331  INFO 30904 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
-2023-07-27 11:52:19.787  INFO 30904 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'taskScheduler'
-2023-07-27 11:52:19.835  INFO 30904 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
-2023-07-27 11:52:19.894  WARN 30904 --- [scheduling-1] newsmarthome.runners.Runners             : No slaves detected
-2023-07-27 11:52:19.900  INFO 30904 --- [main] newsmarthome.SmartHomeAppTest            : Started SmartHomeAppTest in 3.873 seconds (JVM running for 4.783)
-2023-07-27 11:52:20.284  INFO 30904 --- [Thread-1] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'taskScheduler'
-2023-07-27 11:52:20.284 ERROR 30904 --- [scheduling-1] newsmarthome.runners.Runners             : B��d podczas usypiania w�tku: sleep interrupted
-2023-07-27 11:52:20.284 ERROR 30904 --- [scheduling-1] newsmarthome.runners.Runners             : B��d podczas usypiania w�tku: sleep interrupted
-2023-07-27 11:52:20.285  INFO 30904 --- [Thread-1] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
+2023-11-26 10:39:57.947 ERROR 39668 --- [main] newsmarthome.i2c.I2CHardware             : platform does not support this driver
+2023-11-26 10:39:57.948  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:57.962  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='0', room='1', slaveID='8', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:57.970  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='1', room='1', slaveID='8', onSlaveID='1', name='Garderoba', typ='BLIND'}'}
+2023-11-26 10:39:57.987  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:57.989  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='4', room='2', slaveID='13', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:57.989  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:57.991  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='12'} super = {, id='5', room='2', slaveID='13', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:39:57.995  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='6', room='2', slaveID='13', onSlaveID='2', name='Marcin', typ='BLIND'}'}
+2023-11-26 10:39:58.013  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='DOWN', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='ON', pin='16'}', super ='' {, id='8', room='3', slaveID='15', onSlaveID='0', name='Marek', typ='BLIND'}'}
+2023-11-26 10:39:58.013  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.015  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='9', room='3', slaveID='15', onSlaveID='1', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:58.016  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.018  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='10', room='3', slaveID='15', onSlaveID='2', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:39:58.020 ERROR 39668 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:39:58.023  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='15'} super = {, id='46', room='3', slaveID='14', onSlaveID='0', name='Gnd TV', typ='GNIAZDKO'}}
+2023-11-26 10:39:58.023 ERROR 39668 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:39:58.026  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='16'} super = {, id='47', room='3', slaveID='14', onSlaveID='1', name='Gnd koło łóżka 1', typ='GNIAZDKO'}}
+2023-11-26 10:39:58.026 ERROR 39668 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:39:58.030  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='56', room='3', slaveID='14', onSlaveID='2', name='Gniazdko Biurko L', typ='GNIAZDKO'}}
+2023-11-26 10:39:58.030 ERROR 39668 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:39:58.033  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='57', room='3', slaveID='14', onSlaveID='3', name='Gniazdko Biurko P', typ='GNIAZDKO'}}
+2023-11-26 10:39:58.048  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.050  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='33', room='4', slaveID='16', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:58.051  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.052  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='34', room='4', slaveID='16', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:39:58.055  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='35', room='4', slaveID='16', onSlaveID='2', name='Gościnny', typ='BLIND'}'}
+2023-11-26 10:39:58.064  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.066  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='36', room='5', slaveID='12', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:58.070  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.072  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='2', room='6', slaveID='11', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:58.074  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='3', room='6', slaveID='11', onSlaveID='1', name='Łazienka Duża', typ='BLIND'}'}
+2023-11-26 10:39:58.080  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.081  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='37', room='7', slaveID='8', onSlaveID='2', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:58.087  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.088  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='11', room='8', slaveID='9', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:58.093  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.094  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='41', room='9', slaveID='17', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:58.095  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.096  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='42', room='9', slaveID='17', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:39:58.097  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='43', room='9', slaveID='17', onSlaveID='2', name='Rodzice', typ='BLIND'}'}
+2023-11-26 10:39:58.104  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='40', room='10', slaveID='18', onSlaveID='0', name='Taras', typ='BLIND'}'}
+2023-11-26 10:39:58.105  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='38', room='10', slaveID='19', onSlaveID='0', name='Jadalnia', typ='BLIND'}'}
+2023-11-26 10:39:58.107  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='13'}', swtDown='{ stan='OFF', pin='12'}', super ='' {, id='39', room='10', slaveID='18', onSlaveID='1', name='Przy Tarasie', typ='BLIND'}'}
+2023-11-26 10:39:58.107  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.109  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='50', room='10', slaveID='21', onSlaveID='0', name='Przedpokój', typ='LIGHT'}}
+2023-11-26 10:39:58.109  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.111  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='51', room='10', slaveID='21', onSlaveID='1', name='Przedpokój/Jadalnia', typ='LIGHT'}}
+2023-11-26 10:39:58.120  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.121  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='44', room='11', slaveID='10', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:39:58.123  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='45', room='11', slaveID='10', onSlaveID='1', name='Kuchnia', typ='BLIND'}'}
+2023-11-26 10:39:58.123  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.124  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='52', room='11', slaveID='10', onSlaveID='2', name='Jadalnia', typ='LIGHT'}}
+2023-11-26 10:39:58.129  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.130  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='48', room='12', slaveID='20', onSlaveID='0', name='Boczne', typ='LIGHT'}}
+2023-11-26 10:39:58.130  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.131  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='49', room='12', slaveID='20', onSlaveID='1', name='Górne ', typ='LIGHT'}}
+2023-11-26 10:39:58.133  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.134  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='53', room='13', slaveID='22', onSlaveID='0', name='Wiatrołap', typ='LIGHT'}}
+2023-11-26 10:39:58.135  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.136  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='54', room='13', slaveID='22', onSlaveID='1', name='Podcień', typ='LIGHT'}}
+2023-11-26 10:39:58.136  WARN 39668 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:39:58.137  INFO 39668 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='55', room='13', slaveID='22', onSlaveID='2', name='Kapliczka', typ='LIGHT'}}
+2023-11-26 10:39:58.141  INFO 39668 --- [main] newsmarthome.database.SystemDAO          : Wczytano 14 pokoi
+2023-11-26 10:39:58.156  INFO 39668 --- [main] newsmarthome.database.AutomationDAO      : Wczytano 2 funkcji
+2023-11-26 10:39:58.264  INFO 39668 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2023-11-26 10:39:58.404  INFO 39668 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2023-11-26 10:39:58.566  INFO 39668 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'taskScheduler'
+2023-11-26 10:39:58.576  INFO 39668 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2023-11-26 10:39:58.609  WARN 39668 --- [scheduling-1] newsmarthome.runners.Runners             : No slaves detected
+2023-11-26 10:39:58.625  INFO 39668 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-11-26 10:39:58.627  INFO 39668 --- [main] newsmarthome.SmartHomeApp                : Started SmartHomeApp in 2.32 seconds (JVM running for 2.515)
+2023-11-26 10:39:58.637  INFO 39668 --- [main] Console Menager                          : Started
+2023-11-26 10:39:59.610  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:39:59.611  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:00.088  INFO 39668 --- [RMI TCP Connection(1)-127.0.0.1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-11-26 10:40:00.088  INFO 39668 --- [RMI TCP Connection(1)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-11-26 10:40:00.092  INFO 39668 --- [RMI TCP Connection(1)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2023-11-26 10:40:01.611  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:01.612  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:04.612  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:04.613  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:08.613  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:08.614  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:13.615  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:13.615  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:19.616  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:19.616  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:26.617  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:26.618  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:34.618  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:34.618  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:43.618  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:43.619  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:40:53.619  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:40:53.620  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:41:04.620  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:41:04.621  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:41:16.621  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:41:16.622  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:41:29.623  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:41:29.623  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:41:43.623  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:41:43.623  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:41:58.624  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:41:58.624  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:42:14.625  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:42:14.625  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:42:31.625  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:42:31.626  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:42:49.627  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:42:49.628  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:43:08.628  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:43:08.629  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:43:28.630  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:43:28.630  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:43:49.630  INFO 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:43:49.630  WARN 39668 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:43:58.017 ERROR 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-11-26 10:43:58.017  INFO 39668 --- [Thread-2] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'taskScheduler'
+2023-11-26 10:43:58.017 ERROR 39668 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-11-26 10:43:58.018  INFO 39668 --- [Thread-2] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
+2023-11-26 10:43:58.844  INFO 42982 --- [main] newsmarthome.SmartHomeApp                : Starting SmartHomeApp on VikingMarek with PID 42982 (/home/marek/Github/SmartHome/javaApp/SmartHome/target/classes started by marek in /home/marek/Github/SmartHome/javaApp/SmartHome)
+2023-11-26 10:43:58.848  INFO 42982 --- [main] newsmarthome.SmartHomeApp                : No active profile set, falling back to default profiles: default
+2023-11-26 10:43:59.761  INFO 42982 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-11-26 10:43:59.780  INFO 42982 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-11-26 10:43:59.780  INFO 42982 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.19]
+2023-11-26 10:43:59.874  INFO 42982 --- [main] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2023-11-26 10:43:59.877  INFO 42982 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-11-26 10:43:59.877  INFO 42982 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 990 ms
+2023-11-26 10:44:00.091  INFO 42982 --- [main] newsmarthome.database.UsersDAO           : Wczytywanie bazy danych użytkowników
+2023-11-26 10:44:00.124  INFO 42982 --- [main] newsmarthome.database.UsersDAO           : Wczytano 4 userow
+2023-11-26 10:44:00.129  INFO 42982 --- [main] newsmarthome.database.SystemDAO          : Init System DAO
+2023-11-26 10:44:00.135  INFO 42982 --- [main] newsmarthome.i2c.MasterToSlaveConverter  : Stworzno JtAConverter
+2023-11-26 10:44:00.145 ERROR 42982 --- [main] com.pi4j.util.NativeLibraryLoader        : Unable to load [libpi4j.so] using path: [/lib/raspberrypi/dynamic/libpi4j.so]
+
+java.lang.UnsatisfiedLinkError: /tmp/libpi4j11336231705971665707.so: /tmp/libpi4j11336231705971665707.so: niewłaściwa klasa ELF: ELFCLASS32 (Possible cause: architecture word width mismatch)
+	at java.base/java.lang.ClassLoader$NativeLibrary.load0(Native Method) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.load(ClassLoader.java:2450) ~[na:na]
+	at java.base/java.lang.ClassLoader$NativeLibrary.loadLibrary(ClassLoader.java:2506) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary0(ClassLoader.java:2705) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2635) ~[na:na]
+	at java.base/java.lang.Runtime.load0(Runtime.java:768) ~[na:na]
+	at java.base/java.lang.System.load(System.java:1850) ~[na:na]
+	at com.pi4j.util.NativeLibraryLoader.loadLibraryFromClasspath(NativeLibraryLoader.java:227) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.util.NativeLibraryLoader.load(NativeLibraryLoader.java:172) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.wiringpi.Gpio.<clinit>(Gpio.java:189) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:69) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.RaspiGpioProvider.<init>(RaspiGpioProvider.java:51) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.platform.Platform.getGpioProvider(Platform.java:125) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.platform.Platform.getGpioProvider(Platform.java:118) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.GpioFactory.getDefaultProvider(GpioFactory.java:109) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.impl.GpioControllerImpl.<init>(GpioControllerImpl.java:53) ~[pi4j-core-1.3.jar:na]
+	at com.pi4j.io.gpio.GpioFactory.getInstance(GpioFactory.java:91) ~[pi4j-core-1.3.jar:na]
+	at newsmarthome.i2c.I2CHardware.<init>(I2CHardware.java:39) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:172) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:87) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1295) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1197) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:338) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:224) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveNamedBean(DefaultListableBeanFactory.java:1116) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveBean(DefaultListableBeanFactory.java:409) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:343) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:337) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at newsmarthome.model.hardware.HardwareFactory.createLight(HardwareFactory.java:34) ~[classes/:na]
+	at newsmarthome.model.hardware.HardwareFactory.createDevice(HardwareFactory.java:77) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.readDatabase(SystemDAO.java:327) ~[classes/:na]
+	at newsmarthome.database.SystemDAO.<init>(SystemDAO.java:65) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:172) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:117) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:300) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:285) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1248) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1168) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:857) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:760) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:218) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:843) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:877) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]
+	at newsmarthome.SmartHomeApp.main(SmartHomeApp.java:50) ~[classes/:na]
+
+2023-11-26 10:44:00.148 ERROR 42982 --- [main] newsmarthome.i2c.I2CHardware             : platform does not support this driver
+2023-11-26 10:44:00.149  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.163  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='0', room='1', slaveID='8', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.170  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='1', room='1', slaveID='8', onSlaveID='1', name='Garderoba', typ='BLIND'}'}
+2023-11-26 10:44:00.190  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.192  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='4', room='2', slaveID='13', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.193  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.194  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='12'} super = {, id='5', room='2', slaveID='13', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:44:00.198  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='6', room='2', slaveID='13', onSlaveID='2', name='Marcin', typ='BLIND'}'}
+2023-11-26 10:44:00.232  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='DOWN', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='ON', pin='16'}', super ='' {, id='8', room='3', slaveID='15', onSlaveID='0', name='Marek', typ='BLIND'}'}
+2023-11-26 10:44:00.233  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.247  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='9', room='3', slaveID='15', onSlaveID='1', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.247  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.250  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='10', room='3', slaveID='15', onSlaveID='2', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:44:00.252 ERROR 42982 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:44:00.255  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='15'} super = {, id='46', room='3', slaveID='14', onSlaveID='0', name='Gnd TV', typ='GNIAZDKO'}}
+2023-11-26 10:44:00.255 ERROR 42982 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:44:00.258  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='16'} super = {, id='47', room='3', slaveID='14', onSlaveID='1', name='Gnd koło łóżka 1', typ='GNIAZDKO'}}
+2023-11-26 10:44:00.259 ERROR 42982 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:44:00.262  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='56', room='3', slaveID='14', onSlaveID='2', name='Gniazdko Biurko L', typ='GNIAZDKO'}}
+2023-11-26 10:44:00.263 ERROR 42982 --- [main] n.model.hardware.device.Outlet           : Błąd podczas zmiany stanu urządzenia! -> System nie znalazł Slave-a o takim adresie: 14
+2023-11-26 10:44:00.266  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='57', room='3', slaveID='14', onSlaveID='3', name='Gniazdko Biurko P', typ='GNIAZDKO'}}
+2023-11-26 10:44:00.279  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.281  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='33', room='4', slaveID='16', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.282  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.283  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='34', room='4', slaveID='16', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:44:00.287  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='UP', swtUp='{ stan='ON', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='35', room='4', slaveID='16', onSlaveID='2', name='Gościnny', typ='BLIND'}'}
+2023-11-26 10:44:00.295  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.296  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='36', room='5', slaveID='12', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.299  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.301  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='ON', pin='13'} super = {, id='2', room='6', slaveID='11', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.303  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='3', room='6', slaveID='11', onSlaveID='1', name='Łazienka Duża', typ='BLIND'}'}
+2023-11-26 10:44:00.310  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.311  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='37', room='7', slaveID='8', onSlaveID='2', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.316  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.318  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='11', room='8', slaveID='9', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.322  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.324  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='41', room='9', slaveID='17', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.324  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.325  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='42', room='9', slaveID='17', onSlaveID='1', name='Poziom 2', typ='LIGHT'}}
+2023-11-26 10:44:00.327  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='43', room='9', slaveID='17', onSlaveID='2', name='Rodzice', typ='BLIND'}'}
+2023-11-26 10:44:00.334  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='40', room='10', slaveID='18', onSlaveID='0', name='Taras', typ='BLIND'}'}
+2023-11-26 10:44:00.335  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='16'}', swtDown='{ stan='OFF', pin='15'}', super ='' {, id='38', room='10', slaveID='19', onSlaveID='0', name='Jadalnia', typ='BLIND'}'}
+2023-11-26 10:44:00.337  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='13'}', swtDown='{ stan='OFF', pin='12'}', super ='' {, id='39', room='10', slaveID='18', onSlaveID='1', name='Przy Tarasie', typ='BLIND'}'}
+2023-11-26 10:44:00.337  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.339  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='50', room='10', slaveID='21', onSlaveID='0', name='Przedpokój', typ='LIGHT'}}
+2023-11-26 10:44:00.339  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.340  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='51', room='10', slaveID='21', onSlaveID='1', name='Przedpokój/Jadalnia', typ='LIGHT'}}
+2023-11-26 10:44:00.351  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.352  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='44', room='11', slaveID='10', onSlaveID='0', name='Poziom 1', typ='LIGHT'}}
+2023-11-26 10:44:00.353  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ stan='NOTKNOW', swtUp='{ stan='OFF', pin='15'}', swtDown='{ stan='OFF', pin='16'}', super ='' {, id='45', room='11', slaveID='10', onSlaveID='1', name='Kuchnia', typ='BLIND'}'}
+2023-11-26 10:44:00.354  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.355  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='52', room='11', slaveID='10', onSlaveID='2', name='Jadalnia', typ='LIGHT'}}
+2023-11-26 10:44:00.360  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.361  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='48', room='12', slaveID='20', onSlaveID='0', name='Boczne', typ='LIGHT'}}
+2023-11-26 10:44:00.361  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.362  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='49', room='12', slaveID='20', onSlaveID='1', name='Górne ', typ='LIGHT'}}
+2023-11-26 10:44:00.364  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.365  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='13'} super = {, id='53', room='13', slaveID='22', onSlaveID='0', name='Wiatrołap', typ='LIGHT'}}
+2023-11-26 10:44:00.365  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.366  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='12'} super = {, id='54', room='13', slaveID='22', onSlaveID='1', name='Podcień', typ='LIGHT'}}
+2023-11-26 10:44:00.367  WARN 42982 --- [main] n.model.hardware.device.Light            : Urządzenie nie jest skonfigurowane na slave-u!
+2023-11-26 10:44:00.368  INFO 42982 --- [main] newsmarthome.model.Room                  : Dodano urządzenie:{ swt={ stan='OFF', pin='10'} super = {, id='55', room='13', slaveID='22', onSlaveID='2', name='Kapliczka', typ='LIGHT'}}
+2023-11-26 10:44:00.371  INFO 42982 --- [main] newsmarthome.database.SystemDAO          : Wczytano 14 pokoi
+2023-11-26 10:44:00.385  INFO 42982 --- [main] newsmarthome.database.AutomationDAO      : Wczytano 2 funkcji
+2023-11-26 10:44:00.487  INFO 42982 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2023-11-26 10:44:00.576  INFO 42982 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2023-11-26 10:44:00.667  INFO 42982 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'taskScheduler'
+2023-11-26 10:44:00.677  INFO 42982 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2023-11-26 10:44:00.705  WARN 42982 --- [scheduling-1] newsmarthome.runners.Runners             : No slaves detected
+2023-11-26 10:44:00.724  INFO 42982 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-11-26 10:44:00.726  INFO 42982 --- [main] newsmarthome.SmartHomeApp                : Started SmartHomeApp in 2.163 seconds (JVM running for 2.342)
+2023-11-26 10:44:00.735  INFO 42982 --- [main] Console Menager                          : Started
+2023-11-26 10:44:01.706  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:01.707  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:01.968  INFO 42982 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-11-26 10:44:01.968  INFO 42982 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-11-26 10:44:01.972  INFO 42982 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2023-11-26 10:44:03.708  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:03.708  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:06.708  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:06.709  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:10.710  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:10.710  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:15.710  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:15.710  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:21.711  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:21.711  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:28.712  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:28.712  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:36.712  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:36.713  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:45.713  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:45.714  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:44:55.714  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:44:55.714  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:45:06.715  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:45:06.715  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:45:18.716  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:45:18.716  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:45:31.717  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:45:31.717  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:45:45.717  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:45:45.718  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:46:00.718  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:46:00.718  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:46:16.719  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:46:16.719  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:46:33.720  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:46:33.720  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:46:47.333  INFO 42982 --- [http-nio-8080-exec-6] newsmarthome.controller.UserController   : User PLPOLAND logged in
+2023-11-26 10:46:51.721  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:46:51.721  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:47:10.722  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:47:10.722  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:47:30.722  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:47:30.723  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:47:51.723  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:47:51.723  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:48:13.724  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:48:13.724  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:48:36.724  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:48:36.725  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:49:00.725  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:49:00.725  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:49:25.725  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:49:25.726  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:49:51.726  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:49:51.727  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:50:18.727  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:50:18.728  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:50:46.728  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:50:46.729  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:51:15.729  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:51:15.729  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:51:45.729  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:51:45.729  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:52:16.730  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:52:16.730  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:52:48.731  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:52:48.731  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:53:21.732  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:53:21.732  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:53:55.732  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:53:55.733  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:54:30.733  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:54:30.733  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 10:55:06.733  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 10:55:06.733  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:33:51.734  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:33:51.734  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:34:29.734  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:34:29.734  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:35:08.734  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:35:08.734  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:35:48.735  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:35:48.735  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:36:29.735  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:36:29.736  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:37:11.736  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:37:11.737  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:37:54.737  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:37:54.738  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:38:38.738  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:38:38.738  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:39:23.738  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:39:23.738  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:40:09.739  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:40:09.739  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:40:56.740  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:40:56.740  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:41:44.740  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:41:44.741  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:42:33.741  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:42:33.742  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:43:23.742  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:43:23.742  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:44:14.743  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:44:14.743  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:45:06.744  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:45:06.744  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:45:59.744  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:45:59.745  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:46:53.745  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:46:53.746  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:47:48.746  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:47:48.746  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:48:44.747  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:48:44.747  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:49:41.748  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:49:41.748  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:50:39.748  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:50:39.749  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:51:38.749  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:51:38.749  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:52:38.749  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:52:38.749  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:53:38.749  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:53:38.750  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:54:38.750  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:54:38.750  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:55:38.751  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:55:38.751  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:56:38.752  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:56:38.752  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:57:38.752  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:57:38.752  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:58:38.752  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:58:38.753  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 12:59:38.753  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 12:59:38.753  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:00:38.753  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:00:38.754  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:01:38.754  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:01:38.755  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:02:38.755  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:02:38.755  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:03:38.756  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:03:38.756  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:04:38.756  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:04:38.757  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:05:38.757  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:05:38.757  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:06:38.758  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:06:38.758  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:07:38.758  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:07:38.759  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:08:38.759  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:08:38.759  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:09:38.760  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:09:38.760  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:10:38.760  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:10:38.761  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:11:38.761  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:11:38.762  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:12:38.762  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:12:38.762  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:13:38.762  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:13:38.763  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:14:38.763  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:14:38.764  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:15:38.764  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:15:38.765  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:16:38.766  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:16:38.766  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:17:38.767  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:17:38.767  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:18:38.767  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:18:38.768  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:19:38.768  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:19:38.768  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:20:38.768  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:20:38.769  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:21:38.769  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:21:38.770  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:22:38.770  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:22:38.770  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:23:38.771  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:23:38.771  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:24:38.771  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:24:38.771  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:25:38.772  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:25:38.772  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:26:38.772  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:26:38.773  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:27:38.773  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:27:38.774  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:28:38.774  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:28:38.774  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:29:38.775  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:29:38.775  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:30:38.775  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:30:38.776  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:31:38.776  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:31:38.777  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:32:38.777  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:32:38.777  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:33:38.778  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:33:38.778  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:34:38.778  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:34:38.779  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:35:38.779  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:35:38.780  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:36:38.780  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:36:38.780  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:37:38.781  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:37:38.781  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:38:38.782  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:38:38.782  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:39:38.782  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:39:38.783  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:40:38.783  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:40:38.784  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:41:38.784  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:41:38.784  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:42:38.785  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:42:38.785  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:43:38.785  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:43:38.785  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:44:38.786  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:44:38.786  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:45:38.787  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:45:38.787  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:46:38.787  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:46:38.788  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:47:38.788  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:47:38.789  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:48:38.789  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:48:38.789  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:49:38.790  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:49:38.790  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:50:38.790  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:50:38.790  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:51:38.791  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:51:38.791  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:52:38.791  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:52:38.791  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:53:38.791  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:53:38.792  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:54:38.792  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:54:38.793  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:55:38.793  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:55:38.793  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:56:38.793  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:56:38.793  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:57:38.794  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:57:38.794  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:58:38.794  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:58:38.794  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 13:59:38.794  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 13:59:38.794  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:00:38.794  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:00:38.794  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:01:38.795  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:01:38.795  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:02:38.795  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:02:38.795  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:03:38.795  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:03:38.795  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:04:38.795  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:04:38.795  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:05:38.796  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:05:38.796  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:06:38.796  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:06:38.796  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:07:38.796  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:07:38.796  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:08:38.796  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:08:38.797  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:09:38.797  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:09:38.797  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:10:38.797  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:10:38.797  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:11:38.798  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:11:38.798  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:12:38.798  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:12:38.798  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:13:38.798  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:13:38.799  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:14:38.799  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:14:38.799  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:15:38.800  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:15:38.800  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:16:38.800  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:16:38.801  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:17:38.801  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:17:38.801  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:18:38.802  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:18:38.802  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:19:38.802  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:19:38.803  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:20:38.803  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:20:38.804  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:21:38.804  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:21:38.804  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:22:38.805  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:22:38.805  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:23:38.805  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:23:38.805  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:24:38.806  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:24:38.806  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:25:38.806  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:25:38.807  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:26:38.807  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:26:38.807  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:27:38.808  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:27:38.808  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:28:38.808  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:28:38.809  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:29:38.809  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:29:38.809  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:30:38.809  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:30:38.810  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:31:38.810  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:31:38.811  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:32:38.811  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:32:38.811  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:33:38.811  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:33:38.812  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:34:38.812  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:34:38.813  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:35:38.813  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:35:38.813  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:36:38.813  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:36:38.814  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:37:38.814  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:37:38.814  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:38:38.815  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:38:38.815  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:39:38.815  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:39:38.816  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:40:38.816  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:40:38.816  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:41:38.816  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:41:38.817  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:42:38.817  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:42:38.817  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:43:38.818  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:43:38.818  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:44:38.818  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:44:38.818  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:45:38.819  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:45:38.819  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:46:38.819  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:46:38.820  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:47:38.820  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:47:38.820  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:48:38.821  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:48:38.821  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:49:38.821  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:49:38.822  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:50:38.822  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:50:38.822  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:51:38.823  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:51:38.823  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:52:38.823  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:52:38.824  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:53:38.824  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:53:38.824  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:54:38.825  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:54:38.825  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:55:38.825  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:55:38.825  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:56:38.826  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:56:38.826  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:57:38.826  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:57:38.826  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:58:38.827  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:58:38.827  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 14:59:38.827  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 14:59:38.827  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:00:38.828  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:00:38.828  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:01:38.828  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:01:38.829  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:02:38.829  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:02:38.829  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:03:38.830  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:03:38.830  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:04:38.830  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:04:38.831  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:05:38.831  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:05:38.831  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:06:38.832  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:06:38.832  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:07:38.832  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:07:38.832  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:08:38.833  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:08:38.833  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:09:38.833  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:09:38.834  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:10:38.834  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:10:38.834  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:11:38.834  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:11:38.835  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:12:38.835  INFO 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Searching for slaves...
+2023-11-26 15:12:38.835  WARN 42982 --- [scheduling-1] newsmarthome.i2c.I2CHardware             : You are not on a Raspberry Pi so you cannot use I2C!
+2023-11-26 15:13:16.246 ERROR 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-11-26 15:13:16.246  INFO 42982 --- [Thread-2] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'taskScheduler'
+2023-11-26 15:13:16.246 ERROR 42982 --- [scheduling-1] newsmarthome.runners.Runners             : Błąd podczas usypiania wątku: sleep interrupted
+2023-11-26 15:13:16.247  INFO 42982 --- [Thread-2] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
