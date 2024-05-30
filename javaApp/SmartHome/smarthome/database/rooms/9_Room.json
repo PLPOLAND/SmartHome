@@ -29,14 +29,14 @@
     "onSlaveID" : 2,
     "name" : "Rodzice",
     "typ" : "BLIND",
-    "state" : "NOTKNOW",
-    "switchUp" : {
-      "stan" : "OFF",
-      "pin" : 15
-    },
+    "state" : "UP",
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
+    },
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
     }
   } ],
   "sensors" : [ {
@@ -63,6 +63,21 @@
         "state" : "OFF",
         "pin" : 13
       }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 42,
+        "room" : 9,
+        "slaveID" : 17,
+        "onSlaveID" : 1,
+        "name" : "Poziom 2",
+        "typ" : "LIGHT",
+        "state" : "OFF",
+        "pin" : 12
+      }
     } ],
     "slaveAdress" : 17
   }, {
@@ -86,14 +101,14 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     }, {
@@ -108,14 +123,14 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     }, {
@@ -130,17 +145,29 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     } ],
+    "slaveAdress" : 17
+  }, {
+    "@type" : "Termometr",
+    "id" : 53,
+    "room" : 9,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 255, 100, 14, 123, 124, 117, 65 ],
+    "nazwa" : "Rodzice",
+    "typ" : "THERMOMETR",
+    "temperatura" : 0.0,
+    "maxTemperatura" : 0.0,
+    "minTemperatura" : 3.4028235E38,
     "slaveAdress" : 17
   } ],
   "loaded" : false

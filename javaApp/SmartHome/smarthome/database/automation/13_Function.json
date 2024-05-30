@@ -1,0 +1,60 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 13,
+  "name" : "Wentylator mała łazienka zew. Hold",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 58,
+      "room" : 5,
+      "slaveID" : 12,
+      "onSlaveID" : 1,
+      "name" : "Wentylator",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "ON",
+        "pin" : 16
+      },
+      "pin" : 16,
+      "state" : "ON"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  } ],
+  "reversState" : true,
+  "type" : "BUTTON",
+  "button" : {
+    "@type" : "Button",
+    "id" : 108,
+    "room" : 5,
+    "onSlaveID" : 2,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 36,
+        "room" : 5,
+        "slaveID" : 12,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 12
+  },
+  "clicks" : 1,
+  "clickType" : "HOLDED",
+  "active" : true
+}

@@ -1,7 +1,7 @@
 {
   "@type" : "ButtonFunction",
-  "id" : 0,
-  "name" : "Światła Marek",
+  "id" : 2,
+  "name" : "Marek Łazienka NOC",
   "actions" : [ {
     "device" : {
       "@type" : "Light",
@@ -12,34 +12,53 @@
       "name" : "Poziom 1",
       "typ" : "LIGHT",
       "swt" : {
-        "stan" : "ON",
+        "stan" : "OFF",
         "pin" : 13
       },
       "pin" : 13,
-      "state" : "ON"
+      "state" : "OFF"
     },
     "activeDeviceState" : "ON",
     "allowReverse" : true
   }, {
     "device" : {
       "@type" : "Light",
-      "id" : 10,
-      "room" : 3,
-      "slaveID" : 15,
-      "onSlaveID" : 2,
-      "name" : "Poziom 2",
+      "id" : 11,
+      "room" : 8,
+      "slaveID" : 9,
+      "onSlaveID" : 0,
+      "name" : "Poziom 1",
       "typ" : "LIGHT",
       "swt" : {
-        "stan" : "ON",
-        "pin" : 12
+        "stan" : "OFF",
+        "pin" : 13
       },
-      "pin" : 12,
-      "state" : "ON"
+      "pin" : 13,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Light",
+      "id" : 2,
+      "room" : 6,
+      "slaveID" : 11,
+      "onSlaveID" : 0,
+      "name" : "Poziom 1",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 13
+      },
+      "pin" : 13,
+      "state" : "OFF"
     },
     "activeDeviceState" : "ON",
     "allowReverse" : true
   } ],
   "reversState" : true,
+  "type" : "BUTTON",
   "button" : {
     "@type" : "Button",
     "id" : 106,
@@ -90,7 +109,7 @@
     } ],
     "slaveAdress" : 15
   },
-  "clicks" : 3,
-  "clickType" : "CLICKED",
-  "active" : true
+  "clicks" : 2,
+  "clickType" : "HOLDED",
+  "active" : false
 }

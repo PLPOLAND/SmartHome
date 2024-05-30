@@ -1,11 +1,11 @@
 {
-  "id" : 6,
-  "name" : "Łazienka Duża",
+  "id" : 14,
+  "name" : "Garaż",
   "devices" : [ {
     "@type" : "Light",
-    "id" : 2,
-    "room" : 6,
-    "slaveID" : 11,
+    "id" : 61,
+    "room" : 14,
+    "slaveID" : 7,
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
@@ -13,11 +13,11 @@
     "pin" : 13
   }, {
     "@type" : "Blind",
-    "id" : 3,
-    "room" : 6,
-    "slaveID" : 11,
+    "id" : 62,
+    "room" : 14,
+    "slaveID" : 7,
     "onSlaveID" : 1,
-    "name" : "Łazienka Duża",
+    "name" : "Garaż",
     "typ" : "BLIND",
     "state" : "UP",
     "switchDown" : {
@@ -31,8 +31,8 @@
   } ],
   "sensors" : [ {
     "@type" : "Button",
-    "id" : 109,
-    "room" : 6,
+    "id" : 129,
+    "room" : 14,
     "onSlaveID" : 2,
     "addres" : null,
     "nazwa" : "Światło",
@@ -44,9 +44,9 @@
       "clicks" : 1,
       "device" : {
         "@type" : "Light",
-        "id" : 2,
-        "room" : 6,
-        "slaveID" : 11,
+        "id" : 61,
+        "room" : 14,
+        "slaveID" : 7,
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
@@ -54,11 +54,11 @@
         "pin" : 13
       }
     } ],
-    "slaveAdress" : 11
+    "slaveAdress" : 7
   }, {
     "@type" : "Button",
-    "id" : 119,
-    "room" : 6,
+    "id" : 130,
+    "room" : 14,
     "onSlaveID" : 3,
     "addres" : null,
     "nazwa" : "Rolety",
@@ -70,11 +70,11 @@
       "clicks" : 1,
       "device" : {
         "@type" : "Blind",
-        "id" : 3,
-        "room" : 6,
-        "slaveID" : 11,
+        "id" : 62,
+        "room" : 14,
+        "slaveID" : 7,
         "onSlaveID" : 1,
-        "name" : "Łazienka Duża",
+        "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
         "switchDown" : {
@@ -92,11 +92,11 @@
       "clicks" : 2,
       "device" : {
         "@type" : "Blind",
-        "id" : 3,
-        "room" : 6,
-        "slaveID" : 11,
+        "id" : 62,
+        "room" : 14,
+        "slaveID" : 7,
         "onSlaveID" : 1,
-        "name" : "Łazienka Duża",
+        "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
         "switchDown" : {
@@ -114,11 +114,11 @@
       "clicks" : 3,
       "device" : {
         "@type" : "Blind",
-        "id" : 3,
-        "room" : 6,
-        "slaveID" : 11,
+        "id" : 62,
+        "room" : 14,
+        "slaveID" : 7,
         "onSlaveID" : 1,
-        "name" : "Łazienka Duża",
+        "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
         "switchDown" : {
@@ -131,7 +131,19 @@
         }
       }
     } ],
-    "slaveAdress" : 11
+    "slaveAdress" : 7
+  }, {
+    "@type" : "Termometr",
+    "id" : 39,
+    "room" : 14,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 141, 181, 165, 76 ],
+    "nazwa" : "Garaż",
+    "typ" : "THERMOMETR",
+    "temperatura" : 21.19,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 21.19,
+    "slaveAdress" : -1
   } ],
   "loaded" : false
 }

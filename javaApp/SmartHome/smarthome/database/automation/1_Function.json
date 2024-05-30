@@ -1,23 +1,152 @@
 {
   "@type" : "ButtonFunction",
   "id" : 1,
-  "name" : "",
-  "actions" : [ ],
+  "name" : "Rolety Salon",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Blind",
+      "id" : 40,
+      "room" : 10,
+      "slaveID" : 18,
+      "onSlaveID" : 0,
+      "name" : "Taras",
+      "typ" : "BLIND",
+      "switchDown" : {
+        "stan" : "OFF",
+        "pin" : 15
+      },
+      "switchUp" : {
+        "stan" : "ON",
+        "pin" : 16
+      },
+      "state" : "UP"
+    },
+    "activeDeviceState" : "DOWN",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Blind",
+      "id" : 38,
+      "room" : 10,
+      "slaveID" : 19,
+      "onSlaveID" : 0,
+      "name" : "Jadalnia",
+      "typ" : "BLIND",
+      "switchDown" : {
+        "stan" : "OFF",
+        "pin" : 15
+      },
+      "switchUp" : {
+        "stan" : "ON",
+        "pin" : 16
+      },
+      "state" : "NOTKNOW"
+    },
+    "activeDeviceState" : "DOWN",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Blind",
+      "id" : 39,
+      "room" : 10,
+      "slaveID" : 18,
+      "onSlaveID" : 1,
+      "name" : "Przy Tarasie",
+      "typ" : "BLIND",
+      "switchDown" : {
+        "stan" : "OFF",
+        "pin" : 12
+      },
+      "switchUp" : {
+        "stan" : "ON",
+        "pin" : 13
+      },
+      "state" : "UP"
+    },
+    "activeDeviceState" : "DOWN",
+    "allowReverse" : true
+  } ],
   "reversState" : true,
   "type" : "BUTTON",
   "button" : {
     "@type" : "Button",
-    "id" : 1,
-    "room" : -1,
-    "onSlaveID" : -1,
-    "addres" : null,
-    "nazwa" : "",
+    "id" : 123,
+    "room" : 10,
+    "onSlaveID" : 1,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Jadalnia",
     "typ" : "BUTTON",
-    "pin" : 14,
-    "funkcjeKlikniec" : [ ],
-    "slaveAdress" : 8
+    "pin" : 17,
+    "funkcjeKlikniec" : [ {
+      "state" : "UP",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 38,
+        "room" : 10,
+        "slaveID" : 19,
+        "onSlaveID" : 0,
+        "name" : "Jadalnia",
+        "typ" : "BLIND",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "DOWN",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 38,
+        "room" : 10,
+        "slaveID" : 19,
+        "onSlaveID" : 0,
+        "name" : "Jadalnia",
+        "typ" : "BLIND",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "STOP",
+      "type" : "CLICKED",
+      "clicks" : 3,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 38,
+        "room" : 10,
+        "slaveID" : 19,
+        "onSlaveID" : 0,
+        "name" : "Jadalnia",
+        "typ" : "BLIND",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    } ],
+    "slaveAdress" : 19
   },
-  "clicks" : 3,
-  "clickType" : "CLICKED",
-  "active" : true
+  "clicks" : 1,
+  "clickType" : "HOLDED",
+  "active" : false
 }

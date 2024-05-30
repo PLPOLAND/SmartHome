@@ -1,50 +1,69 @@
 {
   "@type" : "ButtonFunction",
-  "id" : 0,
-  "name" : "Światła Marek",
+  "id" : 4,
+  "name" : "Przedpokój z łazienki",
   "actions" : [ {
     "device" : {
       "@type" : "Light",
-      "id" : 9,
-      "room" : 3,
-      "slaveID" : 15,
-      "onSlaveID" : 1,
-      "name" : "Poziom 1",
+      "id" : 50,
+      "room" : 10,
+      "slaveID" : 21,
+      "onSlaveID" : 0,
+      "name" : "Przedpokój",
       "typ" : "LIGHT",
       "swt" : {
-        "stan" : "ON",
+        "stan" : "OFF",
         "pin" : 13
       },
       "pin" : 13,
-      "state" : "ON"
+      "state" : "OFF"
     },
     "activeDeviceState" : "ON",
     "allowReverse" : true
   }, {
     "device" : {
       "@type" : "Light",
-      "id" : 10,
-      "room" : 3,
-      "slaveID" : 15,
-      "onSlaveID" : 2,
-      "name" : "Poziom 2",
+      "id" : 51,
+      "room" : 10,
+      "slaveID" : 21,
+      "onSlaveID" : 1,
+      "name" : "Przedpokój/Jadalnia",
       "typ" : "LIGHT",
       "swt" : {
-        "stan" : "ON",
+        "stan" : "OFF",
         "pin" : 12
       },
       "pin" : 12,
-      "state" : "ON"
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Light",
+      "id" : 52,
+      "room" : 11,
+      "slaveID" : 10,
+      "onSlaveID" : 2,
+      "name" : "Jadalnia",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 12
+      },
+      "pin" : 12,
+      "state" : "OFF"
     },
     "activeDeviceState" : "ON",
     "allowReverse" : true
   } ],
   "reversState" : true,
+  "type" : "BUTTON",
   "button" : {
     "@type" : "Button",
-    "id" : 106,
-    "room" : 3,
-    "onSlaveID" : 4,
+    "id" : 108,
+    "room" : 5,
+    "onSlaveID" : 1,
     "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
     "name" : "Światło",
     "typ" : "BUTTON",
@@ -55,10 +74,10 @@
       "clicks" : 1,
       "device" : {
         "@type" : "Light",
-        "id" : 9,
-        "room" : 3,
-        "slaveID" : 15,
-        "onSlaveID" : 1,
+        "id" : 36,
+        "room" : 5,
+        "slaveID" : 12,
+        "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
         "swt" : {
@@ -68,29 +87,10 @@
         "pin" : 13,
         "state" : "OFF"
       }
-    }, {
-      "state" : "NONE",
-      "type" : "CLICKED",
-      "clicks" : 2,
-      "device" : {
-        "@type" : "Light",
-        "id" : 10,
-        "room" : 3,
-        "slaveID" : 15,
-        "onSlaveID" : 2,
-        "name" : "Poziom 2",
-        "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
-        "pin" : 12,
-        "state" : "OFF"
-      }
     } ],
-    "slaveAdress" : 15
+    "slaveAdress" : 12
   },
-  "clicks" : 3,
+  "clicks" : 2,
   "clickType" : "CLICKED",
-  "active" : true
+  "active" : false
 }

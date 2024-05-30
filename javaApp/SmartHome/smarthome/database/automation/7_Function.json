@@ -1,15 +1,15 @@
 {
   "@type" : "ButtonFunction",
-  "id" : 0,
-  "name" : "Światła Marek",
+  "id" : 7,
+  "name" : "Wiatrołap z przedpokoju ",
   "actions" : [ {
     "device" : {
       "@type" : "Light",
-      "id" : 9,
-      "room" : 3,
-      "slaveID" : 15,
-      "onSlaveID" : 1,
-      "name" : "Poziom 1",
+      "id" : 53,
+      "room" : 13,
+      "slaveID" : 22,
+      "onSlaveID" : 0,
+      "name" : "Wiatrołap",
       "typ" : "LIGHT",
       "swt" : {
         "stan" : "ON",
@@ -20,33 +20,16 @@
     },
     "activeDeviceState" : "ON",
     "allowReverse" : true
-  }, {
-    "device" : {
-      "@type" : "Light",
-      "id" : 10,
-      "room" : 3,
-      "slaveID" : 15,
-      "onSlaveID" : 2,
-      "name" : "Poziom 2",
-      "typ" : "LIGHT",
-      "swt" : {
-        "stan" : "ON",
-        "pin" : 12
-      },
-      "pin" : 12,
-      "state" : "ON"
-    },
-    "activeDeviceState" : "ON",
-    "allowReverse" : true
   } ],
   "reversState" : true,
+  "type" : "BUTTON",
   "button" : {
     "@type" : "Button",
-    "id" : 106,
-    "room" : 3,
-    "onSlaveID" : 4,
+    "id" : 125,
+    "room" : 10,
+    "onSlaveID" : 2,
     "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Światło",
+    "name" : "Światło Przedsionek",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -55,11 +38,11 @@
       "clicks" : 1,
       "device" : {
         "@type" : "Light",
-        "id" : 9,
-        "room" : 3,
-        "slaveID" : 15,
-        "onSlaveID" : 1,
-        "name" : "Poziom 1",
+        "id" : 50,
+        "room" : 10,
+        "slaveID" : 21,
+        "onSlaveID" : 0,
+        "name" : "Przedpokój",
         "typ" : "LIGHT",
         "swt" : {
           "stan" : "OFF",
@@ -74,11 +57,11 @@
       "clicks" : 2,
       "device" : {
         "@type" : "Light",
-        "id" : 10,
-        "room" : 3,
-        "slaveID" : 15,
-        "onSlaveID" : 2,
-        "name" : "Poziom 2",
+        "id" : 51,
+        "room" : 10,
+        "slaveID" : 21,
+        "onSlaveID" : 1,
+        "name" : "Przedpokój/Jadalnia",
         "typ" : "LIGHT",
         "swt" : {
           "stan" : "OFF",
@@ -88,9 +71,9 @@
         "state" : "OFF"
       }
     } ],
-    "slaveAdress" : 15
+    "slaveAdress" : 21
   },
-  "clicks" : 3,
-  "clickType" : "CLICKED",
+  "clicks" : 1,
+  "clickType" : "HOLDED",
   "active" : true
 }

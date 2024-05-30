@@ -11,12 +11,36 @@
     "typ" : "LIGHT",
     "state" : "OFF",
     "pin" : 13
+  }, {
+    "@type" : "Fan",
+    "id" : 58,
+    "room" : 5,
+    "slaveID" : 12,
+    "onSlaveID" : 1,
+    "name" : "Wentylator",
+    "typ" : "WENTYLATOR",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
+    "state" : "OFF",
+    "pin" : 16
+  }, {
+    "@type" : "Light",
+    "id" : 60,
+    "room" : 5,
+    "slaveID" : 12,
+    "onSlaveID" : 2,
+    "name" : "Lustro",
+    "typ" : "LIGHT",
+    "state" : "OFF",
+    "pin" : 15
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 108,
     "room" : 5,
-    "onSlaveID" : 1,
+    "onSlaveID" : 3,
     "addres" : null,
     "nazwa" : "Światło",
     "typ" : "BUTTON",
@@ -37,6 +61,66 @@
         "pin" : 13
       }
     } ],
+    "slaveAdress" : 12
+  }, {
+    "@type" : "Button",
+    "id" : 128,
+    "room" : 5,
+    "onSlaveID" : 4,
+    "addres" : null,
+    "nazwa" : "Łazienka Mała Lustro",
+    "typ" : "BUTTON",
+    "pin" : 17,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 60,
+        "room" : 5,
+        "slaveID" : 12,
+        "onSlaveID" : 2,
+        "name" : "Lustro",
+        "typ" : "LIGHT",
+        "state" : "OFF",
+        "pin" : 15
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 3,
+      "device" : {
+        "@type" : "Fan",
+        "id" : 58,
+        "room" : 5,
+        "slaveID" : 12,
+        "onSlaveID" : 1,
+        "name" : "Wentylator",
+        "typ" : "WENTYLATOR",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "OFF",
+        "pin" : 16
+      }
+    } ],
+    "slaveAdress" : 12
+  }, {
+    "@type" : "Higrometr",
+    "id" : 55,
+    "room" : 5,
+    "onSlaveID" : -1,
+    "addres" : null,
+    "nazwa" : "Łazienka Mała ",
+    "typ" : "THERMOMETR_HYGROMETR",
+    "temperatura" : 3.4028235E38,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 3.4028235E38,
+    "humidity" : -2147483648,
+    "maxHumidity" : -2147483648,
+    "minHumidity" : -2147483648,
     "slaveAdress" : 12
   } ],
   "loaded" : false

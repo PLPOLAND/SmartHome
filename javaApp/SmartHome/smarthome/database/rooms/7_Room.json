@@ -13,18 +13,6 @@
     "pin" : 10
   } ],
   "sensors" : [ {
-    "@type" : "Termometr",
-    "id" : 100,
-    "room" : 7,
-    "onSlaveID" : -1,
-    "addres" : [ 40, 97, 100, 17, 141, 245, 237, 83 ],
-    "nazwa" : "Kotłownia",
-    "typ" : "THERMOMETR",
-    "temperatura" : 22.56,
-    "maxTemperatura" : 1.4E-45,
-    "minTemperatura" : 22.56,
-    "slaveAdress" : 8
-  }, {
     "@type" : "Button",
     "id" : 110,
     "room" : 7,
@@ -50,6 +38,18 @@
       }
     } ],
     "slaveAdress" : 8
+  }, {
+    "@type" : "Termometr",
+    "id" : 100,
+    "room" : 7,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 141, 245, 237, 83 ],
+    "nazwa" : "Kotłownia",
+    "typ" : "THERMOMETR",
+    "temperatura" : 20.5,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 20.5,
+    "slaveAdress" : -1
   } ],
   "loaded" : false
 }
