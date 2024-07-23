@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -17,6 +19,7 @@ import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import newsmarthome.exception.HardwareException;
@@ -31,6 +34,8 @@ public class I2CHardware implements I2C{
     GpioController gpio;
     GpioPinDigitalOutput pin;
     volatile boolean isOccupied = false;
+
+    PriorityBlockingQueue<I2CMessage> queue = new PriorityBlockingQueue<>(40, I2CMessage::compareTo);
 
     public I2CHardware() {
         logger = LoggerFactory.getLogger(this.getClass());
@@ -47,6 +52,28 @@ public class I2CHardware implements I2C{
         }catch (Exception e) {
             logger.error("platform does not support this driver");
 
+        }
+    }
+
+    /**
+     *  Wysyła wiadomości z kolejki
+     */
+    @Scheduled(fixedDelay = 1)
+    public void sendMessages() {
+        I2CMessage msg = null;
+        try {
+            if (queue.isEmpty()) {
+                return;
+
+            }
+            msg = queue.take();
+            writeMessage(msg);
+            msg.setSent();
+        } catch (InterruptedException e) {
+            logger.error("Error while sending messages", e);
+        } catch (HardwareException e) {
+            msg.setError();
+            logger.error("Error while sending messages", e);
         }
     }
     /**
@@ -149,66 +176,52 @@ public class I2CHardware implements I2C{
     public void writeTo(int adres, byte[] buffer) throws HardwareException{
         logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
 
+        I2CMessage msg = new I2CMessage(adres, buffer);
+
+        if (queue.contains(msg)) {
+            logger.warn("Message already in queue");
+            return;
+        }
+        queue.add(msg);
+        msg.waitToSend();//czekanie na wysłanie
+        if (msg.isError()) {   
+            throw new HardwareException("Błąd podczas wysyłania wiadomości do Slave-a o adresie: " + adres);
+        } else {
+            logger.debug("Wiadomość wysłana do Slave-a o adresie: {}", adres);
+        }
+
+    }
+    private void writeMessage(I2CMessage msg) throws HardwareException{
+        logger.debug("Writing {} -> '{}'", Arrays.toString(msg.getData()),msg.getAddress());
+
         I2CDevice tmp = null;
         for (I2CDevice device : devices) {
-            if (device.getAddress() == adres) {
+            if (device.getAddress() == msg.getAddress()) {
                 tmp = device;
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł Slave-a o takim adresie: "+ adres);
+            throw new HardwareException("System nie znalazł Slave-a o takim adresie: "+ msg.getAddress());
         } else {
             try {
-
-                // Thread.sleep(100);
-                tmp.write(buffer);
-                
-                
+                tmp.write(msg.getData());
             } catch (IOException e) {
                 try {
-                    retryWrite(buffer, tmp);
+                    retryWrite(msg.getData(), tmp);
                 } catch (HardwareException h) {
                     this.restartSlaves();
                     throw h;
                 }
 
             } 
-        //     catch (InterruptedException e) {
-        //        //TODO Auto-generated catch block
-        //         e.printStackTrace();
-        //    }
         }
     }
     public void writeTo(int adres, byte[] buffer, int size) throws HardwareException{
-        I2CDevice tmp = null;
         byte[] tmpbuff = new byte[size];
-        for (I2CDevice device : devices) {
-            if (device.getAddress() == adres) {
-                tmp = device;
-            }
-        }
-        if (tmp == null) {
-            throw new HardwareException("System nie znalazł Slave-a o takim adresie: " + adres);
-        } else {
-            for (int i = 0; i < size; i++) {
-                tmpbuff[i] = buffer[i];
-            }
-            try {
-                //Thread.sleep(100);
-                tmp.write(tmpbuff);
-            } catch (IOException e) {
-                try {
-                    retryWrite(buffer, tmp);
-                } catch (HardwareException h) {
-                    this.restartSlaves();
-                    throw h;
-                }
-
-            } //catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                //e.printStackTrace();
-          //  }
-        }
+        
+        System.arraycopy(buffer, 0, tmpbuff, 0, size);//kopiowanie tablicy do nowej tablicy o odpowiednim rozmiarze
+        
+        writeMessage(new I2CMessage(adres, tmpbuff));
     }
     public byte[] readFrom(int adres, int size) throws HardwareException{
         byte[] buffer = new byte[size];

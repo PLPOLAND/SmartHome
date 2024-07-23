@@ -38,45 +38,45 @@ public class MasterToSlaveConverter {
     private static final int MAX_ROZMIAR_ODPOWIEDZI = 8;
     // #region Komendy
     /**[S,U]*/
-    final byte[] STATUS_URZADZEN = { 'S', 'U' };
+    private static final byte[] STATUS_URZADZEN = { 'S', 'U' };
     /**[S,R]*/
-    final byte[] STATUS_RGB = { 'S', 'R' };
+    private static final byte[] STATUS_RGB = { 'S', 'R' };
     /**[W]*/
-    final byte[] CHECK_TO_WORK = { 'W' };
+    private static final byte[] CHECK_TO_WORK = { 'W' };
     /**[I]*/
-    final byte[] CHECK_INIT = { 'I' };
+    private static final byte[] CHECK_INIT = { 'I' };
     /**[R]*/
-    final byte[] REINIT = { 'R' };
+    private static final byte[] REINIT = { 'R' };
     /**[U,S]*/
-    final byte[] ZMIEN_STAN_PRZEKAZNIKA = { 'U' , 'S'}; // + id + stan
+    private static final byte[] ZMIEN_STAN_PRZEKAZNIKA = { 'U' , 'S'}; // + id + stan
     /**[U,B] */
-    final byte[] ZMIEN_STAN_ROLETY = { 'U' , 'B'}; // + id + stan
+    private static final byte[] ZMIEN_STAN_ROLETY = { 'U' , 'B'}; // + id + stan
     /**[T]*/
-    final byte[] POBIERZ_TEMPERATURE = { 'T' }; // + ADRESS (8byte)
+    private static final byte[] POBIERZ_TEMPERATURE = { 'T' }; // + ADRESS (8byte)
     /**[H]*/
-    final byte[] POBIERZ_TEMPERATURE_I_WILGOTNOSC = { 'H' }; // + id
+    private static final byte[] POBIERZ_TEMPERATURE_I_WILGOTNOSC = { 'H' }; // + id
     /**[A, S]*/
-    final byte[] DODAJ_URZADZENIE = { 'A', 'S' }; // + PIN
+    private static final byte[] DODAJ_URZADZENIE = { 'A', 'S' }; // + PIN
     /**[A, R]*/
-    final byte[] DODAJ_ROLETE = { 'A', 'R' }; // + PIN + PIN
+    private static final byte[] DODAJ_ROLETE = { 'A', 'R' }; // + PIN + PIN
     /**[A, P]*/
-    final byte[] DODAJ_PRZYCISK = { 'A', 'P' }; // + PIN
+    private static final byte[] DODAJ_PRZYCISK = { 'A', 'P' }; // + PIN
     /**[A, T]*/
-    final byte[] DODAJ_TERMOMETR = { 'A', 'T' };
+    private static final byte[] DODAJ_TERMOMETR = { 'A', 'T' };
     /**[A, H]*/
-    final byte[] DODAJ_HIGROMETR = { 'A', 'H' };
+    private static final byte[] DODAJ_HIGROMETR = { 'A', 'H' };
     /**[P, K, L] */
-    final byte[] DODAJ_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L' };
+    private static final byte[] DODAJ_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L' };
     /**[P, K, L, D] */
-    final byte[] USUN_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L', 'D' };
+    private static final byte[] USUN_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L', 'D' };
     /**[S, D] */
-    final byte[] SPRAWDZ_STAN_URZADZENIA = { 'S', 'D' };
+    private static final byte[] SPRAWDZ_STAN_URZADZENIA = { 'S', 'D' };
     /**[C, T, N] */
-    final byte[] ILE_TERMOMETROW = { 'C', 'T', 'N' };
+    private static final byte[] ILE_TERMOMETROW = { 'C', 'T', 'N' };
     /**[W] */
-    final byte[] SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA = {'W'};
+    private static final byte[] SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA = {'W'};
     /**[G] */
-    final byte[] ODBIERZ_KOMENDE = {'G'};
+    private static final byte[] ODBIERZ_KOMENDE = {'G'};
     // #endregion
 
     @Autowired
@@ -167,7 +167,7 @@ public class MasterToSlaveConverter {
                 buffor[i] = 'D';
                 logger.debug( "Wysyłanie komendy opuszczenia Rolety");
                 break;
-            case NOTKNOW://TODO wymyślić co zrobić z tym ( nie może być NOTKNOW)
+            case NOTKNOW:
                 buffor[i] = 'S';
                 logger.debug( "Wysyłanie komendy zatrzymania Rolety");
                 break;

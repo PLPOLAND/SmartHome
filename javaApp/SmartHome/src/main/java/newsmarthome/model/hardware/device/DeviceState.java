@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public enum DeviceState{
     DOWN,
-    NOTKNOW,
+    NOTKNOW,//middle or to stop movement of blinds
     RUN,
     UP,
     OFF,
