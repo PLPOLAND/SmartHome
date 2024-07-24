@@ -1,5 +1,7 @@
 package newsmarthome.i2c;
 
+import java.util.Arrays;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +20,7 @@ public class I2CMessage {
     @NonNull
     private byte[] data;
     // 0 - low, 1 - high
-    private int priority = 0;
+    private int priority;
     // status of message
     private I2CMessageStatus status = I2CMessageStatus.WAITING;
 
@@ -35,6 +37,18 @@ public class I2CMessage {
         this.address = address;
         this.data = data;
         this.priority = 0;
+    }
+    /**
+     * I2CMessage constructor.
+     * 
+     * @param address - address of device to send
+     * @param data - data to send
+     * @param priority - 0 - low, 1 - high
+     */
+    public I2CMessage(int address, byte[] data, int priority) {
+        this.address = address;
+        this.data = data;
+        this.priority = priority;
     }
 
     public void setSent() {
@@ -69,7 +83,7 @@ public class I2CMessage {
         return this.priority == 0;
     }
 
-    public int compareTo(I2CMessage message) {
+    public int compareByPriorityTo(I2CMessage message) {
         if (this.isHighPriority() && message.isLowPriority()) {
             return 1;
         } else if (this.isLowPriority() && message.isHighPriority()) {
@@ -77,6 +91,10 @@ public class I2CMessage {
         } else {
             return 0;
         }
+    }
+
+    public boolean compareTo(I2CMessage message) {
+        return Arrays.equals(this.data, message.getData());
     }
 
     public void waitToSend() {

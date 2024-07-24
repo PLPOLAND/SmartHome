@@ -35,7 +35,7 @@ public class I2CHardware implements I2C{
     GpioPinDigitalOutput pin;
     volatile boolean isOccupied = false;
 
-    PriorityBlockingQueue<I2CMessage> queue = new PriorityBlockingQueue<>(40, I2CMessage::compareTo);
+    PriorityBlockingQueue<I2CMessage> queue = new PriorityBlockingQueue<>(40, I2CMessage::compareByPriorityTo);
 
     public I2CHardware() {
         logger = LoggerFactory.getLogger(this.getClass());
@@ -63,10 +63,12 @@ public class I2CHardware implements I2C{
         I2CMessage msg = null;
         try {
             if (queue.isEmpty()) {
+                logger.debug("I2C Queue is empty");
                 return;
 
             }
             msg = queue.take();
+            logger.debug("Sending message: {}", msg);
             writeMessage(msg);
             msg.setSent();
         } catch (InterruptedException e) {
@@ -102,13 +104,13 @@ public class I2CHardware implements I2C{
     }
 
     public void pauseIfOcupied() {
-        while (isOccupied) {
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
+        // while (isOccupied) {
+        //     try {
+        //         Thread.sleep(5);
+        //     } catch (InterruptedException e) {
+        //         logger.error(e.getMessage(), e);
+        //     }
+        // }
     }
 
     public void findAll(){
@@ -172,11 +174,30 @@ public class I2CHardware implements I2C{
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
     }
     
-
+    
     public void writeTo(int adres, byte[] buffer) throws HardwareException{
         logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
 
         I2CMessage msg = new I2CMessage(adres, buffer);
+
+        if (queue.contains(msg)) {
+            logger.warn("Message already in queue");
+            return;
+        }
+        queue.add(msg);
+        msg.waitToSend();//czekanie na wysłanie
+        if (msg.isError()) {   
+            throw new HardwareException("Błąd podczas wysyłania wiadomości do Slave-a o adresie: " + adres);
+        } else {
+            logger.debug("Wiadomość wysłana do Slave-a o adresie: {}", adres);
+        }
+
+    }
+    
+    public void writeTo(int adres, byte[] buffer,int priority) throws HardwareException{
+        logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
+
+        I2CMessage msg = new I2CMessage(adres,buffer,priority);
 
         if (queue.contains(msg)) {
             logger.warn("Message already in queue");
@@ -216,7 +237,7 @@ public class I2CHardware implements I2C{
             } 
         }
     }
-    public void writeTo(int adres, byte[] buffer, int size) throws HardwareException{
+    public void writeToSized(int adres, byte[] buffer, int size) throws HardwareException{
         byte[] tmpbuff = new byte[size];
         
         System.arraycopy(buffer, 0, tmpbuff, 0, size);//kopiowanie tablicy do nowej tablicy o odpowiednim rozmiarze
@@ -339,7 +360,7 @@ public class I2CHardware implements I2C{
     }
     @Override
     public void write(int address, byte[] buffer, int size) throws HardwareException{
-        writeTo(address, buffer, size);
+        writeToSized(address, buffer, size);
     }
     @Override
     public byte[] read(int address, int size, int commandID) throws HardwareException{

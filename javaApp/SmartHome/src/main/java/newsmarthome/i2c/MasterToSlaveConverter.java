@@ -139,7 +139,7 @@ public class MasterToSlaveConverter {
         try {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
-            atmega.writeTo(idPlytki, buffor);
+            atmega.writeTo(idPlytki, buffor,1);
             byte[] response = atmega.readFrom(idPlytki, 8);//TODO obsluga bledu
             atmega.setOccupied(false);
             logger.debug("Response from {}: {}" ,idPlytki, Arrays.toString(response));
@@ -179,7 +179,7 @@ public class MasterToSlaveConverter {
 
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
-            atmega.writeTo(roleta.getSlaveID(), buffor);
+            atmega.writeTo(roleta.getSlaveID(), buffor,1);
             byte[] response = atmega.readFrom(roleta.getSlaveID(), 8);//TODO obsluga bledu
             atmega.setOccupied(false);
             if (response != null) {
@@ -581,14 +581,14 @@ public class MasterToSlaveConverter {
         try {
             atmega.pauseIfOcupied();
             atmega.setOccupied(true);
-            atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
+            atmega.writeTo(adres, buffor,1);// Wyślij zapytanie czy płytka była już zainicjowana
             // Thread.sleep(1);
             buffor = atmega.readFrom(adres, MAX_ROZMIAR_ODPOWIEDZI);
             if (buffor[0]!='I') {
                 for (int j = 0; j < 5; j++) {
                     logger.warn("Error on checking init of board {}. Response[0] != 'I' ; Response = {}", adres, Arrays.toString(buffor));
                     logger.warn("Trying again");
-                    atmega.writeTo(adres, buffor);// Wyślij zapytanie czy płytka była już zainicjowana
+                    atmega.writeTo(adres, buffor,1);// Wyślij zapytanie czy płytka była już zainicjowana
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
