@@ -1,16 +1,9 @@
 package newsmarthome;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import newsmarthome.database.SystemDAO;
 import newsmarthome.model.hardware.HardwareFactory;
@@ -21,7 +14,6 @@ import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.Sensor;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 public class SmartHomeAppTest {
 	// @Autowired 
