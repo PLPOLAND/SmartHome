@@ -24,6 +24,7 @@ public class User {
     protected String oldPassword;
     protected String token;
     protected String favoriteRooms;
+    protected String favoriteDevices;
     // Uprawnienia uprawnienia;
     // Opcje opcje;
 
@@ -38,10 +39,11 @@ public class User {
         oldPassword = "";
         token = "";
         favoriteRooms = "";
+        favoriteDevices = "";
     }
 
     
-    public User(Long id, String imie, String nazwisko, String nick, String email, String password, String oldPassword, String token, String favoriteRooms) {
+    public User(Long id, String imie, String nazwisko, String nick, String email, String password, String oldPassword, String token, String favoriteRooms, String favoriteDevices) {
         this.id = id;
         this.imie = imie;
         this.nazwisko = nazwisko;
@@ -51,6 +53,7 @@ public class User {
         this.oldPassword = oldPassword;
         this.token = token;
         this.favoriteRooms = favoriteRooms;
+        this.favoriteDevices = favoriteDevices;
     }
 
 
@@ -175,6 +178,92 @@ public class User {
         }
         update();
     }
+
+    public void setFavoriteDevices(String favoriteDevices) {
+        this.favoriteDevices = favoriteDevices;
+        update();
+    }
+
+    public String getFavoriteDevices() {
+        return this.favoriteDevices;
+    }
+
+    public void addFavoriteDevice(String deviceName) {
+        if (this.favoriteDevices == null || this.favoriteDevices.equals("")) {
+            this.favoriteDevices = deviceName;
+        } else {
+            String[] devices = this.favoriteDevices.split(",");
+            for (String device : devices) {
+                if (device==null || device.equals("")) {
+                    continue;
+                }
+                if (device.equals(deviceName)) {
+                    return;
+                }
+            }
+            this.favoriteDevices += "," + deviceName;
+        }
+        update();
+    }
+
+    public void addFavoriteDevice(int deviceID) {
+        if (this.favoriteDevices == null || this.favoriteDevices.equals("")) {
+            this.favoriteDevices = String.valueOf(deviceID);
+        } else {
+            String[] devices = this.favoriteDevices.split(",");
+            for (String device : devices) {
+                if (device==null || device.equals("")) {
+                    continue;
+                }
+                if (Integer.parseInt(device) == deviceID) {
+                    return;
+                }
+            }
+            this.favoriteDevices += "," + deviceID;
+        }
+        update();
+    }
+
+    public void removeFavoriteDevice(int deviceID) {
+        if (this.favoriteDevices != null) {
+            String[] devices = this.favoriteDevices.split(",");
+            setFavoriteDevices("");
+            for (String device : devices) {
+                if (Integer.parseInt(device) != deviceID) {
+                    this.addFavoriteDevice(Integer.parseInt(device));
+                }
+            }
+        }
+        update();
+    }
+
+    public void removeFavoriteDevice(String deviceName) {
+        if (this.favoriteDevices != null) {
+            String[] devices = this.favoriteDevices.split(",");
+            setFavoriteDevices("");
+            for (String device : devices) {
+                if (!device.equals(deviceName)) {
+                    this.addFavoriteDevice(device);
+                }
+            }
+        }
+        update();
+    }
+
+    public void removeFavoriteDevice(String deviceName, int deviceID) {
+        if (this.favoriteDevices != null) {
+            String[] devices = this.favoriteDevices.split(",");
+            setFavoriteDevices("");
+            for (String device : devices) {
+                if (!device.equals(deviceName) && Integer.parseInt(device) != deviceID) {
+                    this.addFavoriteDevice(device);
+                }
+            }
+        }
+        update();
+    }
+
+    
 
     public String toJSON(){
         ObjectMapper objectMapper = new ObjectMapper();

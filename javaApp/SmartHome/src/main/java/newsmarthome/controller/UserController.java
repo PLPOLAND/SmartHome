@@ -16,8 +16,11 @@ import newsmarthome.database.SystemDAO;
 import newsmarthome.database.UsersDAO;
 import newsmarthome.security.MobileSecurity;
 import newsmarthome.model.Room;
+import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.response.Response;
 import newsmarthome.model.user.User;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api")
@@ -89,11 +92,79 @@ public class UserController {
 					else{
 						
 						user.addFavoriteRoom(roomIDInt);
+						for (Device device : room.getDevices()) {
+							user.addFavoriteDevice(device.getId());
+						}
 						logger.debug("User {} added room {} to favorites", user.getNick(), room.getName());
 						return new Response<>("OK");
 					}
 				}catch(NumberFormatException e){
 					return new Response<>(null, "Pole roomId musi być liczbą!");
+				}
+			}
+		}
+	}
+	@GetMapping("/getFavoriteDevices")
+	public Response<String> getFavoriteDevices(HttpServletRequest request) {
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(null, "Użytkownik nie jest zalogowany");
+		else{
+			User user = security.getFullUserData();
+			return new Response<>(user.getFavoriteDevices());
+		}
+	}
+
+	@PostMapping("/addFavoriteDevice")
+	public Response<String> addFavoriteDevice(HttpServletRequest request) {
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(null, "Użytkownik nie jest zalogowany");
+		else{
+			User user = security.getFullUserData();
+			String deviceID = request.getParameter("deviceId");
+			if(deviceID == null)
+				return new Response<>(null, "Nie przesłano wszystkich parametrów");
+			else{
+				try{
+					int deviceIDInt = Integer.parseInt(deviceID);
+					if(systemDAO.getDeviceByID(deviceIDInt) == null && systemDAO.getSensorByID(deviceIDInt)==null)
+						return new Response<>(null, "Nie znaleziono urządzenia o podanym ID");
+					else{
+						user.addFavoriteDevice(deviceIDInt);
+
+						logger.debug("User {} added device {} to favorites", user.getNick(), deviceIDInt);
+						return new Response<>("OK");
+					}
+				}catch(NumberFormatException e){
+					return new Response<>(null, "Pole deviceId musi być liczbą!");
+				}
+			}
+		}
+	}
+	
+	@PostMapping("/removeFavoriteDevice")
+	public Response<String> removeFavoriteDevice(HttpServletRequest request) {
+		MobileSecurity security = new MobileSecurity(request, users);
+		if(!security.isLoged() )
+			return new Response<>(null, "Użytkownik nie jest zalogowany");
+		else{
+			User user = security.getFullUserData();
+			String deviceID = request.getParameter("deviceId");
+			if(deviceID == null)
+				return new Response<>(null, "Nie przesłano wszystkich parametrów");
+			else{
+				try{
+					int deviceIDInt = Integer.parseInt(deviceID);
+					if(systemDAO.getDeviceByID(deviceIDInt) == null && systemDAO.getSensorByID(deviceIDInt) == null)
+						return new Response<>(null, "Nie znaleziono urządzenia o podanym ID");
+					else{
+						user.removeFavoriteDevice(deviceIDInt);
+						logger.debug("User {} removed device {} from favorites", user.getNick(), deviceIDInt);
+						return new Response<>("OK");
+					}
+				}catch(NumberFormatException e){
+					return new Response<>(null, "Pole deviceId musi być liczbą!");
 				}
 			}
 		}
@@ -117,6 +188,11 @@ public class UserController {
 						return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
 					else{
 						user.removeFavoriteRoom(roomIDInt);
+
+						for (Device device : room.getDevices()) {
+							user.removeFavoriteDevice(device.getId());
+						}
+						
 						logger.debug("User {} removed room {} from favorites", user.getNick(), room.getName());
 						return new Response<>("OK");
 					}
