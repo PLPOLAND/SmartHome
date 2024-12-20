@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author Marek Pałdyna
  */
 @Service
-public class MasterToSlaveConverter {
+public class MasterToSlaveConverter extends BaseConverter {
 
     private static final int MAX_ROZMIAR_ODPOWIEDZI = 8;
     // #region Komendy
@@ -79,18 +79,14 @@ public class MasterToSlaveConverter {
     private static final byte[] ODBIERZ_KOMENDE = {'G'};
     // #endregion
 
-    @Autowired
-    public I2CHardware atmega;
-
-    // @Autowired
-    // SystemDAO system;
-
+    public final I2CHardware atmega;
     /** Logger Springa */
     Logger logger;
-
-    public MasterToSlaveConverter() {
+    
+    public MasterToSlaveConverter(@Autowired I2CHardware atmega) {
         logger = LoggerFactory.getLogger(this.getClass());
         logger.info("Stworzno JtAConverter");
+        this.atmega = atmega;
     }
 
     /**

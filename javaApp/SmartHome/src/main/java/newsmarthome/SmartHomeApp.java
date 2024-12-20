@@ -13,7 +13,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
@@ -45,6 +48,20 @@ public class SmartHomeApp extends SpringBootServletInitializer {
 	public static ConfigurableApplicationContext getApp(){
 		return app;
 	}
+
+	@Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("*:8080", "http://192.168.1.4") // Dodaj tutaj swoje dozwolone źródła
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
+        };
+    }
 
 	public static void main(String[] args) throws Exception{
 		app = SpringApplication.run(SmartHomeApp.class, args);

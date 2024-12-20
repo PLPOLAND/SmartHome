@@ -30,13 +30,13 @@
     "name" : "Rodzice",
     "typ" : "BLIND",
     "state" : "UP",
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 16
-    },
     "switchUp" : {
       "stan" : "ON",
       "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
     }
   } ],
   "sensors" : [ {
@@ -102,13 +102,13 @@
         "name" : "Rodzice",
         "typ" : "BLIND",
         "state" : "UP",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         }
       }
     }, {
@@ -124,13 +124,13 @@
         "name" : "Rodzice",
         "typ" : "BLIND",
         "state" : "UP",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         }
       }
     }, {
@@ -146,13 +146,13 @@
         "name" : "Rodzice",
         "typ" : "BLIND",
         "state" : "UP",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         }
       }
     } ],

@@ -10,13 +10,13 @@
     "name" : "Marek",
     "typ" : "BLIND",
     "state" : "NOTKNOW",
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 16
-    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
     }
   }, {
     "@type" : "Light",
@@ -111,13 +111,13 @@
         "name" : "Marek",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         }
       }
     }, {
@@ -133,13 +133,13 @@
         "name" : "Marek",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         }
       }
     }, {
@@ -155,13 +155,13 @@
         "name" : "Marek",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         }
       }
     } ],

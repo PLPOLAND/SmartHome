@@ -40,11 +40,11 @@ public class SmartHomeAppTest {
 
 	@Test
 	public void i2cOnDevice(){
-		assertNotNull(factory.createLight().slaveSender );
+		assertNotNull(factory.createLight().i2CSender );
 		// assertEquals(1,light.getPin());
-		assertNotNull(factory.createFan().slaveSender);
-		assertNotNull(factory.createOutlet().slaveSender);
-		assertNotNull(factory.createBlind().slaveSender);
+		assertNotNull(factory.createFan().i2CSender);
+		assertNotNull(factory.createOutlet().i2CSender);
+		assertNotNull(factory.createBlind().i2CSender);
 		assertNotNull(factory.createTermometr().getSlaveSender());
 		assertNotNull(factory.createButton().getSlaveSender());
 	}

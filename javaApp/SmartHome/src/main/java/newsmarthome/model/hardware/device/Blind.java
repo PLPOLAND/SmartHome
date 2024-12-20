@@ -19,7 +19,7 @@ public class Blind extends Device{
     Switch swtDown;
 
     public Blind(){
-        super(DeviceTypes.BLIND);
+        super(DeviceTypes.BLIND, i2CSender, wifiSender);
         logger = LoggerFactory.getLogger(Blind.class);
         swtDown = new Switch();
         swtUp = new Switch();
@@ -51,7 +51,7 @@ public class Blind extends Device{
     @Override
     public void configureToSlave(){
         try {
-            setOnSlaveID(slaveSender.addUrzadzenie(this));
+            setOnSlaveID(i2CSender.addUrzadzenie(this));
             setConfigured();
             sendStateToSlave(this.stan);
         } catch (HardwareException e) {
@@ -79,7 +79,7 @@ public class Blind extends Device{
         try {
             if (isConfigured()) {
                 logger.debug("Wysyłanie stanu urządzenia na slave-a o id: {}", this.getSlaveID());
-                slaveSender.changeBlindState(this, stan);
+                i2CSender.changeBlindState(this, stan);
             }
             else{
                 logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
@@ -210,7 +210,7 @@ public class Blind extends Device{
     public void updateDeviceState() throws HardwareException,SoftwareException {
         try {
             if (isConfigured()) {
-                int state = slaveSender.checkDeviceState(this.getSlaveID(), this.getOnSlaveID());
+                int state = i2CSender.checkDeviceState(this.getSlaveID(), this.getOnSlaveID());
                 if (state == 'U') {
                     this.changeStateLocal(DeviceState.UP);
                 }

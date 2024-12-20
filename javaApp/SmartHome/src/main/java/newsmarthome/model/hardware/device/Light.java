@@ -47,7 +47,7 @@ public class Light extends Device{
     @Override
     public void configureToSlave() {
        try {
-            setOnSlaveID(slaveSender.addUrzadzenie(this));
+            setOnSlaveID(i2CSender.addUrzadzenie(this));
             setConfigured();
             sendStateToSlave(this.getState());
        } catch (HardwareException e) {
@@ -83,7 +83,7 @@ public class Light extends Device{
     private void sendStateToSlave(DeviceState stan) {
         try {
             if (isConfigured()) {
-                slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
+                i2CSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
                 logger.debug("Zmieniono stan urządzenia {}" , this);
             }
             else{
@@ -138,7 +138,7 @@ public class Light extends Device{
     public void updateDeviceState() throws HardwareException, SoftwareException{
         try {
             if (isConfigured()) {
-                int state = slaveSender.checkDeviceState(getSlaveID(), getOnSlaveID());
+                int state = i2CSender.checkDeviceState(getSlaveID(), getOnSlaveID());
                 if (state == 1) {
                     this.setStateLocal(DeviceState.ON);
                 }

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import newsmarthome.i2c.I2C;
 import newsmarthome.i2c.I2CHardware;
 import newsmarthome.i2c.MasterToSlaveConverter;
+import newsmarthome.wifi.WiFiMasterToSlaveConverter;
 import newsmarthome.database.SystemDAO;
 import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
@@ -32,13 +33,18 @@ import newsmarthome.exception.SoftwareException;
     @JsonSubTypes.Type(value = Blind.class, name = "Blind")
     })
 @Component
-public abstract class Device {//TODO Dodać metody do parametru name.
+//TODO flaga czy wifi czy i2c i wtedy odpowiedni konwerter
+public abstract class Device {
     private static final String NOT_IMPLEMENTED_HERE = "Wywołano funkcję nie implementowaną w klasie bazowej Device!";
 
     
     @JsonIgnore
-    @Autowired
-    public MasterToSlaveConverter slaveSender;
+    public MasterToSlaveConverter i2CSender;
+
+    @JsonIgnore
+    public WiFiMasterToSlaveConverter wifiSender;
+
+
 
     @JsonIgnore
     /** Czy urządzenie zostało skonfigurowane na slave-ie */
@@ -66,9 +72,11 @@ public abstract class Device {//TODO Dodać metody do parametru name.
 
     DeviceTypes typ;
     // @Autowired
-    protected Device( ) {
+    @Autowired
+    protected Device(MasterToSlaveConverter i2CSender, WiFiMasterToSlaveConverter wifiSender) {
         this.id = nextDeviceID++;
-        this.room = -1;
+        this.i2CSender = i2CSender;
+        this.wifiSender = wifiSender;
         this.slaveID = -1;
         this.onSlaveID = -1;
         this.typ = DeviceTypes.NONE;
@@ -76,20 +84,24 @@ public abstract class Device {//TODO Dodać metody do parametru name.
         name = "Undefined";
         // logger.info("Stworzono pusty Device");
     }
-    protected Device(DeviceTypes type) {
+    @Autowired
+    protected Device(DeviceTypes type, MasterToSlaveConverter i2CSender, WiFiMasterToSlaveConverter wifiSender) {
+        this.i2CSender = i2CSender;
+        this.wifiSender = wifiSender;
         this.id = nextDeviceID++;
         this.room = -1;
         this.slaveID = -1;
         this.onSlaveID = -1;
         this.typ = type;
         logger = LoggerFactory.getLogger(Device.class);
-        // logger.info("Stworzono Device:" + this.toString());
-        
     }
 
-    protected Device(int slaveID, DeviceTypes type){
+    protected Device(int slaveID, DeviceTypes type, MasterToSlaveConverter i2CSender,
+            WiFiMasterToSlaveConverter wifiSender){
         this.id = nextDeviceID++;
         this.room = -1;
+        this.i2CSender = i2CSender;
+        this.wifiSender = wifiSender;
         this.slaveID = slaveID;
         this.onSlaveID = -1;
         this.typ = type;

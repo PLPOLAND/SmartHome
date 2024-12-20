@@ -10,13 +10,13 @@
     "name" : "Taras",
     "typ" : "BLIND",
     "state" : "NOTKNOW",
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 15
-    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 16
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 15
     }
   }, {
     "@type" : "Blind",
@@ -27,13 +27,13 @@
     "name" : "Jadalnia",
     "typ" : "BLIND",
     "state" : "NOTKNOW",
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 15
-    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 16
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 15
     }
   }, {
     "@type" : "Blind",
@@ -44,13 +44,13 @@
     "name" : "Przy Tarasie",
     "typ" : "BLIND",
     "state" : "NOTKNOW",
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 13
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 12
     }
   }, {
     "@type" : "Light",
@@ -95,13 +95,13 @@
         "name" : "Jadalnia",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     }, {
@@ -117,13 +117,13 @@
         "name" : "Jadalnia",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     }, {
@@ -139,13 +139,13 @@
         "name" : "Jadalnia",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     } ],
@@ -172,13 +172,13 @@
         "name" : "Taras",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     }, {
@@ -194,13 +194,13 @@
         "name" : "Taras",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     }, {
@@ -216,13 +216,13 @@
         "name" : "Taras",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     } ],
@@ -249,13 +249,13 @@
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 13
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 12
         }
       }
     }, {
@@ -271,13 +271,13 @@
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 13
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 12
         }
       }
     }, {
@@ -293,13 +293,13 @@
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 13
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 12
         }
       }
     } ],
