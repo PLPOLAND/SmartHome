@@ -10,7 +10,8 @@
     "name" : "Poziom 1",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Blind",
     "id" : 62,
@@ -20,14 +21,15 @@
     "name" : "Garaż",
     "typ" : "BLIND",
     "state" : "UP",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
     "switchUp" : {
       "stan" : "ON",
       "pin" : 15
     },
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 16
-    }
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -51,7 +53,8 @@
         "name" : "Poziom 1",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 7
@@ -77,14 +80,15 @@
         "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     }, {
       "state" : "DOWN",
@@ -99,14 +103,15 @@
         "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     }, {
       "state" : "STOP",
@@ -121,14 +126,15 @@
         "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 7
@@ -145,5 +151,5 @@
     "minTemperatura" : 21.19,
     "slaveAdress" : -1
   } ],
-  "loaded" : false
+  "loaded" : true
 }

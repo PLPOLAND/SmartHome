@@ -2,6 +2,6 @@
   "id" : 0,
   "name" : "Brak",
   "devices" : [ ],
-  "sensors" : [  ],
-  "loaded" : false
+  "sensors" : [ ],
+  "loaded" : true
 }

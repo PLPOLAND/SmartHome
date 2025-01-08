@@ -323,6 +323,7 @@ public class SystemDAO {
                 }
                 room.setNazwa(roomNameNode.asText());
                 room.setSystemDAO(this);
+                boolean isWifiBlank = false;
                 for (JsonNode jsonNode2 : jsonNode.get("devices")) {
                     Device device = hardwareFactory.createDevice(DeviceTypes.valueOf( jsonNode2.get("typ").asText()));
                     device.setId(jsonNode2.get("id").asInt());
@@ -330,6 +331,13 @@ public class SystemDAO {
                     device.setOnSlaveID(jsonNode2.get("onSlaveID").asInt());
                     device.setRoom(jsonNode2.get("room").asInt());
                     device.setName(jsonNode2.get("name").asText());
+                    if (jsonNode2.get("isWifi") == null) {
+                        device.setWifi(false);
+                        isWifiBlank = true;
+                    } else{
+                        device.setWifi(jsonNode2.get("isWifi").asBoolean(false));
+                    }
+
                     switch (device.getTyp()) {
                         case LIGHT:
                         Light light = (Light) device;
@@ -358,10 +366,11 @@ public class SystemDAO {
                         default:
                             break;
                     }
-
+                    
                     room.addDevice(device);
                     devices.add(device);
                 }
+                
                 for (JsonNode jsonNode2 : jsonNode.get("sensors")) {
                     Sensor sensor = hardwareFactory.createSensor(SensorsTypes.valueOf( jsonNode2.get("typ").asText()));
                     JsonNode sensorNameNode = jsonNode2.get("nazwa");
@@ -426,6 +435,7 @@ public class SystemDAO {
                 pokoje.put(room.getName(), room);
                 sensors.addAll(room.getSensors());
                 room.setLoaded();
+                save(room);
 
                 i++;
             } catch (JsonGenerationException | JsonMappingException e) {

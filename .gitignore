@@ -7,3 +7,4 @@
 *.code-workspace
 javaApp/smarthomeold
 javaApp/SmartHome/smarthome/log.*
+javaApp/SmartHome/src/main/resources/db.properties

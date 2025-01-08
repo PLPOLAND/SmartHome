@@ -10,7 +10,8 @@
     "name" : "Poziom 1",
     "typ" : "LIGHT",
     "state" : "ON",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Blind",
     "id" : 45,
@@ -20,14 +21,15 @@
     "name" : "Kuchnia",
     "typ" : "BLIND",
     "state" : "DOWN",
+    "switchDown" : {
+      "stan" : "ON",
+      "pin" : 16
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 15
     },
-    "switchDown" : {
-      "stan" : "ON",
-      "pin" : 16
-    }
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 52,
@@ -37,7 +39,8 @@
     "name" : "Jadalnia",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 12
+    "pin" : 12,
+    "wifi" : false
   }, {
     "@type" : "Fan",
     "id" : 158,
@@ -51,7 +54,8 @@
       "pin" : 16
     },
     "state" : "OFF",
-    "pin" : 16
+    "pin" : 16,
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -75,7 +79,8 @@
         "name" : "Poziom 1",
         "typ" : "LIGHT",
         "state" : "ON",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     }, {
       "state" : "NONE",
@@ -90,7 +95,8 @@
         "name" : "Jadalnia",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 12
+        "pin" : 12,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 10
@@ -116,14 +122,15 @@
         "name" : "Kuchnia",
         "typ" : "BLIND",
         "state" : "DOWN",
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "ON",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     }, {
       "state" : "DOWN",
@@ -138,14 +145,15 @@
         "name" : "Kuchnia",
         "typ" : "BLIND",
         "state" : "DOWN",
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "ON",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     }, {
       "state" : "STOP",
@@ -160,14 +168,15 @@
         "name" : "Kuchnia",
         "typ" : "BLIND",
         "state" : "DOWN",
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "ON",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 10
@@ -184,5 +193,5 @@
     "minTemperatura" : 22.13,
     "slaveAdress" : 10
   } ],
-  "loaded" : false
+  "loaded" : true
 }

@@ -10,7 +10,8 @@
     "name" : "Poziom 1",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -34,7 +35,8 @@
         "name" : "Poziom 1",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 9
@@ -51,5 +53,5 @@
     "minTemperatura" : 21.0,
     "slaveAdress" : -1
   } ],
-  "loaded" : false
+  "loaded" : true
 }

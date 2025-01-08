@@ -2,7 +2,6 @@ package newsmarthome.controller;
 
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -11,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import newsmarthome.database.SystemDAO;
 import newsmarthome.database.UsersDAO;

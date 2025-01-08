@@ -2,6 +2,10 @@ package newsmarthome.wifi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import newsmarthome.i2c.BaseConverter;
 import newsmarthome.model.hardware.device.Blind;
@@ -11,8 +15,13 @@ import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
 import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Termometr;
+import newsmarthome.repository.WifiSlaveRepository;
 
+@Service
 public class WiFiMasterToSlaveConverter extends BaseConverter {
+
+	@Autowired
+	WifiSlaveRepository wifiSlaveRepository;
 
 	@Override
 	public void changeBlindState(Blind blind, DeviceState state) {
@@ -31,10 +40,10 @@ public class WiFiMasterToSlaveConverter extends BaseConverter {
         return 0;
 	}
 
+	
 	@Override
-	public List<String> getSlavesAdresses() {
-		// Implementation here
-		return new ArrayList<>();
+	public List<Integer> getSlavesAdresses() {
+		return wifiSlaveRepository.findByConnected(true).stream().map(slave -> slave.id ).toList();
 	}
 
 	@Override
@@ -99,8 +108,11 @@ public class WiFiMasterToSlaveConverter extends BaseConverter {
 
 	@Override
 	public boolean isSlaveConnected(int slaveId) {
-		// Implementation here
-		return false;
+		Optional<WifiSlave> slave = wifiSlaveRepository.findById(slaveId);
+		if (slave.isEmpty()) {
+			return false;
+		}
+		return slave.get().connected;
 	}
 
 	@Override

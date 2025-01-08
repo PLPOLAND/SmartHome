@@ -10,7 +10,8 @@
     "name" : "Poziom 1",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 42,
@@ -20,7 +21,8 @@
     "name" : "Poziom 2",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 12
+    "pin" : 12,
+    "wifi" : false
   }, {
     "@type" : "Blind",
     "id" : 43,
@@ -30,14 +32,15 @@
     "name" : "Rodzice",
     "typ" : "BLIND",
     "state" : "UP",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
     "switchUp" : {
       "stan" : "ON",
       "pin" : 15
     },
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 16
-    }
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -61,7 +64,8 @@
         "name" : "Poziom 1",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     }, {
       "state" : "NONE",
@@ -76,7 +80,8 @@
         "name" : "Poziom 2",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 12
+        "pin" : 12,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 17
@@ -102,14 +107,15 @@
         "name" : "Rodzice",
         "typ" : "BLIND",
         "state" : "UP",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     }, {
       "state" : "DOWN",
@@ -124,14 +130,15 @@
         "name" : "Rodzice",
         "typ" : "BLIND",
         "state" : "UP",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     }, {
       "state" : "STOP",
@@ -146,14 +153,15 @@
         "name" : "Rodzice",
         "typ" : "BLIND",
         "state" : "UP",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 17
@@ -170,5 +178,5 @@
     "minTemperatura" : 3.4028235E38,
     "slaveAdress" : 17
   } ],
-  "loaded" : false
+  "loaded" : true
 }

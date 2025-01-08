@@ -10,7 +10,8 @@
     "name" : "Wiatrołap",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 54,
@@ -20,7 +21,8 @@
     "name" : "Podcień",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 12
+    "pin" : 12,
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 55,
@@ -30,7 +32,8 @@
     "name" : "Kapliczka",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 10
+    "pin" : 10,
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -54,7 +57,8 @@
         "name" : "Wiatrołap",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     }, {
       "state" : "NONE",
@@ -69,7 +73,8 @@
         "name" : "Podcień",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 12
+        "pin" : 12,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 22
@@ -95,7 +100,8 @@
         "name" : "Podcień",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 12
+        "pin" : 12,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 22
@@ -112,5 +118,5 @@
     "minTemperatura" : 3.4028235E38,
     "slaveAdress" : 22
   } ],
-  "loaded" : false
+  "loaded" : true
 }

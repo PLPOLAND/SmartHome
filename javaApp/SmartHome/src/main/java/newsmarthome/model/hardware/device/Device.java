@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import newsmarthome.i2c.BaseConverter;
 import newsmarthome.i2c.I2C;
 import newsmarthome.i2c.I2CHardware;
 import newsmarthome.i2c.MasterToSlaveConverter;
@@ -39,12 +40,15 @@ public abstract class Device {
 
     
     @JsonIgnore
+    @Autowired
     public MasterToSlaveConverter i2CSender;
 
     @JsonIgnore
+    @Autowired
     public WiFiMasterToSlaveConverter wifiSender;
 
-
+    @JsonIgnore
+    public BaseConverter sender;
 
     @JsonIgnore
     /** Czy urządzenie zostało skonfigurowane na slave-ie */
@@ -71,51 +75,63 @@ public abstract class Device {
     private String name = "";
 
     DeviceTypes typ;
-    // @Autowired
-    @Autowired
-    protected Device(MasterToSlaveConverter i2CSender, WiFiMasterToSlaveConverter wifiSender) {
+
+    Boolean isWifi;
+    
+    protected Device() {
         this.id = nextDeviceID++;
-        this.i2CSender = i2CSender;
-        this.wifiSender = wifiSender;
+        this.i2CSender = null;
+        this.wifiSender = null;
         this.slaveID = -1;
         this.onSlaveID = -1;
         this.typ = DeviceTypes.NONE;
+        this.isWifi = false;
+        this.sender = null;
         logger = LoggerFactory.getLogger(Device.class);
         name = "Undefined";
         // logger.info("Stworzono pusty Device");
     }
-    @Autowired
-    protected Device(DeviceTypes type, MasterToSlaveConverter i2CSender, WiFiMasterToSlaveConverter wifiSender) {
-        this.i2CSender = i2CSender;
-        this.wifiSender = wifiSender;
+    protected Device(DeviceTypes type, boolean isWifi){
         this.id = nextDeviceID++;
         this.room = -1;
         this.slaveID = -1;
         this.onSlaveID = -1;
         this.typ = type;
+        this.isWifi = isWifi;
+        this.sender = isWifi ? wifiSender : i2CSender;
         logger = LoggerFactory.getLogger(Device.class);
     }
 
-    protected Device(int slaveID, DeviceTypes type, MasterToSlaveConverter i2CSender,
-            WiFiMasterToSlaveConverter wifiSender){
+    protected Device(int slaveID, DeviceTypes type, boolean isWifi){
         this.id = nextDeviceID++;
         this.room = -1;
-        this.i2CSender = i2CSender;
-        this.wifiSender = wifiSender;
         this.slaveID = slaveID;
         this.onSlaveID = -1;
         this.typ = type;
+        this.isWifi = isWifi;
+        this.sender = isWifi ? wifiSender : i2CSender;
         logger = LoggerFactory.getLogger(Device.class);
     }
     
-    protected Device(int id, int room, int slaveID,DeviceTypes type){
+    protected Device(int id, int room, int slaveID,DeviceTypes type, boolean isWifi){
         this.id = id;
         this.room = room;
         this.slaveID = slaveID;
         this.onSlaveID = -1;
         this.typ = type;
+        this.isWifi = isWifi;
+        this.sender = isWifi ? wifiSender : i2CSender;
         logger = LoggerFactory.getLogger(Device.class);
         // logger.info("Stworzono Device:" + this.toString());
+    }
+
+    public void setWifi(boolean isWifi){
+        this.isWifi = isWifi;
+        this.sender = isWifi ? wifiSender : i2CSender;
+    }
+
+    public boolean getWifi(){
+        return this.isWifi;
     }
 
     public int getId() {

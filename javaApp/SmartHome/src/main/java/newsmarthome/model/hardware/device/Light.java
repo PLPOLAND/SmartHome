@@ -3,6 +3,7 @@ package newsmarthome.model.hardware.device;
 import java.util.Arrays;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
+import newsmarthome.i2c.MasterToSlaveConverter;
+import newsmarthome.wifi.WiFiMasterToSlaveConverter;
 
 @Component
 @Scope("prototype")
@@ -22,24 +25,24 @@ public class Light extends Device{
 
     
     public Light(){
-        super(DeviceTypes.LIGHT);
+        super(DeviceTypes.LIGHT, false);
         swt = new Switch();
         logger = LoggerFactory.getLogger(this.getClass());
     }
     public Light(int pin){
-        super(DeviceTypes.LIGHT);
+        super(DeviceTypes.LIGHT, false);
         this.swt = new Switch(DeviceState.OFF,pin);
         logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    public Light(DeviceState stan, int pin, int slaveID) {
-        super(slaveID, DeviceTypes.LIGHT);
+    public Light(DeviceState stan, int pin, int slaveID, boolean isWifi ) {
+        super(slaveID, DeviceTypes.LIGHT, isWifi);
         logger = LoggerFactory.getLogger(this.getClass());
         this.swt = new Switch(stan, pin);
     }
 
-    public Light(int id, int room, int roomID, int pin){
-        super(id, room, roomID, DeviceTypes.LIGHT);
+    public Light(int id, int room, int roomID, int pin, boolean isWifi ){
+        super(id, room, roomID, DeviceTypes.LIGHT, isWifi);
         logger = LoggerFactory.getLogger(this.getClass());
         this.swt = new Switch(DeviceState.OFF,pin);
     }    
@@ -47,7 +50,7 @@ public class Light extends Device{
     @Override
     public void configureToSlave() {
        try {
-            setOnSlaveID(i2CSender.addUrzadzenie(this));
+            setOnSlaveID(sender.addUrzadzenie(this));
             setConfigured();
             sendStateToSlave(this.getState());
        } catch (HardwareException e) {
@@ -83,7 +86,7 @@ public class Light extends Device{
     private void sendStateToSlave(DeviceState stan) {
         try {
             if (isConfigured()) {
-                i2CSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
+                sender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
                 logger.debug("Zmieniono stan urządzenia {}" , this);
             }
             else{
@@ -138,7 +141,7 @@ public class Light extends Device{
     public void updateDeviceState() throws HardwareException, SoftwareException{
         try {
             if (isConfigured()) {
-                int state = i2CSender.checkDeviceState(getSlaveID(), getOnSlaveID());
+                int state = sender.checkDeviceState(getSlaveID(), getOnSlaveID());
                 if (state == 1) {
                     this.setStateLocal(DeviceState.ON);
                 }

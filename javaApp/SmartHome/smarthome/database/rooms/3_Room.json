@@ -10,14 +10,15 @@
     "name" : "Marek",
     "typ" : "BLIND",
     "state" : "NOTKNOW",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 15
     },
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 16
-    }
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 9,
@@ -27,7 +28,8 @@
     "name" : "Poziom 1",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 10,
@@ -37,7 +39,8 @@
     "name" : "Poziom 2",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 12
+    "pin" : 12,
+    "wifi" : false
   }, {
     "@type" : "Outlet",
     "id" : 56,
@@ -47,7 +50,8 @@
     "name" : "Gniazdko Biurko L",
     "typ" : "GNIAZDKO",
     "state" : "OFF",
-    "pin" : 16
+    "pin" : 16,
+    "wifi" : false
   }, {
     "@type" : "Outlet",
     "id" : 57,
@@ -57,7 +61,8 @@
     "name" : "Gniazdko Biurko P",
     "typ" : "GNIAZDKO",
     "state" : "OFF",
-    "pin" : 15
+    "pin" : 15,
+    "wifi" : false
   }, {
     "@type" : "Outlet",
     "id" : 47,
@@ -67,7 +72,8 @@
     "name" : "Gnd koło łóżka 1",
     "typ" : "GNIAZDKO",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Outlet",
     "id" : 59,
@@ -77,7 +83,8 @@
     "name" : "Ładowarka",
     "typ" : "GNIAZDKO",
     "state" : "OFF",
-    "pin" : 14
+    "pin" : 14,
+    "wifi" : false
   }, {
     "@type" : "Outlet",
     "id" : 46,
@@ -87,7 +94,8 @@
     "name" : "TV",
     "typ" : "GNIAZDKO",
     "state" : "OFF",
-    "pin" : 12
+    "pin" : 12,
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -111,14 +119,15 @@
         "name" : "Marek",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     }, {
       "state" : "DOWN",
@@ -133,14 +142,15 @@
         "name" : "Marek",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     }, {
       "state" : "STOP",
@@ -155,14 +165,15 @@
         "name" : "Marek",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        }
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 15
@@ -188,7 +199,8 @@
         "name" : "Poziom 1",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     }, {
       "state" : "NONE",
@@ -203,7 +215,8 @@
         "name" : "Poziom 2",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 12
+        "pin" : 12,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 15
@@ -220,5 +233,5 @@
     "minTemperatura" : 3.4028235E38,
     "slaveAdress" : -1
   } ],
-  "loaded" : false
+  "loaded" : true
 }

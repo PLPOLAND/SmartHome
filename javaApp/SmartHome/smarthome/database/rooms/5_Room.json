@@ -10,7 +10,8 @@
     "name" : "Poziom 1",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Fan",
     "id" : 58,
@@ -24,7 +25,8 @@
       "pin" : 16
     },
     "state" : "OFF",
-    "pin" : 16
+    "pin" : 16,
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 60,
@@ -34,7 +36,8 @@
     "name" : "Lustro",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 15
+    "pin" : 15,
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -58,7 +61,8 @@
         "name" : "Poziom 1",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 12
@@ -84,7 +88,8 @@
         "name" : "Lustro",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 15
+        "pin" : 15,
+        "wifi" : false
       }
     }, {
       "state" : "NONE",
@@ -103,7 +108,8 @@
           "pin" : 16
         },
         "state" : "OFF",
-        "pin" : 16
+        "pin" : 16,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 12
@@ -123,5 +129,5 @@
     "minHumidity" : -2147483648,
     "slaveAdress" : 12
   } ],
-  "loaded" : false
+  "loaded" : true
 }

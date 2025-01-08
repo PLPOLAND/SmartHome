@@ -50,12 +50,12 @@ public class SmartHomeAppTest {
 	}
 	@Test
 	public void hardwareFactoryTest(){
-		assertEquals(1, factory.createLight(1).getPin());
-		assertEquals(1, factory.createFan(1).getPin());
-		assertEquals(1, factory.createOutlet(1).getPin());
-		Blind blind = factory.createBlind(1,2);
-		assertEquals(1, blind.getPinUp());
-		assertEquals(2, blind.getPinDown());
+		assertEquals(-1, factory.createLight().getPin());
+		assertEquals(-1, factory.createFan().getPin());
+		assertEquals(-1, factory.createOutlet().getPin());
+		Blind blind = factory.createBlind();
+		assertEquals(-1, blind.getPinUp());
+		assertEquals(-1, blind.getPinDown());
 
 		assertEquals(1, factory.createButton(1).getSlaveAdress());
 		Button button = factory.createButton(1,2);

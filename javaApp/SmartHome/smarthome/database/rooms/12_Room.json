@@ -10,7 +10,8 @@
     "name" : "Boczne",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 49,
@@ -20,7 +21,8 @@
     "name" : "Górne ",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 12
+    "pin" : 12,
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -44,7 +46,8 @@
         "name" : "Boczne",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     }, {
       "state" : "NONE",
@@ -59,10 +62,11 @@
         "name" : "Górne ",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 12
+        "pin" : 12,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 20
   } ],
-  "loaded" : false
+  "loaded" : true
 }

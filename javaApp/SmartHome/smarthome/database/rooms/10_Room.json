@@ -10,14 +10,15 @@
     "name" : "Taras",
     "typ" : "BLIND",
     "state" : "NOTKNOW",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 15
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 16
     },
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 15
-    }
+    "wifi" : false
   }, {
     "@type" : "Blind",
     "id" : 38,
@@ -27,14 +28,15 @@
     "name" : "Jadalnia",
     "typ" : "BLIND",
     "state" : "NOTKNOW",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 15
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 16
     },
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 15
-    }
+    "wifi" : false
   }, {
     "@type" : "Blind",
     "id" : 39,
@@ -44,14 +46,15 @@
     "name" : "Przy Tarasie",
     "typ" : "BLIND",
     "state" : "NOTKNOW",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 12
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 13
     },
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 12
-    }
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 50,
@@ -61,7 +64,8 @@
     "name" : "Przedpokój",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 13
+    "pin" : 13,
+    "wifi" : false
   }, {
     "@type" : "Light",
     "id" : 51,
@@ -71,7 +75,8 @@
     "name" : "Przedpokój/Jadalnia",
     "typ" : "LIGHT",
     "state" : "OFF",
-    "pin" : 12
+    "pin" : 12,
+    "wifi" : false
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -95,14 +100,15 @@
         "name" : "Jadalnia",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        }
+        "wifi" : false
       }
     }, {
       "state" : "DOWN",
@@ -117,14 +123,15 @@
         "name" : "Jadalnia",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        }
+        "wifi" : false
       }
     }, {
       "state" : "STOP",
@@ -139,14 +146,15 @@
         "name" : "Jadalnia",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        }
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 19
@@ -172,14 +180,15 @@
         "name" : "Taras",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        }
+        "wifi" : false
       }
     }, {
       "state" : "UP",
@@ -194,14 +203,15 @@
         "name" : "Taras",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        }
+        "wifi" : false
       }
     }, {
       "state" : "STOP",
@@ -216,14 +226,15 @@
         "name" : "Taras",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 15
-        }
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 18
@@ -249,14 +260,15 @@
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 13
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 12
-        }
+        "wifi" : false
       }
     }, {
       "state" : "DOWN",
@@ -271,14 +283,15 @@
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 13
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 12
-        }
+        "wifi" : false
       }
     }, {
       "state" : "STOP",
@@ -293,14 +306,15 @@
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
         "state" : "NOTKNOW",
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 13
         },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 12
-        }
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 18
@@ -326,7 +340,8 @@
         "name" : "Przedpokój",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 13
+        "pin" : 13,
+        "wifi" : false
       }
     }, {
       "state" : "NONE",
@@ -341,7 +356,8 @@
         "name" : "Przedpokój/Jadalnia",
         "typ" : "LIGHT",
         "state" : "OFF",
-        "pin" : 12
+        "pin" : 12,
+        "wifi" : false
       }
     } ],
     "slaveAdress" : 21
@@ -358,5 +374,5 @@
     "minTemperatura" : 3.4028235E38,
     "slaveAdress" : 18
   } ],
-  "loaded" : false
+  "loaded" : true
 }
