@@ -39,7 +39,7 @@ import newsmarthome.model.response.DeviceStateResponse;
 import newsmarthome.model.response.Response;
 import newsmarthome.model.response.RoomResponse;
 import newsmarthome.model.user.User;
-
+import newsmarthome.wifi.ClientToWiFiSlaveMapper;
 @RestController
 @RequestMapping("/api")
 public class WiFiSlaveController {
@@ -61,26 +61,27 @@ public class WiFiSlaveController {
 		
     }
 
-	@Scheduled(fixedRate = 1000)
+	@Scheduled(fixedRate = 10)
 	public void startServer() {
-		// int port = 9803; // Port na którym serwer będzie nasłuchiwał
+		int port = 9803; // Port na którym serwer będzie nasłuchiwał
 
-        // try (ServerSocket serverSocket = new ServerSocket(port)) {
-        //     System.out.println("Serwer nasłuchuje na porcie " + port);
+		try (ServerSocket serverSocket = new ServerSocket(port)) {
+			System.out.println("Serwer nasłuchuje na porcie " + port);
 
-        //     while (true) {
-        //         Socket client = serverSocket.accept();
-        //         System.out.println("New client connected"
-        //                 + client.getInetAddress()
-        //                         .getHostAddress());
-		// 		// List<WifiSlave> wifiSlaves = wifiSlaveRepository.findByMac(client.getInetAddress().get));
-				
-        //         // WifiSlave clientSock = new WifiSlave(client);
-        //         // new Thread(clientSock).start();
-        //     }
-        // } catch (IOException e) {
-        //     System.out.println("Błąd uruchomienia serwera: " + e.getMessage());
-        // }
+			while (true) {
+				Socket client = serverSocket.accept();
+				System.out.println("New client connected"
+						+ client.getInetAddress()
+								.getHostAddress());
+				ClientToWiFiSlaveMapper clientSock = new ClientToWiFiSlaveMapper(client, wifiSlaveRepository);
+				Thread th = new Thread(clientSock);
+				th.start();
+
+				//TODO after join add wifislave to list so we can use it in other methods
+			}
+		} catch (IOException e) {
+			System.out.println("Błąd uruchomienia serwera: " + e.getMessage());
+		}
 	}
 
 	

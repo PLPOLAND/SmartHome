@@ -21,13 +21,13 @@
     "name" : "Garaż",
     "typ" : "BLIND",
     "state" : "UP",
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 16
-    },
     "switchUp" : {
       "stan" : "ON",
       "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
     },
     "wifi" : false
   } ],
@@ -80,13 +80,13 @@
         "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         },
         "wifi" : false
       }
@@ -103,13 +103,13 @@
         "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         },
         "wifi" : false
       }
@@ -126,13 +126,13 @@
         "name" : "Garaż",
         "typ" : "BLIND",
         "state" : "UP",
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "ON",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
         },
         "wifi" : false
       }

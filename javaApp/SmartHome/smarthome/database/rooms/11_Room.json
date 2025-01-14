@@ -21,13 +21,13 @@
     "name" : "Kuchnia",
     "typ" : "BLIND",
     "state" : "DOWN",
-    "switchDown" : {
-      "stan" : "ON",
-      "pin" : 16
-    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "ON",
+      "pin" : 16
     },
     "wifi" : false
   }, {
@@ -122,13 +122,13 @@
         "name" : "Kuchnia",
         "typ" : "BLIND",
         "state" : "DOWN",
-        "switchDown" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
         },
         "wifi" : false
       }
@@ -145,13 +145,13 @@
         "name" : "Kuchnia",
         "typ" : "BLIND",
         "state" : "DOWN",
-        "switchDown" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
         },
         "wifi" : false
       }
@@ -168,13 +168,13 @@
         "name" : "Kuchnia",
         "typ" : "BLIND",
         "state" : "DOWN",
-        "switchDown" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
         },
         "wifi" : false
       }

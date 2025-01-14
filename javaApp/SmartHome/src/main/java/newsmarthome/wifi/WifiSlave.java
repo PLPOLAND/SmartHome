@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -21,7 +19,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(schema = "smarthome", name = "wifi_slaves")
-public class WifiSlave implements Runnable{
+public class WifiSlave implements Runnable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
@@ -31,8 +29,8 @@ public class WifiSlave implements Runnable{
     @JsonIgnore
     @Transient
     Socket socket;
-    
-    public WifiSlave(){
+
+    public WifiSlave() {
         this.connected = false;
         this.socket = null;
         this.ip = "";
@@ -47,7 +45,6 @@ public class WifiSlave implements Runnable{
         this.socket = null;
     }
 
-
     public WifiSlave(int id, String ip, String mac, Socket socket) {
         this.id = id;
         this.ip = ip;
@@ -58,35 +55,34 @@ public class WifiSlave implements Runnable{
 
     @Override
     public void run() {
-         PrintWriter out = null;
-            BufferedReader in = null;
-                 try {
-                    out = new PrintWriter(socket.getOutputStream(), true);
-                     in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    System.out.println("Połączono z klientem");
+        PrintWriter out = null;
+        BufferedReader in = null;
+        try {
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("Połączono z klientem");
 
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        System.out.println("Otrzymano: " + inputLine);
-                        out.println("Serwer: " + inputLine);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Błąd komunikacji z klientem: " + e.getMessage());
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                System.out.println("Otrzymano: " + inputLine);
+                out.println("Serwer: " + inputLine);
+            }
+        } catch (IOException e) {
+            System.out.println("Błąd komunikacji z klientem: " + e.getMessage());
+        } finally {
+            this.connected = false;
+            try {
+                if (out != null) {
+                    out.close();
                 }
-            finally { 
-                try { 
-                    if (out != null) { 
-                        out.close(); 
-                    } 
-                    if (in != null) { 
-                        in.close(); 
-                        socket.close(); 
-                    } 
-                } 
-                catch (IOException e) { 
-                    e.printStackTrace(); 
-                } 
-            } 
+                if (in != null) {
+                    in.close();
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
