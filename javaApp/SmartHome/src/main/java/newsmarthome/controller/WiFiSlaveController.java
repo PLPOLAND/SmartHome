@@ -61,28 +61,7 @@ public class WiFiSlaveController {
 		
     }
 
-	@Scheduled(fixedRate = 10)
-	public void startServer() {
-		int port = 9803; // Port na którym serwer będzie nasłuchiwał
-
-		try (ServerSocket serverSocket = new ServerSocket(port)) {
-			System.out.println("Serwer nasłuchuje na porcie " + port);
-
-			while (true) {
-				Socket client = serverSocket.accept();
-				System.out.println("New client connected"
-						+ client.getInetAddress()
-								.getHostAddress());
-				ClientToWiFiSlaveMapper clientSock = new ClientToWiFiSlaveMapper(client, wifiSlaveRepository);
-				Thread th = new Thread(clientSock);
-				th.start();
-
-				//TODO after join add wifislave to list so we can use it in other methods
-			}
-		} catch (IOException e) {
-			System.out.println("Błąd uruchomienia serwera: " + e.getMessage());
-		}
-	}
+	
 
 	
 

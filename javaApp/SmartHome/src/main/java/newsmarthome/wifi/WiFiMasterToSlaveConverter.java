@@ -114,7 +114,7 @@ public class WiFiMasterToSlaveConverter extends BaseConverter {
 		// 	return false;
 		// }
 		//TODO check if slave is still connected
-		return slave.get().connected;
+		return slave.get().isConnected();
 	}
 
 	@Override

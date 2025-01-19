@@ -25,12 +25,12 @@ public class ClientToWiFiSlaveMapper implements Runnable {
         public void run() 
         { 
             boolean connected = true;
-            PrintWriter out = null;
-            BufferedReader in = null;
+
+                PrintWriter out = null;
+                BufferedReader in = null;
                  try {
                     out = new PrintWriter(clientSocket.getOutputStream(), true);
                     in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
                     String mac;
                     mac = in.readLine();
                     if (mac==null) {
@@ -40,46 +40,36 @@ public class ClientToWiFiSlaveMapper implements Runnable {
                         log.debug("Got: " + mac);
                         List<WifiSlave> wifiSlaves = wifiSlaveRepository.findByMac(mac);
                         if (wifiSlaves.isEmpty()) {
-                            log.debug("New slave connected");
+                            log.info("New slave connected");
                             wifiSlave = new WifiSlave();
                             wifiSlave.setMac(mac);
                             wifiSlave.setConnected(true);
                             wifiSlave.setSocket(clientSocket);
                             wifiSlave.setIp(clientSocket.getInetAddress().getHostAddress());
+                            wifiSlave.setIn(in);
+                            wifiSlave.setOut(out);
                             wifiSlaveRepository.save(wifiSlave);
-                            wifiSlave.run();
+                            new Thread(wifiSlave).start();
                         } else {
-                            log.debug("Slave reconnected");
-                             wifiSlave = wifiSlaves.get(0);
+                            log.info("Slave reconnected");
+                            wifiSlave = wifiSlaves.get(0);
                             wifiSlave.setConnected(true);
                             wifiSlave.setSocket(clientSocket);
                             wifiSlave.setIp(clientSocket.getInetAddress().getHostAddress());
+                            wifiSlave.setIn(in);
+                            wifiSlave.setOut(out);
                             wifiSlaveRepository.save(wifiSlave);
+                            new Thread(wifiSlave).start();
                             
                         }
                     }
                 } catch (IOException e) {
-                    System.out.println("Błąd komunikacji z klientem: " + e.getMessage());
+                   log.error("Błąd komunikacji z klientem: " + e.getMessage());
                 }
-            finally { 
-                try { 
-                    if (out != null) { 
-                        out.close(); 
-                    } 
-                    if (in != null) { 
-                        in.close(); 
-                        if (!connected) {
-                            clientSocket.close(); 
-                        }
-                    } 
-                } 
-                catch (IOException e) { 
-                    e.printStackTrace(); 
-                } 
-            } 
+                
         } 
 
-        WifiSlave getWifiSlave() {
+        public WifiSlave getWifiSlave() {
             return wifiSlave;
         }
     }
