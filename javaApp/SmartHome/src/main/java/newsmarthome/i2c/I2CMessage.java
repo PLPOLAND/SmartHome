@@ -98,7 +98,7 @@ public class I2CMessage {
     }
 
     public void waitToSend() {
-        while (!this.isSent()) {
+        while (!this.isSent() && !this.isError()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
