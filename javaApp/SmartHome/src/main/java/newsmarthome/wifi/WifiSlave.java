@@ -104,6 +104,7 @@ public class WifiSlave implements Runnable {
                 }
                 if((inputLine = in.readLine()) != null) {
                     if (inputLine.equals("pong")) {
+                        log.info("Otrzymano: pong");
                         continue;
                     }
                     log.info("Otrzymano: {}", inputLine);

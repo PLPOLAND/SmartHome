@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import lombok.extern.log4j.Log4j2;
 import newsmarthome.database.repository.WifiSlaveRepository;
@@ -28,6 +30,7 @@ public class ClientToWiFiSlaveMapper implements Runnable {
 
                 PrintWriter out = null;
                 BufferedReader in = null;
+                Pattern pattern = Pattern.compile("^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$");
                  try {
                     out = new PrintWriter(clientSocket.getOutputStream(), true);
                     in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -38,6 +41,16 @@ public class ClientToWiFiSlaveMapper implements Runnable {
                         connected = false;
                     }else{
                         log.debug("Got: " + mac);
+                        Matcher matcher = pattern.matcher(mac);
+                        if (!matcher.matches()) {
+                            log.error("Got wrong mac address from client");
+                            connected = false;
+                            return;
+                        }
+                        else{
+                            log.info("Got correct mac address from client");
+                        }
+                        out.println("connected");
                         List<WifiSlave> wifiSlaves = wifiSlaveRepository.findByMac(mac);
                         if (wifiSlaves.isEmpty()) {
                             log.info("New slave connected");
