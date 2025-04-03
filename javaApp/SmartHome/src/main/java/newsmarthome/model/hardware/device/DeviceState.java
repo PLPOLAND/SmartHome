@@ -18,8 +18,7 @@ public enum DeviceState{
         switch (text) {
             case "down":
                 return DOWN;
-            case "notknow":
-            case "middle":
+            case "notknow", "middle":
                 return NOTKNOW;
             case "run":
                 return RUN;
@@ -32,6 +31,29 @@ public enum DeviceState{
             default:
                 return null;
         }
+    }
+
+    public static String toCommandString(DeviceState state) {
+        switch (state) {
+            case DOWN:
+                return "D";
+            case NOTKNOW:
+                return "S";
+            case RUN:
+                return "R";
+            case UP:
+                return "U";
+            case OFF:
+                return "0";
+            case ON:
+                return "1";
+            default:
+                return null;
+        }
+    }
+    
+    public String toCommandString(){
+        return toCommandString(this);
     }
 
 }
