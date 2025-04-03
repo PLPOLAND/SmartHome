@@ -2,44 +2,42 @@ package newsmarthome.model.hardware.device;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.extern.log4j.Log4j2;
 import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
 import newsmarthome.i2c.MasterToSlaveConverter;
 import newsmarthome.wifi.WiFiMasterToSlaveConverter;
 
 import java.util.Arrays;
-
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
+@Log4j2
 public class Blind extends Device {
     DeviceState stan;
     Switch swtUp;
     Switch swtDown;
 
+    @Autowired
     public Blind() {
         super(DeviceTypes.BLIND, false);
-        logger = LoggerFactory.getLogger(Blind.class);
+        
         swtDown = new Switch();
         swtUp = new Switch();
     }
 
-    public Blind(@Autowired MasterToSlaveConverter i2CSender, @Autowired WiFiMasterToSlaveConverter wifiSender) {
+    public Blind(MasterToSlaveConverter i2CSender, WiFiMasterToSlaveConverter wifiSender) {
         super(DeviceTypes.BLIND, false);
-        logger = LoggerFactory.getLogger(Blind.class);
         swtDown = new Switch();
         swtUp = new Switch();
     }
-
     public Blind(int pinUp, int pinDown, boolean isWifi) {
         super(DeviceTypes.BLIND, isWifi);
         swtUp = new Switch(DeviceState.OFF, pinUp);
         swtDown = new Switch(DeviceState.OFF, pinDown);
-        logger = LoggerFactory.getLogger(Blind.class);
     }
 
     public Blind(DeviceState stan, int boardID, int pinUp, int pinDown, boolean isWifi) {
@@ -47,7 +45,6 @@ public class Blind extends Device {
         this.changeState(stan);
         swtUp = new Switch(DeviceState.OFF, pinUp);
         swtDown = new Switch(DeviceState.OFF, pinDown);
-        logger = LoggerFactory.getLogger(Blind.class);
     }
 
     public Blind(int id, int room, int boardID, int pinUp, int pinDown, boolean isWifi) {
@@ -55,7 +52,6 @@ public class Blind extends Device {
         stan = DeviceState.NOTKNOW;
         swtUp = new Switch(DeviceState.OFF, pinUp);
         swtDown = new Switch(DeviceState.OFF, pinDown);
-        logger = LoggerFactory.getLogger(Blind.class);
     }
 
     @Override
@@ -65,7 +61,7 @@ public class Blind extends Device {
             setConfigured();
             sendStateToSlave(this.stan);
         } catch (HardwareException e) {
-            logger.error("Błąd podczas dodawania urządzenia! -> {}", e.getMessage());
+            log.error("Błąd podczas dodawania urządzenia! -> {}", e.getMessage());
             resetConfigured();
         }
 
@@ -89,13 +85,13 @@ public class Blind extends Device {
     private void sendStateToSlave(DeviceState stan) {
         try {
             if (isConfigured()) {
-                logger.debug("Wysyłanie stanu urządzenia na slave-a o id: {}", this.getSlaveID());
+                log.debug("Wysyłanie stanu urządzenia na slave-a o id: {}", this.getSlaveID());
                 i2CSender.changeBlindState(this, stan);
             } else {
-                logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
+                log.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
+            log.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
         }
     }
 
@@ -108,7 +104,7 @@ public class Blind extends Device {
         } else if (this.stan == DeviceState.RUN) {
             this.changeState(DeviceState.NOTKNOW);
         } else if (this.stan == DeviceState.NOTKNOW) {
-            logger.debug("Jest stan NOTKNOW więc nic nie robię");
+            log.debug("Jest stan NOTKNOW więc nic nie robię");
         }
     }
 
@@ -128,27 +124,27 @@ public class Blind extends Device {
         if (this.stan != state) {
             switch (state) {
                 case DOWN:
-                    logger.debug("Zmieniam stan na: DOWN");
+                    log.debug("Zmieniam stan na: DOWN");
                     swtDown.setStan(DeviceState.ON);
                     swtUp.setStan(DeviceState.OFF);
                     this.stan = DeviceState.DOWN;
-                    logger.debug("Zmieniono stan urządzenia {}", this);
+                    log.debug("Zmieniono stan urządzenia {}", this);
                     break;
                 case UP:
-                    logger.debug("Zmieniam stan na: UP");
+                    log.debug("Zmieniam stan na: UP");
                     swtDown.setStan(DeviceState.OFF);
                     swtUp.setStan(DeviceState.ON);
                     this.stan = DeviceState.UP;
-                    logger.debug("Zmieniono stan urządzenia {}", this);
+                    log.debug("Zmieniono stan urządzenia {}", this);
                     break;
                 case NOTKNOW:// TODO Co w tedy?
                     this.stan = DeviceState.NOTKNOW;
-                    logger.debug("Zmieniono stan urządzenia {}", this);
+                    log.debug("Zmieniono stan urządzenia {}", this);
                     break;
                 case RUN:
-                    logger.debug("Zmieniam stan na: RUN");
+                    log.debug("Zmieniam stan na: RUN");
                     this.stan = DeviceState.RUN;
-                    logger.debug("Zmieniono stan urządzenia {}", this);
+                    log.debug("Zmieniono stan urządzenia {}", this);
                     break;
                 default:
                     break;
@@ -237,18 +233,18 @@ public class Blind extends Device {
                 } else if (state == 'R') {
                     this.changeStateLocal(DeviceState.RUN);
                 } else {
-                    logger.error("Odebrano nieznany stan urządzenia! Stan: {}. DeviceID: {}", state, this.getId());
+                    log.error("Odebrano nieznany stan urządzenia! Stan: {}. DeviceID: {}", state, this.getId());
                     throw new SoftwareException(
                             "Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "U, D, K",
                             String.valueOf(state));
                 }
             } else {
-                logger.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
+                log.debug("Urządzenie nie jest skonfigurowane na slave-ie!");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia (id:{}; slave:{})! -> {}", this.getId(),
+            log.error("Błąd podczas pobierania stanu urządzenia (id:{}; slave:{})! -> {}", this.getId(),
                     this.getSlaveID(), e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
+            log.error(Arrays.toString(e.getStackTrace()));
             if (e.getResponse()[0] == 'E') {
                 throw e;
             }

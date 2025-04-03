@@ -2,11 +2,11 @@ package newsmarthome.model.hardware.device;
 
 import java.util.Arrays;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.log4j.Log4j2;
 import newsmarthome.exception.HardwareException;
 import newsmarthome.exception.SoftwareException;
 import newsmarthome.i2c.MasterToSlaveConverter;
@@ -14,6 +14,7 @@ import newsmarthome.wifi.WiFiMasterToSlaveConverter;
 
 @Component
 @Scope("prototype")
+@Log4j2
 public class Fan extends Device {
     /** Przekaźnik który odpowiada za sterowanie światłem na slavie */
     Switch swt;
@@ -21,18 +22,16 @@ public class Fan extends Device {
     public Fan() {
         super(DeviceTypes.WENTYLATOR, false);
         swt = new Switch();
-        logger = LoggerFactory.getLogger(this.getClass());
+        
     }
 
     public Fan(int pin) {
         super(DeviceTypes.WENTYLATOR, false);
         this.swt = new Switch(DeviceState.OFF, pin);
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     public Fan(DeviceState stan, int pin, int slaveID, boolean isWifi) {
         super(slaveID, DeviceTypes.WENTYLATOR, isWifi);
-        logger = LoggerFactory.getLogger(this.getClass());
         this.swt = new Switch(stan, pin);
     }
 
@@ -43,7 +42,7 @@ public class Fan extends Device {
             setConfigured();
             sendStateToSlave(this.getState());
         } catch (HardwareException e) {
-            logger.error("Błąd podczas dodawania urządzenia na Slave-a! -> {}", e.getMessage());
+            log.error("Błąd podczas dodawania urządzenia na Slave-a! -> {}", e.getMessage());
             resetConfigured();
         }
     }
@@ -62,12 +61,12 @@ public class Fan extends Device {
         try {
             if (isConfigured()) {
                 sender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
-                logger.debug("Zmieniono stan urządzenia {}", this);
+                log.debug("Zmieniono stan urządzenia {}", this);
             } else {
-                logger.warn("Urządzenie nie jest skonfigurowane na slave'u!");
+                log.warn("Urządzenie nie jest skonfigurowane na slave'u!");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
+            log.error("Błąd podczas zmiany stanu urządzenia! -> {}", e.getMessage());
         }
     }
 
@@ -116,15 +115,15 @@ public class Fan extends Device {
                 } else if (state == 0) {
                     this.setStateLocal(DeviceState.OFF);
                 } else {
-                    logger.error("Odebrano nieznany stan urządzenia! -> {}", state);
+                    log.error("Odebrano nieznany stan urządzenia! -> {}", state);
                     throw new SoftwareException("Odebrano nieznany stan urządzenia! Stan: " + state + ". DeviceID: " + this.getId(), "0,1", String.valueOf(state));
                 }
             } else {
-                logger.warn("Urządzenie nie jest skonfigurowane na slave-u!");
+                log.warn("Urządzenie nie jest skonfigurowane na slave-u!");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
+            log.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
+            log.error(Arrays.toString(e.getStackTrace()));
             if (e.getResponse()[0] == 'E') {
                 throw e;
             }

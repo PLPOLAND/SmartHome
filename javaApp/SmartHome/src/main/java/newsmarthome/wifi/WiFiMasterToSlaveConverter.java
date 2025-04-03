@@ -19,6 +19,48 @@ import newsmarthome.model.hardware.sensor.Termometr;
 
 @Service
 public class WiFiMasterToSlaveConverter extends BaseConverter {
+	// #region Komendy
+	/** [S,U] */
+	private static final byte[] STATUS_URZADZEN = { 'S', 'U' };
+	/** [S,R] */
+	private static final byte[] STATUS_RGB = { 'S', 'R' };
+	/** [W] */
+	private static final byte[] CHECK_TO_WORK = { 'W' };
+	/** [I] */
+	private static final byte[] CHECK_INIT = { 'I' };
+	/** [R] */
+	private static final byte[] REINIT = { 'R' };
+	/** [U,S] */
+	private static final byte[] ZMIEN_STAN_PRZEKAZNIKA = { 'U', 'S' }; // + id + stan
+	/** [U,B] */
+	private static final byte[] ZMIEN_STAN_ROLETY = { 'U', 'B' }; // + id + stan
+	/** [T] */
+	private static final byte[] POBIERZ_TEMPERATURE = { 'T' }; // + ADRESS (8byte)
+	/** [H] */
+	private static final byte[] POBIERZ_TEMPERATURE_I_WILGOTNOSC = { 'H' }; // + id
+	/** [A, S] */
+	private static final byte[] DODAJ_URZADZENIE = { 'A', 'S' }; // + PIN
+	/** [A, R] */
+	private static final byte[] DODAJ_ROLETE = { 'A', 'R' }; // + PIN + PIN
+	/** [A, P] */
+	private static final byte[] DODAJ_PRZYCISK = { 'A', 'P' }; // + PIN
+	/** [A, T] */
+	private static final byte[] DODAJ_TERMOMETR = { 'A', 'T' };
+	/** [A, H] */
+	private static final byte[] DODAJ_HIGROMETR = { 'A', 'H' };
+	/** [P, K, L] */
+	private static final byte[] DODAJ_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L' };
+	/** [P, K, L, D] */
+	private static final byte[] USUN_LOKALNA_FUNKCJE_KLIKNIEC = { 'P', 'K', 'L', 'D' };
+	/** [S, D] */
+	private static final byte[] SPRAWDZ_STAN_URZADZENIA = { 'S', 'D' };
+	/** [C, T, N] */
+	private static final byte[] ILE_TERMOMETROW = { 'C', 'T', 'N' };
+	/** [W] */
+	private static final byte[] SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA = { 'W' };
+	/** [G] */
+	private static final byte[] ODBIERZ_KOMENDE = { 'G' };
+	// #endregion
 
 	@Autowired
 	WifiSlaveRepository wifiSlaveRepository;
@@ -43,8 +85,7 @@ public class WiFiMasterToSlaveConverter extends BaseConverter {
 	
 	@Override
 	public List<Integer> getSlavesAdresses() {
-		// return wifiSlaveRepository.findByConnected(true).stream().map(slave -> slave.id ).toList();
-		return new ArrayList<>();
+		return wifiSlaveRepository.findByConnected(true).stream().map(WifiSlave::getId).toList();
 	}
 
 	@Override
@@ -110,11 +151,12 @@ public class WiFiMasterToSlaveConverter extends BaseConverter {
 	@Override
 	public boolean isSlaveConnected(int slaveId) {
 		Optional<WifiSlave> slave = wifiSlaveRepository.findById(slaveId);
-		// if (slave.isEmpty()) {
-		// 	return false;
-		// }
-		//TODO check if slave is still connected
-		return slave.get().isConnected();
+		if (slave.isPresent()) {
+			return slave.get().isConnected();
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override

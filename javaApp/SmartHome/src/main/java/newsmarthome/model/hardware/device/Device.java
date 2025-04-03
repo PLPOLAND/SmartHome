@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import jakarta.persistence.Transient;
+import lombok.extern.log4j.Log4j2;
 import newsmarthome.i2c.BaseConverter;
 import newsmarthome.i2c.I2C;
 import newsmarthome.i2c.I2CHardware;
@@ -34,31 +36,32 @@ import newsmarthome.exception.SoftwareException;
     @JsonSubTypes.Type(value = Blind.class, name = "Blind")
     })
 @Component
-//TODO flaga czy wifi czy i2c i wtedy odpowiedni konwerter
+@Log4j2
 public abstract class Device {
     private static final String NOT_IMPLEMENTED_HERE = "Wywołano funkcję nie implementowaną w klasie bazowej Device!";
 
     
     @JsonIgnore
+    @Transient
     @Autowired
     public MasterToSlaveConverter i2CSender;
 
     @JsonIgnore
+    @Transient
     @Autowired
     public WiFiMasterToSlaveConverter wifiSender;
 
     @JsonIgnore
+    @Transient
     public BaseConverter sender;
 
     @JsonIgnore
     /** Czy urządzenie zostało skonfigurowane na slave-ie */
     private boolean isConfigured = false;
 
-    @JsonIgnore
-    /** Logger Springa */
-    Logger logger;
 
     @JsonIgnore
+    @Transient
     SystemDAO systemDAO; //TODO implement save() method
 
     /** Id urządzenia w systemie */
@@ -87,7 +90,6 @@ public abstract class Device {
         this.typ = DeviceTypes.NONE;
         this.isWifi = false;
         this.sender = null;
-        logger = LoggerFactory.getLogger(Device.class);
         name = "Undefined";
         // logger.info("Stworzono pusty Device");
     }
@@ -99,7 +101,6 @@ public abstract class Device {
         this.typ = type;
         this.isWifi = isWifi;
         this.sender = isWifi ? wifiSender : i2CSender;
-        logger = LoggerFactory.getLogger(Device.class);
     }
 
     protected Device(int slaveID, DeviceTypes type, boolean isWifi){
@@ -110,7 +111,6 @@ public abstract class Device {
         this.typ = type;
         this.isWifi = isWifi;
         this.sender = isWifi ? wifiSender : i2CSender;
-        logger = LoggerFactory.getLogger(Device.class);
     }
     
     protected Device(int id, int room, int slaveID,DeviceTypes type, boolean isWifi){
@@ -121,8 +121,6 @@ public abstract class Device {
         this.typ = type;
         this.isWifi = isWifi;
         this.sender = isWifi ? wifiSender : i2CSender;
-        logger = LoggerFactory.getLogger(Device.class);
-        // logger.info("Stworzono Device:" + this.toString());
     }
 
     public void setWifi(boolean isWifi){

@@ -83,6 +83,7 @@ public class WifiSlave implements Runnable {
         this.in = in;
     }
 
+    
     @Override
     public void run() {
         log.info("Uruchomiono wątek dla klienta: {}", id);
@@ -107,6 +108,7 @@ public class WifiSlave implements Runnable {
                         log.info("Otrzymano: pong");
                         continue;
                     }
+                    //TODO handle input
                     log.info("Otrzymano: {}", inputLine);
                 }
             }
