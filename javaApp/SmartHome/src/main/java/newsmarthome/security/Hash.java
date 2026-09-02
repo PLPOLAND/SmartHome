@@ -26,4 +26,7 @@ public class Hash {
         }
         return result;
     }
+    public static void main(String[] args) {
+        System.out.println(hash("Dziadunio"));
+    }
 }

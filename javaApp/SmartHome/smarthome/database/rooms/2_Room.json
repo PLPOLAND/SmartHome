@@ -9,7 +9,7 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "state" : "OFF",
+    "state" : "ON",
     "pin" : 13
   }, {
     "@type" : "Light",
@@ -19,7 +19,7 @@
     "onSlaveID" : 1,
     "name" : "Poziom 2",
     "typ" : "LIGHT",
-    "state" : "ON",
+    "state" : "OFF",
     "pin" : 12
   }, {
     "@type" : "Blind",
@@ -29,29 +29,17 @@
     "onSlaveID" : 2,
     "name" : "Marcin",
     "typ" : "BLIND",
-    "state" : "UP",
-    "switchUp" : {
-      "stan" : "ON",
-      "pin" : 15
-    },
+    "state" : "DOWN",
     "switchDown" : {
-      "stan" : "OFF",
+      "stan" : "ON",
       "pin" : 16
+    },
+    "switchUp" : {
+      "stan" : "OFF",
+      "pin" : 15
     }
   } ],
   "sensors" : [ {
-    "@type" : "Termometr",
-    "id" : 101,
-    "room" : 2,
-    "onSlaveID" : -1,
-    "addres" : [ 40, 97, 100, 17, 141, 241, 21, 222 ],
-    "nazwa" : "Marcin",
-    "typ" : "THERMOMETR",
-    "temperatura" : 23.56,
-    "maxTemperatura" : 1.4E-45,
-    "minTemperatura" : 23.56,
-    "slaveAdress" : 13
-  }, {
     "@type" : "Button",
     "id" : 105,
     "room" : 2,
@@ -72,7 +60,7 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "state" : "OFF",
+        "state" : "ON",
         "pin" : 13
       }
     }, {
@@ -87,7 +75,7 @@
         "onSlaveID" : 1,
         "name" : "Poziom 2",
         "typ" : "LIGHT",
-        "state" : "ON",
+        "state" : "OFF",
         "pin" : 12
       }
     } ],
@@ -113,14 +101,14 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
-        "state" : "UP",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "DOWN",
         "switchDown" : {
-          "stan" : "OFF",
+          "stan" : "ON",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     }, {
@@ -135,14 +123,14 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
-        "state" : "UP",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "DOWN",
         "switchDown" : {
-          "stan" : "OFF",
+          "stan" : "ON",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     }, {
@@ -157,18 +145,30 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
-        "state" : "UP",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "DOWN",
         "switchDown" : {
-          "stan" : "OFF",
+          "stan" : "ON",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     } ],
     "slaveAdress" : 13
+  }, {
+    "@type" : "Termometr",
+    "id" : 101,
+    "room" : 2,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 141, 241, 21, 222 ],
+    "nazwa" : "Marcin",
+    "typ" : "THERMOMETR",
+    "temperatura" : 0.0,
+    "maxTemperatura" : 0.0,
+    "minTemperatura" : 3.4028235E38,
+    "slaveAdress" : -1
   } ],
   "loaded" : false
 }

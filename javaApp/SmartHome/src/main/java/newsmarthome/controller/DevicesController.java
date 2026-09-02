@@ -36,15 +36,19 @@ import newsmarthome.model.user.User;
 @RequestMapping("/api")
 public class DevicesController {
 
-	@Autowired
-	UsersDAO users;
-	@Autowired
-	SystemDAO systemDAO;
+	final UsersDAO users;
+	final SystemDAO systemDAO;
 
-	@Autowired
-	HardwareFactory hardwareFactory;
+	final HardwareFactory hardwareFactory;
 
-	Logger logger = LoggerFactory.getLogger(DevicesController.class);//logger
+	Logger logger = LoggerFactory.getLogger(DevicesController.class);
+	
+	
+    DevicesController(@Autowired UsersDAO users, @Autowired SystemDAO systemDAO, @Autowired HardwareFactory hardwareFactory) {
+        this.users = users;
+        this.systemDAO = systemDAO;
+        this.hardwareFactory = hardwareFactory;
+    }
 
 	@GetMapping("/getDevices")
 	public Response<ArrayList<Device>> getDevices(HttpServletRequest request) {

@@ -16,7 +16,8 @@ import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
 
 /**
- * ButtonFunction
+ * ButtonFunction - klasa reprezentująca funkcję przycisku.
+ * Fukcje przycisku to, funkcja pozwalająca na grupowe załączanie i wyłączanie urządzeń po wykonaniu odpowiedniej akcji używając przycisku.
  */
 @Component
 @Scope("prototype")

@@ -1,0 +1,60 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 17,
+  "name" : "Wiatrołap z garażu",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 53,
+      "room" : 13,
+      "slaveID" : 22,
+      "onSlaveID" : 0,
+      "name" : "Wiatrołap",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 13
+      },
+      "pin" : 13,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  } ],
+  "reversState" : true,
+  "type" : "BUTTON",
+  "button" : {
+    "@type" : "Button",
+    "id" : 129,
+    "room" : 14,
+    "onSlaveID" : 2,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 61,
+        "room" : 14,
+        "slaveID" : 7,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "ON",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "ON"
+      }
+    } ],
+    "slaveAdress" : 7
+  },
+  "clicks" : 1,
+  "clickType" : "HOLDED",
+  "active" : false
+}

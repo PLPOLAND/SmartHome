@@ -9,7 +9,7 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "state" : "OFF",
+    "state" : "ON",
     "pin" : 13
   }, {
     "@type" : "Blind",
@@ -19,14 +19,14 @@
     "onSlaveID" : 1,
     "name" : "Kuchnia",
     "typ" : "BLIND",
-    "state" : "NOTKNOW",
+    "state" : "DOWN",
+    "switchDown" : {
+      "stan" : "ON",
+      "pin" : 16
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 15
-    },
-    "switchDown" : {
-      "stan" : "OFF",
-      "pin" : 16
     }
   }, {
     "@type" : "Light",
@@ -38,6 +38,20 @@
     "typ" : "LIGHT",
     "state" : "OFF",
     "pin" : 12
+  }, {
+    "@type" : "Fan",
+    "id" : 158,
+    "room" : 11,
+    "slaveID" : 21,
+    "onSlaveID" : 4,
+    "name" : "Wentylator",
+    "typ" : "WENTYLATOR",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
+    "state" : "OFF",
+    "pin" : 16
   } ],
   "sensors" : [ {
     "@type" : "Button",
@@ -60,7 +74,7 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "state" : "OFF",
+        "state" : "ON",
         "pin" : 13
       }
     }, {
@@ -101,14 +115,14 @@
         "onSlaveID" : 1,
         "name" : "Kuchnia",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
+        "state" : "DOWN",
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
         }
       }
     }, {
@@ -123,14 +137,14 @@
         "onSlaveID" : 1,
         "name" : "Kuchnia",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
+        "state" : "DOWN",
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
         }
       }
     }, {
@@ -145,17 +159,29 @@
         "onSlaveID" : 1,
         "name" : "Kuchnia",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
+        "state" : "DOWN",
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
         "switchUp" : {
           "stan" : "OFF",
           "pin" : 15
-        },
-        "switchDown" : {
-          "stan" : "OFF",
-          "pin" : 16
         }
       }
     } ],
+    "slaveAdress" : 10
+  }, {
+    "@type" : "Termometr",
+    "id" : 47,
+    "room" : 11,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 255, 100, 14, 123, 109, 16, 51 ],
+    "nazwa" : "Kuchnia",
+    "typ" : "THERMOMETR",
+    "temperatura" : 22.13,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 22.13,
     "slaveAdress" : 10
   } ],
   "loaded" : false

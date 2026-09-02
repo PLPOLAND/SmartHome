@@ -1,23 +1,96 @@
 {
   "@type" : "ButtonFunction",
   "id" : 0,
-  "name" : "",
-  "actions" : [ ],
+  "name" : "Światła Marek",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 9,
+      "room" : 3,
+      "slaveID" : 15,
+      "onSlaveID" : 1,
+      "name" : "Poziom 1",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "ON",
+        "pin" : 13
+      },
+      "pin" : 13,
+      "state" : "ON"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Light",
+      "id" : 10,
+      "room" : 3,
+      "slaveID" : 15,
+      "onSlaveID" : 2,
+      "name" : "Poziom 2",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "ON",
+        "pin" : 12
+      },
+      "pin" : 12,
+      "state" : "ON"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  } ],
   "reversState" : true,
-  "type" : "NOTKNOWN",
   "button" : {
     "@type" : "Button",
-    "id" : 1,
-    "room" : 0,
-    "onSlaveID" : -1,
+    "id" : 106,
+    "room" : 3,
+    "onSlaveID" : 4,
     "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "",
+    "name" : "Światło",
     "typ" : "BUTTON",
-    "pin" : 0,
-    "funkcjeKlikniec" : [ ],
-    "slaveAdress" : 0
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 9,
+        "room" : 3,
+        "slaveID" : 15,
+        "onSlaveID" : 1,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 10,
+        "room" : 3,
+        "slaveID" : 15,
+        "onSlaveID" : 2,
+        "name" : "Poziom 2",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
+        "pin" : 12,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 15
   },
-  "clicks" : 1,
+  "clicks" : 3,
   "clickType" : "CLICKED",
   "active" : true
 }

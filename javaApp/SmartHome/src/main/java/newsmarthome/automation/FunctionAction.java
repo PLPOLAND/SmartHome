@@ -35,11 +35,11 @@ public class FunctionAction {
         this.activeDeviceState = activeDeviceState;
         this.allowReverse = allowReverse;
     }
-    public FunctionAction(int device, DeviceState activeDeviceState, boolean allowReverse){
-        // this.device = SmartHomeApp.getApp().getBean(System.class).getDeviceByID(device);//TODO zrobić to lepiej
-        this.activeDeviceState = activeDeviceState;
-        this.allowReverse = allowReverse;
-    }
+    // public FunctionAction(int device, DeviceState activeDeviceState, boolean allowReverse){
+    //     // this.device = SmartHomeApp.getApp().getBean(System.class).getDeviceByID(device);//TODO zrobić to lepiej
+    //     this.activeDeviceState = activeDeviceState;
+    //     this.allowReverse = allowReverse;
+    // }
 
     public Device getDevice() {
         return device;
@@ -119,39 +119,39 @@ public class FunctionAction {
         return obj instanceof FunctionAction && ((FunctionAction) obj).device.getId() == device.getId();
     }
 
-    public static FunctionAction valueOf(String action) {
-        action = action.replace("\"", "");
-        action = action.replace("{", "");
-        action = action.replace("}", "");
-        action = action.replace("[", "");
-        action = action.replace("]", "");
-        String[] actionParts = action.split(",");
+    // public static FunctionAction valueOf(String action) {
+    //     action = action.replace("\"", "");
+    //     action = action.replace("{", "");
+    //     action = action.replace("}", "");
+    //     action = action.replace("[", "");
+    //     action = action.replace("]", "");
+    //     String[] actionParts = action.split(",");
 
-        int deviceID = -1;
-        DeviceState state = null;
-        boolean allowReverse = false;
+    //     int deviceID = -1;
+    //     DeviceState state = null;
+    //     boolean allowReverse = false;
 
-        for (String string : actionParts) {
-            String[] str = string.split(":");
-            switch (str[0]) {
-                case "device":
-                    deviceID = Integer.parseInt(str[1]);
-                    break;
-                case "activeDeviceState":
-                    state = DeviceState.valueOf(str[1]);
-                    break;
-                case "allowReverse":
-                    allowReverse = Boolean.parseBoolean(str[1]);
-                    break;
-                default:
-                    break;
-            }
-        }
+    //     for (String string : actionParts) {
+    //         String[] str = string.split(":");
+    //         switch (str[0]) {
+    //             case "device":
+    //                 deviceID = Integer.parseInt(str[1]);
+    //                 break;
+    //             case "activeDeviceState":
+    //                 state = DeviceState.valueOf(str[1]);
+    //                 break;
+    //             case "allowReverse":
+    //                 allowReverse = Boolean.parseBoolean(str[1]);
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     }
         
-        java.lang.System.out.println(Arrays.toString(actionParts));
-        if (deviceID == -1 || state == null){
-            return null;
-        }
-        return new FunctionAction(deviceID, state, allowReverse);
-    }
+    //     java.lang.System.out.println(Arrays.toString(actionParts));
+    //     if (deviceID == -1 || state == null){
+    //         return null;
+    //     }
+    //     return new FunctionAction(deviceID, state, allowReverse);
+    // }
 }

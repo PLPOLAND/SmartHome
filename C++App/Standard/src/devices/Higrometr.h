@@ -6,7 +6,7 @@
 #include<Timers.h>
 #include "devices/Device.h"
 
-#define DHTTYPE DHT11
+#define DHTTYPE DHT22 
 #define DHTPIN 10
 
 class Higrometr : public Device

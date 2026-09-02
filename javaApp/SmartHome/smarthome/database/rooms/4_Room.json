@@ -29,14 +29,14 @@
     "onSlaveID" : 2,
     "name" : "Gościnny",
     "typ" : "BLIND",
-    "state" : "UP",
-    "switchUp" : {
-      "stan" : "ON",
-      "pin" : 15
-    },
+    "state" : "NOTKNOW",
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
+    },
+    "switchUp" : {
+      "stan" : "OFF",
+      "pin" : 15
     }
   } ],
   "sensors" : [ {
@@ -101,14 +101,14 @@
         "onSlaveID" : 2,
         "name" : "Gościnny",
         "typ" : "BLIND",
-        "state" : "UP",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     }, {
@@ -123,14 +123,14 @@
         "onSlaveID" : 2,
         "name" : "Gościnny",
         "typ" : "BLIND",
-        "state" : "UP",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     }, {
@@ -145,17 +145,29 @@
         "onSlaveID" : 2,
         "name" : "Gościnny",
         "typ" : "BLIND",
-        "state" : "UP",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
         }
       }
     } ],
+    "slaveAdress" : 16
+  }, {
+    "@type" : "Termometr",
+    "id" : 54,
+    "room" : 4,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 255, 100, 14, 123, 103, 222, 1 ],
+    "nazwa" : "Gościnny",
+    "typ" : "THERMOMETR",
+    "temperatura" : 3.4028235E38,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 3.4028235E38,
     "slaveAdress" : 16
   } ],
   "loaded" : false

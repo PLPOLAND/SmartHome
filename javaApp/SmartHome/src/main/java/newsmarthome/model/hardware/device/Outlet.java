@@ -80,7 +80,7 @@ public class Outlet extends Device{
      */
     private void sendStateToSlave(DeviceState stan) {
         try {
-            if (!isConfigured()) {
+            if (isConfigured()) {
                 slaveSender.changeSwitchState(getOnSlaveID(), getSlaveID(), stan);
                 logger.debug("Zmieniono stan urządzenia {}" , this);
             }

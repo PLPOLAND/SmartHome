@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -17,20 +19,24 @@ import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SlaveNotFoundException;
 
 @Service
 public class I2CHardware implements I2C{
 
-    ArrayList<I2CDevice> devices;
+    ArrayList<I2CSlave> devices;
     Logger logger;
 
     //Do restartowania
     GpioController gpio;
     GpioPinDigitalOutput pin;
     volatile boolean isOccupied = false;
+
+    PriorityBlockingQueue<I2CMessage> queue = new PriorityBlockingQueue<>(40, I2CMessage::compareByPriorityTo);
 
     public I2CHardware() {
         logger = LoggerFactory.getLogger(this.getClass());
@@ -47,6 +53,33 @@ public class I2CHardware implements I2C{
         }catch (Exception e) {
             logger.error("platform does not support this driver");
 
+        }
+    }
+
+    /**
+     *  Wysyła wiadomości z kolejki
+     */
+    @Scheduled(fixedDelay = 1)
+    public void sendMessages() {
+        I2CMessage msg = null;
+        try {
+            if (queue.isEmpty()) {
+                logger.debug("I2C Queue is empty");
+                return;
+
+            }
+            msg = queue.peek();
+            logger.debug("Sending message: {}", msg);
+            writeMessage(msg);
+            msg.setSent();
+            queue.remove(msg);
+        } catch (HardwareException e) {
+            msg.setError();
+            logger.error("Error while sending messages", e);
+        } catch (SlaveNotFoundException e) {
+            msg.setError();
+            logger.error("Error while sending messages", e);
+            restartSlaves();
         }
     }
     /**
@@ -75,13 +108,13 @@ public class I2CHardware implements I2C{
     }
 
     public void pauseIfOcupied() {
-        while (isOccupied) {
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
+        // while (isOccupied) {
+        //     try {
+        //         Thread.sleep(5);
+        //     } catch (InterruptedException e) {
+        //         logger.error(e.getMessage(), e);
+        //     }
+        // }
     }
 
     public void findAll(){
@@ -108,23 +141,23 @@ public class I2CHardware implements I2C{
                     device.read(buffer, 0, 8);
                     logger.debug("Znaleziono Slave o adresie: {}",i);
                     boolean was = false;
-                    for (I2CDevice dev : devices) {
-                        if (dev.getAddress() == i) {
+                    for (I2CSlave dev : devices) {
+                        if (dev.getDevice().getAddress() == i) {
                             was = true;
                             break;
                         }
                     }
                     if (!was) {
-                        devices.add(device);
+                        devices.add(new I2CSlave(device));
                         logger.debug("Dodano Slave o adresie: {}", i);
                     }
                     if (!validAddresses.contains(i)) {
                         validAddresses.add(i);
                     }
                 } catch (Exception ignore) {
-                    I2CDevice tmp = null;
-                    for (I2CDevice dev : devices) {
-                        if (dev.getAddress() == i) {
+                    I2CSlave tmp = null;
+                    for (I2CSlave dev : devices) {
+                        if (dev.getDevice().getAddress() == i) {
                             tmp = dev;
                             break;
                         }
@@ -145,76 +178,81 @@ public class I2CHardware implements I2C{
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
     }
     
-
+    
     public void writeTo(int adres, byte[] buffer) throws HardwareException{
         logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
 
-        I2CDevice tmp = null;
-        for (I2CDevice device : devices) {
-            if (device.getAddress() == adres) {
+        I2CMessage msg = new I2CMessage(adres, buffer);
+
+        if (queue.contains(msg)) {
+            logger.warn("Message already in queue");
+            return;
+        }
+        queue.add(msg);
+        msg.waitToSend();//czekanie na wysłanie
+        if (msg.isError()) {   
+            throw new HardwareException("Błąd podczas wysyłania wiadomości do Slave-a o adresie: " + adres);
+        } else {
+            logger.debug("Wiadomość wysłana do Slave-a o adresie: {}", adres);
+        }
+
+    }
+    
+    public void writeTo(int adres, byte[] buffer,int priority) throws HardwareException{
+        logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
+
+        I2CMessage msg = new I2CMessage(adres,buffer,priority);
+
+        if (queue.contains(msg)) {
+            logger.warn("Message already in queue");
+            return;
+        }
+        queue.add(msg);
+        msg.waitToSend();//czekanie na wysłanie
+        if (msg.isError()) {   
+            throw new HardwareException("Błąd podczas wysyłania wiadomości do Slave-a o adresie: " + adres);
+        } else {
+            logger.debug("Wiadomość wysłana do Slave-a o adresie: {}", adres);
+        }
+
+    }
+    private void writeMessage(I2CMessage msg) throws HardwareException, SlaveNotFoundException{
+        logger.debug("Writing {} -> '{}'", Arrays.toString(msg.getData()),msg.getAddress());
+
+        I2CSlave tmp = null;
+        for (I2CSlave device : devices) {
+            if (device.getDevice().getAddress() == msg.getAddress()) {
                 tmp = device;
             }
         }
         if (tmp == null) {
-            throw new HardwareException("System nie znalazł Slave-a o takim adresie: "+ adres);
+            throw new SlaveNotFoundException("System nie znalazł Slave-a o takim adresie: "+ msg.getAddress());
         } else {
             try {
-
-                // Thread.sleep(100);
-                tmp.write(buffer);
-                
-                
+                tmp.getDevice().write(msg.getData());
             } catch (IOException e) {
                 try {
-                    retryWrite(buffer, tmp);
+                    retryWrite(msg.getData(), tmp.getDevice());
                 } catch (HardwareException h) {
                     this.restartSlaves();
                     throw h;
                 }
 
             } 
-        //     catch (InterruptedException e) {
-        //        //TODO Auto-generated catch block
-        //         e.printStackTrace();
-        //    }
         }
     }
-    public void writeTo(int adres, byte[] buffer, int size) throws HardwareException{
-        I2CDevice tmp = null;
+    public void writeToSized(int adres, byte[] buffer, int size) throws HardwareException, SlaveNotFoundException{
         byte[] tmpbuff = new byte[size];
-        for (I2CDevice device : devices) {
-            if (device.getAddress() == adres) {
-                tmp = device;
-            }
-        }
-        if (tmp == null) {
-            throw new HardwareException("System nie znalazł Slave-a o takim adresie: " + adres);
-        } else {
-            for (int i = 0; i < size; i++) {
-                tmpbuff[i] = buffer[i];
-            }
-            try {
-                //Thread.sleep(100);
-                tmp.write(tmpbuff);
-            } catch (IOException e) {
-                try {
-                    retryWrite(buffer, tmp);
-                } catch (HardwareException h) {
-                    this.restartSlaves();
-                    throw h;
-                }
-
-            } //catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                //e.printStackTrace();
-          //  }
-        }
+        
+        System.arraycopy(buffer, 0, tmpbuff, 0, size);//kopiowanie tablicy do nowej tablicy o odpowiednim rozmiarze
+        
+        writeMessage(new I2CMessage(adres, tmpbuff));
     }
     public byte[] readFrom(int adres, int size) throws HardwareException{
         byte[] buffer = new byte[size];
-        I2CDevice tmp = null;
-        for (I2CDevice device : devices) {
-            if(device.getAddress() == adres){
+        I2CSlave tmp = null;
+        for (I2CSlave device : devices) {
+            if(device.getDevice().getAddress() == adres){
                 tmp = device;
             }
         }
@@ -225,10 +263,10 @@ public class I2CHardware implements I2C{
             try {
 
                 //Thread.sleep(100);
-                tmp.read(buffer, 0, size);
+                tmp.getDevice().read(buffer, 0, size);
             } catch (IOException e) {
                 try {
-                    retryRead(tmp, size, buffer);
+                    retryRead(tmp.getDevice(), size, buffer);
                     
                 } catch (HardwareException h) {
                     this.restartSlaves();
@@ -276,10 +314,19 @@ public class I2CHardware implements I2C{
     @Override
     public List<Integer> getDevices() {
         List<Integer> tmp = new ArrayList<>();
-        for (I2CDevice device : devices) {
-            tmp.add(device.getAddress());
+        for (I2CSlave device : devices) {
+            tmp.add(device.getDevice().getAddress());
         }
         return tmp;
+    }
+
+    protected I2CSlave findDevice(int address) throws SlaveNotFoundException{
+        for (I2CSlave device : devices) {
+            if (device.getDevice().getAddress() == address) {
+                return device;
+            }
+        }
+        throw new SlaveNotFoundException("System nie znalazł Slave-a o takim adresie: " + address);
     }
 
     public void retryWrite(byte[] toWrite, I2CDevice slave) throws HardwareException{
@@ -325,8 +372,8 @@ public class I2CHardware implements I2C{
             return buff;
     }
     @Override
-    public void write(int address, byte[] buffer, int size) throws HardwareException{
-        writeTo(address, buffer, size);
+    public void write(int address, byte[] buffer, int size) throws HardwareException, SlaveNotFoundException{
+        writeToSized(address, buffer, size);
     }
     @Override
     public byte[] read(int address, int size, int commandID) throws HardwareException{

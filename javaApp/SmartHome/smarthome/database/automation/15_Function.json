@@ -1,0 +1,97 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 15,
+  "name" : "Marcin Światło Full",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 4,
+      "room" : 2,
+      "slaveID" : 13,
+      "onSlaveID" : 0,
+      "name" : "Poziom 1",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 13
+      },
+      "pin" : 13,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Light",
+      "id" : 5,
+      "room" : 2,
+      "slaveID" : 13,
+      "onSlaveID" : 1,
+      "name" : "Poziom 2",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 12
+      },
+      "pin" : 12,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  } ],
+  "reversState" : true,
+  "type" : "BUTTON",
+  "button" : {
+    "@type" : "Button",
+    "id" : 105,
+    "room" : 2,
+    "onSlaveID" : 3,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 4,
+        "room" : 2,
+        "slaveID" : 13,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 5,
+        "room" : 2,
+        "slaveID" : 13,
+        "onSlaveID" : 1,
+        "name" : "Poziom 2",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
+        "pin" : 12,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 13
+  },
+  "clicks" : 3,
+  "clickType" : "CLICKED",
+  "active" : false
+}

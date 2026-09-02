@@ -6,7 +6,7 @@ Higrometr::Higrometr() : Device(TYPE::HIGROMETR)
 
     dht = new DHT(DHTPIN, DHTTYPE);
     timer = new Timer();
-    timer->begin(2000U);
+    timer->begin(15000U);
     timer->restart();
     dht->begin();
 }
@@ -54,7 +54,8 @@ void Higrometr::update()
 
 bool Higrometr::isCorrect()
 {
-    return (humidity != 0 && temperature != NAN);
+    return true;
+    // return (humidity != 0 && temperature != NAN);
 }
 
 byte* Higrometr::getStateAsByteArray()

@@ -9,7 +9,7 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "state" : "ON",
+    "state" : "OFF",
     "pin" : 13
   }, {
     "@type" : "Blind",
@@ -19,14 +19,14 @@
     "onSlaveID" : 1,
     "name" : "Łazienka Duża",
     "typ" : "BLIND",
-    "state" : "NOTKNOW",
-    "switchUp" : {
-      "stan" : "OFF",
-      "pin" : 15
-    },
+    "state" : "UP",
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
+    },
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
     }
   } ],
   "sensors" : [ {
@@ -50,7 +50,7 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "state" : "ON",
+        "state" : "OFF",
         "pin" : 13
       }
     } ],
@@ -76,14 +76,14 @@
         "onSlaveID" : 1,
         "name" : "Łazienka Duża",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     }, {
@@ -98,14 +98,14 @@
         "onSlaveID" : 1,
         "name" : "Łazienka Duża",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     }, {
@@ -120,14 +120,14 @@
         "onSlaveID" : 1,
         "name" : "Łazienka Duża",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     } ],

@@ -19,14 +19,14 @@
     "onSlaveID" : 1,
     "name" : "Garderoba",
     "typ" : "BLIND",
-    "state" : "NOTKNOW",
-    "switchUp" : {
-      "stan" : "OFF",
-      "pin" : 15
-    },
+    "state" : "UP",
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
+    },
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
     }
   } ],
   "sensors" : [ {
@@ -57,9 +57,9 @@
     "slaveAdress" : 8
   }, {
     "@type" : "Button",
-    "id" : 115,
+    "id" : 550,
     "room" : 1,
-    "onSlaveID" : 4,
+    "onSlaveID" : -1,
     "addres" : null,
     "nazwa" : "Rolety",
     "typ" : "BUTTON",
@@ -76,14 +76,14 @@
         "onSlaveID" : 1,
         "name" : "Garderoba",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     }, {
@@ -98,14 +98,14 @@
         "onSlaveID" : 1,
         "name" : "Garderoba",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     }, {
@@ -120,14 +120,14 @@
         "onSlaveID" : 1,
         "name" : "Garderoba",
         "typ" : "BLIND",
-        "state" : "NOTKNOW",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
+        },
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
         }
       }
     } ],

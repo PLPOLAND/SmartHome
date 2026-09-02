@@ -1,0 +1,79 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 10,
+  "name" : "Wiatrołap z przedsionka",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 53,
+      "room" : 13,
+      "slaveID" : 22,
+      "onSlaveID" : 0,
+      "name" : "Wiatrołap",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 13
+      },
+      "pin" : 13,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  } ],
+  "reversState" : true,
+  "type" : "BUTTON",
+  "button" : {
+    "@type" : "Button",
+    "id" : 125,
+    "room" : 10,
+    "onSlaveID" : 2,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło Przedsionek",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 50,
+        "room" : 10,
+        "slaveID" : 21,
+        "onSlaveID" : 0,
+        "name" : "Przedpokój",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 51,
+        "room" : 10,
+        "slaveID" : 21,
+        "onSlaveID" : 1,
+        "name" : "Przedpokój/Jadalnia",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
+        "pin" : 12,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 21
+  },
+  "clicks" : 3,
+  "clickType" : "CLICKED",
+  "active" : false
+}

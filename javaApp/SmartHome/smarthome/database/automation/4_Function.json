@@ -1,0 +1,96 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 4,
+  "name" : "Przedpokój z łazienki",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 50,
+      "room" : 10,
+      "slaveID" : 21,
+      "onSlaveID" : 0,
+      "name" : "Przedpokój",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 13
+      },
+      "pin" : 13,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Light",
+      "id" : 51,
+      "room" : 10,
+      "slaveID" : 21,
+      "onSlaveID" : 1,
+      "name" : "Przedpokój/Jadalnia",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 12
+      },
+      "pin" : 12,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Light",
+      "id" : 52,
+      "room" : 11,
+      "slaveID" : 10,
+      "onSlaveID" : 2,
+      "name" : "Jadalnia",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 12
+      },
+      "pin" : 12,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  } ],
+  "reversState" : true,
+  "type" : "BUTTON",
+  "button" : {
+    "@type" : "Button",
+    "id" : 108,
+    "room" : 5,
+    "onSlaveID" : 1,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 36,
+        "room" : 5,
+        "slaveID" : 12,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 12
+  },
+  "clicks" : 2,
+  "clickType" : "CLICKED",
+  "active" : false
+}

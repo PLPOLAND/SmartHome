@@ -43,7 +43,7 @@ public class UsersDAO {
     public UsersDAO() {
         this.readDatabase();
         if (userzy.isEmpty()) {
-            this.createUser(new User(0L, "root", "root", "root", "", Hash.hash("root"), "","", ""));
+            this.createUser(new User(0L, "root", "root", "root", "", Hash.hash("root"), "","", "", ""));
         }
     }
 

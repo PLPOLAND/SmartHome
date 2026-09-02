@@ -99,6 +99,18 @@
       }
     } ],
     "slaveAdress" : 22
+  }, {
+    "@type" : "Termometr",
+    "id" : 53,
+    "room" : 13,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 255, 100, 14, 123, 127, 123, 11 ],
+    "nazwa" : "Wiatrołap",
+    "typ" : "THERMOMETR",
+    "temperatura" : 3.4028235E38,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 3.4028235E38,
+    "slaveAdress" : 22
   } ],
   "loaded" : false
 }

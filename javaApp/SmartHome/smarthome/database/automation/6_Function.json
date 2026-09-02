@@ -1,0 +1,60 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 6,
+  "name" : "Światło Korytarz z garderoby ",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 11,
+      "room" : 8,
+      "slaveID" : 9,
+      "onSlaveID" : 0,
+      "name" : "Poziom 1",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "ON",
+        "pin" : 13
+      },
+      "pin" : 13,
+      "state" : "ON"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  } ],
+  "reversState" : true,
+  "type" : "BUTTON",
+  "button" : {
+    "@type" : "Button",
+    "id" : 104,
+    "room" : 1,
+    "onSlaveID" : 3,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 0,
+        "room" : 1,
+        "slaveID" : 8,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 8
+  },
+  "clicks" : 2,
+  "clickType" : "CLICKED",
+  "active" : true
+}

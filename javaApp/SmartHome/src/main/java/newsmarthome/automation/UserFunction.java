@@ -19,6 +19,7 @@ public class UserFunction extends Function {
         super( FunctionType.USER );
         user = null;
         privateFunction = false;
+        room = null;
     }
 
     public User getUser() {
