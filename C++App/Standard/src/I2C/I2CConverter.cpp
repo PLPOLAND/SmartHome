@@ -587,10 +587,12 @@ void I2CConverter::addToSent(Command *command){
     }
     else
     {
-        delete this->doWyslania.get(3);
-        this->doWyslania.set(3, command);//TODO Pomyśleć nad lepszym rozwiązaniem 
+        // Kolejka pełna (rozmiar 3, indeksy 0-2) - nadpisz ostatni element zamiast
+        // odwoływać się do nieistniejącego indeksu 3 (powodowało to dereferencję NULL i zawieszenie).
+        delete this->doWyslania.get(2);
+        this->doWyslania.set(2, command);//TODO Pomyśleć nad lepszym rozwiązaniem
     }
-    
+
 }
 
 /*
