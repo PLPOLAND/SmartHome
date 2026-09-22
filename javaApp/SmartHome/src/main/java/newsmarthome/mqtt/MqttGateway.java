@@ -1,8 +1,13 @@
 package newsmarthome.mqtt;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
 
@@ -44,17 +49,31 @@ public class MqttGateway {
     @Value("${mqtt.base-topic}")
     private String baseTopic;
 
+    private static final long INITIAL_CONNECT_RETRY_SECONDS = 10;
+
     private MqttClient client;
+    private MqttConnectOptions options;
     private final Map<String, IMqttMessageListener> subscriptions = new ConcurrentHashMap<>();
+    private final List<Runnable> connectListeners = new CopyOnWriteArrayList<>();
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "mqtt-gateway");
+        t.setDaemon(true);
+        return t;
+    });
 
     public String getBaseTopic() {
         return baseTopic;
     }
 
+    /** Listener uruchamiany po każdym udanym (re)connect, poza wątkiem callbacków Paho. */
+    public void addConnectListener(Runnable listener) {
+        connectListeners.add(listener);
+    }
+
     public synchronized void connect() {
         try {
             client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
-            MqttConnectOptions options = new MqttConnectOptions();
+            options = new MqttConnectOptions();
             options.setAutomaticReconnect(true);
             options.setCleanSession(true);
             if (username != null && !username.isEmpty()) {
@@ -75,6 +94,9 @@ public class MqttGateway {
                     // zanim broker zdąży ją do nas dostarczyć (okno na utratę komendy po reconnect).
                     resubscribeAll();
                     publish(availabilityTopic, "online", true);
+                    // Discovery (retained) może nie dotrzeć do brokera, jeśli był niedostępny przy starcie,
+                    // albo zostać wyczyszczony po restarcie brokera bez persystencji - republikujemy go zawsze.
+                    executor.execute(() -> connectListeners.forEach(MqttGateway.this::runListener));
                 }
 
                 @Override
@@ -92,9 +114,30 @@ public class MqttGateway {
                     // brak akcji - publikacje nie są śledzone
                 }
             });
+        } catch (MqttException e) {
+            logger.error("Nie udało się utworzyć klienta MQTT ({}): {}", brokerUrl, e.getMessage());
+            return;
+        }
+        tryInitialConnect();
+    }
+
+    // automaticReconnect w Paho działa dopiero po pierwszym udanym połączeniu, więc pierwszą próbę
+    // ponawiamy sami, dopóki broker nie stanie się dostępny.
+    private void tryInitialConnect() {
+        try {
             client.connect(options);
         } catch (MqttException e) {
-            logger.error("Nie udało się połączyć z brokerem MQTT ({}): {}", brokerUrl, e.getMessage());
+            logger.error("Nie udało się połączyć z brokerem MQTT ({}): {}. Ponowna próba za {}s", brokerUrl,
+                    e.getMessage(), INITIAL_CONNECT_RETRY_SECONDS);
+            executor.schedule(this::tryInitialConnect, INITIAL_CONNECT_RETRY_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    private void runListener(Runnable listener) {
+        try {
+            listener.run();
+        } catch (RuntimeException e) {
+            logger.error("Błąd w listenerze połączenia MQTT: {}", e.getMessage(), e);
         }
     }
 
@@ -110,6 +153,7 @@ public class MqttGateway {
 
     @PreDestroy
     public void disconnect() {
+        executor.shutdownNow();
         try {
             if (client != null && client.isConnected()) {
                 publish(MqttTopics.availabilityTopic(baseTopic), "offline", true);
@@ -146,7 +190,8 @@ public class MqttGateway {
     public void subscribe(String topicFilter, IMqttMessageListener listener) {
         subscriptions.put(topicFilter, listener);
         try {
-            if (client != null) {
+            // gdy niepołączony, subskrypcję odtworzy resubscribeAll() w connectComplete
+            if (client != null && client.isConnected()) {
                 client.subscribe(topicFilter, 1, listener);
             }
         } catch (MqttException e) {

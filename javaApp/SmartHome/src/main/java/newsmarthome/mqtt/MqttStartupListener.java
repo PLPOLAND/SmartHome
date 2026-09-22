@@ -25,8 +25,8 @@ public class MqttStartupListener implements ApplicationListener<ApplicationReady
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
+        gateway.addConnectListener(discoveryPublisher::publishAll);
         gateway.connect();
         commandHandler.subscribe();
-        discoveryPublisher.publishAll();
     }
 }
