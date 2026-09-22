@@ -312,8 +312,7 @@ public class Runners {
                         if (tmp != null) {
 
                             termometr.setRoom(tmp.getID());
-                            tmp.addSensor(termometr);
-                            systemDAO.save(tmp);
+                            systemDAO.addSensor(tmp, termometr);
                             haDiscoveryPublisher.publishSensor(termometr);
                         } else {
                             logger.error("Nie znaleziono pokoju '{}' podczas dodawania nowego termometru  ", "Brak");

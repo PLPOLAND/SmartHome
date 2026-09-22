@@ -2,6 +2,8 @@ package newsmarthome.mqtt;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ public class HaDiscoveryPublisher {
     private final MqttGateway gateway;
     private final SystemDAO systemDAO;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Set<String> pendingRemovals = ConcurrentHashMap.newKeySet();
 
     @Value("${mqtt.discovery-prefix}")
     private String discoveryPrefix;
@@ -39,6 +42,9 @@ public class HaDiscoveryPublisher {
 
     /** Publikuje discovery dla wszystkich urządzeń i czujników znanych systemowi. */
     public void publishAll() {
+        for (String topic : pendingRemovals) {
+            clearConfig(topic);
+        }
         for (Device device : systemDAO.getDevices()) {
             publishDevice(device);
         }
@@ -62,8 +68,7 @@ public class HaDiscoveryPublisher {
         if (component == null) {
             return;
         }
-        String topic = MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(deviceId));
-        gateway.publish(topic, "", true);
+        clearConfig(MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(deviceId)));
     }
 
     public void publishSensor(Sensor sensor) {
@@ -79,18 +84,26 @@ public class HaDiscoveryPublisher {
         if (typ != SensorsTypes.THERMOMETR && typ != SensorsTypes.THERMOMETR_HYGROMETR) {
             return;
         }
-        gateway.publish(
-                MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, MqttTopics.sensorObjectId(sensorId)),
-                "", true);
+        clearConfig(MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, MqttTopics.sensorObjectId(sensorId)));
         if (typ == SensorsTypes.THERMOMETR_HYGROMETR) {
-            gateway.publish(
-                    MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, MqttTopics.humidityObjectId(sensorId)),
-                    "", true);
+            clearConfig(
+                    MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, MqttTopics.humidityObjectId(sensorId)));
+        }
+    }
+
+    // Usunięcie przy niedostępnym brokerze ponawiamy przy następnym publishAll (po reconnect),
+    // inaczej retained config zostałby na brokerze i HA pokazywałby nieistniejącą encję.
+    private void clearConfig(String topic) {
+        if (gateway.publish(topic, "", true)) {
+            pendingRemovals.remove(topic);
+        } else {
+            pendingRemovals.add(topic);
         }
     }
 
     private void publishJson(String topic, Map<String, Object> payload) {
         try {
+            pendingRemovals.remove(topic);
             gateway.publish(topic, objectMapper.writeValueAsString(payload), true);
         } catch (Exception e) {
             logger.error("Błąd podczas serializacji configu discovery dla {}: {}", topic, e.getMessage());
