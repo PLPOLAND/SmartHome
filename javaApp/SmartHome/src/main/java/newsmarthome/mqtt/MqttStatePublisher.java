@@ -75,9 +75,14 @@ public class MqttStatePublisher {
         if (payload == null) {
             return;
         }
-        String previous = lastDeviceState.put(device.getId(), payload);
-        if (!payload.equals(previous)) {
-            gateway.publish(MqttTopics.deviceStateTopic(gateway.getBaseTopic(), device.getId()), payload, true);
+        String previous = lastDeviceState.get(device.getId());
+        if (payload.equals(previous)) {
+            return;
+        }
+        boolean published = gateway.publish(MqttTopics.deviceStateTopic(gateway.getBaseTopic(), device.getId()), payload,
+                true);
+        if (published) {
+            lastDeviceState.put(device.getId(), payload);
         }
     }
 
@@ -87,9 +92,14 @@ public class MqttStatePublisher {
         }
         try {
             String payload = objectMapper.writeValueAsString(MqttTopics.sensorStatePayload(sensor));
-            String previous = lastSensorState.put(sensor.getId(), payload);
-            if (!payload.equals(previous)) {
-                gateway.publish(MqttTopics.sensorStateTopic(gateway.getBaseTopic(), sensor.getId()), payload, true);
+            String previous = lastSensorState.get(sensor.getId());
+            if (payload.equals(previous)) {
+                return;
+            }
+            boolean published = gateway.publish(MqttTopics.sensorStateTopic(gateway.getBaseTopic(), sensor.getId()),
+                    payload, true);
+            if (published) {
+                lastSensorState.put(sensor.getId(), payload);
             }
         } catch (Exception e) {
             logger.error("Błąd podczas serializacji stanu czujnika id={}: {}", sensor.getId(), e.getMessage());
