@@ -31,6 +31,7 @@ import newsmarthome.model.response.DeviceStateResponse;
 import newsmarthome.model.response.Response;
 import newsmarthome.model.response.RoomResponse;
 import newsmarthome.model.user.User;
+import newsmarthome.mqtt.HaDiscoveryPublisher;
 
 @RestController
 @RequestMapping("/api")
@@ -40,14 +41,17 @@ public class DevicesController {
 	final SystemDAO systemDAO;
 
 	final HardwareFactory hardwareFactory;
+	final HaDiscoveryPublisher haDiscoveryPublisher;
 
 	Logger logger = LoggerFactory.getLogger(DevicesController.class);
-	
-	
-    DevicesController(@Autowired UsersDAO users, @Autowired SystemDAO systemDAO, @Autowired HardwareFactory hardwareFactory) {
+
+
+    DevicesController(@Autowired UsersDAO users, @Autowired SystemDAO systemDAO, @Autowired HardwareFactory hardwareFactory,
+            @Autowired HaDiscoveryPublisher haDiscoveryPublisher) {
         this.users = users;
         this.systemDAO = systemDAO;
         this.hardwareFactory = hardwareFactory;
+        this.haDiscoveryPublisher = haDiscoveryPublisher;
     }
 
 	@GetMapping("/getDevices")
@@ -172,6 +176,7 @@ public class DevicesController {
 					if(dev == null)
 						return new Response<>(null, "Nie udało się dodać urządzenia");
 					else{
+						haDiscoveryPublisher.publishDevice(dev);
 						return new Response<>(dev);
 					}
 				}catch(NumberFormatException e){
@@ -196,8 +201,13 @@ public class DevicesController {
 			else{
 				try{
 					int devID = Integer.parseInt(deviceID);
-					if (systemDAO.removeDevice(devID))
+					Device deviceToRemove = systemDAO.getDeviceByID(devID);
+					if (systemDAO.removeDevice(devID)){
+						if (deviceToRemove != null) {
+							haDiscoveryPublisher.removeDevice(devID, deviceToRemove.getTyp());
+						}
 						return new Response<>("OK");
+					}
 					else
 						return new Response<>(null, "Nie udało się usunąć urządzenia");
 				}catch(NumberFormatException e){
@@ -234,6 +244,7 @@ public class DevicesController {
 					Device dev = systemDAO.getDeviceByID(devID);
 					if (dev !=null) {
 						dev.setName(name);
+						haDiscoveryPublisher.publishDevice(dev);
 						return new Response<>("OK");
 					} else {
 						return new Response<>(null, "Nie udało się zmienić nazwy urządzenia: nie znaleziono urządzenia o podanym ID");

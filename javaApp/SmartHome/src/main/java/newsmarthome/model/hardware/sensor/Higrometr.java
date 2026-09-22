@@ -33,7 +33,7 @@ public class Higrometr extends Termometr{
     }
 
     public Integer getHumidity() {
-        return this.maxHumidity;
+        return this.humidity;
     }
     public void setHumidity(Integer humidity) {
         this.humidity = humidity;
