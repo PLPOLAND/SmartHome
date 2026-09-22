@@ -90,13 +90,17 @@ public class MqttGateway {
                 public void connectComplete(boolean reconnect, String serverURI) {
                     logger.info(reconnect ? "Odzyskano połączenie z brokerem MQTT: {}" : "Połączono z brokerem MQTT: {}",
                             serverURI);
-                    // Subskrypcje trzeba odtworzyć zanim ogłosimy "online" - inaczej HA może wysłać komendę
-                    // zanim broker zdąży ją do nas dostarczyć (okno na utratę komendy po reconnect).
-                    resubscribeAll();
-                    publish(availabilityTopic, "online", true);
-                    // Discovery (retained) może nie dotrzeć do brokera, jeśli był niedostępny przy starcie,
-                    // albo zostać wyczyszczony po restarcie brokera bez persystencji - republikujemy go zawsze.
-                    executor.execute(() -> connectListeners.forEach(MqttGateway.this::runListener));
+                    // Blokujące wywołania poza wątkiem callbacków Paho: przy zapełnionej kolejce wiadomości
+                    // przychodzących wątek odbiorczy czekałby na callback, a callback na ACK od odbiorczego.
+                    executor.execute(() -> {
+                        // Subskrypcje trzeba odtworzyć zanim ogłosimy "online" - inaczej HA może wysłać komendę
+                        // zanim broker zdąży ją do nas dostarczyć (okno na utratę komendy po reconnect).
+                        resubscribeAll();
+                        publish(availabilityTopic, "online", true);
+                        // Discovery (retained) może nie dotrzeć do brokera, jeśli był niedostępny przy starcie,
+                        // albo zostać wyczyszczony po restarcie brokera bez persystencji - republikujemy go zawsze.
+                        connectListeners.forEach(MqttGateway.this::runListener);
+                    });
                 }
 
                 @Override
