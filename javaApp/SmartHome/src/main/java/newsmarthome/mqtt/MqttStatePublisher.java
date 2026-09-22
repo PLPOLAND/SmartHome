@@ -47,6 +47,12 @@ public class MqttStatePublisher {
         scheduler.setPoolSize(1);
         scheduler.setThreadNamePrefix("mqtt-state-publisher-");
         scheduler.initialize();
+        // broker bez persystencji traci retained stany po restarcie - czyścimy cache, żeby
+        // po reconnect wysłać pełny stan, a nie tylko to, co zmieniło się od ostatniej publikacji
+        gateway.addConnectListener(() -> {
+            lastDeviceState.clear();
+            lastSensorState.clear();
+        });
         scheduler.scheduleWithFixedDelay(this::publishChangedStates, PUBLISH_INTERVAL_MS);
     }
 
@@ -91,7 +97,11 @@ public class MqttStatePublisher {
             return;
         }
         try {
-            String payload = objectMapper.writeValueAsString(MqttTopics.sensorStatePayload(sensor));
+            Map<String, Object> state = MqttTopics.sensorStatePayload(sensor);
+            if (state == null) {
+                return;
+            }
+            String payload = objectMapper.writeValueAsString(state);
             String previous = lastSensorState.get(sensor.getId());
             if (payload.equals(previous)) {
                 return;

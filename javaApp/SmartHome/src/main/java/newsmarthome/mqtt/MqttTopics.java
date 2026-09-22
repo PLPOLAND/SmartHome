@@ -149,6 +149,8 @@ public final class MqttTopics {
             case BLIND:
                 config.put("payload_open", "OPEN");
                 config.put("payload_close", "CLOSE");
+                // roleta nie obsługuje STOP - null ukrywa przycisk Stop w HA
+                config.put("payload_stop", null);
                 config.put("state_open", "open");
                 config.put("state_closed", "closed");
                 config.put("state_opening", "opening");
@@ -261,16 +263,27 @@ public final class MqttTopics {
 
     /**
      * Buduje payload (jako Map, do serializacji JSON) publikowany na state_topic czujnika.
+     * Zwraca null, dopóki czujnik nie ma prawdziwego odczytu (modele inicjalizują wartości
+     * placeholderem MAX_VALUE, który w HA trafiłby do statystyk jako realny pomiar).
      */
     public static Map<String, Object> sensorStatePayload(Sensor sensor) {
         Map<String, Object> payload = new LinkedHashMap<>();
         if (sensor.getTyp() == SensorsTypes.THERMOMETR) {
-            Termometr termometr = (Termometr) sensor;
-            payload.put("temperature", termometr.getTemperatura());
+            Float temperature = ((Termometr) sensor).getTemperatura();
+            if (temperature == null || temperature == Float.MAX_VALUE) {
+                return null;
+            }
+            payload.put("temperature", temperature);
         } else if (sensor.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR) {
             Higrometr higrometr = (Higrometr) sensor;
-            payload.put("temperature", higrometr.getTemperatura());
-            payload.put("humidity", higrometr.getHumidity());
+            Float temperature = higrometr.getTemperatura();
+            Integer humidity = higrometr.getHumidity();
+            if (temperature == null || temperature == Float.MAX_VALUE || humidity == null
+                    || humidity == Integer.MAX_VALUE) {
+                return null;
+            }
+            payload.put("temperature", temperature);
+            payload.put("humidity", humidity);
         }
         return payload;
     }

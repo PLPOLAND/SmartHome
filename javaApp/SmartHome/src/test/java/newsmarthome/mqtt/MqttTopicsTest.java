@@ -58,6 +58,10 @@ class MqttTopicsTest {
         Blind blind = new Blind();
         blind.setId(9);
 
+        Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(blind, "smarthome");
+        assertTrue(config.containsKey("payload_stop"));
+        assertNull(config.get("payload_stop"));
+
         blind.changeState(DeviceState.UP);
         assertEquals("open", MqttTopics.deviceStatePayload(blind));
 
@@ -120,5 +124,17 @@ class MqttTopicsTest {
         Map<String, Object> state = MqttTopics.sensorStatePayload(higrometr);
         assertEquals(21.0f, state.get("temperature"));
         assertEquals(48, state.get("humidity"));
+    }
+
+    @Test
+    void skipsSensorStateUntilFirstRealReading() {
+        Termometr termometr = new Termometr();
+        termometr.setId(102);
+        assertNull(MqttTopics.sensorStatePayload(termometr));
+
+        Higrometr higrometr = new Higrometr();
+        higrometr.setId(103);
+        higrometr.setTemperatura(20.0f);
+        assertNull(MqttTopics.sensorStatePayload(higrometr));
     }
 }
