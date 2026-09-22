@@ -71,8 +71,10 @@ public class MqttGateway {
                 public void connectComplete(boolean reconnect, String serverURI) {
                     logger.info(reconnect ? "Odzyskano połączenie z brokerem MQTT: {}" : "Połączono z brokerem MQTT: {}",
                             serverURI);
-                    publish(availabilityTopic, "online", true);
+                    // Subskrypcje trzeba odtworzyć zanim ogłosimy "online" - inaczej HA może wysłać komendę
+                    // zanim broker zdąży ją do nas dostarczyć (okno na utratę komendy po reconnect).
                     resubscribeAll();
+                    publish(availabilityTopic, "online", true);
                 }
 
                 @Override
