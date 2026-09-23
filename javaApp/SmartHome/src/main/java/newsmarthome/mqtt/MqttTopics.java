@@ -22,6 +22,10 @@ import newsmarthome.model.hardware.sensor.Termometr;
 public final class MqttTopics {
 
     private static final String SENSOR_COMPONENT = "sensor";
+    private static final int BLIND_POSITION_OPEN = 100;
+    private static final int BLIND_POSITION_CLOSED = 0;
+    /** Umowna pozycja rolety zatrzymanej w połowie - sprzęt nie mierzy rzeczywistej pozycji. */
+    private static final int BLIND_POSITION_STOPPED = 50;
 
     private MqttTopics() {
     }
@@ -44,6 +48,10 @@ public final class MqttTopics {
 
     public static String deviceStateTopic(String baseTopic, int deviceId) {
         return baseTopic + "/device/" + deviceId + "/state";
+    }
+
+    public static String devicePositionTopic(String baseTopic, int deviceId) {
+        return baseTopic + "/device/" + deviceId + "/position";
     }
 
     public static String deviceCommandTopic(String baseTopic, int deviceId) {
@@ -160,7 +168,11 @@ public final class MqttTopics {
                 config.put("state_closed", "closed");
                 config.put("state_opening", "opening");
                 config.put("state_closing", "closing");
-                config.put("state_stopped", "stopped");
+                // bez pozycji HA zamienia "stopped" po "closing" na "closed", a "open" traktuje
+                // jako w pełni otwartą (blokuje przycisk w górę) - stąd umowna pozycja
+                config.put("position_topic", devicePositionTopic(baseTopic, device.getId()));
+                config.put("position_open", BLIND_POSITION_OPEN);
+                config.put("position_closed", BLIND_POSITION_CLOSED);
                 break;
             default:
                 return null;
@@ -193,8 +205,8 @@ public final class MqttTopics {
                     }
                     return null;
                 case NOTKNOW:
-                    // zatrzymana w połowie - HA bez pozycji traktuje "stopped" jako częściowo otwartą
-                    return "stopped";
+                    // zatrzymana w połowie - "open" z pozycją pośrednią (patrz blindPositionPayload)
+                    return "open";
                 default:
                     return null;
             }
@@ -203,6 +215,26 @@ public final class MqttTopics {
             return state.name();
         }
         return null;
+    }
+
+    /**
+     * Mapuje stan rolety na payload publikowany na position_topic. Zwraca null dla urządzeń
+     * innych niż roleta oraz w trakcie ruchu (zostaje ostatnio opublikowana pozycja).
+     */
+    public static String blindPositionPayload(Device device) {
+        if (device.getTyp() != DeviceTypes.BLIND || device.getState() == null) {
+            return null;
+        }
+        switch (device.getState()) {
+            case UP:
+                return String.valueOf(BLIND_POSITION_OPEN);
+            case DOWN:
+                return String.valueOf(BLIND_POSITION_CLOSED);
+            case NOTKNOW:
+                return String.valueOf(BLIND_POSITION_STOPPED);
+            default:
+                return null;
+        }
     }
 
     /**

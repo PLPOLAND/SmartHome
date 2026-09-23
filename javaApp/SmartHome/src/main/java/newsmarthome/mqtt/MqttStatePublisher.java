@@ -34,6 +34,7 @@ public class MqttStatePublisher {
     private final SystemDAO systemDAO;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<Integer, String> lastDeviceState = new ConcurrentHashMap<>();
+    private final Map<Integer, String> lastDevicePosition = new ConcurrentHashMap<>();
     private final Map<Integer, String> lastSensorState = new ConcurrentHashMap<>();
     private ThreadPoolTaskScheduler scheduler;
 
@@ -52,6 +53,7 @@ public class MqttStatePublisher {
         // po reconnect wysłać pełny stan, a nie tylko to, co zmieniło się od ostatniej publikacji
         gateway.addConnectListener(() -> {
             lastDeviceState.clear();
+            lastDevicePosition.clear();
             lastSensorState.clear();
         });
         scheduler.scheduleWithFixedDelay(this::publishChangedStates, PUBLISH_INTERVAL_MS);
@@ -78,6 +80,13 @@ public class MqttStatePublisher {
     }
 
     private void publishDeviceStateIfChanged(Device device) {
+        // pozycja przed stanem, żeby HA miał aktualną pozycję w chwili przyjścia stanu
+        String position = MqttTopics.blindPositionPayload(device);
+        if (position != null && !position.equals(lastDevicePosition.get(device.getId()))
+                && gateway.publish(MqttTopics.devicePositionTopic(gateway.getBaseTopic(), device.getId()), position,
+                        true)) {
+            lastDevicePosition.put(device.getId(), position);
+        }
         String payload = MqttTopics.deviceStatePayload(device);
         if (payload == null) {
             return;

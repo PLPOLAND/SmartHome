@@ -69,24 +69,30 @@ class MqttTopicsTest {
 
         Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(blind, "smarthome", null);
         assertEquals("STOP", config.get("payload_stop"));
-        assertEquals("stopped", config.get("state_stopped"));
+        assertEquals("smarthome/device/9/position", config.get("position_topic"));
+        assertTrue(!config.containsKey("state_stopped"));
 
         blind.changeState(DeviceState.UP);
         assertEquals("open", MqttTopics.deviceStatePayload(blind));
+        assertEquals("100", MqttTopics.blindPositionPayload(blind));
 
         blind.changeState(DeviceState.DOWN);
         assertEquals("closed", MqttTopics.deviceStatePayload(blind));
+        assertEquals("0", MqttTopics.blindPositionPayload(blind));
 
         // symuluje odczyt 'R' (w ruchu) z hardware, gdy ostatnia komenda to DOWN
         blind.changeState(DeviceState.RUN);
         assertEquals("closing", MqttTopics.deviceStatePayload(blind));
+        assertNull(MqttTopics.blindPositionPayload(blind));
 
         blind.changeState(DeviceState.UP);
         blind.changeState(DeviceState.RUN);
         assertEquals("opening", MqttTopics.deviceStatePayload(blind));
 
         blind.changeState(DeviceState.NOTKNOW);
-        assertEquals("stopped", MqttTopics.deviceStatePayload(blind));
+        // zatrzymana w trakcie zamykania: "open" z pozycją pośrednią, nie "closed"
+        assertEquals("open", MqttTopics.deviceStatePayload(blind));
+        assertEquals("50", MqttTopics.blindPositionPayload(blind));
     }
 
     @Test
