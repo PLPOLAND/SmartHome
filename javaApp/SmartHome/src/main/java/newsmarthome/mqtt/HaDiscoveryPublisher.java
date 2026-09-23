@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import newsmarthome.database.SystemDAO;
+import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.sensor.Sensor;
@@ -55,7 +56,8 @@ public class HaDiscoveryPublisher {
     }
 
     public synchronized void publishDevice(Device device) {
-        Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(device, gateway.getBaseTopic());
+        Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(device, gateway.getBaseTopic(),
+                roomName(device.getRoom()));
         if (config == null) {
             return;
         }
@@ -73,7 +75,8 @@ public class HaDiscoveryPublisher {
     }
 
     public synchronized void publishSensor(Sensor sensor) {
-        List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(sensor, gateway.getBaseTopic());
+        List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(sensor, gateway.getBaseTopic(),
+                roomName(sensor.getRoom()));
         for (Map<String, Object> config : configs) {
             String objectId = (String) config.get("unique_id");
             String topic = MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, objectId);
@@ -90,6 +93,11 @@ public class HaDiscoveryPublisher {
             clearConfig(
                     MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, MqttTopics.humidityObjectId(sensorId)));
         }
+    }
+
+    private String roomName(int roomId) {
+        Room room = systemDAO.getRoom(roomId);
+        return room != null ? room.getName() : null;
     }
 
     // Usunięcie przy niedostępnym brokerze ponawiamy przy następnym publishAll (po reconnect),

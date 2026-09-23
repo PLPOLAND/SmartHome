@@ -43,7 +43,7 @@ class MqttTopicsTest {
         light.setId(7);
         light.setName("Poziom 1");
 
-        Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(light, "smarthome");
+        Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(light, "smarthome", "Salon");
 
         assertEquals("Poziom 1", config.get("name"));
         assertEquals("smarthome_device_7", config.get("unique_id"));
@@ -51,6 +51,15 @@ class MqttTopicsTest {
         assertEquals("smarthome/device/7/set", config.get("command_topic"));
         assertEquals("ON", config.get("payload_on"));
         assertEquals("OFF", config.get("payload_off"));
+        assertEquals("Salon", ((Map<?, ?>) config.get("device")).get("suggested_area"));
+    }
+
+    @Test
+    void omitsSuggestedAreaWhenRoomUnknown() {
+        Light light = new Light(13);
+        light.setId(8);
+        Map<?, ?> device = (Map<?, ?>) MqttTopics.deviceDiscoveryConfig(light, "smarthome", null).get("device");
+        assertTrue(!device.containsKey("suggested_area"));
     }
 
     @Test
@@ -58,9 +67,9 @@ class MqttTopicsTest {
         Blind blind = new Blind();
         blind.setId(9);
 
-        Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(blind, "smarthome");
-        assertTrue(config.containsKey("payload_stop"));
-        assertNull(config.get("payload_stop"));
+        Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(blind, "smarthome", null);
+        assertEquals("STOP", config.get("payload_stop"));
+        assertEquals("stopped", config.get("state_stopped"));
 
         blind.changeState(DeviceState.UP);
         assertEquals("open", MqttTopics.deviceStatePayload(blind));
@@ -77,7 +86,7 @@ class MqttTopicsTest {
         assertEquals("opening", MqttTopics.deviceStatePayload(blind));
 
         blind.changeState(DeviceState.NOTKNOW);
-        assertNull(MqttTopics.deviceStatePayload(blind));
+        assertEquals("stopped", MqttTopics.deviceStatePayload(blind));
     }
 
     @Test
@@ -88,7 +97,8 @@ class MqttTopicsTest {
 
         assertEquals(DeviceState.UP, MqttTopics.commandPayloadToState(DeviceTypes.BLIND, "OPEN"));
         assertEquals(DeviceState.DOWN, MqttTopics.commandPayloadToState(DeviceTypes.BLIND, "CLOSE"));
-        assertNull(MqttTopics.commandPayloadToState(DeviceTypes.BLIND, "STOP"));
+        assertEquals(DeviceState.NOTKNOW, MqttTopics.commandPayloadToState(DeviceTypes.BLIND, "STOP"));
+        assertNull(MqttTopics.commandPayloadToState(DeviceTypes.BLIND, "ON"));
     }
 
     @Test
@@ -98,10 +108,11 @@ class MqttTopicsTest {
         termometr.setNazwa("Kotłownia");
         termometr.setTemperatura(22.5f);
 
-        List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(termometr, "smarthome");
+        List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(termometr, "smarthome", "Kotłownia");
         assertEquals(1, configs.size());
         assertEquals("smarthome_sensor_100", configs.get(0).get("unique_id"));
         assertEquals("smarthome/sensor/100/state", configs.get(0).get("state_topic"));
+        assertEquals("Kotłownia", ((Map<?, ?>) configs.get(0).get("device")).get("suggested_area"));
 
         Map<String, Object> state = MqttTopics.sensorStatePayload(termometr);
         assertEquals(22.5f, state.get("temperature"));
@@ -116,7 +127,7 @@ class MqttTopicsTest {
         higrometr.setTemperatura(21.0f);
         higrometr.setHumidity(48);
 
-        List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(higrometr, "smarthome");
+        List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(higrometr, "smarthome", null);
         assertEquals(2, configs.size());
         assertEquals("smarthome_sensor_101", configs.get(0).get("unique_id"));
         assertEquals("smarthome_sensor_101_humidity", configs.get(1).get("unique_id"));

@@ -107,19 +107,24 @@ public final class MqttTopics {
         return map;
     }
 
-    private static Map<String, Object> deviceInfo(String identifier, String name, String model) {
+    private static Map<String, Object> deviceInfo(String identifier, String name, String model, String area) {
         Map<String, Object> device = new LinkedHashMap<>();
         device.put("identifiers", Collections.singletonList(identifier));
         device.put("name", name);
         device.put("manufacturer", "SmartHome");
         device.put("model", model);
+        // HA przypisuje obszar tylko przy tworzeniu urządzenia w rejestrze
+        if (area != null && !area.isEmpty()) {
+            device.put("suggested_area", area);
+        }
         return device;
     }
 
     /**
      * Buduje payload discovery dla urządzenia. Zwraca null dla nieobsługiwanych typów.
+     * @param roomName nazwa pokoju przekazywana do HA jako obszar (może być null)
      */
-    public static Map<String, Object> deviceDiscoveryConfig(Device device, String baseTopic) {
+    public static Map<String, Object> deviceDiscoveryConfig(Device device, String baseTopic, String roomName) {
         String component = haComponentForDevice(device.getTyp());
         if (component == null) {
             return null;
@@ -130,7 +135,7 @@ public final class MqttTopics {
         config.put("unique_id", objectId);
         config.put("state_topic", deviceStateTopic(baseTopic, device.getId()));
         config.put("command_topic", deviceCommandTopic(baseTopic, device.getId()));
-        config.put("device", deviceInfo(objectId, device.getName(), component));
+        config.put("device", deviceInfo(objectId, device.getName(), component, roomName));
 
         switch (device.getTyp()) {
             case LIGHT:
@@ -149,12 +154,13 @@ public final class MqttTopics {
             case BLIND:
                 config.put("payload_open", "OPEN");
                 config.put("payload_close", "CLOSE");
-                // roleta nie obsługuje STOP - null ukrywa przycisk Stop w HA
-                config.put("payload_stop", null);
+                // STOP zatrzymuje roletę w ruchu (komenda 'S' do slave'a)
+                config.put("payload_stop", "STOP");
                 config.put("state_open", "open");
                 config.put("state_closed", "closed");
                 config.put("state_opening", "opening");
                 config.put("state_closing", "closing");
+                config.put("state_stopped", "stopped");
                 break;
             default:
                 return null;
@@ -186,6 +192,9 @@ public final class MqttTopics {
                         return "closing";
                     }
                     return null;
+                case NOTKNOW:
+                    // zatrzymana w połowie - HA bez pozycji traktuje "stopped" jako częściowo otwartą
+                    return "stopped";
                 default:
                     return null;
             }
@@ -212,6 +221,9 @@ public final class MqttTopics {
             if ("CLOSE".equals(normalized) || "DOWN".equals(normalized)) {
                 return DeviceState.DOWN;
             }
+            if ("STOP".equals(normalized)) {
+                return DeviceState.NOTKNOW;
+            }
             return null;
         }
         if ("ON".equals(normalized)) {
@@ -226,8 +238,9 @@ public final class MqttTopics {
     /**
      * Buduje configi discovery dla czujnika (temperatura, opcjonalnie wilgotność). Zwraca
      * pustą listę dla typów sensorów jeszcze nieobsługiwanych przez integrację MQTT.
+     * @param roomName nazwa pokoju przekazywana do HA jako obszar (może być null)
      */
-    public static List<Map<String, Object>> sensorDiscoveryConfigs(Sensor sensor, String baseTopic) {
+    public static List<Map<String, Object>> sensorDiscoveryConfigs(Sensor sensor, String baseTopic, String roomName) {
         List<Map<String, Object>> configs = new ArrayList<>();
         if (sensor.getTyp() != SensorsTypes.THERMOMETR && sensor.getTyp() != SensorsTypes.THERMOMETR_HYGROMETR) {
             return configs;
@@ -243,7 +256,7 @@ public final class MqttTopics {
         temperature.put("device_class", "temperature");
         temperature.put("state_class", "measurement");
         temperature.put("value_template", "{{ value_json.temperature }}");
-        temperature.put("device", deviceInfo(tempObjectId, sensor.getNazwa(), SENSOR_COMPONENT));
+        temperature.put("device", deviceInfo(tempObjectId, sensor.getNazwa(), SENSOR_COMPONENT, roomName));
         configs.add(temperature);
 
         if (sensor.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR) {
@@ -255,7 +268,7 @@ public final class MqttTopics {
             humidity.put("device_class", "humidity");
             humidity.put("state_class", "measurement");
             humidity.put("value_template", "{{ value_json.humidity }}");
-            humidity.put("device", deviceInfo(tempObjectId, sensor.getNazwa(), SENSOR_COMPONENT));
+            humidity.put("device", deviceInfo(tempObjectId, sensor.getNazwa(), SENSOR_COMPONENT, roomName));
             configs.add(humidity);
         }
         return configs;
