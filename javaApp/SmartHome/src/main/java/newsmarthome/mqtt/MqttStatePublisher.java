@@ -27,7 +27,9 @@ import newsmarthome.model.hardware.sensor.SensorsTypes;
 @Service
 public class MqttStatePublisher {
 
-    private static final long PUBLISH_INTERVAL_MS = 5000;
+    /** Stan urządzeń to odczyt z pamięci (hardware odpytuje {@code Runners}), więc może być częsty. */
+    private static final long DEVICE_PUBLISH_INTERVAL_MS = 500;
+    private static final long SENSOR_PUBLISH_INTERVAL_MS = 5000;
 
     private final Logger logger = LoggerFactory.getLogger(MqttStatePublisher.class);
     private final MqttGateway gateway;
@@ -56,7 +58,8 @@ public class MqttStatePublisher {
             lastDevicePosition.clear();
             lastSensorState.clear();
         });
-        scheduler.scheduleWithFixedDelay(this::publishChangedStates, PUBLISH_INTERVAL_MS);
+        scheduler.scheduleWithFixedDelay(this::publishChangedDeviceStates, DEVICE_PUBLISH_INTERVAL_MS);
+        scheduler.scheduleWithFixedDelay(this::publishChangedSensorStates, SENSOR_PUBLISH_INTERVAL_MS);
     }
 
     @PreDestroy
@@ -66,20 +69,41 @@ public class MqttStatePublisher {
         }
     }
 
-    private void publishChangedStates() {
+    /**
+     * Publikuje stan urządzenia zaraz po komendzie, bez czekania na pętlę okresową. Publikacja
+     * idzie na wątku schedulera - nie wolno publikować synchronicznie z callbacku Paho.
+     */
+    public void publishDeviceNow(Device device) {
+        if (scheduler != null) {
+            scheduler.execute(() -> publishDeviceStateIfChanged(device));
+        }
+    }
+
+    private void publishChangedDeviceStates() {
+        for (Device device : new ArrayList<>(systemDAO.getDevices())) {
+            publishDeviceStateIfChanged(device);
+        }
+    }
+
+    private void publishChangedSensorStates() {
         try {
-            for (Device device : new ArrayList<>(systemDAO.getDevices())) {
-                publishDeviceStateIfChanged(device);
-            }
             for (Sensor sensor : new ArrayList<>(systemDAO.getSensors())) {
                 publishSensorStateIfChanged(sensor);
             }
         } catch (Exception e) {
-            logger.error("Błąd podczas publikacji stanu MQTT: {}", e.getMessage(), e);
+            logger.error("Błąd podczas publikacji stanu czujników MQTT: {}", e.getMessage(), e);
         }
     }
 
     private void publishDeviceStateIfChanged(Device device) {
+        try {
+            publishDeviceState(device);
+        } catch (Exception e) {
+            logger.error("Błąd podczas publikacji stanu MQTT urządzenia id={}: {}", device.getId(), e.getMessage(), e);
+        }
+    }
+
+    private void publishDeviceState(Device device) {
         // pozycja przed stanem, żeby HA miał aktualną pozycję w chwili przyjścia stanu
         String position = MqttTopics.blindPositionPayload(device);
         if (position != null && !position.equals(lastDevicePosition.get(device.getId()))

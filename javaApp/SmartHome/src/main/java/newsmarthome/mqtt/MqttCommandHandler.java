@@ -22,10 +22,12 @@ public class MqttCommandHandler {
     private final Logger logger = LoggerFactory.getLogger(MqttCommandHandler.class);
     private final MqttGateway gateway;
     private final SystemDAO systemDAO;
+    private final MqttStatePublisher statePublisher;
 
-    public MqttCommandHandler(MqttGateway gateway, SystemDAO systemDAO) {
+    public MqttCommandHandler(MqttGateway gateway, SystemDAO systemDAO, MqttStatePublisher statePublisher) {
         this.gateway = gateway;
         this.systemDAO = systemDAO;
+        this.statePublisher = statePublisher;
     }
 
     public void subscribe() {
@@ -51,5 +53,7 @@ public class MqttCommandHandler {
         }
         logger.debug("Zmieniam stan urządzenia id={} na {} (komenda z MQTT)", deviceId, state);
         device.changeState(state);
+        // potwierdzenie stanu do HA od razu, a nie przy następnym cyklu publishera
+        statePublisher.publishDeviceNow(device);
     }
 }
