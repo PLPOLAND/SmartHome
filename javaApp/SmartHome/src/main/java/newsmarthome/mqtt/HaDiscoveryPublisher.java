@@ -1,5 +1,6 @@
 package newsmarthome.mqtt;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,19 +42,19 @@ public class HaDiscoveryPublisher {
     }
 
     /** Publikuje discovery dla wszystkich urządzeń i czujników znanych systemowi. */
-    public void publishAll() {
+    public synchronized void publishAll() {
         for (String topic : pendingRemovals) {
             clearConfig(topic);
         }
-        for (Device device : systemDAO.getDevices()) {
+        for (Device device : new ArrayList<>(systemDAO.getDevices())) {
             publishDevice(device);
         }
-        for (Sensor sensor : systemDAO.getSensors()) {
+        for (Sensor sensor : new ArrayList<>(systemDAO.getSensors())) {
             publishSensor(sensor);
         }
     }
 
-    public void publishDevice(Device device) {
+    public synchronized void publishDevice(Device device) {
         Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(device, gateway.getBaseTopic());
         if (config == null) {
             return;
@@ -63,7 +64,7 @@ public class HaDiscoveryPublisher {
         publishJson(topic, config);
     }
 
-    public void removeDevice(int deviceId, DeviceTypes typ) {
+    public synchronized void removeDevice(int deviceId, DeviceTypes typ) {
         String component = MqttTopics.haComponentForDevice(typ);
         if (component == null) {
             return;
@@ -71,7 +72,7 @@ public class HaDiscoveryPublisher {
         clearConfig(MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(deviceId)));
     }
 
-    public void publishSensor(Sensor sensor) {
+    public synchronized void publishSensor(Sensor sensor) {
         List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(sensor, gateway.getBaseTopic());
         for (Map<String, Object> config : configs) {
             String objectId = (String) config.get("unique_id");
@@ -80,7 +81,7 @@ public class HaDiscoveryPublisher {
         }
     }
 
-    public void removeSensor(int sensorId, SensorsTypes typ) {
+    public synchronized void removeSensor(int sensorId, SensorsTypes typ) {
         if (typ != SensorsTypes.THERMOMETR && typ != SensorsTypes.THERMOMETR_HYGROMETR) {
             return;
         }

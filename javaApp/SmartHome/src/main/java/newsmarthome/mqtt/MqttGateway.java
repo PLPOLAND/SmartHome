@@ -50,6 +50,8 @@ public class MqttGateway {
     private String baseTopic;
 
     private static final long INITIAL_CONNECT_RETRY_SECONDS = 10;
+    private static final int CONNECTION_TIMEOUT_SECONDS = 5;
+    private static final long OPERATION_TIMEOUT_MS = 10_000;
 
     private MqttClient client;
     private MqttConnectOptions options;
@@ -76,12 +78,16 @@ public class MqttGateway {
             options = new MqttConnectOptions();
             options.setAutomaticReconnect(true);
             options.setCleanSession(true);
+            options.setConnectionTimeout(CONNECTION_TIMEOUT_SECONDS);
             if (username != null && !username.isEmpty()) {
                 options.setUserName(username);
                 options.setPassword(password.toCharArray());
             }
             String availabilityTopic = MqttTopics.availabilityTopic(baseTopic);
             options.setWill(availabilityTopic, "offline".getBytes(StandardCharsets.UTF_8), 1, true);
+            // domyślnie Paho czeka na ACK w nieskończoność - przy półotwartym połączeniu zawiesiłoby to
+            // wywołujące wątki (REST, Runners) aż do wykrycia zerwania przez keepalive
+            client.setTimeToWait(OPERATION_TIMEOUT_MS);
             // MqttCallbackExtended.connectComplete odpala się zarówno po pierwszym połączeniu, jak i po
             // każdym automatycznym wznowieniu (automaticReconnect) — dzięki temu re-publikujemy "online"
             // i odtwarzamy subskrypcje utracone przez cleanSession=true bez ręcznego zarządzania reconnectem.
@@ -128,6 +134,10 @@ public class MqttGateway {
     // automaticReconnect w Paho działa dopiero po pierwszym udanym połączeniu, więc pierwszą próbę
     // ponawiamy sami, dopóki broker nie stanie się dostępny.
     private void tryInitialConnect() {
+        // połączenie mogło dojść do skutku po timeoucie oczekiwania poprzedniej próby
+        if (client.isConnected()) {
+            return;
+        }
         try {
             client.connect(options);
         } catch (MqttException e) {

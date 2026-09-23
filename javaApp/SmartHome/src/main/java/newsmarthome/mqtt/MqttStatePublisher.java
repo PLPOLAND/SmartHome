@@ -1,5 +1,6 @@
 package newsmarthome.mqtt;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -65,10 +66,10 @@ public class MqttStatePublisher {
 
     private void publishChangedStates() {
         try {
-            for (Device device : systemDAO.getDevices()) {
+            for (Device device : new ArrayList<>(systemDAO.getDevices())) {
                 publishDeviceStateIfChanged(device);
             }
-            for (Sensor sensor : systemDAO.getSensors()) {
+            for (Sensor sensor : new ArrayList<>(systemDAO.getSensors())) {
                 publishSensorStateIfChanged(sensor);
             }
         } catch (Exception e) {
