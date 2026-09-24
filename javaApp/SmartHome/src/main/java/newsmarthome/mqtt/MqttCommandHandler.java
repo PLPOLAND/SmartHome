@@ -73,6 +73,7 @@ public class MqttCommandHandler {
     private void executeCommand(Device device, DeviceState state) {
         try {
             logger.debug("Zmieniam stan urządzenia id={} na {} (komenda z MQTT)", device.getId(), state);
+            // transakcje I2C szereguje MasterToSlaveConverter (synchronized) - bez kolizji z pollingiem Runners
             device.changeState(state);
             // potwierdzenie stanu do HA od razu, a nie przy następnym cyklu publishera
             statePublisher.publishDeviceNow(device);
