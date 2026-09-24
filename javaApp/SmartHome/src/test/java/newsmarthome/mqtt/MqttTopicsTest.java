@@ -72,6 +72,11 @@ class MqttTopicsTest {
         assertEquals("smarthome/device/9/position", config.get("position_topic"));
         assertTrue(!config.containsKey("state_stopped"));
 
+        // nieznany stan: brak publikacji i brak efektu ubocznego (getState() ustawiłby NOTKNOW)
+        assertNull(MqttTopics.deviceStatePayload(blind));
+        assertNull(MqttTopics.blindPositionPayload(blind));
+        assertNull(blind.peekState());
+
         blind.changeState(DeviceState.UP);
         assertEquals("open", MqttTopics.deviceStatePayload(blind));
         assertEquals("100", MqttTopics.blindPositionPayload(blind));

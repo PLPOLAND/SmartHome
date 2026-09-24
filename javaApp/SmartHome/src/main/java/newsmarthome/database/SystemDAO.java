@@ -585,9 +585,12 @@ public class SystemDAO {
     }
 
     public Device getDeviceByID(int id) {
-        for (Device device : this.getDevices()) {
-            if (device.getId() == id) {
-                return device;
+        // synchronizacja z mutacjami listy - wołane też z wątku MQTT
+        synchronized (devices) {
+            for (Device device : devices) {
+                if (device.getId() == id) {
+                    return device;
+                }
             }
         }
         return null;

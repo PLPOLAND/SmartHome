@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * 
  */
 public class Switch{
-    /** ON/OFF */
-    private DeviceState stan;
+    /** ON/OFF; volatile - czytany też z wątków MQTT */
+    private volatile DeviceState stan;
     /** Numer pinu do sterowania przekaznikiem na Slavie*/ 
     private int pin;
     public Switch(){

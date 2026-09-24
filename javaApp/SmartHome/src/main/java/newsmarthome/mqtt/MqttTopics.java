@@ -181,11 +181,22 @@ public final class MqttTopics {
     }
 
     /**
+     * Stan urządzenia bez efektów ubocznych: {@link Blind#getState()} przy nieznanym stanie
+     * wysyła komendę do slave-a, czego publikacja stanu nie może robić.
+     */
+    private static DeviceState currentState(Device device) {
+        if (device instanceof Blind) {
+            return ((Blind) device).peekState();
+        }
+        return device.getState();
+    }
+
+    /**
      * Mapuje aktualny stan urządzenia na payload publikowany na state_topic. Zwraca null
      * jeśli stanu nie da się jednoznacznie zmapować (np. NOTKNOW rolety).
      */
     public static String deviceStatePayload(Device device) {
-        DeviceState state = device.getState();
+        DeviceState state = currentState(device);
         if (state == null) {
             return null;
         }
@@ -222,10 +233,11 @@ public final class MqttTopics {
      * innych niż roleta oraz w trakcie ruchu (zostaje ostatnio opublikowana pozycja).
      */
     public static String blindPositionPayload(Device device) {
-        if (device.getTyp() != DeviceTypes.BLIND || device.getState() == null) {
+        DeviceState state = currentState(device);
+        if (device.getTyp() != DeviceTypes.BLIND || state == null) {
             return null;
         }
-        switch (device.getState()) {
+        switch (state) {
             case UP:
                 return String.valueOf(BLIND_POSITION_OPEN);
             case DOWN:

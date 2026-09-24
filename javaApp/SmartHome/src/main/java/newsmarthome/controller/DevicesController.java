@@ -301,7 +301,9 @@ public class DevicesController {
 							Room oldRoom = systemDAO.getRoom(dev.getRoom());
 							oldRoom.delDevice(dev);
 							newRoom.addDevice(dev);
-							// nowy pokój = nowy suggested_area w HA
+							// suggested_area działa w HA tylko przy tworzeniu urządzenia - istniejące
+							// urządzenie trzeba przenieść do obszaru ręcznie w HA; publikacja odświeża
+							// config dla urządzeń, których HA jeszcze nie zarejestrował
 							haDiscoveryPublisher.publishDevice(dev);
 							return new Response<>("OK");
 						} else {
