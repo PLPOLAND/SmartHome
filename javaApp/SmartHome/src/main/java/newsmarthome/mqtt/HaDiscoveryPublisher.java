@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,11 @@ public class HaDiscoveryPublisher {
     private final SystemDAO systemDAO;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Set<String> pendingRemovals = ConcurrentHashMap.newKeySet();
+    private final ExecutorService asyncExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "ha-discovery");
+        t.setDaemon(true);
+        return t;
+    });
 
     @Value("${mqtt.discovery-prefix}")
     private String discoveryPrefix;
@@ -75,10 +83,10 @@ public class HaDiscoveryPublisher {
         for (String topic : pendingRemovals) {
             clearConfig(topic);
         }
-        for (Device device : new ArrayList<>(systemDAO.getDevices())) {
+        for (Device device : systemDAO.getDevicesSnapshot()) {
             publishDevice(device);
         }
-        for (Sensor sensor : new ArrayList<>(systemDAO.getSensors())) {
+        for (Sensor sensor : systemDAO.getSensorsSnapshot()) {
             publishSensor(sensor);
         }
     }
@@ -110,6 +118,25 @@ public class HaDiscoveryPublisher {
             String topic = MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, objectId);
             publishJson(topic, config);
         }
+    }
+
+    /**
+     * Jak {@link #publishSensor(Sensor)}, ale na własnym wątku - dla wywołań z wątków sprzętowych
+     * ({@code Runners}), których nie wolno blokować publikacją sieciową (timeout do 10 s).
+     */
+    public void publishSensorAsync(Sensor sensor) {
+        asyncExecutor.execute(() -> {
+            try {
+                publishSensor(sensor);
+            } catch (Exception e) {
+                logger.error("Błąd podczas publikacji discovery czujnika id={}: {}", sensor.getId(), e.getMessage(), e);
+            }
+        });
+    }
+
+    @PreDestroy
+    public void stop() {
+        asyncExecutor.shutdown();
     }
 
     public synchronized void removeSensor(int sensorId, SensorsTypes typ) {

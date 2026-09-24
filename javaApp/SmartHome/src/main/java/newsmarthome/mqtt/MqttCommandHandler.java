@@ -1,6 +1,10 @@
 package newsmarthome.mqtt;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.annotation.PreDestroy;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
@@ -23,11 +27,23 @@ public class MqttCommandHandler {
     private final MqttGateway gateway;
     private final SystemDAO systemDAO;
     private final MqttStatePublisher statePublisher;
+    // changeState robi synchroniczne I/O na I2C - nie może blokować wątku callbacków Paho;
+    // jeden wątek zachowuje kolejność komend
+    private final ExecutorService commandExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "mqtt-command");
+        t.setDaemon(true);
+        return t;
+    });
 
     public MqttCommandHandler(MqttGateway gateway, SystemDAO systemDAO, MqttStatePublisher statePublisher) {
         this.gateway = gateway;
         this.systemDAO = systemDAO;
         this.statePublisher = statePublisher;
+    }
+
+    @PreDestroy
+    public void stop() {
+        commandExecutor.shutdown();
     }
 
     public void subscribe() {
@@ -51,9 +67,17 @@ public class MqttCommandHandler {
             logger.warn("Nieznana komenda MQTT '{}' dla urządzenia id={}", payload, deviceId);
             return;
         }
-        logger.debug("Zmieniam stan urządzenia id={} na {} (komenda z MQTT)", deviceId, state);
-        device.changeState(state);
-        // potwierdzenie stanu do HA od razu, a nie przy następnym cyklu publishera
-        statePublisher.publishDeviceNow(device);
+        commandExecutor.execute(() -> executeCommand(device, state));
+    }
+
+    private void executeCommand(Device device, DeviceState state) {
+        try {
+            logger.debug("Zmieniam stan urządzenia id={} na {} (komenda z MQTT)", device.getId(), state);
+            device.changeState(state);
+            // potwierdzenie stanu do HA od razu, a nie przy następnym cyklu publishera
+            statePublisher.publishDeviceNow(device);
+        } catch (Exception e) {
+            logger.error("Błąd podczas wykonywania komendy MQTT dla urządzenia id={}: {}", device.getId(), e.getMessage(), e);
+        }
     }
 }

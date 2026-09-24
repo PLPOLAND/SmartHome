@@ -301,6 +301,8 @@ public class DevicesController {
 							Room oldRoom = systemDAO.getRoom(dev.getRoom());
 							oldRoom.delDevice(dev);
 							newRoom.addDevice(dev);
+							// nowy pokój = nowy suggested_area w HA
+							haDiscoveryPublisher.publishDevice(dev);
 							return new Response<>("OK");
 						} else {
 							return new Response<>(null, "Nie udało się zmienić pokoju urządzenia: nie znaleziono pokoju o podanym ID");

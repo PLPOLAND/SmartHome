@@ -54,8 +54,8 @@ class HaDiscoveryPublisherTest {
 
     private HaDiscoveryPublisher publisher(MqttGateway gateway, Path file) {
         SystemDAO systemDAO = mock(SystemDAO.class);
-        when(systemDAO.getDevices()).thenReturn(new ArrayList<>());
-        when(systemDAO.getSensors()).thenReturn(new ArrayList<>());
+        when(systemDAO.getDevicesSnapshot()).thenReturn(new ArrayList<>());
+        when(systemDAO.getSensorsSnapshot()).thenReturn(new ArrayList<>());
         HaDiscoveryPublisher publisher = new HaDiscoveryPublisher(gateway, systemDAO);
         ReflectionTestUtils.setField(publisher, "discoveryPrefix", "homeassistant");
         ReflectionTestUtils.setField(publisher, "pendingRemovalsFile", file.toString());

@@ -1,6 +1,5 @@
 package newsmarthome.mqtt;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -82,7 +81,7 @@ public class MqttStatePublisher {
     // wyjątek w zadaniu scheduleWithFixedDelay zatrzymałby je na stałe - stąd zewnętrzny catch
     private void publishChangedDeviceStates() {
         try {
-            for (Device device : new ArrayList<>(systemDAO.getDevices())) {
+            for (Device device : systemDAO.getDevicesSnapshot()) {
                 publishDeviceStateIfChanged(device);
             }
         } catch (Exception e) {
@@ -92,7 +91,7 @@ public class MqttStatePublisher {
 
     private void publishChangedSensorStates() {
         try {
-            for (Sensor sensor : new ArrayList<>(systemDAO.getSensors())) {
+            for (Sensor sensor : systemDAO.getSensorsSnapshot()) {
                 publishSensorStateIfChanged(sensor);
             }
         } catch (Exception e) {
