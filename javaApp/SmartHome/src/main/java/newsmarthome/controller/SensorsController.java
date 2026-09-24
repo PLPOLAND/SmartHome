@@ -36,6 +36,7 @@ import newsmarthome.model.response.Response;
 import newsmarthome.model.response.RoomResponse;
 import newsmarthome.model.response.SensorsStateResponse;
 import newsmarthome.model.user.User;
+import newsmarthome.mqtt.HaDiscoveryPublisher;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -47,6 +48,8 @@ public class SensorsController {
 	UsersDAO users;
 	@Autowired
 	SystemDAO systemDAO;
+	@Autowired
+	HaDiscoveryPublisher haDiscoveryPublisher;
 
 	Logger logger = LoggerFactory.getLogger(SensorsController.class);//logger
 
@@ -155,6 +158,7 @@ public class SensorsController {
 						case THERMOMETR_HYGROMETR: {
 							Room room = systemDAO.getRoom(roomID);
 							Higrometr higrometr = systemDAO.addHigrometr(room, name, slaveIDint);
+							haDiscoveryPublisher.publishSensor(higrometr);
 							return new Response<>(higrometr);
 						}
 
@@ -208,7 +212,11 @@ public class SensorsController {
 			else{
 				try {
 					int id = Integer.parseInt(idString);
+					Sensor sensorToRemove = systemDAO.getSensor(id);
 					if (systemDAO.removeSensor(id)) {
+						if (sensorToRemove != null) {
+							haDiscoveryPublisher.removeSensor(id, sensorToRemove.getTyp());
+						}
 						return new Response<>(true);
 					} else {
 						return new Response<>(false, "Nie znaleziono czujnika o podanym ID");
@@ -267,6 +275,9 @@ public class SensorsController {
 									((Button)sensor).addFunkcjaKilkniecia(function);
 								}
 						}
+						// bez zapisu po restarcie wróciłyby stare dane, a publishAll nadpisałby nimi HA
+						systemDAO.save(systemDAO.getRoom(sensor.getRoom()));
+						haDiscoveryPublisher.publishSensor(sensor);
 						return new Response<>(sensor);
 					}
 				}

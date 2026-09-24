@@ -24,8 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     })
 public class Termometr extends Sensor{
 
-    /**Aktualna Temperatura */
-    Float temperatura;
+    /**Aktualna Temperatura; volatile - czytana też przez publisher MQTT */
+    volatile Float temperatura;
     /**Maxymalna Temperatura */
     Float maxTemperatura;
     /**Minimalna Temperaturna */

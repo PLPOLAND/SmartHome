@@ -30,6 +30,7 @@ import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.Termometr;
+import newsmarthome.mqtt.HaDiscoveryPublisher;
 
 @Service
 public class Runners {
@@ -45,6 +46,9 @@ public class Runners {
 
     @Autowired
     BeanFactory beanFactory; //potrzebne do tworzenia nowych obiektów w trakcie działania programu
+
+    @Autowired
+    HaDiscoveryPublisher haDiscoveryPublisher;
 
     /** Tymczasowo przechowuje funkcje automatyki */
     ArrayList<AutomationFunction> functions = new ArrayList<>();
@@ -308,8 +312,8 @@ public class Runners {
                         if (tmp != null) {
 
                             termometr.setRoom(tmp.getID());
-                            tmp.addSensor(termometr);
-                            systemDAO.save(tmp);
+                            systemDAO.addSensor(tmp, termometr);
+                            haDiscoveryPublisher.publishSensorAsync(termometr);
                         } else {
                             logger.error("Nie znaleziono pokoju '{}' podczas dodawania nowego termometru  ", "Brak");
                         }
