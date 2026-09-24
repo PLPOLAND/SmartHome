@@ -67,6 +67,20 @@ public class MqttGateway {
         return baseTopic;
     }
 
+    /** tcp:// poza lokalną maszyną = dane logowania bez szyfrowania. */
+    static boolean isPlainTcpToRemoteHost(String url) {
+        if (url == null || !url.startsWith("tcp://")) {
+            return false;
+        }
+        String host;
+        try {
+            host = java.net.URI.create(url).getHost();
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return host != null && !host.equals("localhost") && !host.equals("127.0.0.1") && !host.equals("[::1]");
+    }
+
     /** Listener uruchamiany po każdym udanym (re)connect, poza wątkiem callbacków Paho. */
     public void addConnectListener(Runnable listener) {
         connectListeners.add(listener);
@@ -82,6 +96,10 @@ public class MqttGateway {
             if (username != null && !username.isEmpty()) {
                 options.setUserName(username);
                 options.setPassword(password.toCharArray());
+                if (isPlainTcpToRemoteHost(brokerUrl)) {
+                    logger.warn("Broker MQTT {} używa nieszyfrowanego tcp:// - login i hasło idą otwartym tekstem. "
+                            + "Dla zdalnego brokera ustaw mqtt.broker-url=ssl://host:8883", brokerUrl);
+                }
             }
             String availabilityTopic = MqttTopics.availabilityTopic(baseTopic);
             options.setWill(availabilityTopic, "offline".getBytes(StandardCharsets.UTF_8), 1, true);
