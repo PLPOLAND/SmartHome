@@ -20,6 +20,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import newsmarthome.database.SystemDAO;
 import newsmarthome.model.hardware.device.DeviceTypes;
+import newsmarthome.model.hardware.device.Light;
 
 class HaDiscoveryPublisherTest {
 
@@ -43,6 +44,20 @@ class HaDiscoveryPublisherTest {
         after.publishAll();
         verify(online).publish(LIGHT_TOPIC, "", true);
         assertTrue(Files.readAllLines(file, StandardCharsets.UTF_8).isEmpty());
+    }
+
+    @Test
+    void pendingRemovalIsKeptWhenReplacementConfigFailsToPublish() throws Exception {
+        Path file = tempDir.resolve("db/pending.txt");
+        MqttGateway offline = gateway(false);
+        HaDiscoveryPublisher publisher = publisher(offline, file);
+        publisher.removeDevice(7, DeviceTypes.LIGHT);
+
+        Light light = new Light();
+        light.setId(7);
+        publisher.publishDevice(light);
+
+        assertEquals(Collections.singletonList(LIGHT_TOPIC), Files.readAllLines(file, StandardCharsets.UTF_8));
     }
 
     private MqttGateway gateway(boolean connected) {

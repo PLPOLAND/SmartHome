@@ -178,10 +178,12 @@ public class HaDiscoveryPublisher {
 
     private void publishJson(String topic, Map<String, Object> payload) {
         try {
-            if (pendingRemovals.remove(topic)) {
+            // zaległe usunięcie zdejmujemy dopiero po udanej publikacji - inaczej po restarcie
+            // retained pusty config z brokera nie miałby już śladu do ponowienia
+            boolean published = gateway.publish(topic, objectMapper.writeValueAsString(payload), true);
+            if (published && pendingRemovals.remove(topic)) {
                 savePendingRemovals();
             }
-            gateway.publish(topic, objectMapper.writeValueAsString(payload), true);
         } catch (Exception e) {
             logger.error("Błąd podczas serializacji configu discovery dla {}: {}", topic, e.getMessage());
         }
