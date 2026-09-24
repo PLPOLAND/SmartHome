@@ -1,10 +1,17 @@
 package newsmarthome.mqtt;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +44,30 @@ public class HaDiscoveryPublisher {
     @Value("${mqtt.discovery-prefix}")
     private String discoveryPrefix;
 
+    /** Zaległe usunięcia muszą przetrwać restart - inaczej retained config usuniętej encji zostałby w HA. */
+    @Value("${mqtt.pending-removals-file:smarthome/database/mqtt_pending_removals.txt}")
+    private String pendingRemovalsFile;
+
     public HaDiscoveryPublisher(MqttGateway gateway, SystemDAO systemDAO) {
         this.gateway = gateway;
         this.systemDAO = systemDAO;
+    }
+
+    @PostConstruct
+    void loadPendingRemovals() {
+        Path path = Paths.get(pendingRemovalsFile);
+        if (!Files.exists(path)) {
+            return;
+        }
+        try {
+            for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+                if (!line.trim().isEmpty()) {
+                    pendingRemovals.add(line.trim());
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Nie udało się wczytać zaległych usunięć discovery z {}: {}", pendingRemovalsFile, e.getMessage());
+        }
     }
 
     /** Publikuje discovery dla wszystkich urządzeń i czujników znanych systemowi. */
@@ -103,16 +131,29 @@ public class HaDiscoveryPublisher {
     // Usunięcie przy niedostępnym brokerze ponawiamy przy następnym publishAll (po reconnect),
     // inaczej retained config zostałby na brokerze i HA pokazywałby nieistniejącą encję.
     private void clearConfig(String topic) {
-        if (gateway.publish(topic, "", true)) {
-            pendingRemovals.remove(topic);
-        } else {
-            pendingRemovals.add(topic);
+        boolean changed = gateway.publish(topic, "", true) ? pendingRemovals.remove(topic) : pendingRemovals.add(topic);
+        if (changed) {
+            savePendingRemovals();
+        }
+    }
+
+    private void savePendingRemovals() {
+        Path path = Paths.get(pendingRemovalsFile);
+        try {
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
+            Files.write(path, new ArrayList<>(pendingRemovals), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            logger.error("Nie udało się zapisać zaległych usunięć discovery do {}: {}", pendingRemovalsFile, e.getMessage());
         }
     }
 
     private void publishJson(String topic, Map<String, Object> payload) {
         try {
-            pendingRemovals.remove(topic);
+            if (pendingRemovals.remove(topic)) {
+                savePendingRemovals();
+            }
             gateway.publish(topic, objectMapper.writeValueAsString(payload), true);
         } catch (Exception e) {
             logger.error("Błąd podczas serializacji configu discovery dla {}: {}", topic, e.getMessage());

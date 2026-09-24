@@ -79,9 +79,14 @@ public class MqttStatePublisher {
         }
     }
 
+    // wyjątek w zadaniu scheduleWithFixedDelay zatrzymałby je na stałe - stąd zewnętrzny catch
     private void publishChangedDeviceStates() {
-        for (Device device : new ArrayList<>(systemDAO.getDevices())) {
-            publishDeviceStateIfChanged(device);
+        try {
+            for (Device device : new ArrayList<>(systemDAO.getDevices())) {
+                publishDeviceStateIfChanged(device);
+            }
+        } catch (Exception e) {
+            logger.error("Błąd podczas publikacji stanu urządzeń MQTT: {}", e.getMessage(), e);
         }
     }
 

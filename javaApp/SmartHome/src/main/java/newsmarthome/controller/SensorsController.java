@@ -275,6 +275,8 @@ public class SensorsController {
 									((Button)sensor).addFunkcjaKilkniecia(function);
 								}
 						}
+						// bez zapisu po restarcie wróciłyby stare dane, a publishAll nadpisałby nimi HA
+						systemDAO.save(systemDAO.getRoom(sensor.getRoom()));
 						haDiscoveryPublisher.publishSensor(sensor);
 						return new Response<>(sensor);
 					}

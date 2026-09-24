@@ -244,6 +244,8 @@ public class DevicesController {
 					Device dev = systemDAO.getDeviceByID(devID);
 					if (dev !=null) {
 						dev.setName(name);
+						// bez zapisu po restarcie wróciłaby stara nazwa, a publishAll nadpisałby nią HA
+						systemDAO.save(systemDAO.getRoom(dev.getRoom()));
 						haDiscoveryPublisher.publishDevice(dev);
 						return new Response<>("OK");
 					} else {
