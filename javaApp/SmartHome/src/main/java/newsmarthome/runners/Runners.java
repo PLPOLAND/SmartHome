@@ -2,7 +2,11 @@ package newsmarthome.runners;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +54,12 @@ public class Runners {
     ArrayList<AutomationFunction> functions = new ArrayList<>();
 
     /** Zatrzymuje sprawdzanie automatyki*/
-    private boolean stopCheckingAutomation = false; 
+    private boolean stopCheckingAutomation = false;
+
+    /** Minimalny odstęp pomiędzy kolejnymi reinicjalizacjami tego samego slave'a po błędzie urządzenia [ms] */
+    private static final long REINIT_COOLDOWN_MS = 60_000;
+    /** Czas ostatniej reinicjalizacji slave'a wywołanej błędem urządzenia (adres slave'a -> czas w ms) */
+    private final Map<Integer, Long> lastReinitTime = new HashMap<>();
 
     @Scheduled(fixedDelay = 2)
     void queue(){
@@ -82,6 +91,7 @@ public class Runners {
         
         List<Integer> slaves = slaveSender.getSlavesAdresses();
         if (!slaves.isEmpty()){
+            Set<Integer> slavesToReinit = new HashSet<>();
             for(Device device : systemDAO.getDevices()){
                 try {
                     if (slaveSender.isSlaveConnected(device.getSlaveID())){
@@ -95,6 +105,10 @@ public class Runners {
                     }
                 } catch (HardwareException e) {
                     logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
+                    // Slave nie zna urządzenia o tym onSlaveID -> konfiguracja w systemie rozjechała się ze slave'em
+                    if (e.getResponse() != null && e.getResponse()[0] == 'E') {
+                        slavesToReinit.add(device.getSlaveID());
+                    }
                 }
                 catch(SoftwareException e){
                     logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
@@ -112,6 +126,9 @@ public class Runners {
                             logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(e.getStackTrace()));
                         }
                 }
+            }
+            for (Integer slaveAdress : slavesToReinit) {
+                reinitSlaveAfterDeviceError(slaveAdress);
             }
             for (Termometr termometr : systemDAO.getAllTermometers()) {
                 if (slaveSender.isSlaveConnected(termometr.getSlaveAdress())) {
@@ -224,6 +241,24 @@ public class Runners {
 
 
     /**
+     * Reinicjalizuje slave'a, który zwrócił błąd dla urządzenia (np. po restarcie programu onSlaveID
+     * zapisane w bazie nie zgadzają się z tymi na slavie). Nie częściej niż raz na {@link #REINIT_COOLDOWN_MS}.
+     *
+     * @param slaveAdress - adres slave'a do reinicjalizacji
+     */
+    private void reinitSlaveAfterDeviceError(int slaveAdress) {
+        long now = System.currentTimeMillis();
+        Long last = lastReinitTime.get(slaveAdress);
+        if (last != null && now - last < REINIT_COOLDOWN_MS) {
+            logger.debug("Pominięto reinicjalizację slave'a {} - ostatnia była {} ms temu", slaveAdress, now - last);
+            return;
+        }
+        lastReinitTime.put(slaveAdress, now);
+        logger.warn("Slave {} zwrócił błąd dla urządzenia (niezgodne onSlaveID?). Reinicjalizacja i ponowne wysłanie konfiguracji.", slaveAdress);
+        configureSlave(slaveAdress);
+    }
+
+    /**
      * Wysyła konfigurację slave'owi. Zatrzymuje sprawdzanie automatyki na czas wysyłania konfiguracji.
      * 
      * @param slaveAdress - adres slave'a na który ma zostać wysłana konfiguracja
@@ -274,6 +309,8 @@ public class Runners {
                     }
 
                 }
+                // zapisz nowe onSlaveID, aby po restarcie programu były zgodne z tymi na slavie
+                systemDAO.save();
             }
             logger.info("Sending Thermometers configuration to slave {}", slaveAdress);
             // sprawdź i dodaj termometry

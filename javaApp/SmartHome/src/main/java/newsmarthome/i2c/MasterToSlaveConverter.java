@@ -687,10 +687,10 @@ public class MasterToSlaveConverter {
             // logger.debug("Reading from addres {}", slaveID);
             byte[] response = atmega.readFrom(slaveID, MAX_ROZMIAR_ODPOWIEDZI);//
             atmega.setOccupied(false);
-            if (response[0] == 'E' || response == null) {
+            if (response == null || response[0] == 'E') {
                 // logger.error("Error on checking init of board {}", slaveID);
                 logger.error("Something went wrong while checking state of device ( onSlaveDeviceId:{} ). Got answare: {}", onSlaveDeviceId, Arrays.toString(response));
-                throw new HardwareException("Error on checking state of device slaveID = " + slaveID, response);
+                throw new HardwareException("Error on checking state of device slaveID = " + slaveID + ", onSlaveDeviceId = " + onSlaveDeviceId, response);
             }else {
                 return response[0];
             }
