@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 public class MasterToSlaveConverter {
 
     private static final int MAX_ROZMIAR_ODPOWIEDZI = 8;
+    /** Maksymalna sensowna liczba eventów zgłoszona przez slave-a w odpowiedzi na 'W' (kolejka na slave-ie jest mała) */
+    private static final int MAX_EVENTS_IN_QUEUE = 16;
     // #region Komendy
     /**[S,U]*/
     private static final byte[] STATUS_URZADZEN = { 'S', 'U' };
@@ -500,6 +502,10 @@ public class MasterToSlaveConverter {
     public int howManyCommandToRead(int slaveAdress) throws HardwareException{
         try {
             byte[] response = atmega.transaction(slaveAdress, SPRAWDZ_CZY_JEST_COS_DO_WYSLANIA, eventResponseDelayMs, MAX_ROZMIAR_ODPOWIEDZI);
+            // slave odpowiada 'E' przy błędzie - nie wolno traktować tego jako liczby eventów ('E' = 69)
+            if (response[0] == 'E' || response[0] < 0 || response[0] > MAX_EVENTS_IN_QUEUE) {
+                throw new HardwareException("Nieprawidłowa odpowiedź na 'W' od slave-a " + slaveAdress + ": " + Arrays.toString(response), response);
+            }
             return response[0];
         } catch (HardwareException e) {
             logger.error(e.getMessage());
@@ -515,7 +521,9 @@ public class MasterToSlaveConverter {
     public byte[] readCommandFromSlave(int slaveAdress) throws HardwareException{
         try {
             byte[] response = atmega.transaction(slaveAdress, ODBIERZ_KOMENDE, eventResponseDelayMs, MAX_ROZMIAR_ODPOWIEDZI);
-            logger.debug("readCommandFromSlave got: {}", Arrays.toString(response));
+            if (logger.isDebugEnabled()) {
+                logger.debug("readCommandFromSlave got: {}", Arrays.toString(response));
+            }
             return response;
         } catch (HardwareException e) {
             logger.error(e.getMessage());
@@ -540,7 +548,17 @@ public class MasterToSlaveConverter {
             }
             int howMany = howManyCommandToRead(slaveAdress);
             for (int i = 0; i < howMany; i++) {
-                byte[] command = readCommandFromSlave(slaveAdress);
+                byte[] command;
+                try {
+                    command = readCommandFromSlave(slaveAdress);
+                } catch (HardwareException e) {
+                    if (events.isEmpty()) {
+                        throw e;
+                    }
+                    // eventy odczytane wcześniej zostały już zdjęte z kolejki slave-a - zwróć je, żeby nie przepadły
+                    logger.error("Błąd podczas odczytu eventu {}/{} z slave-a {} - zwracam {} odczytanych eventów", i + 1, howMany, slaveAdress, events.size());
+                    break;
+                }
                 if (command != null && command[0] == 'C') {
                     events.add(command);
                 }
