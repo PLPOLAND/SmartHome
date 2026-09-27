@@ -535,6 +535,9 @@ public class MasterToSlaveConverter {
         List<byte[]> events = new ArrayList<>();
         atmega.lockBus();
         try {
+            if (!atmega.isConnected(slaveAdress)) { // slave zniknął z magistrali (np. po findAll) - nie ma czego odczytywać
+                return events;
+            }
             int howMany = howManyCommandToRead(slaveAdress);
             for (int i = 0; i < howMany; i++) {
                 byte[] command = readCommandFromSlave(slaveAdress);

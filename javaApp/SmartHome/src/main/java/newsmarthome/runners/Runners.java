@@ -3,6 +3,7 @@ package newsmarthome.runners;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,9 @@ public class Runners {
 
     /** Zatrzymuje sprawdzanie automatyki*/
     private volatile boolean stopCheckingAutomation = false;
+
+    /** Wyklucza jednoczesne odpytywanie o eventy i wysyłanie konfiguracji na slave-a */
+    private final ReentrantLock slaveConfigLock = new ReentrantLock();
 
     @Scheduled(fixedDelay = 2)
     void queue(){
@@ -185,27 +189,48 @@ public class Runners {
      */
     @Scheduled(fixedDelayString = "${i2c.event.poll-interval-ms:5}")
     void pollButtonEvents() {
-        if (stopCheckingAutomation) {
+        if (stopCheckingAutomation || !slaveConfigLock.tryLock()) { // w trakcie konfiguracji slave-a nie odpytujemy o eventy
             return;
         }
-        for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
-            try {
-                for (byte[] command : slaveSender.readEventsFromSlave(slaveAdress)) { // odczytaj wszystkie oczekujące eventy
-                    ButtonFunction buttonFunction = beanFactory.getBean(ButtonFunction.class);
-                    buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
-                    logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
-
-                    for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
-                        if (fun.compare(buttonFunction)) { // sprawdź czy funkcja zapisana w systemie jest taka sama jak ta pobrana z slave-a
-                            logger.debug("Znaleziono funkcję: {}", fun);
-                            fun.run();// jeśli tak to wykonaj ją
-                            break;// i przerwij dalsze sprawdzanie
-                        }
-                    }
+        try {
+            for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
+                if (!slaveSender.isSlaveConnected(slaveAdress)) { // slave mógł zniknąć po ponownym skanowaniu magistrali
+                    continue;
                 }
-            } catch (HardwareException e) {
-                logger.error("Error in pollButtonEvents. Error: {}", e.getMessage());
+                List<byte[]> events;
+                try {
+                    events = slaveSender.readEventsFromSlave(slaveAdress); // odczytaj wszystkie oczekujące eventy
+                } catch (HardwareException e) {
+                    logger.error("Error in pollButtonEvents. Error: {}", e.getMessage());
+                    continue;
+                }
+                for (byte[] command : events) {
+                    handleButtonEvent(slaveAdress, command); // błąd jednego eventu nie przerywa obsługi pozostałych
+                }
             }
+        } finally {
+            slaveConfigLock.unlock();
+        }
+    }
+
+    /**
+     * Wykonuje funkcję przypisaną do eventu przycisku odczytanego z slave-a
+     */
+    private void handleButtonEvent(int slaveAdress, byte[] command) {
+        try {
+            ButtonFunction buttonFunction = beanFactory.getBean(ButtonFunction.class);
+            buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
+            logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
+
+            for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
+                if (fun.compare(buttonFunction)) { // sprawdź czy funkcja zapisana w systemie jest taka sama jak ta pobrana z slave-a
+                    logger.debug("Znaleziono funkcję: {}", fun);
+                    fun.run();// jeśli tak to wykonaj ją
+                    break;// i przerwij dalsze sprawdzanie
+                }
+            }
+        } catch (HardwareException e) {
+            logger.error("Error while handling button event {} from slave {}. Error: {}", Arrays.toString(command), slaveAdress, e.getMessage());
         }
     }
 
@@ -233,6 +258,15 @@ public class Runners {
      * @param slaveAdress - adres slave'a na który ma zostać wysłana konfiguracja
      */
     private void configureSlave(int slaveAdress) {
+        slaveConfigLock.lock();
+        try {
+            configureSlaveLocked(slaveAdress);
+        } finally {
+            slaveConfigLock.unlock();
+        }
+    }
+
+    private void configureSlaveLocked(int slaveAdress) {
         this.stopCheckingAutomation = true;
         logger.info("Send configuration to Slave({})", slaveAdress);
         try {
