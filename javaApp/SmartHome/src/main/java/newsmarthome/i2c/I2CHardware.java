@@ -44,6 +44,9 @@ public class I2CHardware implements I2C{
      */
     private final ReentrantLock busLock = new ReentrantLock(true);
 
+    /** Czy trwa restart slave-ów (chronione przez busLock) - zapobiega zapętleniu restartSlaves() -> findAll() -> restartSlaves() */
+    private boolean restarting = false;
+
     public I2CHardware() {
         logger = LoggerFactory.getLogger(this.getClass());
         try {
@@ -113,8 +116,12 @@ public class I2CHardware implements I2C{
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
             for (int i = 7; i < 128; i++) {
                 try {
-                    long timeFromStart = time - System.currentTimeMillis();
-                    if ( timeFromStart>0 && timeFromStart > 1000 * 5 ) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund
+                    long timeFromStart = System.currentTimeMillis() - time;
+                    if (timeFromStart > 1000 * 5) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund
+                        if (restarting) { // skan po restarcie też się zawiesił - nie restartuj ponownie w pętli
+                            logger.error("Sprawdzanie po restarcie trwa za długo... przerywam skanowanie magistrali");
+                            return;
+                        }
                         logger.error("Sprawdzanie trwa za długo... najprawdopodobniej magistrala jest zablokowana. Restartuje slave-y");
                         restartSlaves();
                         return;
@@ -242,6 +249,8 @@ public class I2CHardware implements I2C{
     public void restartSlaves() {
         logger.info("Restartowanie slave-ów");
         busLock.lock();
+        boolean wasRestarting = restarting;
+        restarting = true;
         try {
             pin.setShutdownOptions(true, PinState.HIGH);
             pin.low();
@@ -263,6 +272,7 @@ public class I2CHardware implements I2C{
             logger.info("Slave-y zrestartowane");
             this.findAll();
         } finally {
+            restarting = wasRestarting;
             busLock.unlock();
         }
     }

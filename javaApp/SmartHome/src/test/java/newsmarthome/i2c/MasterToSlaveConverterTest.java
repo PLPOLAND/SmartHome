@@ -93,4 +93,29 @@ class MasterToSlaveConverterTest {
         verify(hardware, never()).transaction(anyInt(), any(), anyLong(), anyInt());
         verify(hardware).unlockBus();
     }
+
+    @Test
+    void readEventsFromSlave_rejectsErrorResponseToW() throws HardwareException {
+        byte[] error = { 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E' };
+        when(hardware.transaction(eq(SLAVE), aryEq(W), anyLong(), anyInt())).thenReturn(error);
+
+        assertThrows(HardwareException.class, () -> converter.readEventsFromSlave(SLAVE));
+
+        verify(hardware, never()).transaction(eq(SLAVE), aryEq(G), anyLong(), anyInt());
+        verify(hardware).unlockBus();
+    }
+
+    @Test
+    void readEventsFromSlave_returnsAlreadyReadEventsWhenLaterReadFails() throws HardwareException {
+        byte[] click = { 'C', 1, 1, 'C', 0, 0, 0, 0 };
+        when(hardware.transaction(eq(SLAVE), aryEq(W), anyLong(), anyInt())).thenReturn(new byte[] { 3, 0, 0, 0, 0, 0, 0, 0 });
+        when(hardware.transaction(eq(SLAVE), aryEq(G), anyLong(), anyInt())).thenReturn(click).thenThrow(new HardwareException("IO"));
+
+        List<byte[]> events = converter.readEventsFromSlave(SLAVE);
+
+        assertEquals(1, events.size());
+        assertArrayEquals(click, events.get(0));
+        verify(hardware, times(2)).transaction(eq(SLAVE), aryEq(G), anyLong(), anyInt());
+        verify(hardware).unlockBus();
+    }
 }
