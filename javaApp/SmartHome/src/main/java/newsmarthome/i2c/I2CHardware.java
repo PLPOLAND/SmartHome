@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.pi4j.io.gpio.GpioController;
@@ -44,8 +45,16 @@ public class I2CHardware implements I2C{
      */
     private final ReentrantLock busLock = new ReentrantLock(true);
 
-    /** Czy trwa restart slave-ów (chronione przez busLock) - zapobiega zapętleniu restartSlaves() -> findAll() -> restartSlaves() */
-    private boolean restarting = false;
+    /** Czy trwa restart slave-ów - zapobiega zapętleniu restartSlaves() -> findAll() -> restartSlaves(). Zapisywane pod busLock, czytane także bez niej */
+    private volatile boolean restarting = false;
+
+    /** Limit czasu skanowania magistrali w findAll() */
+    private static final long SCAN_TIMEOUT_MS = 5_000;
+    /**
+     * Maksymalny czas oczekiwania findAll() na zwolnienie magistrali. Dłuższy niż najdłuższa poprawna transakcja
+     * (ponowienia zapisu/odczytu + opóźnienia), więc przekroczenie oznacza, że wątek trzymający blokadę utknął w I/O.
+     */
+    private static final long BUS_LOCK_TIMEOUT_MS = 10_000;
 
     public I2CHardware() {
         logger = LoggerFactory.getLogger(this.getClass());
@@ -109,15 +118,16 @@ public class I2CHardware implements I2C{
     public void findAll(){
         logger.debug("Szukanie Slave-ów");
         final I2CBus bus;
+        if (!acquireBusForScan()) {
+            return;
+        }
         long time =  System.currentTimeMillis();
-
-        busLock.lock();
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
             for (int i = 7; i < 128; i++) {
                 try {
                     long timeFromStart = System.currentTimeMillis() - time;
-                    if (timeFromStart > 1000 * 5) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund
+                    if (timeFromStart > SCAN_TIMEOUT_MS) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund
                         if (restarting) { // skan po restarcie też się zawiesił - nie restartuj ponownie w pętli
                             logger.error("Sprawdzanie po restarcie trwa za długo... przerywam skanowanie magistrali");
                             return;
@@ -152,6 +162,58 @@ public class I2CHardware implements I2C{
         }
 
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
+    }
+
+    /**
+     * Zajmuje magistralę na potrzeby skanowania, czekając maksymalnie {@link #BUS_LOCK_TIMEOUT_MS}.
+     * Jeśli magistrala jest zajęta dłużej, wątek trzymający blokadę najpewniej utknął w I/O (slave trzyma linię SDA) -
+     * wtedy resetujemy slave-y bez blokady, co przerywa zawieszoną transakcję; jej wątek sam wykona później ponowne skanowanie.
+     *
+     * @return true jeśli blokada została zajęta (należy ją zwolnić), false jeśli skanowanie należy pominąć
+     */
+    private boolean acquireBusForScan() {
+        try {
+            if (busLock.tryLock(BUS_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                return true;
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Przerwano oczekiwanie na magistralę I2C - pomijam skanowanie");
+            return false;
+        }
+        if (restarting) {
+            logger.error("Magistrala I2C zajęta przez restart slave-ów - pomijam skanowanie");
+        } else {
+            logger.error("Magistrala I2C zajęta dłużej niż {} ms - najprawdopodobniej zablokowana. Resetuję slave-y i pomijam skanowanie", BUS_LOCK_TIMEOUT_MS);
+            pulseResetPin();
+        }
+        return false;
+    }
+
+    /**
+     * Wysyła slave'om sygnał resetu (odcina zasilanie na chwilę i czeka na ich uruchomienie)
+     */
+    private void pulseResetPin() {
+        if (pin == null) {
+            logger.warn("Brak pinu RESET - nie można zrestartować slave-ów");
+            return;
+        }
+        pin.setShutdownOptions(true, PinState.HIGH);
+        pin.low();
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
+        }
+
+        pin.high();
+
+        try {
+            Thread.sleep(3000);//oczekiwanie na uruchomienie się slave-ów
+        } catch (InterruptedException e) {
+            logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
+        }
     }
 
     /**
@@ -252,22 +314,7 @@ public class I2CHardware implements I2C{
         boolean wasRestarting = restarting;
         restarting = true;
         try {
-            pin.setShutdownOptions(true, PinState.HIGH);
-            pin.low();
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
-            }
-
-            pin.high();
-
-            try {
-                Thread.sleep(3000);//oczekiwanie na uruchomienie się slave-ów
-            } catch (InterruptedException e) {
-                logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
-            }
+            pulseResetPin();
 
             logger.info("Slave-y zrestartowane");
             this.findAll();
