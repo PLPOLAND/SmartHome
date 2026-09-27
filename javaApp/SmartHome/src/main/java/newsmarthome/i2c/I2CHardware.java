@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.PriorityQueue;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -19,7 +20,6 @@ import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import newsmarthome.exception.HardwareException;
@@ -28,25 +28,30 @@ import newsmarthome.exception.SlaveNotFoundException;
 @Service
 public class I2CHardware implements I2C{
 
-    ArrayList<I2CSlave> devices;
+    /** Slave-y znalezione na magistrali (adres -> slave). Współbieżna mapa, bo findAll() modyfikuje ją w trakcie odczytów z innych wątków */
+    final Map<Integer, I2CSlave> devices = new ConcurrentHashMap<>();
     Logger logger;
 
     //Do restartowania
     GpioController gpio;
     GpioPinDigitalOutput pin;
-    volatile boolean isOccupied = false;
 
-    PriorityBlockingQueue<I2CMessage> queue = new PriorityBlockingQueue<>(40, I2CMessage::compareByPriorityTo);
+    /**
+     * Blokada magistrali I2C. Każda transakcja (zapis + odczyt odpowiedzi) wykonywana jest pod tą blokadą,
+     * dzięki czemu odpowiedzi slave-a nie mieszają się pomiędzy wątkami.
+     * Blokada jest "fair" - wątek czekający najdłużej dostaje magistralę jako pierwszy, więc odpytywanie
+     * eventów z przycisków czeka co najwyżej na jedną bieżącą transakcję.
+     */
+    private final ReentrantLock busLock = new ReentrantLock(true);
 
     public I2CHardware() {
         logger = LoggerFactory.getLogger(this.getClass());
-        devices = new ArrayList<>();
         try {
             gpio = GpioFactory.getInstance();
             pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "RESET", PinState.HIGH);
             findAll();
             logger.info("Searching for devices");
-            
+
         }
         catch (UnsatisfiedLinkError e) {
             logger.error("platform does not support this driver");
@@ -57,80 +62,59 @@ public class I2CHardware implements I2C{
     }
 
     /**
-     *  Wysyła wiadomości z kolejki
+     * Zajmuje magistralę I2C na wyłączność bieżącego wątku. Musi być zawsze sparowane z {@link #unlockBus()} w bloku finally.
      */
-    @Scheduled(fixedDelay = 1)
-    public void sendMessages() {
-        I2CMessage msg = null;
-        try {
-            if (queue.isEmpty()) {
-                logger.debug("I2C Queue is empty");
-                return;
-
-            }
-            msg = queue.peek();
-            logger.debug("Sending message: {}", msg);
-            writeMessage(msg);
-            msg.setSent();
-            queue.remove(msg);
-        } catch (HardwareException e) {
-            msg.setError();
-            logger.error("Error while sending messages", e);
-        } catch (SlaveNotFoundException e) {
-            msg.setError();
-            logger.error("Error while sending messages", e);
-            restartSlaves();
-        }
+    public void lockBus() {
+        busLock.lock();
     }
+
     /**
-     * Ustawia flagę, że inny proces aktualnie używa interfejsu I2C
-     * @param isOccup
+     * Zwalnia magistralę I2C zajętą przez {@link #lockBus()}
      */
-    public void setOccupied(boolean isOccup){
-        if (isOccup) {
-            // logger.debug("Occupied");
-            this.isOccupied = isOccup;
-        }
-        else{
-            // logger.debug("END Occupied start");
-            // new Thread(()->{
-                // try {
-                //     Thread.sleep(5);//opóźnienie przed kolejną operacją odczytu/wysłania
-                // } catch (InterruptedException e) {
-                //     e.printStackTrace();
-                // }
-                this.isOccupied = false;
-                // logger.debug("END Occupied stop");
-            // }).start();
-            
-        }
-        
+    public void unlockBus() {
+        busLock.unlock();
     }
 
-    public void pauseIfOcupied() {
-        // while (isOccupied) {
-        //     try {
-        //         Thread.sleep(5);
-        //     } catch (InterruptedException e) {
-        //         logger.error(e.getMessage(), e);
-        //     }
-        // }
+    /**
+     * Wykonuje atomową transakcję: wysyła komendę do slave-a, opcjonalnie czeka i odczytuje odpowiedź.
+     * Żaden inny wątek nie skorzysta z magistrali pomiędzy zapisem a odczytem.
+     *
+     * @param address - adres slave-a
+     * @param command - komenda do wysłania
+     * @param delayMs - czas oczekiwania pomiędzy zapisem a odczytem (0 - bez czekania)
+     * @param responseSize - rozmiar odpowiedzi
+     * @return odpowiedź slave-a
+     */
+    public byte[] transaction(int address, byte[] command, long delayMs, int responseSize) throws HardwareException {
+        busLock.lock();
+        try {
+            writeTo(address, command);
+            if (delayMs > 0) {
+                try {
+                    Thread.sleep(delayMs);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    logger.error("Przerwano oczekiwanie na odpowiedź slave-a {}", address);
+                }
+            }
+            return readFrom(address, responseSize);
+        } finally {
+            busLock.unlock();
+        }
     }
 
     public void findAll(){
         logger.debug("Szukanie Slave-ów");
-        List<Integer> validAddresses = new ArrayList<>();
         final I2CBus bus;
-        // pauseIfOcupied();
-        // setOccupied(true);
         long time =  System.currentTimeMillis();
 
+        busLock.lock();
         try {
             bus = I2CFactory.getInstance(I2CBus.BUS_1);
             for (int i = 7; i < 128; i++) {
                 try {
-                    long timeFromStart = time - System.currentTimeMillis(); 
-                    if ( timeFromStart>0 && timeFromStart > 1000 * 5 ) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund 
+                    long timeFromStart = time - System.currentTimeMillis();
+                    if ( timeFromStart>0 && timeFromStart > 1000 * 5 ) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund
                         logger.error("Sprawdzanie trwa za długo... najprawdopodobniej magistrala jest zablokowana. Restartuje slave-y");
                         restartSlaves();
                         return;
@@ -140,29 +124,11 @@ public class I2CHardware implements I2C{
                     byte[] buffer = new byte[8];
                     device.read(buffer, 0, 8);
                     logger.debug("Znaleziono Slave o adresie: {}",i);
-                    boolean was = false;
-                    for (I2CSlave dev : devices) {
-                        if (dev.getDevice().getAddress() == i) {
-                            was = true;
-                            break;
-                        }
-                    }
-                    if (!was) {
-                        devices.add(new I2CSlave(device));
+                    if (devices.putIfAbsent(i, new I2CSlave(device)) == null) {
                         logger.debug("Dodano Slave o adresie: {}", i);
                     }
-                    if (!validAddresses.contains(i)) {
-                        validAddresses.add(i);
-                    }
                 } catch (Exception ignore) {
-                    I2CSlave tmp = null;
-                    for (I2CSlave dev : devices) {
-                        if (dev.getDevice().getAddress() == i) {
-                            tmp = dev;
-                            break;
-                        }
-                    }
-                    devices.remove(tmp);
+                    devices.remove(i);
 
                     logger.debug("Sprawdzono: {} i nie jest to prawidłowy adres", i);
                     // ignorujemy... świadczy o tym że nie ma urządzenia z takim adresem
@@ -174,60 +140,51 @@ public class I2CHardware implements I2C{
         catch (IOException e) {
             logger.error("Error on searching", e);
         }
+        finally {
+            busLock.unlock();
+        }
 
         logger.debug("Znaleziono Slave-ów: {}", devices.size());
     }
-    
-    
+
+    /**
+     * Wysyła komendę bezpośrednio do slave-a (synchronicznie, pod blokadą magistrali)
+     */
     public void writeTo(int adres, byte[] buffer) throws HardwareException{
-        logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
-
-        I2CMessage msg = new I2CMessage(adres, buffer);
-
-        if (queue.contains(msg)) {
-            logger.warn("Message already in queue");
-            return;
-        }
-        queue.add(msg);
-        msg.waitToSend();//czekanie na wysłanie
-        if (msg.isError()) {   
-            throw new HardwareException("Błąd podczas wysyłania wiadomości do Slave-a o adresie: " + adres);
-        } else {
-            logger.debug("Wiadomość wysłana do Slave-a o adresie: {}", adres);
-        }
-
-    }
-    
-    public void writeTo(int adres, byte[] buffer,int priority) throws HardwareException{
-        logger.debug("Writing {} -> '{}'", Arrays.toString(buffer),adres);
-
-        I2CMessage msg = new I2CMessage(adres,buffer,priority);
-
-        if (queue.contains(msg)) {
-            logger.warn("Message already in queue");
-            return;
-        }
-        queue.add(msg);
-        msg.waitToSend();//czekanie na wysłanie
-        if (msg.isError()) {   
-            throw new HardwareException("Błąd podczas wysyłania wiadomości do Slave-a o adresie: " + adres);
-        } else {
-            logger.debug("Wiadomość wysłana do Slave-a o adresie: {}", adres);
-        }
-
-    }
-    private void writeMessage(I2CMessage msg) throws HardwareException, SlaveNotFoundException{
-        logger.debug("Writing {} -> '{}'", Arrays.toString(msg.getData()),msg.getAddress());
-
-        I2CSlave tmp = null;
-        for (I2CSlave device : devices) {
-            if (device.getDevice().getAddress() == msg.getAddress()) {
-                tmp = device;
+        busLock.lock();
+        try {
+            writeMessage(new I2CMessage(adres, buffer));
+            if (logger.isDebugEnabled()) {
+                logger.debug("Wiadomość wysłana do Slave-a o adresie: {}", adres);
             }
+        } catch (SlaveNotFoundException e) {
+            logger.error("Error while sending messages", e);
+            restartSlaves();
+            throw new HardwareException("Błąd podczas wysyłania wiadomości do Slave-a o adresie: " + adres);
+        } finally {
+            busLock.unlock();
         }
+    }
+
+    /**
+     * @deprecated priorytet nie ma już znaczenia - wiadomości są wysyłane synchronicznie pod blokadą magistrali.
+     * Użyj {@link #writeTo(int, byte[])}
+     */
+    @Deprecated
+    public void writeTo(int adres, byte[] buffer,int priority) throws HardwareException{
+        writeTo(adres, buffer);
+    }
+
+    private void writeMessage(I2CMessage msg) throws HardwareException, SlaveNotFoundException{
+        if (logger.isDebugEnabled()) {
+            logger.debug("Writing {} -> '{}'", Arrays.toString(msg.getData()),msg.getAddress());
+        }
+
+        I2CSlave tmp = devices.get(msg.getAddress());
         if (tmp == null) {
             throw new SlaveNotFoundException("System nie znalazł Slave-a o takim adresie: "+ msg.getAddress());
         } else {
+            busLock.lock();
             try {
                 tmp.getDevice().write(msg.getData());
             } catch (IOException e) {
@@ -238,95 +195,96 @@ public class I2CHardware implements I2C{
                     throw h;
                 }
 
-            } 
+            } finally {
+                busLock.unlock();
+            }
         }
     }
     public void writeToSized(int adres, byte[] buffer, int size) throws HardwareException, SlaveNotFoundException{
         byte[] tmpbuff = new byte[size];
-        
+
         System.arraycopy(buffer, 0, tmpbuff, 0, size);//kopiowanie tablicy do nowej tablicy o odpowiednim rozmiarze
-        
+
         writeMessage(new I2CMessage(adres, tmpbuff));
     }
     public byte[] readFrom(int adres, int size) throws HardwareException{
         byte[] buffer = new byte[size];
-        I2CSlave tmp = null;
-        for (I2CSlave device : devices) {
-            if(device.getDevice().getAddress() == adres){
-                tmp = device;
-            }
-        }
+        I2CSlave tmp = devices.get(adres);
         if (tmp == null) {
             throw new HardwareException("System nie znalazł Slave-a o takim adresie: " + adres);
         }
         else{
+            busLock.lock();
             try {
-
-                //Thread.sleep(100);
                 tmp.getDevice().read(buffer, 0, size);
             } catch (IOException e) {
                 try {
                     retryRead(tmp.getDevice(), size, buffer);
-                    
+
                 } catch (HardwareException h) {
                     this.restartSlaves();
                     throw h;
                 }
-            } //catch (InterruptedException e) {
-                //e.printStackTrace();
-          //  }
+            } finally {
+                busLock.unlock();
+            }
         }
-        logger.debug("Got {} <- '{}'", Arrays.toString(buffer), adres);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Got {} <- '{}'", Arrays.toString(buffer), adres);
+        }
         return buffer;
     }
-    
+
     /**
      * Odcina zasilanie slave-ów na krótki czas aby wymusić ich ponowne uruchomienie
      */
     @Override
     public void restartSlaves() {
         logger.info("Restartowanie slave-ów");
-        setOccupied(true);
-        
-        pin.setShutdownOptions(true, PinState.HIGH);
-        pin.low();
-        
+        busLock.lock();
         try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
-        }
-        
-        pin.high();
-        
-        try {
-            Thread.sleep(3000);//oczekiwanie na uruchomienie się slave-ów
-        } catch (InterruptedException e) {
-            logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
-        }
+            pin.setShutdownOptions(true, PinState.HIGH);
+            pin.low();
 
-        setOccupied(false);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
+            }
 
-        logger.info("Slave-y zrestartowane");
-        this.findAll();
+            pin.high();
+
+            try {
+                Thread.sleep(3000);//oczekiwanie na uruchomienie się slave-ów
+            } catch (InterruptedException e) {
+                logger.error("BŁĄD PODCZAS USYPIANIA WĄTKU", e);
+            }
+
+            logger.info("Slave-y zrestartowane");
+            this.findAll();
+        } finally {
+            busLock.unlock();
+        }
     }
 
     @Override
     public List<Integer> getDevices() {
-        List<Integer> tmp = new ArrayList<>();
-        for (I2CSlave device : devices) {
-            tmp.add(device.getDevice().getAddress());
-        }
-        return tmp;
+        return new ArrayList<>(devices.keySet());
+    }
+
+    /**
+     * Sprawdza czy slave o podanym adresie został znaleziony na magistrali
+     */
+    public boolean isConnected(int address) {
+        return devices.containsKey(address);
     }
 
     protected I2CSlave findDevice(int address) throws SlaveNotFoundException{
-        for (I2CSlave device : devices) {
-            if (device.getDevice().getAddress() == address) {
-                return device;
-            }
+        I2CSlave device = devices.get(address);
+        if (device == null) {
+            throw new SlaveNotFoundException("System nie znalazł Slave-a o takim adresie: " + address);
         }
-        throw new SlaveNotFoundException("System nie znalazł Slave-a o takim adresie: " + address);
+        return device;
     }
 
     public void retryWrite(byte[] toWrite, I2CDevice slave) throws HardwareException{
@@ -379,7 +337,7 @@ public class I2CHardware implements I2C{
     public byte[] read(int address, int size, int commandID) throws HardwareException{
         return readFrom(address, size);
     }
-    
+
     public byte[] read(int address, int size) throws HardwareException{
         return readFrom(address, size);
     }
