@@ -28,6 +28,7 @@ class MasterToSlaveConverterTest {
         converter = new MasterToSlaveConverter();
         converter.atmega = hardware;
         converter.eventResponseDelayMs = 1;
+        when(hardware.isConnected(SLAVE)).thenReturn(true);
     }
 
     @Test
@@ -80,6 +81,16 @@ class MasterToSlaveConverterTest {
         assertThrows(HardwareException.class, () -> converter.readEventsFromSlave(SLAVE));
 
         verify(hardware).lockBus();
+        verify(hardware).unlockBus();
+    }
+
+    @Test
+    void readEventsFromSlave_skipsSlaveRemovedFromBus() throws HardwareException {
+        when(hardware.isConnected(SLAVE)).thenReturn(false);
+
+        assertTrue(converter.readEventsFromSlave(SLAVE).isEmpty());
+
+        verify(hardware, never()).transaction(anyInt(), any(), anyLong(), anyInt());
         verify(hardware).unlockBus();
     }
 }
