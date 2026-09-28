@@ -48,6 +48,9 @@ public class I2CHardware implements I2C{
     /** Czy trwa restart slave-ów - zapobiega zapętleniu restartSlaves() -> findAll() -> restartSlaves(). Zapisywane pod busLock, czytane także bez niej */
     private volatile boolean restarting = false;
 
+    /** Serializuje impulsy RESET - kilka wątków odzyskujących zablokowaną magistralę nie może przeplatać stanów LOW/HIGH */
+    private final ReentrantLock resetLock = new ReentrantLock();
+
     /** Limit czasu skanowania magistrali w findAll() */
     private static final long SCAN_TIMEOUT_MS = 5_000;
     /**
@@ -106,7 +109,8 @@ public class I2CHardware implements I2C{
                     Thread.sleep(delayMs);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    logger.error("Przerwano oczekiwanie na odpowiedź slave-a {}", address);
+                    // slave mógł jeszcze nie skończyć pracy (np. dodawanie czujnika, reinicjalizacja) - nie czytamy niepełnej odpowiedzi
+                    throw new HardwareException("Przerwano oczekiwanie na odpowiedź slave-a o adresie: " + address, e);
                 }
             }
             return readFrom(address, responseSize);
@@ -128,6 +132,8 @@ public class I2CHardware implements I2C{
                 try {
                     long timeFromStart = System.currentTimeMillis() - time;
                     if (timeFromStart > SCAN_TIMEOUT_MS) { // jeśli czas od rozpoczęcia szukania jest dłuższy niż 5 sekund
+                        final int firstUnscanned = i;
+                        devices.keySet().removeIf(address -> address >= firstUnscanned); // nie zostawiaj nieaktualnych slave-ów z niesprawdzonych adresów
                         if (restarting) { // skan po restarcie też się zawiesił - nie restartuj ponownie w pętli
                             logger.error("Sprawdzanie po restarcie trwa za długo... przerywam skanowanie magistrali");
                             return;
@@ -184,9 +190,15 @@ public class I2CHardware implements I2C{
         }
         if (restarting) {
             logger.error("Magistrala I2C zajęta przez restart slave-ów - pomijam: {}", operation);
+        } else if (!resetLock.tryLock()) { // inny wątek już resetuje zablokowaną magistralę
+            logger.error("Magistrala I2C zajęta, reset slave-ów już trwa - pomijam: {}", operation);
         } else {
-            logger.error("Magistrala I2C zajęta dłużej niż {} ms - najprawdopodobniej zablokowana. Resetuję slave-y i pomijam: {}", BUS_LOCK_TIMEOUT_MS, operation);
-            pulseResetPin();
+            try {
+                logger.error("Magistrala I2C zajęta dłużej niż {} ms - najprawdopodobniej zablokowana. Resetuję slave-y i pomijam: {}", BUS_LOCK_TIMEOUT_MS, operation);
+                pulseResetPin();
+            } finally {
+                resetLock.unlock();
+            }
         }
         return false;
     }
@@ -199,6 +211,15 @@ public class I2CHardware implements I2C{
             logger.warn("Brak pinu RESET - nie można zrestartować slave-ów");
             return;
         }
+        resetLock.lock();
+        try {
+            pulseResetPinLocked();
+        } finally {
+            resetLock.unlock();
+        }
+    }
+
+    private void pulseResetPinLocked() {
         pin.setShutdownOptions(true, PinState.HIGH);
         pin.low();
 
