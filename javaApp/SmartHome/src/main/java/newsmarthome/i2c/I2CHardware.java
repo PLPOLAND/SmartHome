@@ -118,7 +118,7 @@ public class I2CHardware implements I2C{
     public void findAll(){
         logger.debug("Szukanie Slave-ów");
         final I2CBus bus;
-        if (!acquireBusForScan()) {
+        if (!acquireBusOrRecover("skanowanie")) {
             return;
         }
         long time =  System.currentTimeMillis();
@@ -165,26 +165,27 @@ public class I2CHardware implements I2C{
     }
 
     /**
-     * Zajmuje magistralę na potrzeby skanowania, czekając maksymalnie {@link #BUS_LOCK_TIMEOUT_MS}.
+     * Zajmuje magistralę na potrzeby skanowania lub restartu, czekając maksymalnie {@link #BUS_LOCK_TIMEOUT_MS}.
      * Jeśli magistrala jest zajęta dłużej, wątek trzymający blokadę najpewniej utknął w I/O (slave trzyma linię SDA) -
      * wtedy resetujemy slave-y bez blokady, co przerywa zawieszoną transakcję; jej wątek sam wykona później ponowne skanowanie.
      *
-     * @return true jeśli blokada została zajęta (należy ją zwolnić), false jeśli skanowanie należy pominąć
+     * @param operation - nazwa operacji do logów
+     * @return true jeśli blokada została zajęta (należy ją zwolnić), false jeśli operację należy pominąć
      */
-    private boolean acquireBusForScan() {
+    private boolean acquireBusOrRecover(String operation) {
         try {
             if (busLock.tryLock(BUS_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 return true;
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            logger.error("Przerwano oczekiwanie na magistralę I2C - pomijam skanowanie");
+            logger.error("Przerwano oczekiwanie na magistralę I2C - pomijam: {}", operation);
             return false;
         }
         if (restarting) {
-            logger.error("Magistrala I2C zajęta przez restart slave-ów - pomijam skanowanie");
+            logger.error("Magistrala I2C zajęta przez restart slave-ów - pomijam: {}", operation);
         } else {
-            logger.error("Magistrala I2C zajęta dłużej niż {} ms - najprawdopodobniej zablokowana. Resetuję slave-y i pomijam skanowanie", BUS_LOCK_TIMEOUT_MS);
+            logger.error("Magistrala I2C zajęta dłużej niż {} ms - najprawdopodobniej zablokowana. Resetuję slave-y i pomijam: {}", BUS_LOCK_TIMEOUT_MS, operation);
             pulseResetPin();
         }
         return false;
@@ -310,7 +311,9 @@ public class I2CHardware implements I2C{
     @Override
     public void restartSlaves() {
         logger.info("Restartowanie slave-ów");
-        busLock.lock();
+        if (!acquireBusOrRecover("restart pod blokadą")) {
+            return; // magistrala zablokowana - slave-y zostały już zresetowane bez blokady (albo restart właśnie trwa)
+        }
         boolean wasRestarting = restarting;
         restarting = true;
         try {
