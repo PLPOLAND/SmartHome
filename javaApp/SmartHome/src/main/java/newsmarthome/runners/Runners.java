@@ -220,6 +220,10 @@ public class Runners {
         try {
             ButtonFunction buttonFunction = beanFactory.getBean(ButtonFunction.class);
             buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
+            if (buttonFunction.getButton() == null) { // przycisk o tym ID nie istnieje (już) w systemie - ramka nieaktualna lub błędna
+                logger.warn("Pominięto event {} z slave-a {}: nie znaleziono przycisku", Arrays.toString(command), slaveAdress);
+                return;
+            }
             logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
 
             for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
@@ -231,6 +235,8 @@ public class Runners {
             }
         } catch (HardwareException e) {
             logger.error("Error while handling button event {} from slave {}. Error: {}", Arrays.toString(command), slaveAdress, e.getMessage());
+        } catch (RuntimeException e) { // np. błędna ramka (ClassCastException) - nie może przerwać obsługi pozostałych eventów
+            logger.error("Unexpected error while handling button event {} from slave {}", Arrays.toString(command), slaveAdress, e);
         }
     }
 
