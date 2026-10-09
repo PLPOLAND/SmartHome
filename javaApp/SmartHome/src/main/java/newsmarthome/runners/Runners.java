@@ -191,11 +191,15 @@ public class Runners {
                                 if (command != null && command[0] == 'C') { // jeśli komenda jest komendą
                                     ButtonFunction buttonFunction = beanFactory.getBean(ButtonFunction.class);
                                     buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
-                                    logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
-                                    if (buttonFunction.getButton() != null) {
-                                        mqttStatePublisher.publishButtonEvent(buttonFunction.getButton(),
-                                                buttonFunction.getClickType(), buttonFunction.getClicks());
+                                    if (buttonFunction.getButton() == null) {
+                                        // compare() i toString() dereferencjonują przycisk - bez niego pomijamy komendę
+                                        logger.warn("Komenda przycisku {} z slave-a {} nie pasuje do żadnego przycisku",
+                                                Arrays.toString(command), slaveAdress);
+                                        continue;
                                     }
+                                    logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
+                                    mqttStatePublisher.publishButtonEvent(buttonFunction.getButton(),
+                                            buttonFunction.getClickType(), buttonFunction.getClicks());
 
                                     for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
                                         if (fun.compare(buttonFunction)) { // sprawdź czy funkcja zapisana w systemie jest taka sama jak ta pobrana z slave-a
