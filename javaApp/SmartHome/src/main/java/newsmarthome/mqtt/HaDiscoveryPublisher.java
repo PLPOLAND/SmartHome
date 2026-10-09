@@ -311,7 +311,16 @@ public class HaDiscoveryPublisher {
             return;
         }
         recreating.keySet().removeAll(topics);
-        republish.run();
+        try {
+            republish.run();
+        } catch (RuntimeException e) {
+            // config jest już usunięty z brokera - bez ponowienia encja zniknęłaby z HA do reconnectu
+            if (attempt >= MAX_RECREATE_ATTEMPTS) {
+                throw e;
+            }
+            logger.warn("Błąd podczas {} (próba {}): {}", description, attempt, e.getMessage());
+            schedule(() -> recreate(topics, republish, description, attempt + 1), recreateDelayMs, description);
+        }
     }
 
     private long notBeforeFromNow() {

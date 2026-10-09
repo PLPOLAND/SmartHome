@@ -174,14 +174,13 @@ public class SensorsController {
 							if (room == null)
 								return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
 							int pinInt = Integer.parseInt(pin);
-							List<ButtonLocalFunction> clickFunctions = null;
+							List<ButtonLocalFunction> clickFunctions = new ArrayList<>();
 							if (automations != null) {
 								clickFunctions = parseClickFunctions(automations);
 								if (clickFunctions == null)
 									return new Response<>(null, INVALID_CLICK_FUNCTION);
 							}
-							Button button = systemDAO.addButton(room, name, slaveIDint, pinInt,
-									clickFunctions != null ? clickFunctions : new ArrayList<>());
+							Button button = systemDAO.addButton(room, name, slaveIDint, pinInt, clickFunctions);
 							logger.info(button.toString());
 							haDiscoveryPublisher.publishSensor(button);
 							return new Response<>(button);

@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -603,12 +602,7 @@ public class SystemDAO {
     }
 
     public Sensor getSensorByID(int id) {
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getId() == id) {
-                return sensor;
-            }
-        }
-        return null;
+        return getSensor(id);
     }
 
     // public void addDevice(Device device) {
@@ -671,10 +665,6 @@ public class SystemDAO {
         }
         save(room);
         return sensor;
-    }
-
-    public Button addButton(Room room, String name, int slaveID, int pin){
-        return addButton(room, name, slaveID, pin, Collections.emptyList());
     }
 
     /**
