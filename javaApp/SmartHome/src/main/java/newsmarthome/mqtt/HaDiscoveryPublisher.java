@@ -131,17 +131,18 @@ public class HaDiscoveryPublisher {
     }
 
     private void publishAllBatched() {
-        Set<String> cleared = new HashSet<>();
         for (String topic : pendingRemovals) {
             if (clearConfig(topic)) {
                 // zaległe usunięcie mogło być częścią przeniesienia - odtwarzamy z opóźnieniem
                 recreating.put(topic, notBeforeFromNow());
-                cleared.add(topic);
             }
         }
+        // przejmujemy też odtworzenia zatrzymane przez utratę połączenia (recreate kończy się wtedy
+        // z topicami w recreating - np. higrometr, któremu usunięcie przeszło tylko dla części encji)
+        Set<String> toRecreate = new HashSet<>(recreating.keySet());
         publishConfigs(null);
-        if (!cleared.isEmpty()) {
-            scheduleRecreate(cleared, () -> publishConfigs(cleared), "publikacji discovery po zaległych usunięciach");
+        if (!toRecreate.isEmpty()) {
+            scheduleRecreate(toRecreate, () -> publishConfigs(toRecreate), "publikacji discovery po zaległych usunięciach");
         }
     }
 
@@ -247,14 +248,14 @@ public class HaDiscoveryPublisher {
             return;
         }
         // nieznany topic bez pliku stanu: config sprzed identyfikatorów z pokojem - odtwarzamy jak przy zmianie
-        // nowy identyfikator zapisujemy od razu - usunięcie starego configu gwarantują zaległe usunięcia
-        // (przetrwają restart), a odtworzenie: recreate albo publishAll po reconnect
-        configs.forEach((topic, config) -> publishedIdentifiers.put(topic, MqttTopics.haDeviceIdentifierOf(config)));
-        savePublishedIdentifiers();
+        // najpierw usunięcie (nieudane trafia do zaległych), dopiero potem nowy identyfikator - przy
+        // przerwie między zapisami restart wykryje zmianę ponownie, zamiast publikować na stary config
         for (String topic : configs.keySet()) {
             clearConfig(topic);
             recreating.put(topic, notBeforeFromNow());
         }
+        configs.forEach((topic, config) -> publishedIdentifiers.put(topic, MqttTopics.haDeviceIdentifierOf(config)));
+        savePublishedIdentifiers();
         scheduleRecreate(configs.keySet(), republish, description);
     }
 

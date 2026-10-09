@@ -30,6 +30,7 @@ import newsmarthome.database.SystemDAO;
 import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
 
 class HaDiscoveryPublisherTest {
@@ -137,6 +138,33 @@ class HaDiscoveryPublisherTest {
         verify(gateway, times(3)).publish(LIGHT_TOPIC, "", true);
         verify(gateway, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
         verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+    }
+
+    @Test
+    void reconnectFinishesRecreateStalledAfterPartialRemoval() {
+        String temperatureTopic = "homeassistant/sensor/smarthome_sensor_20/config";
+        String humidityTopic = "homeassistant/sensor/smarthome_sensor_20_humidity/config";
+        MqttGateway gateway = gateway(true);
+        // połączenie zrywa się między usunięciem encji temperatury a wilgotności
+        when(gateway.publish(humidityTopic, "", true)).thenReturn(false);
+        when(gateway.isConnected()).thenReturn(false);
+        Higrometr higrometr = new Higrometr();
+        higrometr.setId(20);
+        SystemDAO systemDAO = systemDAO();
+        when(systemDAO.getSensor(20)).thenReturn(higrometr);
+        when(systemDAO.getSensorsSnapshot()).thenReturn(new ArrayList<>(Collections.singletonList(higrometr)));
+        HaDiscoveryPublisher publisher = publisher(gateway, systemDAO, tempDir.resolve("pending.txt"));
+
+        publisher.publishSensor(higrometr);
+        verify(gateway, after(300).times(2)).publish(humidityTopic, "", true);
+
+        when(gateway.publish(humidityTopic, "", true)).thenReturn(true);
+        when(gateway.isConnected()).thenReturn(true);
+        publisher.publishAll();
+
+        // obie encje wracają, także temperatura, której usunięcie przeszło przed zerwaniem
+        verify(gateway, timeout(2000)).publish(eq(temperatureTopic), contains("temperature"), eq(true));
+        verify(gateway, timeout(2000)).publish(eq(humidityTopic), contains("humidity"), eq(true));
     }
 
     @Test

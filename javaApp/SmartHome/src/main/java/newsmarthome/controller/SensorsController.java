@@ -180,11 +180,9 @@ public class SensorsController {
 								if (clickFunctions == null)
 									return new Response<>(null, INVALID_CLICK_FUNCTION);
 							}
-							Button button = systemDAO.addButton(room, name, slaveIDint, pinInt);
-							if (clickFunctions != null) {
-								button.addFunkcjeKlikniec(clickFunctions);
-								logger.info(button.toString());
-							}
+							Button button = systemDAO.addButton(room, name, slaveIDint, pinInt,
+									clickFunctions != null ? clickFunctions : new ArrayList<>());
+							logger.info(button.toString());
 							haDiscoveryPublisher.publishSensor(button);
 							return new Response<>(button);
 						}
@@ -351,9 +349,9 @@ public class SensorsController {
 		return functions;
 	}
 
-	/** Liczba całkowita, także zapisana jako tekst - tak jak dotąd przyjmowało asInt(). */
+	/** Nieujemna liczba całkowita, także zapisana jako tekst - tak jak dotąd przyjmowało asInt(). */
 	private static boolean isInteger(JsonNode node) {
-		return node.isInt() || (node.isTextual() && node.asText().matches("-?\\d+"));
+		return (node.isInt() && node.asInt() >= 0) || (node.isTextual() && node.asText().matches("\\d+"));
 	}
 
 }

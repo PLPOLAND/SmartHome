@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -673,10 +674,19 @@ public class SystemDAO {
     }
 
     public Button addButton(Room room, String name, int slaveID, int pin){
+        return addButton(room, name, slaveID, pin, Collections.emptyList());
+    }
+
+    /**
+     * Dodaje przycisk razem z funkcjami kliknięć - muszą być przypięte przed addSensor, który wysyła
+     * konfigurację na slave-a (configure) i zapisuje pokój.
+     */
+    public Button addButton(Room room, String name, int slaveID, int pin, List<ButtonLocalFunction> clickFunctions){
         Button button = (Button) hardwareFactory.createSensor(SensorsTypes.BUTTON);
         button.setSlaveAdress(slaveID);
         button.setNazwa(name);
         button.setPin(pin);
+        button.addFunkcjeKlikniec(clickFunctions);
         button = (Button) addSensor(room, button);
         return button;
     }
