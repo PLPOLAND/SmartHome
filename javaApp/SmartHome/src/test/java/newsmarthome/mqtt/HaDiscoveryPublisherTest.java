@@ -97,6 +97,26 @@ class HaDiscoveryPublisherTest {
     }
 
     @Test
+    void identifiersFileWithoutMigrationMarkerKeepsMigrationPending() {
+        Path pending = tempDir.resolve("pending.txt");
+        // plik zapisany przed pierwszym pełnym publishAll (np. czujnik dodany przy niedostępnym brokerze)
+        HaDiscoveryPublisher before = publisher(gateway(false), systemDAO(), pending);
+        Button button = new Button(8, 3);
+        button.setId(12);
+        before.publishSensor(button);
+        before.stop();
+        assertTrue(Files.exists(tempDir.resolve("identifiers.txt")));
+
+        MqttGateway online = gateway(true);
+        Light legacy = light(1);
+        HaDiscoveryPublisher after = publisher(online, systemDAOWith(legacy), pending);
+        after.publishDevice(legacy);
+
+        // stary config urządzenia nadal musi zostać odtworzony z nowym identyfikatorem
+        verify(online).publish(LIGHT_TOPIC, "", true);
+    }
+
+    @Test
     void offlineRecreateStopsAndReconnectFinishesIt() {
         Path pending = tempDir.resolve("pending.txt");
         MqttGateway gateway = gateway(false);

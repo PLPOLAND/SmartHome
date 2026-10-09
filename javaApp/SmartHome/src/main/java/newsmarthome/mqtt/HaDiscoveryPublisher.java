@@ -2,9 +2,11 @@ package newsmarthome.mqtt;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -46,6 +48,9 @@ import newsmarthome.model.hardware.sensor.SensorsTypes;
 @Service
 public class HaDiscoveryPublisher {
 
+    /** Pierwsza linia pliku identyfikatorów po zakończonej migracji. */
+    private static final String MIGRATED_MARKER = "# migrated";
+
     private final Logger logger = LoggerFactory.getLogger(HaDiscoveryPublisher.class);
     private final MqttGateway gateway;
     private final SystemDAO systemDAO;
@@ -65,9 +70,9 @@ public class HaDiscoveryPublisher {
         return t;
     });
     /**
-     * Czy migracja do identyfikatorów z pokojem jest zakończona (plik identyfikatorów istniał przy
-     * starcie albo przeszedł pełny publishAll). Przed nią nieznany topic może być starym configiem,
-     * który trzeba odtworzyć; po niej - to nowy obiekt, publikowany od razu.
+     * Czy migracja do identyfikatorów z pokojem jest zakończona, czyli przeszedł pełny publishAll
+     * (znacznik {@link #MIGRATED_MARKER} w pliku identyfikatorów). Przed nią nieznany topic może być
+     * starym configiem, który trzeba odtworzyć; po niej - to nowy obiekt, publikowany od razu.
      */
     private boolean identifiersKnown;
     /** W trakcie publishAll zapis identyfikatorów odkładamy na koniec - jeden zapis zamiast N. */
@@ -99,8 +104,11 @@ public class HaDiscoveryPublisher {
             pendingRemovals.add(line);
         }
         asyncExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-        identifiersKnown = Files.exists(Paths.get(publishedIdentifiersFile));
         for (String line : readLines(publishedIdentifiersFile)) {
+            if (MIGRATED_MARKER.equals(line)) {
+                identifiersKnown = true;
+                continue;
+            }
             int separator = line.indexOf(' ');
             if (separator > 0) {
                 publishedIdentifiers.put(line.substring(0, separator), line.substring(separator + 1));
@@ -113,11 +121,11 @@ public class HaDiscoveryPublisher {
         batchingIdentifiers = true;
         try {
             publishAllBatched();
+            // dopiero pełny publishAll gwarantuje, że każdy config dostał identyfikator z pokojem -
+            // od teraz nieznany topic to nowy obiekt
+            identifiersKnown = true;
         } finally {
             batchingIdentifiers = false;
-            // po pełnym publishAll wszystkie configi mają już identyfikatory z pokojem - od teraz nieznany
-            // topic to nowy obiekt; plik zapisujemy zawsze, bo jego istnienie oznacza zakończoną migrację
-            identifiersKnown = true;
             savePublishedIdentifiers();
         }
     }
@@ -358,6 +366,9 @@ public class HaDiscoveryPublisher {
             return;
         }
         List<String> lines = new ArrayList<>();
+        if (identifiersKnown) {
+            lines.add(MIGRATED_MARKER);
+        }
         publishedIdentifiers.forEach((topic, identifier) -> lines.add(topic + " " + identifier));
         writeLines(publishedIdentifiersFile, lines);
     }
@@ -386,7 +397,14 @@ public class HaDiscoveryPublisher {
             if (path.getParent() != null) {
                 Files.createDirectories(path.getParent());
             }
-            Files.write(path, lines, StandardCharsets.UTF_8);
+            // przez plik tymczasowy - przerwany zapis (np. zanik zasilania) nie może zostawić obciętego stanu
+            Path tmp = path.resolveSibling(path.getFileName() + ".tmp");
+            Files.write(tmp, lines, StandardCharsets.UTF_8);
+            try {
+                Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING);
+            }
         } catch (IOException e) {
             logger.error("Nie udało się zapisać stanu discovery do {}: {}", file, e.getMessage());
         }

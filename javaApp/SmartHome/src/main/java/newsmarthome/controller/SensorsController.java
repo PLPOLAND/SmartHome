@@ -2,6 +2,7 @@ package newsmarthome.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -157,6 +157,8 @@ public class SensorsController {
 							return new Response<>(null, "Nie można dodać termometru ręcznie! Termometry dodawane są automatycznie po wykryciu na slave-ie.");
 						case THERMOMETR_HYGROMETR: {
 							Room room = systemDAO.getRoom(roomID);
+							if (room == null)
+								return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
 							Higrometr higrometr = systemDAO.addHigrometr(room, name, slaveIDint);
 							haDiscoveryPublisher.publishSensor(higrometr);
 							return new Response<>(higrometr);
@@ -168,25 +170,19 @@ public class SensorsController {
 							return new Response<>(null, "Not implemented yet");
 						case BUTTON: {
 							Room room = systemDAO.getRoom(roomID);
-							int pinInt = Integer.parseInt(pin);
 							// walidacja przed utworzeniem - inaczej przycisk zostałby w systemie i w HA mimo błędu
-							JsonNode automationsJSONList = null;
+							if (room == null)
+								return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
+							int pinInt = Integer.parseInt(pin);
+							List<ButtonLocalFunction> clickFunctions = null;
 							if (automations != null) {
-								automationsJSONList = parseClickFunctions(automations);
-								if (automationsJSONList == null)
+								clickFunctions = parseClickFunctions(automations);
+								if (clickFunctions == null)
 									return new Response<>(null, INVALID_CLICK_FUNCTION);
 							}
 							Button button = systemDAO.addButton(room, name, slaveIDint, pinInt);
-							if (automationsJSONList != null) {
-								for (JsonNode automationJSON : automationsJSONList) {
-									ButtonLocalFunction function = new ButtonLocalFunction();
-									function.setButton(button);
-									function.setClicks(automationJSON.get("clicks").asInt());
-									function.setState(
-											ButtonLocalFunction.State.fromString(automationJSON.get("state").asText()));
-									function.setDevice(systemDAO.getDeviceByID(automationJSON.get("device").asInt()));
-									button.addFunkcjaKilkniecia(function);
-								}
+							if (clickFunctions != null) {
+								button.addFunkcjeKlikniec(clickFunctions);
 								logger.info(button.toString());
 							}
 							haDiscoveryPublisher.publishSensor(button);
@@ -284,10 +280,10 @@ public class SensorsController {
 						} catch (NumberFormatException e) {
 							return new Response<>(null, "slaveID i pin muszą być liczbami");
 						}
-						JsonNode automationsJSONList = null;
+						List<ButtonLocalFunction> clickFunctions = null;
 						if (automations != null) {
-							automationsJSONList = parseClickFunctions(automations);
-							if (automationsJSONList == null)
+							clickFunctions = parseClickFunctions(automations);
+							if (clickFunctions == null)
 								return new Response<>(null, INVALID_CLICK_FUNCTION);
 						}
 						if(name != null)
@@ -296,17 +292,9 @@ public class SensorsController {
 							sensor.setSlaveAdress(slaveIDint);
 						if(pinInt != null)
 							((Button)sensor).setPin(pinInt);
-						if(automationsJSONList != null){
+						if(clickFunctions != null){
 							((Button)sensor).clearFunkcjeKlikniec();
-								for (JsonNode automationJSON : automationsJSONList) {
-									ButtonLocalFunction function = new ButtonLocalFunction();
-									function.setButton( (Button)sensor);
-									function.setClicks(automationJSON.get("clicks").asInt());
-									function.setState(
-											ButtonLocalFunction.State.fromString(automationJSON.get("state").asText()));
-									function.setDevice(systemDAO.getDeviceByID(automationJSON.get("device").asInt()));
-									((Button)sensor).addFunkcjaKilkniecia(function);
-								}
+							((Button)sensor).addFunkcjeKlikniec(clickFunctions);
 						}
 						boolean roomChanged = newRoom != null && newRoom.getID() != sensor.getRoom();
 						if (roomChanged) {
@@ -336,24 +324,36 @@ public class SensorsController {
 	}
 
 
-	private static final String INVALID_CLICK_FUNCTION = "Niepoprawna funkcja kliknięcia: wymagane clicks, state i istniejące device";
+	private static final String INVALID_CLICK_FUNCTION = "Niepoprawna funkcja kliknięcia: wymagane liczbowe clicks, state i istniejące device";
 
 	/**
-	 * Parsuje funkcje kliknięć przycisku.
-	 * @return lista funkcji albo null, gdy któraś nie ma clicks/state lub wskazuje nieistniejące urządzenie
+	 * Parsuje funkcje kliknięć przycisku (bez przypisanego przycisku - ustawia go addFunkcjaKilkniecia).
+	 * @return funkcje albo null, gdy któraś nie ma liczbowych clicks i device, tekstowego state lub
+	 *         wskazuje nieistniejące urządzenie
 	 */
-	private JsonNode parseClickFunctions(String automations) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-		JsonNode list = mapper.readTree(automations);
+	private List<ButtonLocalFunction> parseClickFunctions(String automations) throws IOException {
+		JsonNode list = new ObjectMapper().readTree(automations);
 		if (list == null || !list.isArray())
 			return null;
-		for (JsonNode function : list) {
-			if (!function.hasNonNull("clicks") || !function.hasNonNull("state") || !function.hasNonNull("device")
-					|| systemDAO.getDeviceByID(function.get("device").asInt()) == null)
+		List<ButtonLocalFunction> functions = new ArrayList<>();
+		for (JsonNode json : list) {
+			if (!isInteger(json.path("clicks")) || !isInteger(json.path("device")) || !json.path("state").isTextual())
 				return null;
+			Device device = systemDAO.getDeviceByID(json.get("device").asInt());
+			if (device == null)
+				return null;
+			ButtonLocalFunction function = new ButtonLocalFunction();
+			function.setClicks(json.get("clicks").asInt());
+			function.setState(ButtonLocalFunction.State.fromString(json.get("state").asText()));
+			function.setDevice(device);
+			functions.add(function);
 		}
-		return list;
+		return functions;
+	}
+
+	/** Liczba całkowita, także zapisana jako tekst - tak jak dotąd przyjmowało asInt(). */
+	private static boolean isInteger(JsonNode node) {
+		return node.isInt() || (node.isTextual() && node.asText().matches("-?\\d+"));
 	}
 
 }
