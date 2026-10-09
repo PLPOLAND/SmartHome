@@ -202,6 +202,11 @@ public class MqttGateway {
      *         cache tylko gdy zwrócone {@code true} — inaczej zmiana stanu w trakcie rozłączenia
      *         zostanie bezpowrotnie utracona (nie zostanie ponowiona po odzyskaniu połączenia).
      */
+    public boolean isConnected() {
+        MqttClient current = client;
+        return current != null && current.isConnected();
+    }
+
     public boolean publish(String topic, String payload, boolean retained) {
         if (client == null || !client.isConnected()) {
             logger.debug("MQTT niepołączony, pomijam publikację na {}", topic);

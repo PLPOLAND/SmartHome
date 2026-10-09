@@ -83,6 +83,43 @@ class HaDiscoveryPublisherTest {
     }
 
     @Test
+    void afterMigrationNewObjectIsPublishedWithoutRemoval() {
+        MqttGateway online = gateway(true);
+        Light light = light(1);
+        HaDiscoveryPublisher publisher = publisher(online, systemDAOWith(light), tempDir.resolve("pending.txt"));
+        publisher.publishAll(); // pusty system - migracja zakończona, plik identyfikatorów zapisany
+
+        publisher.publishDevice(light);
+
+        verify(online, never()).publish(LIGHT_TOPIC, "", true);
+        verify(online).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        assertTrue(Files.exists(tempDir.resolve("identifiers.txt")));
+    }
+
+    @Test
+    void offlineRecreateStopsAndReconnectFinishesIt() {
+        Path pending = tempDir.resolve("pending.txt");
+        MqttGateway gateway = gateway(false);
+        Light light = light(1);
+        SystemDAO systemDAO = systemDAOWith(light);
+        when(systemDAO.getDevicesSnapshot()).thenReturn(new ArrayList<>(Collections.singletonList(light)));
+        HaDiscoveryPublisher publisher = publisher(gateway, systemDAO, pending);
+
+        publisher.publishDevice(light);
+        // bez połączenia odtworzenie nie ponawia się w kółko
+        verify(gateway, after(300).times(2)).publish(LIGHT_TOPIC, "", true);
+
+        when(gateway.publish(anyString(), anyString(), anyBoolean())).thenReturn(true);
+        when(gateway.isConnected()).thenReturn(true);
+        publisher.publishAll();
+
+        // publishAll czyści zaległe usunięcie i odtwarza urządzenie dopiero po opóźnieniu
+        verify(gateway, times(3)).publish(LIGHT_TOPIC, "", true);
+        verify(gateway, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
+        verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+    }
+
+    @Test
     void unchangedIdentifierIsPublishedDirectly() {
         MqttGateway online = gateway(true);
         Light light = light(1);
@@ -188,6 +225,7 @@ class HaDiscoveryPublisherTest {
         MqttGateway gateway = mock(MqttGateway.class);
         when(gateway.getBaseTopic()).thenReturn("smarthome");
         when(gateway.publish(anyString(), anyString(), anyBoolean())).thenReturn(connected);
+        when(gateway.isConnected()).thenReturn(connected);
         return gateway;
     }
 

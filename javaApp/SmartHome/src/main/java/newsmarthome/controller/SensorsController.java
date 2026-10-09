@@ -168,12 +168,16 @@ public class SensorsController {
 							return new Response<>(null, "Not implemented yet");
 						case BUTTON: {
 							Room room = systemDAO.getRoom(roomID);
-							Button button = systemDAO.addButton(room, name, slaveIDint, Integer.parseInt(pin));
-							haDiscoveryPublisher.publishSensor(button);
+							int pinInt = Integer.parseInt(pin);
+							// walidacja przed utworzeniem - inaczej przycisk zostałby w systemie i w HA mimo błędu
+							JsonNode automationsJSONList = null;
 							if (automations != null) {
-								ObjectMapper mapper = new ObjectMapper();
-								mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-								JsonNode automationsJSONList = mapper.readTree(automations);
+								automationsJSONList = parseClickFunctions(automations);
+								if (automationsJSONList == null)
+									return new Response<>(null, INVALID_CLICK_FUNCTION);
+							}
+							Button button = systemDAO.addButton(room, name, slaveIDint, pinInt);
+							if (automationsJSONList != null) {
 								for (JsonNode automationJSON : automationsJSONList) {
 									ButtonLocalFunction function = new ButtonLocalFunction();
 									function.setButton(button);
@@ -185,6 +189,7 @@ public class SensorsController {
 								}
 								logger.info(button.toString());
 							}
+							haDiscoveryPublisher.publishSensor(button);
 							return new Response<>(button);
 						}
 						default:
@@ -281,15 +286,9 @@ public class SensorsController {
 						}
 						JsonNode automationsJSONList = null;
 						if (automations != null) {
-							ObjectMapper mapper = new ObjectMapper();
-							mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-							automationsJSONList = mapper.readTree(automations);
-							for (JsonNode automationJSON : automationsJSONList) {
-								if (!automationJSON.hasNonNull("clicks") || !automationJSON.hasNonNull("state")
-										|| !automationJSON.hasNonNull("device")
-										|| systemDAO.getDeviceByID(automationJSON.get("device").asInt()) == null)
-									return new Response<>(null, "Niepoprawna funkcja kliknięcia: wymagane clicks, state i istniejące device");
-							}
+							automationsJSONList = parseClickFunctions(automations);
+							if (automationsJSONList == null)
+								return new Response<>(null, INVALID_CLICK_FUNCTION);
 						}
 						if(name != null)
 							sensor.setNazwa(name);
@@ -336,5 +335,25 @@ public class SensorsController {
 		}
 	}
 
+
+	private static final String INVALID_CLICK_FUNCTION = "Niepoprawna funkcja kliknięcia: wymagane clicks, state i istniejące device";
+
+	/**
+	 * Parsuje funkcje kliknięć przycisku.
+	 * @return lista funkcji albo null, gdy któraś nie ma clicks/state lub wskazuje nieistniejące urządzenie
+	 */
+	private JsonNode parseClickFunctions(String automations) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+		JsonNode list = mapper.readTree(automations);
+		if (list == null || !list.isArray())
+			return null;
+		for (JsonNode function : list) {
+			if (!function.hasNonNull("clicks") || !function.hasNonNull("state") || !function.hasNonNull("device")
+					|| systemDAO.getDeviceByID(function.get("device").asInt()) == null)
+				return null;
+		}
+		return list;
+	}
 
 }

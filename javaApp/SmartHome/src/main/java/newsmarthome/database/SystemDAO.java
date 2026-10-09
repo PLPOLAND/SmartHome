@@ -245,18 +245,23 @@ public class SystemDAO {
      * @return znaleziony sensor / null jeśli brak sensora o podanym id
      */
     public Sensor getSensor(int id){
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getId() == id) {
-                return sensor;
+        // wołane też z wątków MQTT - bez blokady add/remove z Runners rzuciłoby ConcurrentModificationException
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor.getId() == id) {
+                    return sensor;
+                }
             }
         }
         return null;
     }
 
     public Sensor getSensorByOnSlaveID(int slaveAdress, int onSlaveId) {
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getOnSlaveID() == onSlaveId && sensor.getSlaveAdress() == slaveAdress) {
-                return sensor;
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor.getOnSlaveID() == onSlaveId && sensor.getSlaveAdress() == slaveAdress) {
+                    return sensor;
+                }
             }
         }
         return null;

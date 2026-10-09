@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -60,11 +59,19 @@ public class HaDiscoveryPublisher {
      * (zmiana nazwy, publishAll), które inaczej wyprzedziłyby usunięcie urządzenia w HA.
      */
     private final Map<String, Long> recreating = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService asyncExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+    private final ScheduledThreadPoolExecutor asyncExecutor = new ScheduledThreadPoolExecutor(1, r -> {
         Thread t = new Thread(r, "ha-discovery");
         t.setDaemon(true);
         return t;
     });
+    /**
+     * Czy migracja do identyfikatorów z pokojem jest zakończona (plik identyfikatorów istniał przy
+     * starcie albo przeszedł pełny publishAll). Przed nią nieznany topic może być starym configiem,
+     * który trzeba odtworzyć; po niej - to nowy obiekt, publikowany od razu.
+     */
+    private boolean identifiersKnown;
+    /** W trakcie publishAll zapis identyfikatorów odkładamy na koniec - jeden zapis zamiast N. */
+    private boolean batchingIdentifiers;
 
     @Value("${mqtt.discovery-prefix}")
     private String discoveryPrefix;
@@ -91,6 +98,8 @@ public class HaDiscoveryPublisher {
         for (String line : readLines(pendingRemovalsFile)) {
             pendingRemovals.add(line);
         }
+        asyncExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+        identifiersKnown = Files.exists(Paths.get(publishedIdentifiersFile));
         for (String line : readLines(publishedIdentifiersFile)) {
             int separator = line.indexOf(' ');
             if (separator > 0) {
@@ -101,6 +110,19 @@ public class HaDiscoveryPublisher {
 
     /** Publikuje discovery dla wszystkich urządzeń i czujników znanych systemowi. */
     public synchronized void publishAll() {
+        batchingIdentifiers = true;
+        try {
+            publishAllBatched();
+        } finally {
+            batchingIdentifiers = false;
+            // po pełnym publishAll wszystkie configi mają już identyfikatory z pokojem - od teraz nieznany
+            // topic to nowy obiekt; plik zapisujemy zawsze, bo jego istnienie oznacza zakończoną migrację
+            identifiersKnown = true;
+            savePublishedIdentifiers();
+        }
+    }
+
+    private void publishAllBatched() {
         Set<String> cleared = new HashSet<>();
         for (String topic : pendingRemovals) {
             if (clearConfig(topic)) {
@@ -180,7 +202,9 @@ public class HaDiscoveryPublisher {
 
     @PreDestroy
     public void stop() {
-        asyncExecutor.shutdownNow();
+        // bez przerywania - przerwany Files.write zostawiłby obcięty plik stanu; zaplanowane
+        // odtworzenia porzucamy (po restarcie publishAll opublikuje configi od razu)
+        asyncExecutor.shutdown();
     }
 
     public synchronized void removeSensor(int sensorId, SensorsTypes typ) {
@@ -196,17 +220,25 @@ public class HaDiscoveryPublisher {
      */
     private void publishOrRecreate(Map<String, Map<String, Object>> configs, Runnable republish, String description) {
         boolean identifierChanged = false;
+        boolean unknown = false;
         for (Map.Entry<String, Map<String, Object>> entry : configs.entrySet()) {
-            String identifier = MqttTopics.haDeviceIdentifierOf(entry.getValue());
-            // brak wpisu: config opublikowany przed wprowadzeniem identyfikatorów z pokojem (albo nowy obiekt)
-            if (!identifier.equals(publishedIdentifiers.get(entry.getKey()))) {
+            String previous = publishedIdentifiers.get(entry.getKey());
+            if (previous == null) {
+                unknown = true;
+            } else if (!previous.equals(MqttTopics.haDeviceIdentifierOf(entry.getValue()))) {
                 identifierChanged = true;
             }
         }
-        if (!identifierChanged) {
+        if (!identifierChanged && (!unknown || identifiersKnown)) {
+            // nowy obiekt (nieznany topic przy znanym stanie) publikujemy od razu, bez usuwania
+            if (unknown) {
+                configs.forEach((topic, config) -> publishedIdentifiers.put(topic, MqttTopics.haDeviceIdentifierOf(config)));
+                savePublishedIdentifiers();
+            }
             configs.forEach(this::publishJson);
             return;
         }
+        // nieznany topic bez pliku stanu: config sprzed identyfikatorów z pokojem - odtwarzamy jak przy zmianie
         // nowy identyfikator zapisujemy od razu - usunięcie starego configu gwarantują zaległe usunięcia
         // (przetrwają restart), a odtworzenie: recreate albo publishAll po reconnect
         configs.forEach((topic, config) -> publishedIdentifiers.put(topic, MqttTopics.haDeviceIdentifierOf(config)));
@@ -235,7 +267,11 @@ public class HaDiscoveryPublisher {
             // bez usunięcia na brokerze HA nie usunie starego urządzenia (encja zostałaby przy nim)
             if (pendingRemovals.contains(topic)) {
                 if (!clearConfig(topic)) {
-                    scheduleRecreate(topics, republish, description);
+                    // przy zerwanym połączeniu kończymy - publishAll po reconnect wyczyści zaległe
+                    // usunięcie i odtworzy obiekt; ponawiamy tylko błąd przy działającym połączeniu
+                    if (gateway.isConnected()) {
+                        scheduleRecreate(topics, republish, description);
+                    }
                     return;
                 }
                 recreating.put(topic, notBeforeFromNow());
@@ -318,6 +354,9 @@ public class HaDiscoveryPublisher {
     }
 
     private void savePublishedIdentifiers() {
+        if (batchingIdentifiers) {
+            return;
+        }
         List<String> lines = new ArrayList<>();
         publishedIdentifiers.forEach((topic, identifier) -> lines.add(topic + " " + identifier));
         writeLines(publishedIdentifiersFile, lines);
