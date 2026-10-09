@@ -134,10 +134,10 @@ public class HaDiscoveryPublisher {
 
     private void publishAllBatched() {
         for (String topic : pendingRemovals) {
-            if (clearConfig(topic)) {
-                // zaległe usunięcie mogło być częścią przeniesienia - odtwarzamy z opóźnieniem
-                recreating.put(topic, notBeforeFromNow());
-            }
+            // zaległe usunięcie mogło być częścią przeniesienia - odtwarzamy z opóźnieniem; także gdy
+            // znów się nie udało: recreate je ponowi, a do tego czasu nowy config go nie wyprzedzi
+            clearConfig(topic);
+            recreating.put(topic, notBeforeFromNow());
         }
         // przejmujemy też odtworzenia zatrzymane przez utratę połączenia (recreate kończy się wtedy
         // z topicami w recreating - np. higrometr, któremu usunięcie przeszło tylko dla części encji)

@@ -92,7 +92,7 @@ public class ButtonFunction extends Function{
             logger.error("Command is too short");
             return;
         }
-        button = (Button) systemDAO.getSensorByOnSlaveID(slaveAdress, command[1]);
+        button = systemDAO.getButtonByOnSlaveID(slaveAdress, command[1]);
         clicks = command[2];
         switch (command[3]) {
             case 'P':

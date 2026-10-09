@@ -267,6 +267,22 @@ public class SystemDAO {
         return null;
     }
 
+    /**
+     * Przycisk o danym id na slave-ie. Higrometry i przyciski mają na slave-ie osobną numerację,
+     * więc samo onSlaveID może wskazać higrometr.
+     */
+    public Button getButtonByOnSlaveID(int slaveAdress, int onSlaveId) {
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor instanceof Button && sensor.getOnSlaveID() == onSlaveId
+                        && sensor.getSlaveAdress() == slaveAdress) {
+                    return (Button) sensor;
+                }
+            }
+        }
+        return null;
+    }
+
     public ArrayList<Button> getAllButtons() {
         ArrayList<Button> buttons = new ArrayList<>();
         for (Room room : this.getRoomsArrayList()) {

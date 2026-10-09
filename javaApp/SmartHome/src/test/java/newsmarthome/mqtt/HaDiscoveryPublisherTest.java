@@ -70,6 +70,28 @@ class HaDiscoveryPublisherTest {
     }
 
     @Test
+    void pendingRemovalFailingAgainOnReconnectStillBlocksReplacement() throws Exception {
+        Path pending = tempDir.resolve("pending.txt");
+        Files.write(pending, Collections.singletonList(LIGHT_TOPIC), StandardCharsets.UTF_8);
+        Files.write(tempDir.resolve("identifiers.txt"),
+                java.util.Arrays.asList("# migrated", LIGHT_TOPIC + " smarthome_device_7_room_1"), StandardCharsets.UTF_8);
+        MqttGateway gateway = gateway(true);
+        when(gateway.publish(LIGHT_TOPIC, "", true)).thenReturn(false, true);
+        Light light = light(1);
+        SystemDAO systemDAO = systemDAOWith(light);
+        when(systemDAO.getDevicesSnapshot()).thenReturn(new ArrayList<>(Collections.singletonList(light)));
+        HaDiscoveryPublisher publisher = publisher(gateway, systemDAO, pending);
+
+        publisher.publishAll();
+
+        // nowy config nie może wyprzedzić nieudanego usunięcia - recreate ponawia je i dopiero publikuje
+        verify(gateway, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
+        InOrder order = inOrder(gateway);
+        order.verify(gateway, timeout(2000).times(2)).publish(LIGHT_TOPIC, "", true);
+        order.verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+    }
+
+    @Test
     void unknownIdentifierRemovesConfigAndRecreatesItAfterDelay() {
         // config sprzed identyfikatorów z pokojem (albo nowy obiekt) - HA musi utworzyć urządzenie od nowa
         MqttGateway online = gateway(true);
