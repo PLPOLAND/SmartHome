@@ -140,6 +140,16 @@ public class HaDiscoveryPublisher {
             clearConfig(topic);
             recreating.put(topic, notBeforeFromNow());
         }
+        // encje higrometru dzielą urządzenie HA - zaległe usunięcie jednej wstrzymuje też pozostałe
+        // (po restarcie wiemy tylko o nieudanym usunięciu, a reszta wyprzedziłaby odtworzenie)
+        for (Sensor sensor : systemDAO.getSensorsSnapshot()) {
+            List<String> siblings = sensorConfigTopics(sensor.getId(), sensor.getTyp());
+            if (siblings.stream().anyMatch(recreating::containsKey)) {
+                for (String topic : siblings) {
+                    recreating.putIfAbsent(topic, notBeforeFromNow());
+                }
+            }
+        }
         // przejmujemy też odtworzenia zatrzymane przez utratę połączenia (recreate kończy się wtedy
         // z topicami w recreating - np. higrometr, któremu usunięcie przeszło tylko dla części encji)
         Set<String> toRecreate = new HashSet<>(recreating.keySet());

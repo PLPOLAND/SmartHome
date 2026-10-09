@@ -92,6 +92,31 @@ class HaDiscoveryPublisherTest {
     }
 
     @Test
+    void pendingRemovalOfOneHygrometerEntityAlsoHoldsItsSibling() throws Exception {
+        String temperatureTopic = "homeassistant/sensor/smarthome_sensor_20/config";
+        String humidityTopic = "homeassistant/sensor/smarthome_sensor_20_humidity/config";
+        Path pending = tempDir.resolve("pending.txt");
+        // przed restartem przeszło tylko usunięcie temperatury
+        Files.write(pending, Collections.singletonList(humidityTopic), StandardCharsets.UTF_8);
+        Files.write(tempDir.resolve("identifiers.txt"), java.util.Arrays.asList("# migrated",
+                temperatureTopic + " smarthome_sensor_20_room_-1", humidityTopic + " smarthome_sensor_20_room_-1"),
+                StandardCharsets.UTF_8);
+        MqttGateway gateway = gateway(true);
+        Higrometr higrometr = new Higrometr();
+        higrometr.setId(20);
+        SystemDAO systemDAO = systemDAO();
+        when(systemDAO.getSensor(20)).thenReturn(higrometr);
+        when(systemDAO.getSensorsSnapshot()).thenReturn(new ArrayList<>(Collections.singletonList(higrometr)));
+        HaDiscoveryPublisher publisher = publisher(gateway, systemDAO, pending);
+
+        publisher.publishAll();
+
+        verify(gateway, never()).publish(eq(temperatureTopic), contains("temperature"), anyBoolean());
+        verify(gateway, timeout(2000)).publish(eq(temperatureTopic), contains("temperature"), eq(true));
+        verify(gateway, timeout(2000)).publish(eq(humidityTopic), contains("humidity"), eq(true));
+    }
+
+    @Test
     void unknownIdentifierRemovesConfigAndRecreatesItAfterDelay() {
         // config sprzed identyfikatorów z pokojem (albo nowy obiekt) - HA musi utworzyć urządzenie od nowa
         MqttGateway online = gateway(true);

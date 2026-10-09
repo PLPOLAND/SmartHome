@@ -344,8 +344,9 @@ public class SensorsController {
 			return null;
 		List<ButtonLocalFunction> functions = new ArrayList<>();
 		for (JsonNode json : list) {
-			// clicks trafia do komendy slave-a jako bajt
-			if (!isNonNegativeInt(json.path("clicks")) || json.path("clicks").asInt() > 255
+			// kliknięcia liczone są od 1, a clicks trafia do komendy slave-a jako bajt
+			if (!isNonNegativeInt(json.path("clicks")) || json.path("clicks").asInt() < 1
+					|| json.path("clicks").asInt() > 255
 					|| !isNonNegativeInt(json.path("device")) || !json.path("state").isTextual()
 					|| !KNOWN_CLICK_STATES.contains(json.get("state").asText().toUpperCase()))
 				return null;
