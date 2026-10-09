@@ -37,6 +37,11 @@ class HaDiscoveryPublisherTest {
 
     private static final String LIGHT_TOPIC = "homeassistant/light/smarthome_device_7/config";
     private static final String BUTTON_TOPIC = "homeassistant/event/smarthome_sensor_12/config";
+    // okno odtwarzania musi być wyraźnie dłuższe niż czas między wywołaniem a asercją never(),
+    // inaczej wolny/wstrzymany wątek testu widziałby już odtworzony config
+    private static final long RECREATE_DELAY_MS = 300;
+    private static final long SETTLE_MS = 2 * RECREATE_DELAY_MS;
+    private static final long WAIT_MS = 5000;
 
     @TempDir
     Path tempDir;
@@ -87,8 +92,8 @@ class HaDiscoveryPublisherTest {
         // nowy config nie może wyprzedzić nieudanego usunięcia - recreate ponawia je i dopiero publikuje
         verify(gateway, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
         InOrder order = inOrder(gateway);
-        order.verify(gateway, timeout(2000).times(2)).publish(LIGHT_TOPIC, "", true);
-        order.verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        order.verify(gateway, timeout(WAIT_MS).times(2)).publish(LIGHT_TOPIC, "", true);
+        order.verify(gateway, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
     }
 
     @Test
@@ -112,8 +117,8 @@ class HaDiscoveryPublisherTest {
         publisher.publishAll();
 
         verify(gateway, never()).publish(eq(temperatureTopic), contains("temperature"), anyBoolean());
-        verify(gateway, timeout(2000)).publish(eq(temperatureTopic), contains("temperature"), eq(true));
-        verify(gateway, timeout(2000)).publish(eq(humidityTopic), contains("humidity"), eq(true));
+        verify(gateway, timeout(WAIT_MS)).publish(eq(temperatureTopic), contains("temperature"), eq(true));
+        verify(gateway, timeout(WAIT_MS)).publish(eq(humidityTopic), contains("humidity"), eq(true));
     }
 
     @Test
@@ -127,7 +132,7 @@ class HaDiscoveryPublisherTest {
 
         InOrder order = inOrder(online);
         order.verify(online).publish(LIGHT_TOPIC, "", true);
-        order.verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        order.verify(online, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
     }
 
     @Test
@@ -175,7 +180,7 @@ class HaDiscoveryPublisherTest {
 
         publisher.publishDevice(light);
         // bez połączenia odtworzenie nie ponawia się w kółko
-        verify(gateway, after(300).times(2)).publish(LIGHT_TOPIC, "", true);
+        verify(gateway, after(SETTLE_MS).times(2)).publish(LIGHT_TOPIC, "", true);
 
         when(gateway.publish(anyString(), anyString(), anyBoolean())).thenReturn(true);
         when(gateway.isConnected()).thenReturn(true);
@@ -184,7 +189,7 @@ class HaDiscoveryPublisherTest {
         // publishAll czyści zaległe usunięcie i odtwarza urządzenie dopiero po opóźnieniu
         verify(gateway, times(3)).publish(LIGHT_TOPIC, "", true);
         verify(gateway, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
-        verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        verify(gateway, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
     }
 
     @Test
@@ -203,15 +208,15 @@ class HaDiscoveryPublisherTest {
         HaDiscoveryPublisher publisher = publisher(gateway, systemDAO, tempDir.resolve("pending.txt"));
 
         publisher.publishSensor(higrometr);
-        verify(gateway, after(300).times(2)).publish(humidityTopic, "", true);
+        verify(gateway, after(SETTLE_MS).times(2)).publish(humidityTopic, "", true);
 
         when(gateway.publish(humidityTopic, "", true)).thenReturn(true);
         when(gateway.isConnected()).thenReturn(true);
         publisher.publishAll();
 
         // obie encje wracają, także temperatura, której usunięcie przeszło przed zerwaniem
-        verify(gateway, timeout(2000)).publish(eq(temperatureTopic), contains("temperature"), eq(true));
-        verify(gateway, timeout(2000)).publish(eq(humidityTopic), contains("humidity"), eq(true));
+        verify(gateway, timeout(WAIT_MS)).publish(eq(temperatureTopic), contains("temperature"), eq(true));
+        verify(gateway, timeout(WAIT_MS)).publish(eq(humidityTopic), contains("humidity"), eq(true));
     }
 
     @Test
@@ -220,7 +225,7 @@ class HaDiscoveryPublisherTest {
         Light light = light(1);
         HaDiscoveryPublisher publisher = publisher(online, systemDAOWith(light), tempDir.resolve("pending.txt"));
         publisher.publishDevice(light);
-        verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        verify(online, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
 
         // np. zmiana nazwy - bez usuwania urządzenia z HA
         publisher.publishDevice(light);
@@ -236,7 +241,7 @@ class HaDiscoveryPublisherTest {
         Light light = light(1);
         HaDiscoveryPublisher before = publisher(online, systemDAOWith(light), pending);
         before.publishDevice(light);
-        verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        verify(online, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
         before.stop();
 
         // pokój zmieniony przed restartem - zapisane identyfikatory pozwalają to wykryć
@@ -247,7 +252,7 @@ class HaDiscoveryPublisherTest {
 
         InOrder order = inOrder(restarted);
         order.verify(restarted).publish(LIGHT_TOPIC, "", true);
-        order.verify(restarted, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_2"), eq(true));
+        order.verify(restarted, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_2"), eq(true));
     }
 
     @Test
@@ -255,15 +260,14 @@ class HaDiscoveryPublisherTest {
         MqttGateway online = gateway(true);
         Light light = light(1);
         HaDiscoveryPublisher publisher = publisher(online, systemDAOWith(light), tempDir.resolve("pending.txt"));
-        ReflectionTestUtils.setField(publisher, "recreateDelayMs", 300L);
 
         publisher.publishDevice(light);
         // np. zmiana nazwy tuż po zmianie pokoju - nie może wyprzedzić usunięcia urządzenia w HA
         publisher.publishDevice(light);
         verify(online, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
 
-        verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
-        verify(online, after(400).times(1)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+        verify(online, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+        verify(online, after(SETTLE_MS).times(1)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
     }
 
     @Test
@@ -276,8 +280,8 @@ class HaDiscoveryPublisherTest {
         publisher.publishDevice(light);
 
         InOrder order = inOrder(gateway);
-        order.verify(gateway, timeout(2000).times(2)).publish(LIGHT_TOPIC, "", true);
-        order.verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+        order.verify(gateway, timeout(WAIT_MS).times(2)).publish(LIGHT_TOPIC, "", true);
+        order.verify(gateway, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
     }
 
     @Test
@@ -290,7 +294,7 @@ class HaDiscoveryPublisherTest {
 
         publisher.publishDevice(light);
 
-        verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+        verify(gateway, timeout(WAIT_MS)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
         verify(gateway, times(6)).publish(LIGHT_TOPIC, "", true);
     }
 
@@ -304,7 +308,7 @@ class HaDiscoveryPublisherTest {
 
         publisher.publishDevice(light);
 
-        verify(gateway, timeout(2000).times(2)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        verify(gateway, timeout(WAIT_MS).times(2)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
         verify(gateway, times(1)).publish(LIGHT_TOPIC, "", true);
     }
 
@@ -317,7 +321,7 @@ class HaDiscoveryPublisherTest {
         publisher.publishDevice(light(1));
 
         // opóźnione zadanie sprawdza, czy urządzenie nadal istnieje (mock zwraca null)
-        verify(systemDAO, timeout(2000)).getDeviceByID(7);
+        verify(systemDAO, timeout(WAIT_MS)).getDeviceByID(7);
         verify(online, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
     }
 
@@ -331,7 +335,7 @@ class HaDiscoveryPublisherTest {
         HaDiscoveryPublisher publisher = publisher(online, systemDAO, tempDir.resolve("pending.txt"));
 
         publisher.publishSensor(button);
-        verify(online, timeout(2000)).publish(eq(BUTTON_TOPIC), contains("event_types"), eq(true));
+        verify(online, timeout(WAIT_MS)).publish(eq(BUTTON_TOPIC), contains("event_types"), eq(true));
 
         publisher.removeSensor(12, SensorsTypes.BUTTON);
         verify(online, times(2)).publish(BUTTON_TOPIC, "", true);
@@ -371,7 +375,7 @@ class HaDiscoveryPublisherTest {
         ReflectionTestUtils.setField(publisher, "pendingRemovalsFile", pendingFile.toString());
         ReflectionTestUtils.setField(publisher, "publishedIdentifiersFile",
                 pendingFile.resolveSibling("identifiers.txt").toString());
-        ReflectionTestUtils.setField(publisher, "recreateDelayMs", 50L);
+        ReflectionTestUtils.setField(publisher, "recreateDelayMs", RECREATE_DELAY_MS);
         publisher.loadState();
         return publisher;
     }
