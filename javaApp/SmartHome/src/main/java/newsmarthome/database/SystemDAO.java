@@ -256,17 +256,6 @@ public class SystemDAO {
         return null;
     }
 
-    public Sensor getSensorByOnSlaveID(int slaveAdress, int onSlaveId) {
-        synchronized (sensors) {
-            for (Sensor sensor : sensors) {
-                if (sensor.getOnSlaveID() == onSlaveId && sensor.getSlaveAdress() == slaveAdress) {
-                    return sensor;
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * Przycisk o danym id na slave-ie. Higrometry i przyciski mają na slave-ie osobną numerację,
      * więc samo onSlaveID może wskazać higrometr.

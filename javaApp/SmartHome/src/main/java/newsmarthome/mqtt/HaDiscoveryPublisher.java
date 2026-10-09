@@ -98,6 +98,7 @@ public class HaDiscoveryPublisher {
     public HaDiscoveryPublisher(MqttGateway gateway, SystemDAO systemDAO) {
         this.gateway = gateway;
         this.systemDAO = systemDAO;
+        asyncExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
     }
 
     @PostConstruct
@@ -105,7 +106,6 @@ public class HaDiscoveryPublisher {
         for (String line : readLines(pendingRemovalsFile)) {
             pendingRemovals.add(line);
         }
-        asyncExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         for (String line : readLines(publishedIdentifiersFile)) {
             if (MIGRATED_MARKER.equals(line)) {
                 identifiersKnown = true;
@@ -274,27 +274,29 @@ public class HaDiscoveryPublisher {
     }
 
     private synchronized void recreate(Set<String> topics, Runnable republish, String description, int attempt) {
+        List<String> failed = new ArrayList<>();
         for (String topic : topics) {
             // bez usunięcia na brokerze HA nie usunie starego urządzenia (encja zostałaby przy nim)
             if (pendingRemovals.contains(topic)) {
-                if (!clearConfig(topic)) {
-                    if (!gateway.isConnected()) {
-                        // publishAll po reconnect wyczyści zaległe usunięcie i dokończy odtworzenie
-                        return;
-                    }
-                    if (attempt < MAX_RECREATE_ATTEMPTS) {
-                        schedule(() -> recreate(topics, republish, description, attempt + 1), recreateDelayMs,
-                                description);
-                        return;
-                    }
-                    // broker odrzuca usunięcie mimo połączenia - lepiej encja w starym obszarze niż brak
-                    // encji w HA (udana publikacja configu zdejmie zaległe usunięcie)
-                    logger.warn("Nie udało się usunąć {} po {} próbach - publikuję config bez przeniesienia", topic,
-                            attempt);
-                    break;
+                if (clearConfig(topic)) {
+                    recreating.put(topic, notBeforeFromNow());
+                } else {
+                    failed.add(topic);
                 }
-                recreating.put(topic, notBeforeFromNow());
             }
+        }
+        if (!failed.isEmpty()) {
+            if (!gateway.isConnected()) {
+                // publishAll po reconnect wyczyści zaległe usunięcia i dokończy odtworzenie
+                return;
+            }
+            if (attempt < MAX_RECREATE_ATTEMPTS) {
+                schedule(() -> recreate(topics, republish, description, attempt + 1), recreateDelayMs, description);
+                return;
+            }
+            // broker odrzuca usunięcie mimo połączenia - lepiej encja w starym obszarze niż brak
+            // encji w HA (udana publikacja configu zdejmie zaległe usunięcie)
+            logger.warn("Nie udało się usunąć {} po {} próbach - publikuję config bez przeniesienia", failed, attempt);
         }
         long now = System.nanoTime();
         long waitNanos = 0;

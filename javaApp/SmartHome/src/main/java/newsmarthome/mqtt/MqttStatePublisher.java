@@ -83,7 +83,8 @@ public class MqttStatePublisher {
         if (scheduler != null) {
             scheduler.shutdown();
         }
-        buttonEventExecutor.shutdownNow();
+        // bez przerywania publikacji w toku - wątek jest daemonem i nie blokuje zamknięcia
+        buttonEventExecutor.shutdown();
     }
 
     /**
