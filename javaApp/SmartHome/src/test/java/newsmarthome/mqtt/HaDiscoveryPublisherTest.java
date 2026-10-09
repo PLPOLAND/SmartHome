@@ -234,6 +234,20 @@ class HaDiscoveryPublisherTest {
     }
 
     @Test
+    void removalRejectedWhileConnectedGivesUpAndRestoresEntity() {
+        MqttGateway gateway = gateway(true);
+        // np. ACL brokera odrzuca pusty config - po kilku próbach encja ma wrócić, choćby w starym obszarze
+        when(gateway.publish(LIGHT_TOPIC, "", true)).thenReturn(false);
+        Light light = light(1);
+        HaDiscoveryPublisher publisher = publisher(gateway, systemDAOWith(light), tempDir.resolve("pending.txt"));
+
+        publisher.publishDevice(light);
+
+        verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+        verify(gateway, times(6)).publish(LIGHT_TOPIC, "", true);
+    }
+
+    @Test
     void recreateSkipsDeviceRemovedInTheMeantime() {
         MqttGateway online = gateway(true);
         SystemDAO systemDAO = systemDAO();

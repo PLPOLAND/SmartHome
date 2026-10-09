@@ -48,6 +48,8 @@ import newsmarthome.model.hardware.sensor.SensorsTypes;
 @Service
 public class HaDiscoveryPublisher {
 
+    /** Ile razy ponawiamy odrzucone przez brokera usunięcie przed odtworzeniem bez przeniesienia. */
+    private static final int MAX_RECREATE_ATTEMPTS = 5;
     /** Pierwsza linia pliku identyfikatorów po zakończonej migracji. */
     private static final String MIGRATED_MARKER = "# migrated";
 
@@ -268,20 +270,28 @@ public class HaDiscoveryPublisher {
 
     private void scheduleRecreate(Collection<String> topics, Runnable republish, String description) {
         Set<String> copy = new HashSet<>(topics);
-        schedule(() -> recreate(copy, republish, description), recreateDelayMs, description);
+        schedule(() -> recreate(copy, republish, description, 1), recreateDelayMs, description);
     }
 
-    private synchronized void recreate(Set<String> topics, Runnable republish, String description) {
+    private synchronized void recreate(Set<String> topics, Runnable republish, String description, int attempt) {
         for (String topic : topics) {
             // bez usunięcia na brokerze HA nie usunie starego urządzenia (encja zostałaby przy nim)
             if (pendingRemovals.contains(topic)) {
                 if (!clearConfig(topic)) {
-                    // przy zerwanym połączeniu kończymy - publishAll po reconnect wyczyści zaległe
-                    // usunięcie i odtworzy obiekt; ponawiamy tylko błąd przy działającym połączeniu
-                    if (gateway.isConnected()) {
-                        scheduleRecreate(topics, republish, description);
+                    if (!gateway.isConnected()) {
+                        // publishAll po reconnect wyczyści zaległe usunięcie i dokończy odtworzenie
+                        return;
                     }
-                    return;
+                    if (attempt < MAX_RECREATE_ATTEMPTS) {
+                        schedule(() -> recreate(topics, republish, description, attempt + 1), recreateDelayMs,
+                                description);
+                        return;
+                    }
+                    // broker odrzuca usunięcie mimo połączenia - lepiej encja w starym obszarze niż brak
+                    // encji w HA (udana publikacja configu zdejmie zaległe usunięcie)
+                    logger.warn("Nie udało się usunąć {} po {} próbach - publikuję config bez przeniesienia", topic,
+                            attempt);
+                    break;
                 }
                 recreating.put(topic, notBeforeFromNow());
             }
@@ -296,8 +306,8 @@ public class HaDiscoveryPublisher {
         }
         if (waitNanos > 0) {
             // usunięcie ponowione przed chwilą (tu albo w publishAll) - czekamy na nowe okno
-            schedule(() -> recreate(topics, republish, description), TimeUnit.NANOSECONDS.toMillis(waitNanos) + 1,
-                    description);
+            schedule(() -> recreate(topics, republish, description, attempt),
+                    TimeUnit.NANOSECONDS.toMillis(waitNanos) + 1, description);
             return;
         }
         recreating.keySet().removeAll(topics);

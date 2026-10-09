@@ -335,7 +335,9 @@ public class SensorsController {
 			return null;
 		List<ButtonLocalFunction> functions = new ArrayList<>();
 		for (JsonNode json : list) {
-			if (!isInteger(json.path("clicks")) || !isInteger(json.path("device")) || !json.path("state").isTextual())
+			// clicks trafia do komendy slave-a jako bajt
+			if (!isNonNegativeInt(json.path("clicks")) || json.path("clicks").asInt() > 255
+					|| !isNonNegativeInt(json.path("device")) || !json.path("state").isTextual())
 				return null;
 			Device device = systemDAO.getDeviceByID(json.get("device").asInt());
 			if (device == null)
@@ -350,8 +352,8 @@ public class SensorsController {
 	}
 
 	/** Nieujemna liczba całkowita, także zapisana jako tekst - tak jak dotąd przyjmowało asInt(). */
-	private static boolean isInteger(JsonNode node) {
-		return (node.isInt() && node.asInt() >= 0) || (node.isTextual() && node.asText().matches("\\d+"));
+	private static boolean isNonNegativeInt(JsonNode node) {
+		return (node.isInt() && node.asInt() >= 0) || (node.isTextual() && node.asText().matches("\\d{1,9}"));
 	}
 
 }
