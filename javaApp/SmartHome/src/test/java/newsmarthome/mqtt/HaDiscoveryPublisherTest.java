@@ -10,6 +10,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,6 +84,43 @@ class HaDiscoveryPublisherTest {
         InOrder order = inOrder(online);
         order.verify(online).publish(LIGHT_TOPIC, "", true);
         order.verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+    }
+
+    @Test
+    void publishDuringRecreateWindowIsDeferredToScheduledRecreate() throws Exception {
+        MqttGateway online = gateway(true);
+        Light light = new Light();
+        light.setId(7);
+        SystemDAO systemDAO = systemDAO();
+        when(systemDAO.getDeviceByID(7)).thenReturn(light);
+        HaDiscoveryPublisher publisher = publisher(online, systemDAO, tempDir.resolve("pending.txt"));
+        ReflectionTestUtils.setField(publisher, "recreateDelayMs", 300L);
+
+        publisher.moveDevice(light);
+        // np. zmiana nazwy tuż po przeniesieniu - nie może wyprzedzić usunięcia urządzenia w HA
+        publisher.publishDevice(light);
+        verify(online, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
+
+        verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+        Thread.sleep(400);
+        verify(online, times(1)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+    }
+
+    @Test
+    void failedRemovalIsRetriedBeforeRecreate() throws Exception {
+        MqttGateway gateway = gateway(true);
+        when(gateway.publish(LIGHT_TOPIC, "", true)).thenReturn(false, true);
+        Light light = new Light();
+        light.setId(7);
+        SystemDAO systemDAO = systemDAO();
+        when(systemDAO.getDeviceByID(7)).thenReturn(light);
+        HaDiscoveryPublisher publisher = publisher(gateway, systemDAO, tempDir.resolve("pending.txt"));
+
+        publisher.moveDevice(light);
+
+        InOrder order = inOrder(gateway);
+        order.verify(gateway, timeout(2000).times(2)).publish(LIGHT_TOPIC, "", true);
+        order.verify(gateway, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
     }
 
     @Test

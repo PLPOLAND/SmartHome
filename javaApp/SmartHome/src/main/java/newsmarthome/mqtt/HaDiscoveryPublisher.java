@@ -6,11 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +44,12 @@ public class HaDiscoveryPublisher {
     private final SystemDAO systemDAO;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Set<String> pendingRemovals = ConcurrentHashMap.newKeySet();
+    /**
+     * Topic configu usuniętego przy przeniesieniu -> chwila ({@link System#nanoTime()}), przed którą
+     * nie wolno go opublikować. Pilnuje opóźnienia także przed innymi publikacjami (zmiana nazwy,
+     * publishAll), które inaczej dopięłyby encję do starego urządzenia.
+     */
+    private final Map<String, Long> recreateNotBefore = new ConcurrentHashMap<>();
     private final ScheduledExecutorService asyncExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "ha-discovery");
         t.setDaemon(true);
@@ -87,16 +95,17 @@ public class HaDiscoveryPublisher {
 
     /** Publikuje discovery dla wszystkich urządzeń i czujników znanych systemowi. */
     public synchronized void publishAll() {
-        boolean clearedAny = false;
+        List<String> cleared = new ArrayList<>();
         for (String topic : pendingRemovals) {
-            clearedAny |= clearConfig(topic);
+            if (clearForRecreate(topic)) {
+                cleared.add(topic);
+            }
         }
-        if (clearedAny) {
-            // zaległe usunięcie mogło dotyczyć przeniesienia do innego pokoju - jak w moveDevice
-            // dajemy HA czas na usunięcie urządzenia, zanim opublikujemy je na nowo
-            schedule(this::publishAllConfigs, recreateDelayMs, "publikacji discovery po zaległych usunięciach");
-        } else {
-            publishAllConfigs();
+        // zaległe usunięcie mogło być przeniesieniem do innego pokoju - te configi publishJson
+        // pominie i opublikujemy je dopiero po opóźnieniu, pozostałe idą od razu
+        publishAllConfigs();
+        if (!cleared.isEmpty()) {
+            scheduleRecreate(cleared, this::publishAllConfigs, "publikacji discovery po zaległych usunięciach");
         }
     }
 
@@ -115,17 +124,14 @@ public class HaDiscoveryPublisher {
         if (config == null) {
             return;
         }
-        String component = MqttTopics.haComponentForDevice(device.getTyp());
-        String topic = MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(device.getId()));
-        publishJson(topic, config);
+        publishJson(deviceConfigTopic(device.getId(), device.getTyp()), config);
     }
 
     public synchronized void removeDevice(int deviceId, DeviceTypes typ) {
-        String component = MqttTopics.haComponentForDevice(typ);
-        if (component == null) {
-            return;
+        String topic = deviceConfigTopic(deviceId, typ);
+        if (topic != null) {
+            clearConfig(topic);
         }
-        clearConfig(MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(deviceId)));
     }
 
     /**
@@ -134,16 +140,16 @@ public class HaDiscoveryPublisher {
      * publikujemy na nowo. HA traci przy tym zmiany zrobione w samym HA (nazwy, entity_id).
      */
     public synchronized void moveDevice(Device device) {
-        // ponowną publikację planujemy także, gdy usunięcie nie doszło do brokera - po częściowym
-        // błędzie (np. timeout bez zerwania połączenia) encja zniknęłaby z HA aż do restartu; przy
-        // niedostępnym brokerze usunięcie zostaje w zaległych i publishAll po reconnect dokończy
-        // przeniesienie
-        clearConfigs(deviceConfigTopics(device));
-        schedule(() -> {
+        String topic = deviceConfigTopic(device.getId(), device.getTyp());
+        if (topic == null) {
+            return;
+        }
+        List<String> topics = Collections.singletonList(topic);
+        moveTopics(topics, () -> {
             if (systemDAO.getDeviceByID(device.getId()) == device) {
                 publishDevice(device);
             }
-        }, recreateDelayMs, "ponownej publikacji discovery urządzenia id=" + device.getId());
+        }, "ponownej publikacji discovery urządzenia id=" + device.getId());
     }
 
     public synchronized void publishSensor(Sensor sensor) {
@@ -162,12 +168,15 @@ public class HaDiscoveryPublisher {
 
     /** Jak {@link #moveDevice(Device)}, dla czujników i przycisków. */
     public synchronized void moveSensor(Sensor sensor) {
-        clearConfigs(sensorConfigTopics(sensor.getId(), sensor.getTyp()));
-        schedule(() -> {
+        List<String> topics = sensorConfigTopics(sensor.getId(), sensor.getTyp());
+        if (topics.isEmpty()) {
+            return;
+        }
+        moveTopics(topics, () -> {
             if (systemDAO.getSensor(sensor.getId()) == sensor) {
                 publishSensor(sensor);
             }
-        }, recreateDelayMs, "ponownej publikacji discovery czujnika id=" + sensor.getId());
+        }, "ponownej publikacji discovery czujnika id=" + sensor.getId());
     }
 
     /**
@@ -175,13 +184,7 @@ public class HaDiscoveryPublisher {
      * ({@code Runners}), których nie wolno blokować publikacją sieciową (timeout do 10 s).
      */
     public void publishSensorAsync(Sensor sensor) {
-        asyncExecutor.execute(() -> {
-            try {
-                publishSensor(sensor);
-            } catch (Exception e) {
-                logger.error("Błąd podczas publikacji discovery czujnika id={}: {}", sensor.getId(), e.getMessage(), e);
-            }
-        });
+        schedule(() -> publishSensor(sensor), 0, "publikacji discovery czujnika id=" + sensor.getId());
     }
 
     @PreDestroy
@@ -190,16 +193,18 @@ public class HaDiscoveryPublisher {
     }
 
     public synchronized void removeSensor(int sensorId, SensorsTypes typ) {
-        clearConfigs(sensorConfigTopics(sensorId, typ));
+        for (String topic : sensorConfigTopics(sensorId, typ)) {
+            clearConfig(topic);
+        }
     }
 
-    private List<String> deviceConfigTopics(Device device) {
-        List<String> topics = new ArrayList<>();
-        String component = MqttTopics.haComponentForDevice(device.getTyp());
-        if (component != null) {
-            topics.add(MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(device.getId())));
+    /** Topic configu discovery urządzenia, lub null dla typów nieobsługiwanych przez HA. */
+    private String deviceConfigTopic(int deviceId, DeviceTypes typ) {
+        String component = MqttTopics.haComponentForDevice(typ);
+        if (component == null) {
+            return null;
         }
-        return topics;
+        return MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(deviceId));
     }
 
     private List<String> sensorConfigTopics(int sensorId, SensorsTypes typ) {
@@ -213,20 +218,66 @@ public class HaDiscoveryPublisher {
         return topics;
     }
 
-    private void clearConfigs(List<String> topics) {
+    // Ponowną publikację planujemy także, gdy usunięcie nie doszło do brokera - recreate ponowi
+    // usunięcie, inaczej po częściowym błędzie (np. timeout) encja zniknęłaby z HA aż do restartu.
+    private void moveTopics(List<String> topics, Runnable republish, String description) {
         for (String topic : topics) {
-            clearConfig(topic);
+            clearForRecreate(topic);
         }
+        scheduleRecreate(topics, republish, description);
+    }
+
+    /** Czyści config i otwiera okno, w którym publishJson go nie opublikuje. */
+    private boolean clearForRecreate(String topic) {
+        boolean published = clearConfig(topic);
+        if (published) {
+            recreateNotBefore.put(topic, System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(recreateDelayMs));
+        }
+        return published;
+    }
+
+    private void scheduleRecreate(List<String> topics, Runnable republish, String description) {
+        schedule(() -> recreate(topics, republish, description), recreateDelayMs, description);
+    }
+
+    private synchronized void recreate(List<String> topics, Runnable republish, String description) {
+        for (String topic : topics) {
+            // bez usunięcia na brokerze HA nie utworzy urządzenia od nowa (zostałby stary obszar)
+            if (pendingRemovals.contains(topic) && !clearForRecreate(topic)) {
+                // broker niedostępny - publishAll po reconnect dokończy przeniesienie
+                return;
+            }
+        }
+        long now = System.nanoTime();
+        long waitNanos = 0;
+        for (String topic : topics) {
+            Long notBefore = recreateNotBefore.get(topic);
+            if (notBefore != null) {
+                waitNanos = Math.max(waitNanos, notBefore - now);
+            }
+        }
+        if (waitNanos > 0) {
+            // usunięcie ponowione przed chwilą (tu albo w publishAll) - czekamy na nowe okno
+            schedule(() -> recreate(topics, republish, description), TimeUnit.NANOSECONDS.toMillis(waitNanos) + 1,
+                    description);
+            return;
+        }
+        recreateNotBefore.keySet().removeAll(topics);
+        republish.run();
     }
 
     private void schedule(Runnable task, long delayMs, String description) {
-        asyncExecutor.schedule(() -> {
-            try {
-                task.run();
-            } catch (Exception e) {
-                logger.error("Błąd podczas {}: {}", description, e.getMessage(), e);
-            }
-        }, delayMs, TimeUnit.MILLISECONDS);
+        try {
+            asyncExecutor.schedule(() -> {
+                try {
+                    task.run();
+                } catch (Exception e) {
+                    logger.error("Błąd podczas {}: {}", description, e.getMessage(), e);
+                }
+            }, delayMs, TimeUnit.MILLISECONDS);
+        } catch (RejectedExecutionException e) {
+            logger.warn("Pominięto zadanie {} - publisher discovery jest zatrzymany", description);
+        }
     }
 
     private String roomName(int roomId) {
@@ -258,6 +309,12 @@ public class HaDiscoveryPublisher {
     }
 
     private void publishJson(String topic, Map<String, Object> payload) {
+        Long notBefore = recreateNotBefore.get(topic);
+        if (notBefore != null && notBefore - System.nanoTime() > 0) {
+            // HA jeszcze usuwa urządzenie - aktualny config opublikuje zaplanowany recreate
+            logger.debug("Pominięto publikację {} - trwa przenoszenie do innego obszaru", topic);
+            return;
+        }
         try {
             // zaległe usunięcie zdejmujemy dopiero po udanej publikacji - inaczej po restarcie
             // retained pusty config z brokera nie miałby już śladu do ponowienia

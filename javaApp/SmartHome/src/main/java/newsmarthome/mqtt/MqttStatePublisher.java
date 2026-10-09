@@ -2,6 +2,9 @@ package newsmarthome.mqtt;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -40,6 +43,12 @@ public class MqttStatePublisher {
     private final Map<Integer, String> lastDevicePosition = new ConcurrentHashMap<>();
     private final Map<Integer, String> lastSensorState = new ConcurrentHashMap<>();
     private ThreadPoolTaskScheduler scheduler;
+    /** Kliknięcia nie mogą czekać za okresową publikacją wszystkich stanów - stąd osobny wątek. */
+    private final ExecutorService buttonEventExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "mqtt-button-events");
+        t.setDaemon(true);
+        return t;
+    });
 
     public MqttStatePublisher(MqttGateway gateway, SystemDAO systemDAO) {
         this.gateway = gateway;
@@ -68,6 +77,7 @@ public class MqttStatePublisher {
         if (scheduler != null) {
             scheduler.shutdown();
         }
+        buttonEventExecutor.shutdownNow();
     }
 
     /**
@@ -82,7 +92,7 @@ public class MqttStatePublisher {
 
     /**
      * Publikuje zdarzenie przycisku dla encji event HA. Wywoływane z wątku {@code Runners},
-     * więc sama publikacja idzie na wątku schedulera. Bez retained - inaczej HA odtwarzałby
+     * więc sama publikacja idzie na osobnym wątku. Bez retained - inaczej HA odtwarzałby
      * stare kliknięcie po każdym restarcie i odpalał automatyzacje.
      */
     public void publishButtonEvent(Button button, ButtonClickType type, int clicks) {
@@ -92,8 +102,8 @@ public class MqttStatePublisher {
                     type, clicks);
             return;
         }
-        if (scheduler != null) {
-            scheduler.execute(() -> {
+        try {
+            buttonEventExecutor.execute(() -> {
                 try {
                     gateway.publish(MqttTopics.buttonEventTopic(gateway.getBaseTopic(), button.getId()),
                             objectMapper.writeValueAsString(event), false);
@@ -102,6 +112,9 @@ public class MqttStatePublisher {
                             e);
                 }
             });
+        } catch (RejectedExecutionException e) {
+            // zamykanie aplikacji - wyjątek nie może przerwać pętli automatyki w Runners
+            logger.warn("Pominięto zdarzenie przycisku id={} - publisher MQTT jest zatrzymany", button.getId());
         }
     }
 

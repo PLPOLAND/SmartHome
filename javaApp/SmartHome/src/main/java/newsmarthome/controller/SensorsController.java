@@ -251,29 +251,42 @@ public class SensorsController {
 					if(sensor == null)
 						return new Response<>(null, "Nie znaleziono czujnika o podanym ID");
 					else{
-						// walidacja przed zmianami - błędny pokój nie może zostawić czujnika zmienionego w połowie
+						// walidacja przed zmianami - błędny parametr nie może zostawić czujnika zmienionego w połowie
+						// (zmiana w pamięci bez zapisu i bez publikacji do HA)
 						Room newRoom = null;
 						if (roomIDString != null) {
-							newRoom = systemDAO.getRoom(Integer.parseInt(roomIDString));
+							int roomID;
+							try {
+								roomID = Integer.parseInt(roomIDString);
+							} catch (NumberFormatException e) {
+								return new Response<>(null, "roomID nie jest liczbą");
+							}
+							newRoom = systemDAO.getRoom(roomID);
 							if (newRoom == null)
 								return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
 						}
-						if(name != null)
-							sensor.setNazwa(name);
-						if(slaveID != null && sensor instanceof Button)
-							sensor.setSlaveAdress(Integer.parseInt(slaveID));
-						else if (slaveID != null)
+						if (slaveID != null && !(sensor instanceof Button))
 							return new Response<>(null, "Nie można zmienić slaveID czujnika innego typu niż przycisk");
-						if(pin != null && sensor instanceof Button){
-							((Button)sensor).setPin(Integer.parseInt(pin));
-						}
-						else if (pin != null)
+						if (pin != null && !(sensor instanceof Button))
 							return new Response<>(null, "Nie można zmienić pinu czujnika innego typu niż przycisk");
-						if(automations != null){
+						if (automations != null && !(sensor instanceof Button))
+							return new Response<>(null, "Nie można zmienić funkcji kliknięć czujnika innego typu niż przycisk");
+						Integer slaveIDint = slaveID != null ? Integer.valueOf(slaveID) : null;
+						Integer pinInt = pin != null ? Integer.valueOf(pin) : null;
+						JsonNode automationsJSONList = null;
+						if (automations != null) {
 							ObjectMapper mapper = new ObjectMapper();
 							mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+							automationsJSONList = mapper.readTree(automations);
+						}
+						if(name != null)
+							sensor.setNazwa(name);
+						if(slaveIDint != null)
+							sensor.setSlaveAdress(slaveIDint);
+						if(pinInt != null)
+							((Button)sensor).setPin(pinInt);
+						if(automationsJSONList != null){
 							((Button)sensor).clearFunkcjeKlikniec();
-							JsonNode automationsJSONList = mapper.readTree(automations);
 								for (JsonNode automationJSON : automationsJSONList) {
 									ButtonLocalFunction function = new ButtonLocalFunction();
 									function.setButton( (Button)sensor);
@@ -286,7 +299,9 @@ public class SensorsController {
 						}
 						boolean roomChanged = newRoom != null && newRoom.getID() != sensor.getRoom();
 						if (roomChanged) {
-							systemDAO.getRoom(sensor.getRoom()).delSensor(sensor);
+							Room oldRoom = systemDAO.getRoom(sensor.getRoom());
+							if (oldRoom != null)
+								oldRoom.delSensor(sensor);
 							newRoom.addSensor(sensor);
 						}
 						// bez zapisu po restarcie wróciłyby stare dane, a publishAll nadpisałby nimi HA
