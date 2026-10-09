@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
 public class Blind extends Device{
-    DeviceState stan;
+    // volatile: stan czytany też z wątków MQTT (publisher, komendy)
+    volatile DeviceState stan;
     Switch swtUp;
     Switch swtDown;
 
@@ -198,6 +199,15 @@ public class Blind extends Device{
         swtDown = swt;
     }
 
+
+    /**
+     * Odczyt stanu bez efektów ubocznych - w odróżnieniu od {@link #getState()} nie wysyła
+     * komendy do slave-a, gdy stan nie jest jeszcze znany (null).
+     */
+    @JsonIgnore
+    public DeviceState peekState() {
+        return this.stan;
+    }
 
     @Override
     public DeviceState getState(){
