@@ -270,6 +270,20 @@ class HaDiscoveryPublisherTest {
     }
 
     @Test
+    void failedReplacementPublishIsRetried() {
+        MqttGateway gateway = gateway(true);
+        // usunięcie przeszło, ale publikacja nowego configu nie (np. timeout przy działającym połączeniu)
+        when(gateway.publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true))).thenReturn(false, true);
+        Light light = light(1);
+        HaDiscoveryPublisher publisher = publisher(gateway, systemDAOWith(light), tempDir.resolve("pending.txt"));
+
+        publisher.publishDevice(light);
+
+        verify(gateway, timeout(2000).times(2)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        verify(gateway, times(1)).publish(LIGHT_TOPIC, "", true);
+    }
+
+    @Test
     void recreateSkipsDeviceRemovedInTheMeantime() {
         MqttGateway online = gateway(true);
         SystemDAO systemDAO = systemDAO();

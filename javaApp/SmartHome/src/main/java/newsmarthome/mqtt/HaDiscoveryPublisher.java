@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -148,34 +149,41 @@ public class HaDiscoveryPublisher {
         }
     }
 
-    /** Publikuje configi wszystkich urządzeń i czujników, albo tylko tych, które mają topic w {@code topics}. */
-    private synchronized void publishConfigs(Set<String> topics) {
+    /**
+     * Publikuje configi wszystkich urządzeń i czujników, albo tylko tych, które mają topic w {@code topics}.
+     * @return false, gdy któraś publikacja nie doszła do brokera
+     */
+    private synchronized boolean publishConfigs(Set<String> topics) {
+        boolean allPublished = true;
         for (Device device : systemDAO.getDevicesSnapshot()) {
             String topic = deviceConfigTopic(device.getId(), device.getTyp());
             if (topics == null || topics.contains(topic)) {
-                publishDevice(device);
+                allPublished &= publishDeviceConfigs(device);
             }
         }
         for (Sensor sensor : systemDAO.getSensorsSnapshot()) {
             if (topics == null || sensorConfigTopics(sensor.getId(), sensor.getTyp()).stream().anyMatch(topics::contains)) {
-                publishSensor(sensor);
+                allPublished &= publishSensorConfigs(sensor);
             }
         }
+        return allPublished;
     }
 
     public synchronized void publishDevice(Device device) {
+        publishDeviceConfigs(device);
+    }
+
+    private boolean publishDeviceConfigs(Device device) {
         Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(device, gateway.getBaseTopic(),
                 roomName(device.getRoom()));
         if (config == null) {
-            return;
+            return true;
         }
         Map<String, Map<String, Object>> configs = new LinkedHashMap<>();
         configs.put(deviceConfigTopic(device.getId(), device.getTyp()), config);
-        publishOrRecreate(configs, () -> {
-            if (systemDAO.getDeviceByID(device.getId()) == device) {
-                publishDevice(device);
-            }
-        }, "ponownej publikacji discovery urządzenia id=" + device.getId());
+        return publishOrRecreate(configs,
+                () -> systemDAO.getDeviceByID(device.getId()) != device || publishDeviceConfigs(device),
+                "ponownej publikacji discovery urządzenia id=" + device.getId());
     }
 
     public synchronized void removeDevice(int deviceId, DeviceTypes typ) {
@@ -186,9 +194,13 @@ public class HaDiscoveryPublisher {
     }
 
     public synchronized void publishSensor(Sensor sensor) {
+        publishSensorConfigs(sensor);
+    }
+
+    private boolean publishSensorConfigs(Sensor sensor) {
         String component = MqttTopics.haComponentForSensor(sensor.getTyp());
         if (component == null) {
-            return;
+            return true;
         }
         Map<String, Map<String, Object>> configs = new LinkedHashMap<>();
         for (Map<String, Object> config : MqttTopics.sensorDiscoveryConfigs(sensor, gateway.getBaseTopic(),
@@ -196,11 +208,9 @@ public class HaDiscoveryPublisher {
             configs.put(MqttTopics.discoveryConfigTopic(discoveryPrefix, component, (String) config.get("unique_id")),
                     config);
         }
-        publishOrRecreate(configs, () -> {
-            if (systemDAO.getSensor(sensor.getId()) == sensor) {
-                publishSensor(sensor);
-            }
-        }, "ponownej publikacji discovery czujnika id=" + sensor.getId());
+        return publishOrRecreate(configs,
+                () -> systemDAO.getSensor(sensor.getId()) != sensor || publishSensorConfigs(sensor),
+                "ponownej publikacji discovery czujnika id=" + sensor.getId());
     }
 
     /**
@@ -228,8 +238,11 @@ public class HaDiscoveryPublisher {
      * Publikuje configi jednego urządzenia HA. Gdy zmienił się identyfikator urządzenia (np. przez
      * zmianę pokoju), najpierw usuwa configi i odtwarza je po {@link #recreateDelayMs}. Wszystkie
      * configi obiektu idą razem - encje higrometru dzielą jedno urządzenie HA.
+     * @param republish ponowna publikacja po usunięciu; zwraca false, gdy config nie doszedł do brokera
+     * @return false, gdy bezpośrednia publikacja nie doszła do brokera (odtworzenie zaplanowane = true)
      */
-    private void publishOrRecreate(Map<String, Map<String, Object>> configs, Runnable republish, String description) {
+    private boolean publishOrRecreate(Map<String, Map<String, Object>> configs, BooleanSupplier republish,
+            String description) {
         boolean identifierChanged = false;
         boolean unknown = false;
         for (Map.Entry<String, Map<String, Object>> entry : configs.entrySet()) {
@@ -246,8 +259,11 @@ public class HaDiscoveryPublisher {
                 configs.forEach((topic, config) -> publishedIdentifiers.put(topic, MqttTopics.haDeviceIdentifierOf(config)));
                 savePublishedIdentifiers();
             }
-            configs.forEach(this::publishJson);
-            return;
+            boolean allPublished = true;
+            for (Map.Entry<String, Map<String, Object>> entry : configs.entrySet()) {
+                allPublished &= publishJson(entry.getKey(), entry.getValue());
+            }
+            return allPublished;
         }
         // nieznany topic bez pliku stanu: config sprzed identyfikatorów z pokojem - odtwarzamy jak przy zmianie
         // najpierw usunięcie (nieudane trafia do zaległych), dopiero potem nowy identyfikator - przy
@@ -259,6 +275,7 @@ public class HaDiscoveryPublisher {
         configs.forEach((topic, config) -> publishedIdentifiers.put(topic, MqttTopics.haDeviceIdentifierOf(config)));
         savePublishedIdentifiers();
         scheduleRecreate(configs.keySet(), republish, description);
+        return true;
     }
 
     private void remove(String topic) {
@@ -268,12 +285,12 @@ public class HaDiscoveryPublisher {
         }
     }
 
-    private void scheduleRecreate(Collection<String> topics, Runnable republish, String description) {
+    private void scheduleRecreate(Collection<String> topics, BooleanSupplier republish, String description) {
         Set<String> copy = new HashSet<>(topics);
         schedule(() -> recreate(copy, republish, description, 1), recreateDelayMs, description);
     }
 
-    private synchronized void recreate(Set<String> topics, Runnable republish, String description, int attempt) {
+    private synchronized void recreate(Set<String> topics, BooleanSupplier republish, String description, int attempt) {
         List<String> failed = new ArrayList<>();
         for (String topic : topics) {
             // bez usunięcia na brokerze HA nie usunie starego urządzenia (encja zostałaby przy nim)
@@ -313,14 +330,20 @@ public class HaDiscoveryPublisher {
             return;
         }
         recreating.keySet().removeAll(topics);
+        // config jest już usunięty z brokera - bez ponowienia nieudanej publikacji (wyjątek albo timeout
+        // przy działającym połączeniu) encja zniknęłaby z HA do reconnectu
+        boolean published;
         try {
-            republish.run();
+            published = republish.getAsBoolean();
         } catch (RuntimeException e) {
-            // config jest już usunięty z brokera - bez ponowienia encja zniknęłaby z HA do reconnectu
             if (attempt >= MAX_RECREATE_ATTEMPTS) {
                 throw e;
             }
             logger.warn("Błąd podczas {} (próba {}): {}", description, attempt, e.getMessage());
+            published = false;
+        }
+        if (!published && gateway.isConnected() && attempt < MAX_RECREATE_ATTEMPTS) {
+            // bez połączenia publishAll po reconnect opublikuje wszystkie configi
             schedule(() -> recreate(topics, republish, description, attempt + 1), recreateDelayMs, description);
         }
     }
@@ -432,11 +455,12 @@ public class HaDiscoveryPublisher {
         }
     }
 
-    private void publishJson(String topic, Map<String, Object> payload) {
+    /** @return false, gdy config nie doszedł do brokera; pominięcie w trakcie odtwarzania to true (opublikuje recreate) */
+    private boolean publishJson(String topic, Map<String, Object> payload) {
         if (recreating.containsKey(topic)) {
             // HA jeszcze usuwa stare urządzenie - aktualny config opublikuje zaplanowany recreate
             logger.debug("Pominięto publikację {} - trwa odtwarzanie urządzenia w HA", topic);
-            return;
+            return true;
         }
         try {
             // zaległe usunięcie zdejmujemy dopiero po udanej publikacji - inaczej po restarcie
@@ -445,8 +469,10 @@ public class HaDiscoveryPublisher {
             if (published && pendingRemovals.remove(topic)) {
                 savePendingRemovals();
             }
+            return published;
         } catch (Exception e) {
             logger.error("Błąd podczas serializacji configu discovery dla {}: {}", topic, e.getMessage());
+            return false;
         }
     }
 }
