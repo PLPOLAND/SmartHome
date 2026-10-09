@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import newsmarthome.database.SystemDAO;
 import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.ButtonClickType;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
 
@@ -75,6 +77,31 @@ public class MqttStatePublisher {
     public void publishDeviceNow(Device device) {
         if (scheduler != null) {
             scheduler.execute(() -> publishDeviceStateIfChanged(device));
+        }
+    }
+
+    /**
+     * Publikuje zdarzenie przycisku dla encji event HA. Wywoływane z wątku {@code Runners},
+     * więc sama publikacja idzie na wątku schedulera. Bez retained - inaczej HA odtwarzałby
+     * stare kliknięcie po każdym restarcie i odpalał automatyzacje.
+     */
+    public void publishButtonEvent(Button button, ButtonClickType type, int clicks) {
+        Map<String, Object> event = MqttTopics.buttonEventPayload(type, clicks);
+        if (event == null) {
+            logger.debug("Pominięto zdarzenie przycisku id={} ({} x{}) - brak typu zdarzenia w HA", button.getId(),
+                    type, clicks);
+            return;
+        }
+        if (scheduler != null) {
+            scheduler.execute(() -> {
+                try {
+                    gateway.publish(MqttTopics.buttonEventTopic(gateway.getBaseTopic(), button.getId()),
+                            objectMapper.writeValueAsString(event), false);
+                } catch (Exception e) {
+                    logger.error("Błąd podczas publikacji zdarzenia przycisku id={}: {}", button.getId(), e.getMessage(),
+                            e);
+                }
+            });
         }
     }
 

@@ -169,6 +169,7 @@ public class SensorsController {
 						case BUTTON: {
 							Room room = systemDAO.getRoom(roomID);
 							Button button = systemDAO.addButton(room, name, slaveIDint, Integer.parseInt(pin));
+							haDiscoveryPublisher.publishSensor(button);
 							if (automations != null) {
 								ObjectMapper mapper = new ObjectMapper();
 								mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
@@ -240,6 +241,7 @@ public class SensorsController {
 			String slaveID = request.getParameter("slaveID");
 			String pin = request.getParameter("pin");
 			String automations = request.getParameter("funkcjeKlikniec");
+			String roomIDString = request.getParameter("roomID");
 			if(idString == null)
 				return new Response<>(null, "Nie podano ID");
 			else{
@@ -249,6 +251,13 @@ public class SensorsController {
 					if(sensor == null)
 						return new Response<>(null, "Nie znaleziono czujnika o podanym ID");
 					else{
+						// walidacja przed zmianami - błędny pokój nie może zostawić czujnika zmienionego w połowie
+						Room newRoom = null;
+						if (roomIDString != null) {
+							newRoom = systemDAO.getRoom(Integer.parseInt(roomIDString));
+							if (newRoom == null)
+								return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
+						}
 						if(name != null)
 							sensor.setNazwa(name);
 						if(slaveID != null && sensor instanceof Button)
@@ -275,9 +284,20 @@ public class SensorsController {
 									((Button)sensor).addFunkcjaKilkniecia(function);
 								}
 						}
+						boolean roomChanged = newRoom != null && newRoom.getID() != sensor.getRoom();
+						if (roomChanged) {
+							systemDAO.getRoom(sensor.getRoom()).delSensor(sensor);
+							newRoom.addSensor(sensor);
+						}
 						// bez zapisu po restarcie wróciłyby stare dane, a publishAll nadpisałby nimi HA
 						systemDAO.save(systemDAO.getRoom(sensor.getRoom()));
-						haDiscoveryPublisher.publishSensor(sensor);
+						if (roomChanged) {
+							// suggested_area działa w HA tylko przy tworzeniu urządzenia - stąd
+							// usunięcie i ponowne utworzenie w nowym obszarze
+							haDiscoveryPublisher.moveSensor(sensor);
+						} else {
+							haDiscoveryPublisher.publishSensor(sensor);
+						}
 						return new Response<>(sensor);
 					}
 				}

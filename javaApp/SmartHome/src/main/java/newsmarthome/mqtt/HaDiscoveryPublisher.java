@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -36,14 +37,12 @@ import newsmarthome.model.hardware.sensor.SensorsTypes;
 @Service
 public class HaDiscoveryPublisher {
 
-    private static final String SENSOR_COMPONENT = "sensor";
-
     private final Logger logger = LoggerFactory.getLogger(HaDiscoveryPublisher.class);
     private final MqttGateway gateway;
     private final SystemDAO systemDAO;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Set<String> pendingRemovals = ConcurrentHashMap.newKeySet();
-    private final ExecutorService asyncExecutor = Executors.newSingleThreadExecutor(r -> {
+    private final ScheduledExecutorService asyncExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "ha-discovery");
         t.setDaemon(true);
         return t;
@@ -55,6 +54,14 @@ public class HaDiscoveryPublisher {
     /** Zaległe usunięcia muszą przetrwać restart - inaczej retained config usuniętej encji zostałby w HA. */
     @Value("${mqtt.pending-removals-file:smarthome/database/mqtt_pending_removals.txt}")
     private String pendingRemovalsFile;
+
+    /**
+     * Odstęp między usunięciem a ponowną publikacją configu przy zmianie pokoju. HA musi zdążyć
+     * usunąć urządzenie z rejestru, inaczej nowy config dopiąłby encję do starego urządzenia
+     * (ze starym obszarem).
+     */
+    @Value("${mqtt.recreate-delay-ms:3000}")
+    private long recreateDelayMs;
 
     public HaDiscoveryPublisher(MqttGateway gateway, SystemDAO systemDAO) {
         this.gateway = gateway;
@@ -80,9 +87,20 @@ public class HaDiscoveryPublisher {
 
     /** Publikuje discovery dla wszystkich urządzeń i czujników znanych systemowi. */
     public synchronized void publishAll() {
+        boolean clearedAny = false;
         for (String topic : pendingRemovals) {
-            clearConfig(topic);
+            clearedAny |= clearConfig(topic);
         }
+        if (clearedAny) {
+            // zaległe usunięcie mogło dotyczyć przeniesienia do innego pokoju - jak w moveDevice
+            // dajemy HA czas na usunięcie urządzenia, zanim opublikujemy je na nowo
+            schedule(this::publishAllConfigs, recreateDelayMs, "publikacji discovery po zaległych usunięciach");
+        } else {
+            publishAllConfigs();
+        }
+    }
+
+    private synchronized void publishAllConfigs() {
         for (Device device : systemDAO.getDevicesSnapshot()) {
             publishDevice(device);
         }
@@ -110,14 +128,46 @@ public class HaDiscoveryPublisher {
         clearConfig(MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(deviceId)));
     }
 
+    /**
+     * Przenosi urządzenie do obszaru jego aktualnego pokoju. {@code suggested_area} działa w HA
+     * tylko przy tworzeniu urządzenia, więc usuwamy je z HA i po {@link #recreateDelayMs}
+     * publikujemy na nowo. HA traci przy tym zmiany zrobione w samym HA (nazwy, entity_id).
+     */
+    public synchronized void moveDevice(Device device) {
+        // ponowną publikację planujemy także, gdy usunięcie nie doszło do brokera - po częściowym
+        // błędzie (np. timeout bez zerwania połączenia) encja zniknęłaby z HA aż do restartu; przy
+        // niedostępnym brokerze usunięcie zostaje w zaległych i publishAll po reconnect dokończy
+        // przeniesienie
+        clearConfigs(deviceConfigTopics(device));
+        schedule(() -> {
+            if (systemDAO.getDeviceByID(device.getId()) == device) {
+                publishDevice(device);
+            }
+        }, recreateDelayMs, "ponownej publikacji discovery urządzenia id=" + device.getId());
+    }
+
     public synchronized void publishSensor(Sensor sensor) {
+        String component = MqttTopics.haComponentForSensor(sensor.getTyp());
+        if (component == null) {
+            return;
+        }
         List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(sensor, gateway.getBaseTopic(),
                 roomName(sensor.getRoom()));
         for (Map<String, Object> config : configs) {
             String objectId = (String) config.get("unique_id");
-            String topic = MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, objectId);
+            String topic = MqttTopics.discoveryConfigTopic(discoveryPrefix, component, objectId);
             publishJson(topic, config);
         }
+    }
+
+    /** Jak {@link #moveDevice(Device)}, dla czujników i przycisków. */
+    public synchronized void moveSensor(Sensor sensor) {
+        clearConfigs(sensorConfigTopics(sensor.getId(), sensor.getTyp()));
+        schedule(() -> {
+            if (systemDAO.getSensor(sensor.getId()) == sensor) {
+                publishSensor(sensor);
+            }
+        }, recreateDelayMs, "ponownej publikacji discovery czujnika id=" + sensor.getId());
     }
 
     /**
@@ -136,18 +186,47 @@ public class HaDiscoveryPublisher {
 
     @PreDestroy
     public void stop() {
-        asyncExecutor.shutdown();
+        asyncExecutor.shutdownNow();
     }
 
     public synchronized void removeSensor(int sensorId, SensorsTypes typ) {
-        if (typ != SensorsTypes.THERMOMETR && typ != SensorsTypes.THERMOMETR_HYGROMETR) {
-            return;
+        clearConfigs(sensorConfigTopics(sensorId, typ));
+    }
+
+    private List<String> deviceConfigTopics(Device device) {
+        List<String> topics = new ArrayList<>();
+        String component = MqttTopics.haComponentForDevice(device.getTyp());
+        if (component != null) {
+            topics.add(MqttTopics.discoveryConfigTopic(discoveryPrefix, component, MqttTopics.deviceObjectId(device.getId())));
         }
-        clearConfig(MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, MqttTopics.sensorObjectId(sensorId)));
-        if (typ == SensorsTypes.THERMOMETR_HYGROMETR) {
-            clearConfig(
-                    MqttTopics.discoveryConfigTopic(discoveryPrefix, SENSOR_COMPONENT, MqttTopics.humidityObjectId(sensorId)));
+        return topics;
+    }
+
+    private List<String> sensorConfigTopics(int sensorId, SensorsTypes typ) {
+        List<String> topics = new ArrayList<>();
+        String component = MqttTopics.haComponentForSensor(typ);
+        if (component != null) {
+            for (String objectId : MqttTopics.sensorObjectIds(sensorId, typ)) {
+                topics.add(MqttTopics.discoveryConfigTopic(discoveryPrefix, component, objectId));
+            }
         }
+        return topics;
+    }
+
+    private void clearConfigs(List<String> topics) {
+        for (String topic : topics) {
+            clearConfig(topic);
+        }
+    }
+
+    private void schedule(Runnable task, long delayMs, String description) {
+        asyncExecutor.schedule(() -> {
+            try {
+                task.run();
+            } catch (Exception e) {
+                logger.error("Błąd podczas {}: {}", description, e.getMessage(), e);
+            }
+        }, delayMs, TimeUnit.MILLISECONDS);
     }
 
     private String roomName(int roomId) {
@@ -157,11 +236,13 @@ public class HaDiscoveryPublisher {
 
     // Usunięcie przy niedostępnym brokerze ponawiamy przy następnym publishAll (po reconnect),
     // inaczej retained config zostałby na brokerze i HA pokazywałby nieistniejącą encję.
-    private void clearConfig(String topic) {
-        boolean changed = gateway.publish(topic, "", true) ? pendingRemovals.remove(topic) : pendingRemovals.add(topic);
+    private boolean clearConfig(String topic) {
+        boolean published = gateway.publish(topic, "", true);
+        boolean changed = published ? pendingRemovals.remove(topic) : pendingRemovals.add(topic);
         if (changed) {
             savePendingRemovals();
         }
+        return published;
     }
 
     private void savePendingRemovals() {

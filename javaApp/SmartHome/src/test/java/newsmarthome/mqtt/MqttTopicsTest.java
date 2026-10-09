@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,10 @@ import newsmarthome.model.hardware.device.Blind;
 import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.ButtonClickType;
 import newsmarthome.model.hardware.sensor.Higrometr;
+import newsmarthome.model.hardware.sensor.SensorsTypes;
 import newsmarthome.model.hardware.sensor.Termometr;
 
 class MqttTopicsTest {
@@ -158,5 +162,52 @@ class MqttTopicsTest {
         higrometr.setId(103);
         higrometr.setTemperatura(20.0f);
         assertNull(MqttTopics.sensorStatePayload(higrometr));
+    }
+
+    @Test
+    void buildsButtonEventDiscovery() {
+        Button button = new Button(8, 3);
+        button.setId(104);
+        button.setNazwa("Przycisk przy drzwiach");
+
+        List<Map<String, Object>> configs = MqttTopics.sensorDiscoveryConfigs(button, "smarthome", "Hol");
+        assertEquals(1, configs.size());
+        Map<String, Object> config = configs.get(0);
+        assertEquals("smarthome_sensor_104", config.get("unique_id"));
+        assertEquals("smarthome/sensor/104/event", config.get("state_topic"));
+        assertEquals("button", config.get("device_class"));
+        List<?> eventTypes = (List<?>) config.get("event_types");
+        assertEquals(2 * MqttTopics.MAX_BUTTON_CLICKS, eventTypes.size());
+        assertTrue(eventTypes.contains("click_1") && eventTypes.contains("hold_5"));
+        assertEquals("Hol", ((Map<?, ?>) config.get("device")).get("suggested_area"));
+        assertEquals("event", MqttTopics.haComponentForSensor(SensorsTypes.BUTTON));
+    }
+
+    @Test
+    void mapsButtonCommandsToEventTypesFromDiscovery() {
+        List<String> eventTypes = MqttTopics.buttonEventTypes();
+
+        Map<String, Object> click = MqttTopics.buttonEventPayload(ButtonClickType.CLICKED, 2);
+        assertEquals("click_2", click.get("event_type"));
+        assertEquals(2, click.get("clicks"));
+        assertTrue(eventTypes.contains(click.get("event_type")));
+
+        Map<String, Object> hold = MqttTopics.buttonEventPayload(ButtonClickType.HOLDED, 1);
+        assertEquals("hold_1", hold.get("event_type"));
+        assertTrue(eventTypes.contains(hold.get("event_type")));
+
+        // typów spoza event_types HA nie przyjmie - nie publikujemy ich
+        assertNull(MqttTopics.buttonEventPayload(ButtonClickType.CLICKED, MqttTopics.MAX_BUTTON_CLICKS + 1));
+        assertNull(MqttTopics.buttonEventPayload(ButtonClickType.CLICKED, 0));
+        assertNull(MqttTopics.buttonEventPayload(ButtonClickType.HOLDING, 1));
+        assertNull(MqttTopics.buttonEventPayload(null, 1));
+    }
+
+    @Test
+    void listsObjectIdsOfAllSensorEntities() {
+        assertEquals(Arrays.asList("smarthome_sensor_5"), MqttTopics.sensorObjectIds(5, SensorsTypes.BUTTON));
+        assertEquals(Arrays.asList("smarthome_sensor_5", "smarthome_sensor_5_humidity"),
+                MqttTopics.sensorObjectIds(5, SensorsTypes.THERMOMETR_HYGROMETR));
+        assertTrue(MqttTopics.sensorObjectIds(5, SensorsTypes.MOTION).isEmpty());
     }
 }

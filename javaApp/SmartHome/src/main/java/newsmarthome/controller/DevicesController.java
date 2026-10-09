@@ -297,14 +297,16 @@ public class DevicesController {
 					Device dev = systemDAO.getDeviceByID(devID);
 					if (dev !=null) {
 						Room newRoom = systemDAO.getRoom(Integer.parseInt(room));
-						if (newRoom != null) {
+						if (newRoom != null && newRoom.getID() == dev.getRoom()) {
+							// bez zmiany pokoju nie usuwamy urządzenia z HA
+							return new Response<>("OK");
+						} else if (newRoom != null) {
 							Room oldRoom = systemDAO.getRoom(dev.getRoom());
 							oldRoom.delDevice(dev);
 							newRoom.addDevice(dev);
-							// suggested_area działa w HA tylko przy tworzeniu urządzenia - istniejące
-							// urządzenie trzeba przenieść do obszaru ręcznie w HA; publikacja odświeża
-							// config dla urządzeń, których HA jeszcze nie zarejestrował
-							haDiscoveryPublisher.publishDevice(dev);
+							// suggested_area działa w HA tylko przy tworzeniu urządzenia - stąd
+							// usunięcie i ponowne utworzenie w nowym obszarze
+							haDiscoveryPublisher.moveDevice(dev);
 							return new Response<>("OK");
 						} else {
 							return new Response<>(null, "Nie udało się zmienić pokoju urządzenia: nie znaleziono pokoju o podanym ID");
