@@ -158,6 +158,21 @@ public final class MqttTopics {
         return map;
     }
 
+    /**
+     * Identyfikator urządzenia w rejestrze HA. Zawiera id pokoju, bo HA ustawia obszar z
+     * suggested_area tylko nowym urządzeniom, a urządzenie dodane ponownie z tym samym
+     * identyfikatorem przywraca ze starym obszarem. unique_id encji zostaje bez zmian.
+     */
+    public static String haDeviceIdentifier(String objectId, int roomId) {
+        return objectId + "_room_" + roomId;
+    }
+
+    /** Odczytuje identyfikator urządzenia HA z configu discovery zbudowanego w tej klasie. */
+    public static String haDeviceIdentifierOf(Map<String, Object> config) {
+        Map<?, ?> device = (Map<?, ?>) config.get("device");
+        return (String) ((List<?>) device.get("identifiers")).get(0);
+    }
+
     private static Map<String, Object> deviceInfo(String identifier, String name, String model, String area) {
         Map<String, Object> device = new LinkedHashMap<>();
         device.put("identifiers", Collections.singletonList(identifier));
@@ -186,7 +201,7 @@ public final class MqttTopics {
         config.put("unique_id", objectId);
         config.put("state_topic", deviceStateTopic(baseTopic, device.getId()));
         config.put("command_topic", deviceCommandTopic(baseTopic, device.getId()));
-        config.put("device", deviceInfo(objectId, device.getName(), component, roomName));
+        config.put("device", deviceInfo(haDeviceIdentifier(objectId, device.getRoom()), device.getName(), component, roomName));
 
         switch (device.getTyp()) {
             case LIGHT:
@@ -348,7 +363,7 @@ public final class MqttTopics {
         temperature.put("device_class", "temperature");
         temperature.put("state_class", "measurement");
         temperature.put("value_template", "{{ value_json.temperature }}");
-        temperature.put("device", deviceInfo(tempObjectId, sensor.getNazwa(), SENSOR_COMPONENT, roomName));
+        temperature.put("device", deviceInfo(haDeviceIdentifier(tempObjectId, sensor.getRoom()), sensor.getNazwa(), SENSOR_COMPONENT, roomName));
         configs.add(temperature);
 
         if (sensor.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR) {
@@ -360,7 +375,7 @@ public final class MqttTopics {
             humidity.put("device_class", "humidity");
             humidity.put("state_class", "measurement");
             humidity.put("value_template", "{{ value_json.humidity }}");
-            humidity.put("device", deviceInfo(tempObjectId, sensor.getNazwa(), SENSOR_COMPONENT, roomName));
+            humidity.put("device", deviceInfo(haDeviceIdentifier(tempObjectId, sensor.getRoom()), sensor.getNazwa(), SENSOR_COMPONENT, roomName));
             configs.add(humidity);
         }
         return configs;
@@ -374,7 +389,7 @@ public final class MqttTopics {
         config.put("state_topic", buttonEventTopic(baseTopic, sensor.getId()));
         config.put("device_class", "button");
         config.put("event_types", buttonEventTypes());
-        config.put("device", deviceInfo(objectId, sensor.getNazwa(), "button", roomName));
+        config.put("device", deviceInfo(haDeviceIdentifier(objectId, sensor.getRoom()), sensor.getNazwa(), "button", roomName));
         return config;
     }
 

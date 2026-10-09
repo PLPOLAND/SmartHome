@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -21,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.InOrder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import newsmarthome.database.SystemDAO;
@@ -44,13 +45,13 @@ class HaDiscoveryPublisherTest {
         Path file = tempDir.resolve("db/pending.txt");
 
         MqttGateway offline = gateway(false);
-        HaDiscoveryPublisher before = publisher(offline, file);
+        HaDiscoveryPublisher before = publisher(offline, systemDAO(), file);
         before.removeDevice(7, DeviceTypes.LIGHT);
         assertEquals(Collections.singletonList(LIGHT_TOPIC), Files.readAllLines(file, StandardCharsets.UTF_8));
 
         // "restart": nowa instancja wczytuje zaległe usunięcie i czyści je po połączeniu
         MqttGateway online = gateway(true);
-        HaDiscoveryPublisher after = publisher(online, file);
+        HaDiscoveryPublisher after = publisher(online, systemDAO(), file);
         after.publishAll();
         verify(online).publish(LIGHT_TOPIC, "", true);
         assertTrue(Files.readAllLines(file, StandardCharsets.UTF_8).isEmpty());
@@ -59,64 +60,88 @@ class HaDiscoveryPublisherTest {
     @Test
     void pendingRemovalIsKeptWhenReplacementConfigFailsToPublish() throws Exception {
         Path file = tempDir.resolve("db/pending.txt");
-        MqttGateway offline = gateway(false);
-        HaDiscoveryPublisher publisher = publisher(offline, file);
+        HaDiscoveryPublisher publisher = publisher(gateway(false), systemDAO(), file);
         publisher.removeDevice(7, DeviceTypes.LIGHT);
 
-        Light light = new Light();
-        light.setId(7);
-        publisher.publishDevice(light);
+        publisher.publishDevice(light(1));
 
         assertEquals(Collections.singletonList(LIGHT_TOPIC), Files.readAllLines(file, StandardCharsets.UTF_8));
     }
 
     @Test
-    void moveDeviceRemovesConfigAndRecreatesItAfterDelay() throws Exception {
+    void unknownIdentifierRemovesConfigAndRecreatesItAfterDelay() {
+        // config sprzed identyfikatorów z pokojem (albo nowy obiekt) - HA musi utworzyć urządzenie od nowa
         MqttGateway online = gateway(true);
-        Light light = new Light();
-        light.setId(7);
-        SystemDAO systemDAO = systemDAO();
-        when(systemDAO.getDeviceByID(7)).thenReturn(light);
-        HaDiscoveryPublisher publisher = publisher(online, systemDAO, tempDir.resolve("pending.txt"));
+        Light light = light(1);
+        HaDiscoveryPublisher publisher = publisher(online, systemDAOWith(light), tempDir.resolve("pending.txt"));
 
-        publisher.moveDevice(light);
+        publisher.publishDevice(light);
 
         InOrder order = inOrder(online);
         order.verify(online).publish(LIGHT_TOPIC, "", true);
-        order.verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+        order.verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+    }
+
+    @Test
+    void unchangedIdentifierIsPublishedDirectly() {
+        MqttGateway online = gateway(true);
+        Light light = light(1);
+        HaDiscoveryPublisher publisher = publisher(online, systemDAOWith(light), tempDir.resolve("pending.txt"));
+        publisher.publishDevice(light);
+        verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+
+        // np. zmiana nazwy - bez usuwania urządzenia z HA
+        publisher.publishDevice(light);
+
+        verify(online, times(1)).publish(LIGHT_TOPIC, "", true);
+        verify(online, times(2)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+    }
+
+    @Test
+    void roomChangeRecreatesDeviceWithNewIdentifierAlsoAfterRestart() {
+        Path pending = tempDir.resolve("pending.txt");
+        MqttGateway online = gateway(true);
+        Light light = light(1);
+        HaDiscoveryPublisher before = publisher(online, systemDAOWith(light), pending);
+        before.publishDevice(light);
+        verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_1"), eq(true));
+        before.stop();
+
+        // pokój zmieniony przed restartem - zapisane identyfikatory pozwalają to wykryć
+        light.setRoom(2);
+        MqttGateway restarted = gateway(true);
+        HaDiscoveryPublisher after = publisher(restarted, systemDAOWith(light), pending);
+        after.publishDevice(light);
+
+        InOrder order = inOrder(restarted);
+        order.verify(restarted).publish(LIGHT_TOPIC, "", true);
+        order.verify(restarted, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7_room_2"), eq(true));
     }
 
     @Test
     void publishDuringRecreateWindowIsDeferredToScheduledRecreate() throws Exception {
         MqttGateway online = gateway(true);
-        Light light = new Light();
-        light.setId(7);
-        SystemDAO systemDAO = systemDAO();
-        when(systemDAO.getDeviceByID(7)).thenReturn(light);
-        HaDiscoveryPublisher publisher = publisher(online, systemDAO, tempDir.resolve("pending.txt"));
+        Light light = light(1);
+        HaDiscoveryPublisher publisher = publisher(online, systemDAOWith(light), tempDir.resolve("pending.txt"));
         ReflectionTestUtils.setField(publisher, "recreateDelayMs", 300L);
 
-        publisher.moveDevice(light);
-        // np. zmiana nazwy tuż po przeniesieniu - nie może wyprzedzić usunięcia urządzenia w HA
+        publisher.publishDevice(light);
+        // np. zmiana nazwy tuż po zmianie pokoju - nie może wyprzedzić usunięcia urządzenia w HA
         publisher.publishDevice(light);
         verify(online, never()).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), anyBoolean());
 
         verify(online, timeout(2000)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
-        Thread.sleep(400);
-        verify(online, times(1)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
+        verify(online, after(400).times(1)).publish(eq(LIGHT_TOPIC), contains("smarthome_device_7"), eq(true));
     }
 
     @Test
-    void failedRemovalIsRetriedBeforeRecreate() throws Exception {
+    void failedRemovalIsRetriedBeforeRecreate() {
         MqttGateway gateway = gateway(true);
         when(gateway.publish(LIGHT_TOPIC, "", true)).thenReturn(false, true);
-        Light light = new Light();
-        light.setId(7);
-        SystemDAO systemDAO = systemDAO();
-        when(systemDAO.getDeviceByID(7)).thenReturn(light);
-        HaDiscoveryPublisher publisher = publisher(gateway, systemDAO, tempDir.resolve("pending.txt"));
+        Light light = light(1);
+        HaDiscoveryPublisher publisher = publisher(gateway, systemDAOWith(light), tempDir.resolve("pending.txt"));
 
-        publisher.moveDevice(light);
+        publisher.publishDevice(light);
 
         InOrder order = inOrder(gateway);
         order.verify(gateway, timeout(2000).times(2)).publish(LIGHT_TOPIC, "", true);
@@ -124,14 +149,12 @@ class HaDiscoveryPublisherTest {
     }
 
     @Test
-    void moveDeviceDoesNotRecreateDeviceRemovedInTheMeantime() throws Exception {
+    void recreateSkipsDeviceRemovedInTheMeantime() {
         MqttGateway online = gateway(true);
-        Light light = new Light();
-        light.setId(7);
         SystemDAO systemDAO = systemDAO();
         HaDiscoveryPublisher publisher = publisher(online, systemDAO, tempDir.resolve("pending.txt"));
 
-        publisher.moveDevice(light);
+        publisher.publishDevice(light(1));
 
         // opóźnione zadanie sprawdza, czy urządzenie nadal istnieje (mock zwraca null)
         verify(systemDAO, timeout(2000)).getDeviceByID(7);
@@ -139,30 +162,26 @@ class HaDiscoveryPublisherTest {
     }
 
     @Test
-    void moveDeviceWhileOfflineKeepsRemovalPendingForReconnect() throws Exception {
-        Path file = tempDir.resolve("pending.txt");
-        MqttGateway offline = gateway(false);
-        Light light = new Light();
-        light.setId(7);
-        HaDiscoveryPublisher publisher = publisher(offline, systemDAO(), file);
-
-        publisher.moveDevice(light);
-
-        assertEquals(Collections.singletonList(LIGHT_TOPIC), Files.readAllLines(file, StandardCharsets.UTF_8));
-    }
-
-    @Test
-    void buttonDiscoveryUsesEventComponent() throws Exception {
+    void buttonDiscoveryUsesEventComponent() {
         MqttGateway online = gateway(true);
-        HaDiscoveryPublisher publisher = publisher(online, systemDAO(), tempDir.resolve("pending.txt"));
         Button button = new Button(8, 3);
         button.setId(12);
+        SystemDAO systemDAO = systemDAO();
+        when(systemDAO.getSensor(12)).thenReturn(button);
+        HaDiscoveryPublisher publisher = publisher(online, systemDAO, tempDir.resolve("pending.txt"));
 
         publisher.publishSensor(button);
-        verify(online).publish(eq(BUTTON_TOPIC), contains("event_types"), eq(true));
+        verify(online, timeout(2000)).publish(eq(BUTTON_TOPIC), contains("event_types"), eq(true));
 
         publisher.removeSensor(12, SensorsTypes.BUTTON);
-        verify(online).publish(BUTTON_TOPIC, "", true);
+        verify(online, times(2)).publish(BUTTON_TOPIC, "", true);
+    }
+
+    private Light light(int roomId) {
+        Light light = new Light();
+        light.setId(7);
+        light.setRoom(roomId);
+        return light;
     }
 
     private MqttGateway gateway(boolean connected) {
@@ -179,16 +198,20 @@ class HaDiscoveryPublisherTest {
         return systemDAO;
     }
 
-    private HaDiscoveryPublisher publisher(MqttGateway gateway, Path file) {
-        return publisher(gateway, systemDAO(), file);
+    private SystemDAO systemDAOWith(Light light) {
+        SystemDAO systemDAO = systemDAO();
+        when(systemDAO.getDeviceByID(light.getId())).thenReturn(light);
+        return systemDAO;
     }
 
-    private HaDiscoveryPublisher publisher(MqttGateway gateway, SystemDAO systemDAO, Path file) {
+    private HaDiscoveryPublisher publisher(MqttGateway gateway, SystemDAO systemDAO, Path pendingFile) {
         HaDiscoveryPublisher publisher = new HaDiscoveryPublisher(gateway, systemDAO);
-        ReflectionTestUtils.setField(publisher, "recreateDelayMs", 50L);
         ReflectionTestUtils.setField(publisher, "discoveryPrefix", "homeassistant");
-        ReflectionTestUtils.setField(publisher, "pendingRemovalsFile", file.toString());
-        publisher.loadPendingRemovals();
+        ReflectionTestUtils.setField(publisher, "pendingRemovalsFile", pendingFile.toString());
+        ReflectionTestUtils.setField(publisher, "publishedIdentifiersFile",
+                pendingFile.resolveSibling("identifiers.txt").toString());
+        ReflectionTestUtils.setField(publisher, "recreateDelayMs", 50L);
+        publisher.loadState();
         return publisher;
     }
 }

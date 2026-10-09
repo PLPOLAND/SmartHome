@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -34,6 +35,11 @@ public class MqttStatePublisher {
     /** Stan urządzeń to odczyt z pamięci (hardware odpytuje {@code Runners}), więc może być częsty. */
     private static final long DEVICE_PUBLISH_INTERVAL_MS = 500;
     private static final long SENSOR_PUBLISH_INTERVAL_MS = 5000;
+    /**
+     * Kliknięcie dostarczone do HA po zawieszeniu brokera odpaliłoby automatyzację z dużym opóźnieniem
+     * (i kilka zaległych naraz) - starsze zdarzenia pomijamy.
+     */
+    private static final long BUTTON_EVENT_MAX_AGE_MS = 5000;
 
     private final Logger logger = LoggerFactory.getLogger(MqttStatePublisher.class);
     private final MqttGateway gateway;
@@ -102,8 +108,14 @@ public class MqttStatePublisher {
                     type, clicks);
             return;
         }
+        long createdAt = System.nanoTime();
         try {
             buttonEventExecutor.execute(() -> {
+                long ageMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - createdAt);
+                if (ageMs > BUTTON_EVENT_MAX_AGE_MS) {
+                    logger.warn("Pominięto zdarzenie przycisku id={} sprzed {} ms - za stare dla HA", button.getId(), ageMs);
+                    return;
+                }
                 try {
                     gateway.publish(MqttTopics.buttonEventTopic(gateway.getBaseTopic(), button.getId()),
                             objectMapper.writeValueAsString(event), false);

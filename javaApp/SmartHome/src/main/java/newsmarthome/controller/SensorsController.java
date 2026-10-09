@@ -271,13 +271,25 @@ public class SensorsController {
 							return new Response<>(null, "Nie można zmienić pinu czujnika innego typu niż przycisk");
 						if (automations != null && !(sensor instanceof Button))
 							return new Response<>(null, "Nie można zmienić funkcji kliknięć czujnika innego typu niż przycisk");
-						Integer slaveIDint = slaveID != null ? Integer.valueOf(slaveID) : null;
-						Integer pinInt = pin != null ? Integer.valueOf(pin) : null;
+						Integer slaveIDint;
+						Integer pinInt;
+						try {
+							slaveIDint = slaveID != null ? Integer.valueOf(slaveID) : null;
+							pinInt = pin != null ? Integer.valueOf(pin) : null;
+						} catch (NumberFormatException e) {
+							return new Response<>(null, "slaveID i pin muszą być liczbami");
+						}
 						JsonNode automationsJSONList = null;
 						if (automations != null) {
 							ObjectMapper mapper = new ObjectMapper();
 							mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
 							automationsJSONList = mapper.readTree(automations);
+							for (JsonNode automationJSON : automationsJSONList) {
+								if (!automationJSON.hasNonNull("clicks") || !automationJSON.hasNonNull("state")
+										|| !automationJSON.hasNonNull("device")
+										|| systemDAO.getDeviceByID(automationJSON.get("device").asInt()) == null)
+									return new Response<>(null, "Niepoprawna funkcja kliknięcia: wymagane clicks, state i istniejące device");
+							}
 						}
 						if(name != null)
 							sensor.setNazwa(name);
@@ -305,14 +317,12 @@ public class SensorsController {
 							newRoom.addSensor(sensor);
 						}
 						// bez zapisu po restarcie wróciłyby stare dane, a publishAll nadpisałby nimi HA
-						systemDAO.save(systemDAO.getRoom(sensor.getRoom()));
-						if (roomChanged) {
-							// suggested_area działa w HA tylko przy tworzeniu urządzenia - stąd
-							// usunięcie i ponowne utworzenie w nowym obszarze
-							haDiscoveryPublisher.moveSensor(sensor);
-						} else {
-							haDiscoveryPublisher.publishSensor(sensor);
-						}
+						// (przy zmianie pokoju zapisują go już Room.delSensor/addSensor)
+						if (!roomChanged)
+							systemDAO.save(systemDAO.getRoom(sensor.getRoom()));
+						// nowy pokój zmienia identyfikator urządzenia HA - publisher odtworzy je
+						// w HA w nowym obszarze
+						haDiscoveryPublisher.publishSensor(sensor);
 						return new Response<>(sensor);
 					}
 				}

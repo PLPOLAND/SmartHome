@@ -210,4 +210,23 @@ class MqttTopicsTest {
                 MqttTopics.sensorObjectIds(5, SensorsTypes.THERMOMETR_HYGROMETR));
         assertTrue(MqttTopics.sensorObjectIds(5, SensorsTypes.MOTION).isEmpty());
     }
+
+    @Test
+    void haDeviceIdentifierContainsRoomButUniqueIdDoesNot() {
+        Light light = new Light();
+        light.setId(7);
+        light.setRoom(3);
+
+        Map<String, Object> config = MqttTopics.deviceDiscoveryConfig(light, "smarthome", "Salon");
+        assertEquals("smarthome_device_7", config.get("unique_id"));
+        assertEquals("smarthome_device_7_room_3", MqttTopics.haDeviceIdentifierOf(config));
+
+        Higrometr higrometr = new Higrometr();
+        higrometr.setId(101);
+        higrometr.setRoom(4);
+        // obie encje higrometru muszą zostać jednym urządzeniem HA
+        for (Map<String, Object> sensorConfig : MqttTopics.sensorDiscoveryConfigs(higrometr, "smarthome", null)) {
+            assertEquals("smarthome_sensor_101_room_4", MqttTopics.haDeviceIdentifierOf(sensorConfig));
+        }
+    }
 }
