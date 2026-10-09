@@ -2,7 +2,10 @@ package newsmarthome.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -321,7 +324,14 @@ public class SensorsController {
 	}
 
 
-	private static final String INVALID_CLICK_FUNCTION = "Niepoprawna funkcja kliknięcia: wymagane liczbowe clicks, state i istniejące device";
+	private static final String INVALID_CLICK_FUNCTION = "Niepoprawna funkcja kliknięcia: wymagane liczbowe clicks, znany state i istniejące device";
+	/**
+	 * Wartości state, które wysyłają klienci: stany funkcji (NONE/UP/DOWN/STOP) i stany urządzeń z
+	 * aplikacji mobilnej (DeviceState.toString(): none/on/off/up/down/middle/run, NOTKNOW z serwera).
+	 * Inne (np. literówki) odrzucamy - State.fromString zamieniłby je po cichu na NONE.
+	 */
+	private static final Set<String> KNOWN_CLICK_STATES = new HashSet<>(
+			Arrays.asList("NONE", "UP", "DOWN", "STOP", "ON", "OFF", "MIDDLE", "NOTKNOW", "RUN"));
 
 	/**
 	 * Parsuje funkcje kliknięć przycisku (bez przypisanego przycisku - ustawia go addFunkcjaKilkniecia).
@@ -336,7 +346,8 @@ public class SensorsController {
 		for (JsonNode json : list) {
 			// clicks trafia do komendy slave-a jako bajt
 			if (!isNonNegativeInt(json.path("clicks")) || json.path("clicks").asInt() > 255
-					|| !isNonNegativeInt(json.path("device")) || !json.path("state").isTextual())
+					|| !isNonNegativeInt(json.path("device")) || !json.path("state").isTextual()
+					|| !KNOWN_CLICK_STATES.contains(json.get("state").asText().toUpperCase()))
 				return null;
 			Device device = systemDAO.getDeviceByID(json.get("device").asInt());
 			if (device == null)
