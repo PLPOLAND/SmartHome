@@ -154,8 +154,8 @@ public class Outlet extends Device{
             }
         } catch (HardwareException e) {
             logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            if (e.getResponse()[0] == 'E') {
+            logger.debug(Arrays.toString(e.getStackTrace()));
+            if (e.getResponse() != null && e.getResponse()[0] == 'E') {
                 throw e;
             }
         }

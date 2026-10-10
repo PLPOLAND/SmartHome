@@ -21,6 +21,10 @@ public class HardwareException extends Exception{
 
     public HardwareException(String errorMsh, byte[] response){
         super(errorMsh);
+        if (response == null) {
+            this.response = null;
+            return;
+        }
         this.response = new int[response.length];
         for(int i = 0; i < response.length; i++){
             this.response[i] = response[i];
