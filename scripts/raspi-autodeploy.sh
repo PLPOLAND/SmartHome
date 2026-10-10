@@ -2,17 +2,18 @@
 #
 # Automatyczny deploy SmartHome na Raspberry Pi (do uruchamiania z crona).
 #
-# Sprawdza, czy na wskazanym branchu pojawiły się nowe commity. Jeśli tak:
+# Sprawdza, czy na wskazanym branchu jest inny commit niż wdrożony. Jeśli tak:
 #   1. pobiera zmiany do osobnego klonu repo (tylko do budowania),
 #   2. buduje jar mavenem,
 #   3. podmienia jar (stary zostaje jako <jar>.prev),
 #   4. restartuje usługę i sprawdza, czy wstała - jeśli nie, przywraca poprzedni jar.
 #
 # Użycie:
-#   raspi-autodeploy.sh -b <branch> [opcje]
+#   raspi-autodeploy.sh [-b <branch>] [opcje]
 #
 # Opcje:
-#   -b BRANCH    branch do śledzenia (wymagany), np. dev albo master
+#   -b BRANCH    branch do wdrożenia, np. dev albo feat/xyz (wymagany tu albo w pliku konfiguracji)
+#   -c FILE      plik konfiguracji                 (domyślnie: /home/pi/smarthome-autodeploy.conf)
 #   -r DIR       katalog klonu do budowania       (domyślnie: /home/pi/smarthome-build)
 #   -u URL       adres repo, gdy klonu jeszcze nie ma (domyślnie: https://github.com/PLPOLAND/SmartHome.git)
 #   -j PATH      docelowa ścieżka jara             (domyślnie: /home/pi/Desktop/SmartHomeWebApp-2.0.1.jar,
@@ -22,7 +23,14 @@
 #   -f           wymuś build i deploy, nawet bez nowych commitów
 #   -h           pomoc
 #
-# Każdą opcję można też ustawić zmienną środowiskową: BRANCH, BUILD_DIR, REPO_URL,
+# Plik konfiguracji jest czytany przy każdym uruchomieniu, więc zmiana brancha nie
+# wymaga ruszania crona - wystarczy edytować plik, np.:
+#   BRANCH=feat/mqtt-ha-buttons
+# Zmiana brancha (także powrót na poprzedni) wdraża jego aktualny commit przy
+# najbliższym uruchomieniu. Pusty/brakujący plik nie jest błędem.
+#
+# Każdą opcję można ustawić w pliku konfiguracji albo zmienną środowiskową
+# (kolejność ważności: opcja z linii poleceń > plik > zmienna środowiskowa): BRANCH, BUILD_DIR, REPO_URL,
 # JAR_PATH, SERVICE, RUN_TESTS=1, STATE_DIR (zapamiętany wdrożony commit, domyślnie
 # /home/pi/.smarthome-autodeploy), HEALTH_URL (adres HTTP, który po restarcie musi
 # odpowiedzieć - dowolnym kodem; domyślnie http://localhost:8080/, pusty = tylko stan
@@ -30,8 +38,8 @@
 # RESTART_CMD (własna komenda restartu zamiast "sudo systemctl restart $SERVICE"),
 # MVN (komenda mavena, domyślnie ./mvnw z repo; np. MVN=mvn dla systemowego).
 #
-# Przykład wpisu w crontab użytkownika pi (co 5 minut, branch dev):
-#   */5 * * * * /home/pi/raspi-autodeploy.sh -b dev >> /home/pi/smarthome-deploy.log 2>&1
+# Przykład wpisu w crontab użytkownika pi (co 5 minut, branch z pliku konfiguracji):
+#   */5 * * * * /home/pi/raspi-autodeploy.sh >> /home/pi/smarthome-deploy.log 2>&1
 # Restart wymaga wpisu w sudoers (sudo visudo -f /etc/sudoers.d/smarthome-deploy):
 #   pi ALL=(root) NOPASSWD: /bin/systemctl restart smarthome
 #
@@ -41,6 +49,55 @@
 # nadpisałby bazę danych.
 
 set -euo pipefail
+
+CONFIG_KEYS=(BRANCH BUILD_DIR REPO_URL JAR_PATH SERVICE RUN_TESTS HEALTH_URL HEALTH_TIMEOUT
+             RESTART_CMD MVN STATE_DIR)
+CONFIG_FILE="${CONFIG_FILE:-/home/pi/smarthome-autodeploy.conf}"
+FORCE=0
+declare -A CLI=()
+
+usage() { sed -n '2,/^set -euo/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; }
+
+while getopts ":b:c:r:u:j:s:tfh" opt; do
+    case "$opt" in
+        b) CLI[BRANCH]="$OPTARG" ;;
+        c) CONFIG_FILE="$OPTARG" ;;
+        r) CLI[BUILD_DIR]="$OPTARG" ;;
+        u) CLI[REPO_URL]="$OPTARG" ;;
+        j) CLI[JAR_PATH]="$OPTARG" ;;
+        s) CLI[SERVICE]="$OPTARG" ;;
+        t) CLI[RUN_TESTS]=1 ;;
+        f) FORCE=1 ;;
+        h) usage; exit 0 ;;
+        :) echo "Opcja -$OPTARG wymaga wartości" >&2; exit 2 ;;
+        *) echo "Nieznana opcja: -$OPTARG" >&2; usage >&2; exit 2 ;;
+    esac
+done
+
+# plik konfiguracji: tylko linie KLUCZ=wartość ze znanymi kluczami (bez wykonywania kodu)
+if [[ -f "$CONFIG_FILE" ]]; then
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line%$'\r'}"
+        [[ "$line" =~ ^[[:space:]]*(#|$) ]] && continue
+        if [[ ! "$line" =~ ^[[:space:]]*([A-Z_]+)[[:space:]]*=[[:space:]]*(.*)$ ]]; then
+            echo "Pomijam niepoprawną linię w $CONFIG_FILE: $line" >&2
+            continue
+        fi
+        key="${BASH_REMATCH[1]}" value="${BASH_REMATCH[2]}"
+        value="${value%"${value##*[![:space:]]}"}" # końcowe spacje
+        if [[ "$value" =~ ^\"(.*)\"$ || "$value" =~ ^\'(.*)\'$ ]]; then
+            value="${BASH_REMATCH[1]}"
+        fi
+        if [[ " ${CONFIG_KEYS[*]} " == *" $key "* ]]; then
+            printf -v "$key" '%s' "$value"
+        else
+            echo "Nieznany klucz w $CONFIG_FILE: $key" >&2
+        fi
+    done < "$CONFIG_FILE"
+fi
+for key in "${!CLI[@]}"; do
+    printf -v "$key" '%s' "${CLI[$key]}"
+done
 
 BRANCH="${BRANCH:-}"
 BUILD_DIR="${BUILD_DIR:-/home/pi/smarthome-build}"
@@ -52,30 +109,13 @@ HEALTH_URL="${HEALTH_URL-http://localhost:8080/}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-300}"
 RESTART_CMD="${RESTART_CMD:-}"
 MVN="${MVN:-./mvnw}"
-FORCE=0
 
 # katalog projektu mavena wewnątrz repo
 APP_SUBDIR="javaApp/SmartHome"
 
-usage() { sed -n '2,/^set -euo/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; }
-
-while getopts ":b:r:u:j:s:tfh" opt; do
-    case "$opt" in
-        b) BRANCH="$OPTARG" ;;
-        r) BUILD_DIR="$OPTARG" ;;
-        u) REPO_URL="$OPTARG" ;;
-        j) JAR_PATH="$OPTARG" ;;
-        s) SERVICE="$OPTARG" ;;
-        t) RUN_TESTS=1 ;;
-        f) FORCE=1 ;;
-        h) usage; exit 0 ;;
-        :) echo "Opcja -$OPTARG wymaga wartości" >&2; exit 2 ;;
-        *) echo "Nieznana opcja: -$OPTARG" >&2; usage >&2; exit 2 ;;
-    esac
-done
 
 if [[ -z "$BRANCH" ]]; then
-    echo "Podaj branch: -b <branch>" >&2
+    echo "Podaj branch: -b <branch> albo BRANCH=... w $CONFIG_FILE" >&2
     exit 2
 fi
 
@@ -89,8 +129,10 @@ if [[ -n "$HEALTH_URL" ]] && ! command -v curl >/dev/null; then
     echo "Brak curl - sprawdzam tylko stan usługi (sudo apt install curl, by sprawdzać $HEALTH_URL)" >&2
     HEALTH_URL=""
 fi
-DEPLOYED_FILE="$STATE_DIR/deployed-$(echo "$BRANCH" | tr '/' '_')"
-FAILED_FILE="$DEPLOYED_FILE.failed"
+# jeden wdrożony commit niezależnie od brancha - przełączenie brancha w konfiguracji
+# (także z powrotem) wdraża jego aktualny commit
+DEPLOYED_FILE="$STATE_DIR/deployed"
+FAILED_FILE="$STATE_DIR/failed"
 LOCK_FILE="$STATE_DIR/lock"
 mkdir -p "$STATE_DIR"
 
@@ -152,7 +194,17 @@ git fetch --quiet origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" \
     || die "Nie udało się pobrać brancha $BRANCH z origin"
 
 REMOTE_SHA="$(git rev-parse "origin/$BRANCH")"
-DEPLOYED_SHA="$(cat "$DEPLOYED_FILE" 2>/dev/null || true)"
+DEPLOYED_SHA="" DEPLOYED_BRANCH=""
+if [[ -f "$DEPLOYED_FILE" ]]; then
+    read -r DEPLOYED_SHA DEPLOYED_BRANCH < "$DEPLOYED_FILE" || true
+else
+    # stan z wersji, która pamiętała commit osobno dla każdego brancha
+    DEPLOYED_SHA="$(cat "$STATE_DIR/deployed-$(echo "$BRANCH" | tr '/' '_')" 2>/dev/null || true)"
+    if [[ -n "$DEPLOYED_SHA" ]]; then
+        DEPLOYED_BRANCH="$BRANCH"
+        echo "$DEPLOYED_SHA $DEPLOYED_BRANCH" > "$DEPLOYED_FILE"
+    fi
+fi
 
 if [[ $FORCE -eq 0 ]]; then
     if [[ "$REMOTE_SHA" == "$DEPLOYED_SHA" ]]; then
@@ -164,7 +216,11 @@ if [[ $FORCE -eq 0 ]]; then
 fi
 
 PREV_SHORT="${DEPLOYED_SHA:0:8}"
-log "Nowe zmiany: ${PREV_SHORT:-(brak)} -> ${REMOTE_SHA:0:8}"
+if [[ -n "$DEPLOYED_BRANCH" && "$DEPLOYED_BRANCH" != "$BRANCH" ]]; then
+    log "Zmiana brancha: $DEPLOYED_BRANCH (${PREV_SHORT}) -> $BRANCH (${REMOTE_SHA:0:8})"
+else
+    log "Nowe zmiany: ${PREV_SHORT:-(brak)} -> ${REMOTE_SHA:0:8}"
+fi
 
 git checkout --quiet -B "$BRANCH" "origin/$BRANCH"
 git reset --quiet --hard "origin/$BRANCH"
@@ -174,7 +230,7 @@ git clean -fdq
 if [[ $FORCE -eq 0 && -n "$DEPLOYED_SHA" ]] && git cat-file -e "$DEPLOYED_SHA^{commit}" 2>/dev/null \
         && git diff --quiet "$DEPLOYED_SHA" "$REMOTE_SHA" -- "$APP_SUBDIR"; then
     log "Brak zmian w $APP_SUBDIR - zapisuję commit bez budowania."
-    echo "$REMOTE_SHA" > "$DEPLOYED_FILE"
+    echo "$REMOTE_SHA $BRANCH" > "$DEPLOYED_FILE"
     exit 0
 fi
 
@@ -212,7 +268,7 @@ log "Restartuję usługę $SERVICE..."
 restart_service || die "Restart usługi nie powiódł się"
 
 if service_healthy; then
-    echo "$REMOTE_SHA" > "$DEPLOYED_FILE"
+    echo "$REMOTE_SHA $BRANCH" > "$DEPLOYED_FILE"
     rm -f "$FAILED_FILE"
     log "Deploy ${REMOTE_SHA:0:8} zakończony sukcesem."
     exit 0
