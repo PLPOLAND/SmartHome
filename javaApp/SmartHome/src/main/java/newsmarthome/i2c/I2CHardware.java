@@ -80,6 +80,12 @@ public class I2CHardware implements I2C{
             msg.setError();
             logger.error("Error while sending messages", e);
             restartSlaves();
+        } catch (RuntimeException e) {
+            // bez tego wątek czekający w waitToSend() (trzymający blokadę I2C) czekałby w nieskończoność
+            if (msg != null) {
+                msg.setError();
+            }
+            logger.error("Unexpected error while sending messages", e);
         }
     }
     /**

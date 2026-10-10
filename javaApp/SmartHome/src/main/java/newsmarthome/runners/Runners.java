@@ -260,19 +260,36 @@ public class Runners {
 
     /**
      * Wysyła konfigurację slave'owi. Zatrzymuje sprawdzanie automatyki na czas wysyłania konfiguracji.
+     * Cała sekwencja (reset + konfiguracja) jest wykonywana z wyłącznym dostępem do I2C,
+     * aby inne wątki (np. zapytania z aplikacji) nie przeplatały się z nią.
      * 
      * @param slaveAdress - adres slave'a na który ma zostać wysłana konfiguracja
      */
     private void configureSlave(int slaveAdress) {
+        slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
+    }
+
+    /**
+     * Właściwa konfiguracja slave'a. Wywoływać tylko przez {@link #configureSlave(int)}.
+     */
+    private void configureSlaveExclusively(int slaveAdress) {
         this.stopCheckingAutomation = true;
         logger.info("Send configuration to Slave({})", slaveAdress);
         try {
             if (slaveSender.reInitBoard(slaveAdress)) {
                 logger.debug("Sending devices configuration to slave {}", slaveAdress);
+                // Slave po resecie nie ma żadnych urządzeń - stare onSlaveID są nieaktualne.
+                // Jeśli dodanie się nie uda, zostaje -1 (a nie stare ID), więc nic nieaktualnego nie zostanie zapisane.
+                boolean allConfigured = true;
                 for (Device device : systemDAO.getDevices()) {
                     if (device.getSlaveID() == slaveAdress) {
                         device.resetConfigured();
+                        device.setOnSlaveID(-1);
                         device.configureToSlave();
+                        if (!device.isConfigured() || device.getOnSlaveID() < 0) {
+                            allConfigured = false;
+                            logger.error("Nie udało się skonfigurować urządzenia (id:{}) na slave {}", device.getId(), slaveAdress);
+                        }
                         try{
                             Thread.sleep(10);
                         }
@@ -288,7 +305,12 @@ public class Runners {
                     if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
                         Button button = (Button) sensor;
                         logger.debug("Sending button (id:{}) configuration to slave {}",button.getId(), slaveAdress);
+                        button.setOnSlaveID(-1);
                         button.configure();
+                        if (button.getOnSlaveID() < 0) {
+                            allConfigured = false;
+                            logger.error("Nie udało się skonfigurować przycisku (id:{}) na slave {}", button.getId(), slaveAdress);
+                        }
                         try{
                             Thread.sleep(10);
                         }
@@ -299,7 +321,12 @@ public class Runners {
                     else if(sensor.getSlaveAdress() == slaveAdress && sensor instanceof Higrometr){
                         Higrometr higrometr = (Higrometr) sensor;
                         logger.debug("Sending higrometr (id:{}) configuration to slave {}",higrometr.getId(), slaveAdress);
+                        higrometr.setOnSlaveID(-1);
                         higrometr.configure();
+                        if (higrometr.getOnSlaveID() < 0) {
+                            allConfigured = false;
+                            logger.error("Nie udało się skonfigurować higrometru (id:{}) na slave {}", higrometr.getId(), slaveAdress);
+                        }
                         try{
                             Thread.sleep(10);
                         }
@@ -310,7 +337,11 @@ public class Runners {
 
                 }
                 // zapisz nowe onSlaveID, aby po restarcie programu były zgodne z tymi na slavie
+                // (nieudane konfiguracje mają onSlaveID = -1, więc nie zostaną zapisane nieaktualne ID)
                 systemDAO.save();
+                if (!allConfigured) {
+                    logger.warn("Konfiguracja slave'a {} niepełna - część urządzeń/sensorów nie została dodana (onSlaveID = -1). Urządzenia bez ID wywołają ponowną inicjalizację przy sprawdzaniu stanu.", slaveAdress);
+                }
             }
             logger.info("Sending Thermometers configuration to slave {}", slaveAdress);
             // sprawdź i dodaj termometry

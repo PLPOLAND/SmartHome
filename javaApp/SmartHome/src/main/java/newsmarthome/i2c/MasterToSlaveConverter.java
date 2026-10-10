@@ -96,11 +96,22 @@ public class MasterToSlaveConverter {
     /**
      * Przeprowadza skanowanie magistrali i zapisuje adresy slave-ów do listy
      */
-    public void findSlaves() {
+    /**
+     * Wykonuje podane zadanie z wyłącznym dostępem do magistrali I2C.
+     * Metody tej klasy wykonujące transakcje I2C są synchronizowane na tym obiekcie (blokada wielowejściowa),
+     * więc zadanie może je wywoływać, a żaden inny wątek nie wejdzie pomiędzy jego kolejne komendy
+     * (np. reset slave'a i wysyłanie konfiguracji).
+     * @param task - zadanie do wykonania
+     */
+    public synchronized void runExclusively(Runnable task) {
+        task.run();
+    }
+
+    public synchronized void findSlaves() {
         atmega.findAll();
     }
 
-    public void restartAllSlaves(){
+    public synchronized void restartAllSlaves(){
         atmega.restartSlaves();
     }
 
@@ -128,7 +139,7 @@ public class MasterToSlaveConverter {
      * @param przekaznik - id przekaźnika na slavie
      * @param stan       - stan przekaznika
      */
-    public void changeSwitchState(int idPrzekaznika, int idPlytki, DeviceState stan) throws HardwareException {
+    public synchronized void changeSwitchState(int idPrzekaznika, int idPlytki, DeviceState stan) throws HardwareException {
         byte[] buffor = new byte[4];
         int i = 0;
         for (byte b : ZMIEN_STAN_PRZEKAZNIKA) {
@@ -150,7 +161,7 @@ public class MasterToSlaveConverter {
         }
     }
 
-    public void changeBlindState(Blind roleta, DeviceState stan) throws HardwareException{
+    public synchronized void changeBlindState(Blind roleta, DeviceState stan) throws HardwareException{
         byte[] buffor = new byte[4];
         int i = 0;
         for (byte b : ZMIEN_STAN_ROLETY) {
@@ -199,7 +210,7 @@ public class MasterToSlaveConverter {
      * 
      * @param termometr - termometr docelowy
      */
-    public Float checkTemperature(Termometr termometr) {
+    public synchronized Float checkTemperature(Termometr termometr) {
         byte[] buffor = new byte [9];
         String bufString = "";
 
@@ -250,7 +261,7 @@ public class MasterToSlaveConverter {
 
     }
 
-    public byte[] checkHighrometr(Higrometr higrometr) throws SoftwareException, HardwareException{
+    public synchronized byte[] checkHighrometr(Higrometr higrometr) throws SoftwareException, HardwareException{
 
         byte[] buffor = new byte[2];
         int i = 0;
@@ -288,7 +299,7 @@ public class MasterToSlaveConverter {
      * @param device urządzenie do dodania
      * @return id na płytce (-1 jeśli nie powiodło się)
      */
-    public int addUrzadzenie(Device device) throws HardwareException{
+    public synchronized int addUrzadzenie(Device device) throws HardwareException{
         if (device.getTyp() == DeviceTypes.LIGHT || device.getTyp() == DeviceTypes.GNIAZDKO || device.getTyp() == DeviceTypes.WENTYLATOR) {
             byte[] buffor = new byte[3];
             int i = 0;
@@ -368,7 +379,7 @@ public class MasterToSlaveConverter {
         return -1;
     }
 
-    public int[] addTermometr(int slaveAdress) throws HardwareException{ 
+    public synchronized int[] addTermometr(int slaveAdress) throws HardwareException{ 
         
         byte[] buffor = new byte[2];
         int i = 0;
@@ -416,7 +427,7 @@ public class MasterToSlaveConverter {
         }
     }
 
-    public int addHigrometr(Higrometr higrometr) throws HardwareException, SoftwareException{
+    public synchronized int addHigrometr(Higrometr higrometr) throws HardwareException, SoftwareException{
         byte[] buffor = new byte[2];
         int i = 0;
         for (byte b : DODAJ_HIGROMETR) {
@@ -450,7 +461,7 @@ public class MasterToSlaveConverter {
         }
     }
 
-    public int addPrzycisk(Button button)throws HardwareException{
+    public synchronized int addPrzycisk(Button button)throws HardwareException{
         byte[] buffor = new byte[3];
         int i = 0;
         for (byte b : DODAJ_PRZYCISK) {
@@ -490,7 +501,7 @@ public class MasterToSlaveConverter {
      * @return
      * @throws HardwareException
      */
-    public int sendClickFunction(ButtonLocalFunction function) throws HardwareException{
+    public synchronized int sendClickFunction(ButtonLocalFunction function) throws HardwareException{
         byte[] buffor = new byte[7];
         byte[] tmp2 = function.toCommand();
         int i = 0;
@@ -530,7 +541,7 @@ public class MasterToSlaveConverter {
 
 
 
-    public int sendRemoveFunction(int slaveID, int numberOfClicks) throws HardwareException{
+    public synchronized int sendRemoveFunction(int slaveID, int numberOfClicks) throws HardwareException{
         byte[] buffor = new byte[5];
         int i = 0;
         for (byte b : USUN_LOKALNA_FUNKCJE_KLIKNIEC) {
@@ -570,7 +581,7 @@ public class MasterToSlaveConverter {
      * @param adres - adres slave-a który zostanie zapytany
      * @return true jeśli slave był już zainicjowany
      */
-    public boolean checkInitOfBoard(int adres) throws SoftwareException, HardwareException{
+    public synchronized boolean checkInitOfBoard(int adres) throws SoftwareException, HardwareException{
         
         byte[] buffor = new byte[1];
         int i = 0;
@@ -624,7 +635,7 @@ public class MasterToSlaveConverter {
      * @param adres - adres slave-a na który zostanie wysłana komenda
      * @return true jeśli slave odpowie, że dostał komendę
      */
-    public boolean reInitBoard(int adres) {
+    public synchronized boolean reInitBoard(int adres) {
         byte[] buffor = new byte[1];
         int i = 0;
         for (byte b : REINIT) {
@@ -654,7 +665,7 @@ public class MasterToSlaveConverter {
      * @throws HardwareException
      * @return true jeśli slave wymagał reinicjalizacji
      */
-    public boolean checkAndReinitBoard(int boardAdress) throws SoftwareException, HardwareException{
+    public synchronized boolean checkAndReinitBoard(int boardAdress) throws SoftwareException, HardwareException{
         if (!checkInitOfBoard(boardAdress)) {
             reInitBoard(boardAdress);
             return true;
@@ -669,7 +680,7 @@ public class MasterToSlaveConverter {
      * @return stan urządzenia (potrzeba mapowania na DeviceState)
      * @throws HardwareException - kiedy nastąpi błąd podczas pisania do / odczytu z salve-a
      */
-    public int checkDeviceState(int slaveID, int onSlaveDeviceId) throws HardwareException {
+    public synchronized int checkDeviceState(int slaveID, int onSlaveDeviceId) throws HardwareException {
         byte[] buffor = new byte[3];
         int i = 0;
         for (byte b : SPRAWDZ_STAN_URZADZENIA) {
@@ -714,7 +725,7 @@ public class MasterToSlaveConverter {
      * @return ile termomterów jest dostępnych na danym slavie
      * @throws HardwareException - kiedy nastąpi błąd podczas pisania do / odczytu z salve-a
      */
-    public int howManyThermometersOnSlave(int slaveAdress) throws HardwareException{
+    public synchronized int howManyThermometersOnSlave(int slaveAdress) throws HardwareException{
         int ile = -1;
         logger.debug("howManyThermometersOnSlave:");
         atmega.pauseIfOcupied();
@@ -750,7 +761,7 @@ public class MasterToSlaveConverter {
      * @return
      * @throws HardwareException
      */
-    public int howManyCommandToRead(int slaveAdress) throws HardwareException{
+    public synchronized int howManyCommandToRead(int slaveAdress) throws HardwareException{
         int ile = -1;
         // logger.debug("howManyCommandToRead:");
         atmega.pauseIfOcupied();
@@ -781,7 +792,7 @@ public class MasterToSlaveConverter {
      * @return
      * @throws HardwareException
      */
-    public byte[] readCommandFromSlave(int slaveAdress) throws HardwareException{
+    public synchronized byte[] readCommandFromSlave(int slaveAdress) throws HardwareException{
         // int ile = -1;
         logger.debug("readCommandFromSlave:");
         atmega.pauseIfOcupied();
@@ -816,7 +827,7 @@ public class MasterToSlaveConverter {
      * @return
      */
     @Deprecated
-    public void sendAnything(String msg, int adres) {
+    public synchronized void sendAnything(String msg, int adres) {
         byte[] buff = new byte[msg.length()];
         logger.debug(msg);
         for (int i = 0; i < buff.length; i++) {
@@ -837,7 +848,7 @@ public class MasterToSlaveConverter {
      * @throws HardwareException
      */
     @Deprecated
-    public byte[] getAnything(int adres) throws HardwareException {
+    public synchronized byte[] getAnything(int adres) throws HardwareException {
         return atmega.readFrom(adres, 8);
     }
 
