@@ -245,18 +245,28 @@ public class SystemDAO {
      * @return znaleziony sensor / null jeśli brak sensora o podanym id
      */
     public Sensor getSensor(int id){
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getId() == id) {
-                return sensor;
+        // wołane też z wątków MQTT - bez blokady add/remove z Runners rzuciłoby ConcurrentModificationException
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor.getId() == id) {
+                    return sensor;
+                }
             }
         }
         return null;
     }
 
-    public Sensor getSensorByOnSlaveID(int slaveAdress, int onSlaveId) {
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getOnSlaveID() == onSlaveId && sensor.getSlaveAdress() == slaveAdress) {
-                return sensor;
+    /**
+     * Przycisk o danym id na slave-ie. Higrometry i przyciski mają na slave-ie osobną numerację,
+     * więc samo onSlaveID może wskazać higrometr.
+     */
+    public Button getButtonByOnSlaveID(int slaveAdress, int onSlaveId) {
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor instanceof Button && sensor.getOnSlaveID() == onSlaveId
+                        && sensor.getSlaveAdress() == slaveAdress) {
+                    return (Button) sensor;
+                }
             }
         }
         return null;
@@ -597,12 +607,7 @@ public class SystemDAO {
     }
 
     public Sensor getSensorByID(int id) {
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getId() == id) {
-                return sensor;
-            }
-        }
-        return null;
+        return getSensor(id);
     }
 
     // public void addDevice(Device device) {
@@ -667,11 +672,16 @@ public class SystemDAO {
         return sensor;
     }
 
-    public Button addButton(Room room, String name, int slaveID, int pin){
+    /**
+     * Dodaje przycisk razem z funkcjami kliknięć - muszą być przypięte przed addSensor, który wysyła
+     * konfigurację na slave-a (configure) i zapisuje pokój.
+     */
+    public Button addButton(Room room, String name, int slaveID, int pin, List<ButtonLocalFunction> clickFunctions){
         Button button = (Button) hardwareFactory.createSensor(SensorsTypes.BUTTON);
         button.setSlaveAdress(slaveID);
         button.setNazwa(name);
         button.setPin(pin);
+        button.addFunkcjeKlikniec(clickFunctions);
         button = (Button) addSensor(room, button);
         return button;
     }

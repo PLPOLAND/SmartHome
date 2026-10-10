@@ -2,6 +2,10 @@ package newsmarthome.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -157,6 +160,8 @@ public class SensorsController {
 							return new Response<>(null, "Nie można dodać termometru ręcznie! Termometry dodawane są automatycznie po wykryciu na slave-ie.");
 						case THERMOMETR_HYGROMETR: {
 							Room room = systemDAO.getRoom(roomID);
+							if (room == null)
+								return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
 							Higrometr higrometr = systemDAO.addHigrometr(room, name, slaveIDint);
 							haDiscoveryPublisher.publishSensor(higrometr);
 							return new Response<>(higrometr);
@@ -168,22 +173,19 @@ public class SensorsController {
 							return new Response<>(null, "Not implemented yet");
 						case BUTTON: {
 							Room room = systemDAO.getRoom(roomID);
-							Button button = systemDAO.addButton(room, name, slaveIDint, Integer.parseInt(pin));
+							// walidacja przed utworzeniem - inaczej przycisk zostałby w systemie i w HA mimo błędu
+							if (room == null)
+								return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
+							int pinInt = Integer.parseInt(pin);
+							List<ButtonLocalFunction> clickFunctions = new ArrayList<>();
 							if (automations != null) {
-								ObjectMapper mapper = new ObjectMapper();
-								mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-								JsonNode automationsJSONList = mapper.readTree(automations);
-								for (JsonNode automationJSON : automationsJSONList) {
-									ButtonLocalFunction function = new ButtonLocalFunction();
-									function.setButton(button);
-									function.setClicks(automationJSON.get("clicks").asInt());
-									function.setState(
-											ButtonLocalFunction.State.fromString(automationJSON.get("state").asText()));
-									function.setDevice(systemDAO.getDeviceByID(automationJSON.get("device").asInt()));
-									button.addFunkcjaKilkniecia(function);
-								}
-								logger.info(button.toString());
+								clickFunctions = parseClickFunctions(automations);
+								if (clickFunctions == null)
+									return new Response<>(null, INVALID_CLICK_FUNCTION);
 							}
+							Button button = systemDAO.addButton(room, name, slaveIDint, pinInt, clickFunctions);
+							logger.info(button.toString());
+							haDiscoveryPublisher.publishSensor(button);
 							return new Response<>(button);
 						}
 						default:
@@ -240,6 +242,7 @@ public class SensorsController {
 			String slaveID = request.getParameter("slaveID");
 			String pin = request.getParameter("pin");
 			String automations = request.getParameter("funkcjeKlikniec");
+			String roomIDString = request.getParameter("roomID");
 			if(idString == null)
 				return new Response<>(null, "Nie podano ID");
 			else{
@@ -249,34 +252,63 @@ public class SensorsController {
 					if(sensor == null)
 						return new Response<>(null, "Nie znaleziono czujnika o podanym ID");
 					else{
+						// walidacja przed zmianami - błędny parametr nie może zostawić czujnika zmienionego w połowie
+						// (zmiana w pamięci bez zapisu i bez publikacji do HA)
+						Room newRoom = null;
+						if (roomIDString != null) {
+							int roomID;
+							try {
+								roomID = Integer.parseInt(roomIDString);
+							} catch (NumberFormatException e) {
+								return new Response<>(null, "roomID nie jest liczbą");
+							}
+							newRoom = systemDAO.getRoom(roomID);
+							if (newRoom == null)
+								return new Response<>(null, "Nie znaleziono pokoju o podanym ID");
+						}
+						if (slaveID != null && !(sensor instanceof Button))
+							return new Response<>(null, "Nie można zmienić slaveID czujnika innego typu niż przycisk");
+						if (pin != null && !(sensor instanceof Button))
+							return new Response<>(null, "Nie można zmienić pinu czujnika innego typu niż przycisk");
+						if (automations != null && !(sensor instanceof Button))
+							return new Response<>(null, "Nie można zmienić funkcji kliknięć czujnika innego typu niż przycisk");
+						Integer slaveIDint;
+						Integer pinInt;
+						try {
+							slaveIDint = slaveID != null ? Integer.valueOf(slaveID) : null;
+							pinInt = pin != null ? Integer.valueOf(pin) : null;
+						} catch (NumberFormatException e) {
+							return new Response<>(null, "slaveID i pin muszą być liczbami");
+						}
+						List<ButtonLocalFunction> clickFunctions = null;
+						if (automations != null) {
+							clickFunctions = parseClickFunctions(automations);
+							if (clickFunctions == null)
+								return new Response<>(null, INVALID_CLICK_FUNCTION);
+						}
 						if(name != null)
 							sensor.setNazwa(name);
-						if(slaveID != null && sensor instanceof Button)
-							sensor.setSlaveAdress(Integer.parseInt(slaveID));
-						else if (slaveID != null)
-							return new Response<>(null, "Nie można zmienić slaveID czujnika innego typu niż przycisk");
-						if(pin != null && sensor instanceof Button){
-							((Button)sensor).setPin(Integer.parseInt(pin));
-						}
-						else if (pin != null)
-							return new Response<>(null, "Nie można zmienić pinu czujnika innego typu niż przycisk");
-						if(automations != null){
-							ObjectMapper mapper = new ObjectMapper();
-							mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+						if(slaveIDint != null)
+							sensor.setSlaveAdress(slaveIDint);
+						if(pinInt != null)
+							((Button)sensor).setPin(pinInt);
+						if(clickFunctions != null){
 							((Button)sensor).clearFunkcjeKlikniec();
-							JsonNode automationsJSONList = mapper.readTree(automations);
-								for (JsonNode automationJSON : automationsJSONList) {
-									ButtonLocalFunction function = new ButtonLocalFunction();
-									function.setButton( (Button)sensor);
-									function.setClicks(automationJSON.get("clicks").asInt());
-									function.setState(
-											ButtonLocalFunction.State.fromString(automationJSON.get("state").asText()));
-									function.setDevice(systemDAO.getDeviceByID(automationJSON.get("device").asInt()));
-									((Button)sensor).addFunkcjaKilkniecia(function);
-								}
+							((Button)sensor).addFunkcjeKlikniec(clickFunctions);
+						}
+						boolean roomChanged = newRoom != null && newRoom.getID() != sensor.getRoom();
+						if (roomChanged) {
+							Room oldRoom = systemDAO.getRoom(sensor.getRoom());
+							if (oldRoom != null)
+								oldRoom.delSensor(sensor);
+							newRoom.addSensor(sensor);
 						}
 						// bez zapisu po restarcie wróciłyby stare dane, a publishAll nadpisałby nimi HA
-						systemDAO.save(systemDAO.getRoom(sensor.getRoom()));
+						// (przy zmianie pokoju zapisują go już Room.delSensor/addSensor)
+						if (!roomChanged)
+							systemDAO.save(systemDAO.getRoom(sensor.getRoom()));
+						// nowy pokój zmienia identyfikator urządzenia HA - publisher odtworzy je
+						// w HA w nowym obszarze
 						haDiscoveryPublisher.publishSensor(sensor);
 						return new Response<>(sensor);
 					}
@@ -291,5 +323,48 @@ public class SensorsController {
 		}
 	}
 
+
+	private static final String INVALID_CLICK_FUNCTION = "Niepoprawna funkcja kliknięcia: wymagane liczbowe clicks, znany state i istniejące device";
+	/**
+	 * Wartości state, które wysyłają klienci: stany funkcji (NONE/UP/DOWN/STOP) i stany urządzeń z
+	 * aplikacji mobilnej (DeviceState.toString(): none/on/off/up/down/middle/run, NOTKNOW z serwera).
+	 * Inne (np. literówki) odrzucamy - State.fromString zamieniłby je po cichu na NONE.
+	 */
+	private static final Set<String> KNOWN_CLICK_STATES = new HashSet<>(
+			Arrays.asList("NONE", "UP", "DOWN", "STOP", "ON", "OFF", "MIDDLE", "NOTKNOW", "RUN"));
+
+	/**
+	 * Parsuje funkcje kliknięć przycisku (bez przypisanego przycisku - ustawia go addFunkcjaKilkniecia).
+	 * @return funkcje albo null, gdy któraś nie ma liczbowych clicks i device, tekstowego state lub
+	 *         wskazuje nieistniejące urządzenie
+	 */
+	private List<ButtonLocalFunction> parseClickFunctions(String automations) throws IOException {
+		JsonNode list = new ObjectMapper().readTree(automations);
+		if (list == null || !list.isArray())
+			return null;
+		List<ButtonLocalFunction> functions = new ArrayList<>();
+		for (JsonNode json : list) {
+			// kliknięcia liczone są od 1, a clicks trafia do komendy slave-a jako bajt
+			if (!isNonNegativeInt(json.path("clicks")) || json.path("clicks").asInt() < 1
+					|| json.path("clicks").asInt() > 255
+					|| !isNonNegativeInt(json.path("device")) || !json.path("state").isTextual()
+					|| !KNOWN_CLICK_STATES.contains(json.get("state").asText().toUpperCase()))
+				return null;
+			Device device = systemDAO.getDeviceByID(json.get("device").asInt());
+			if (device == null)
+				return null;
+			ButtonLocalFunction function = new ButtonLocalFunction();
+			function.setClicks(json.get("clicks").asInt());
+			function.setState(ButtonLocalFunction.State.fromString(json.get("state").asText()));
+			function.setDevice(device);
+			functions.add(function);
+		}
+		return functions;
+	}
+
+	/** Nieujemna liczba całkowita, także zapisana jako tekst - tak jak dotąd przyjmowało asInt(). */
+	private static boolean isNonNegativeInt(JsonNode node) {
+		return (node.isInt() && node.asInt() >= 0) || (node.isTextual() && node.asText().matches("\\d{1,9}"));
+	}
 
 }

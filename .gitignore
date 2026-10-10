@@ -8,3 +8,6 @@
 javaApp/smarthomeold
 javaApp/SmartHome/smarthome/log.log
 javaApp/SmartHome/src/main/resources/db.properties
+javaApp/SmartHome/smarthome/database/mqtt_pending_removals.txt
+javaApp/SmartHome/smarthome/database/mqtt_published_identifiers.txt
+javaApp/SmartHome/smarthome/database/mqtt_*.txt.tmp

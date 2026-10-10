@@ -10,6 +10,7 @@ import newsmarthome.model.hardware.device.Blind;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.hardware.device.DeviceTypes;
+import newsmarthome.model.hardware.sensor.ButtonClickType;
 import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
@@ -22,6 +23,12 @@ import newsmarthome.model.hardware.sensor.Termometr;
 public final class MqttTopics {
 
     private static final String SENSOR_COMPONENT = "sensor";
+    private static final String EVENT_COMPONENT = "event";
+    /**
+     * Encja event HA wymaga zamkniętej listy typów zdarzeń, a firmware liczy kliknięcia bez
+     * limitu - większe liczby kliknięć nie są publikowane.
+     */
+    public static final int MAX_BUTTON_CLICKS = 5;
     private static final int BLIND_POSITION_OPEN = 100;
     private static final int BLIND_POSITION_CLOSED = 0;
     /** Umowna pozycja rolety zatrzymanej w połowie - sprzęt nie mierzy rzeczywistej pozycji. */
@@ -66,6 +73,10 @@ public final class MqttTopics {
         return baseTopic + "/sensor/" + sensorId + "/state";
     }
 
+    public static String buttonEventTopic(String baseTopic, int sensorId) {
+        return baseTopic + "/sensor/" + sensorId + "/event";
+    }
+
     public static String discoveryConfigTopic(String discoveryPrefix, String component, String objectId) {
         return discoveryPrefix + "/" + component + "/" + objectId + "/config";
     }
@@ -86,6 +97,38 @@ public final class MqttTopics {
                 return "cover";
             default:
                 return null;
+        }
+    }
+
+    /**
+     * Zwraca komponent Home Assistant odpowiadający danemu typowi czujnika, lub null
+     * jeśli typ nie jest obsługiwany przez integrację MQTT.
+     */
+    public static String haComponentForSensor(SensorsTypes typ) {
+        switch (typ) {
+            case THERMOMETR:
+            case THERMOMETR_HYGROMETR:
+                return SENSOR_COMPONENT;
+            case BUTTON:
+                return EVENT_COMPONENT;
+            default:
+                return null;
+        }
+    }
+
+    /** Object id wszystkich encji HA czujnika (do publikacji i usuwania configów discovery). */
+    public static List<String> sensorObjectIds(int sensorId, SensorsTypes typ) {
+        switch (typ) {
+            case THERMOMETR:
+            case BUTTON:
+                return Collections.singletonList(sensorObjectId(sensorId));
+            case THERMOMETR_HYGROMETR:
+                List<String> ids = new ArrayList<>();
+                ids.add(sensorObjectId(sensorId));
+                ids.add(humidityObjectId(sensorId));
+                return ids;
+            default:
+                return Collections.emptyList();
         }
     }
 
@@ -113,6 +156,21 @@ public final class MqttTopics {
         map.put("payload_available", "online");
         map.put("payload_not_available", "offline");
         return map;
+    }
+
+    /**
+     * Identyfikator urządzenia w rejestrze HA. Zawiera id pokoju, bo HA ustawia obszar z
+     * suggested_area tylko nowym urządzeniom, a urządzenie dodane ponownie z tym samym
+     * identyfikatorem przywraca ze starym obszarem. unique_id encji zostaje bez zmian.
+     */
+    public static String haDeviceIdentifier(String objectId, int roomId) {
+        return objectId + "_room_" + roomId;
+    }
+
+    /** Odczytuje identyfikator urządzenia HA z configu discovery zbudowanego w tej klasie. */
+    public static String haDeviceIdentifierOf(Map<String, Object> config) {
+        Map<?, ?> device = (Map<?, ?>) config.get("device");
+        return (String) ((List<?>) device.get("identifiers")).get(0);
     }
 
     private static Map<String, Object> deviceInfo(String identifier, String name, String model, String area) {
@@ -143,7 +201,7 @@ public final class MqttTopics {
         config.put("unique_id", objectId);
         config.put("state_topic", deviceStateTopic(baseTopic, device.getId()));
         config.put("command_topic", deviceCommandTopic(baseTopic, device.getId()));
-        config.put("device", deviceInfo(objectId, device.getName(), component, roomName));
+        config.put("device", deviceInfo(haDeviceIdentifier(objectId, device.getRoom()), device.getName(), component, roomName));
 
         switch (device.getTyp()) {
             case LIGHT:
@@ -280,12 +338,17 @@ public final class MqttTopics {
     }
 
     /**
-     * Buduje configi discovery dla czujnika (temperatura, opcjonalnie wilgotność). Zwraca
+     * Buduje configi discovery dla czujnika (temperatura, opcjonalnie wilgotność, albo encja
+     * event przycisku). Zwraca
      * pustą listę dla typów sensorów jeszcze nieobsługiwanych przez integrację MQTT.
      * @param roomName nazwa pokoju przekazywana do HA jako obszar (może być null)
      */
     public static List<Map<String, Object>> sensorDiscoveryConfigs(Sensor sensor, String baseTopic, String roomName) {
         List<Map<String, Object>> configs = new ArrayList<>();
+        if (sensor.getTyp() == SensorsTypes.BUTTON) {
+            configs.add(buttonDiscoveryConfig(sensor, baseTopic, roomName));
+            return configs;
+        }
         if (sensor.getTyp() != SensorsTypes.THERMOMETR && sensor.getTyp() != SensorsTypes.THERMOMETR_HYGROMETR) {
             return configs;
         }
@@ -300,7 +363,7 @@ public final class MqttTopics {
         temperature.put("device_class", "temperature");
         temperature.put("state_class", "measurement");
         temperature.put("value_template", "{{ value_json.temperature }}");
-        temperature.put("device", deviceInfo(tempObjectId, sensor.getNazwa(), SENSOR_COMPONENT, roomName));
+        temperature.put("device", deviceInfo(haDeviceIdentifier(tempObjectId, sensor.getRoom()), sensor.getNazwa(), SENSOR_COMPONENT, roomName));
         configs.add(temperature);
 
         if (sensor.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR) {
@@ -312,10 +375,60 @@ public final class MqttTopics {
             humidity.put("device_class", "humidity");
             humidity.put("state_class", "measurement");
             humidity.put("value_template", "{{ value_json.humidity }}");
-            humidity.put("device", deviceInfo(tempObjectId, sensor.getNazwa(), SENSOR_COMPONENT, roomName));
+            humidity.put("device", deviceInfo(haDeviceIdentifier(tempObjectId, sensor.getRoom()), sensor.getNazwa(), SENSOR_COMPONENT, roomName));
             configs.add(humidity);
         }
         return configs;
+    }
+
+    private static Map<String, Object> buttonDiscoveryConfig(Sensor sensor, String baseTopic, String roomName) {
+        String objectId = sensorObjectId(sensor.getId());
+        Map<String, Object> config = baseAvailability(baseTopic);
+        config.put("name", sensor.getNazwa());
+        config.put("unique_id", objectId);
+        config.put("state_topic", buttonEventTopic(baseTopic, sensor.getId()));
+        config.put("device_class", "button");
+        config.put("event_types", buttonEventTypes());
+        config.put("device", deviceInfo(haDeviceIdentifier(objectId, sensor.getRoom()), sensor.getNazwa(), "button", roomName));
+        return config;
+    }
+
+    /** Typy zdarzeń encji event przycisku: click_N (N kliknięć) i hold_N (przytrzymanie N-tego wciśnięcia). */
+    public static List<String> buttonEventTypes() {
+        List<String> types = new ArrayList<>();
+        for (int clicks = 1; clicks <= MAX_BUTTON_CLICKS; clicks++) {
+            types.add("click_" + clicks);
+        }
+        for (int clicks = 1; clicks <= MAX_BUTTON_CLICKS; clicks++) {
+            types.add("hold_" + clicks);
+        }
+        return types;
+    }
+
+    /**
+     * Buduje payload zdarzenia przycisku dla encji event HA. Zwraca null dla zdarzeń, których
+     * nie ma w {@link #buttonEventTypes()} (np. HOLDING, którego firmware nie wysyła).
+     * @param clicks liczba wciśnięć z komendy slave-a (przy przytrzymaniu - łącznie z przytrzymanym)
+     */
+    public static Map<String, Object> buttonEventPayload(ButtonClickType type, int clicks) {
+        if (type == null || clicks < 1 || clicks > MAX_BUTTON_CLICKS) {
+            return null;
+        }
+        String eventType;
+        switch (type) {
+            case CLICKED:
+                eventType = "click_" + clicks;
+                break;
+            case HOLDED:
+                eventType = "hold_" + clicks;
+                break;
+            default:
+                return null;
+        }
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("event_type", eventType);
+        payload.put("clicks", clicks);
+        return payload;
     }
 
     /**

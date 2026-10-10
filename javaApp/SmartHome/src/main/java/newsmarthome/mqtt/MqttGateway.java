@@ -196,6 +196,11 @@ public class MqttGateway {
         }
     }
 
+    public boolean isConnected() {
+        MqttClient current = client;
+        return current != null && current.isConnected();
+    }
+
     /**
      * @return {@code true} jeśli wiadomość została faktycznie wysłana do brokera. Wywołujący, którzy
      *         cache'ują ostatnio wysłany stan (np. {@link MqttStatePublisher}), powinni aktualizować

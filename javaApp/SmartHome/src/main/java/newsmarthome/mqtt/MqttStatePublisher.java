@@ -2,6 +2,10 @@ package newsmarthome.mqtt;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -15,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import newsmarthome.database.SystemDAO;
 import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.ButtonClickType;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
 
@@ -29,6 +35,11 @@ public class MqttStatePublisher {
     /** Stan urządzeń to odczyt z pamięci (hardware odpytuje {@code Runners}), więc może być częsty. */
     private static final long DEVICE_PUBLISH_INTERVAL_MS = 500;
     private static final long SENSOR_PUBLISH_INTERVAL_MS = 5000;
+    /**
+     * Kliknięcie dostarczone do HA po zawieszeniu brokera odpaliłoby automatyzację z dużym opóźnieniem
+     * (i kilka zaległych naraz) - starsze zdarzenia pomijamy.
+     */
+    private static final long BUTTON_EVENT_MAX_AGE_MS = 5000;
 
     private final Logger logger = LoggerFactory.getLogger(MqttStatePublisher.class);
     private final MqttGateway gateway;
@@ -38,6 +49,12 @@ public class MqttStatePublisher {
     private final Map<Integer, String> lastDevicePosition = new ConcurrentHashMap<>();
     private final Map<Integer, String> lastSensorState = new ConcurrentHashMap<>();
     private ThreadPoolTaskScheduler scheduler;
+    /** Kliknięcia nie mogą czekać za okresową publikacją wszystkich stanów - stąd osobny wątek. */
+    private final ExecutorService buttonEventExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "mqtt-button-events");
+        t.setDaemon(true);
+        return t;
+    });
 
     public MqttStatePublisher(MqttGateway gateway, SystemDAO systemDAO) {
         this.gateway = gateway;
@@ -66,6 +83,8 @@ public class MqttStatePublisher {
         if (scheduler != null) {
             scheduler.shutdown();
         }
+        // bez przerywania publikacji w toku - wątek jest daemonem i nie blokuje zamknięcia
+        buttonEventExecutor.shutdown();
     }
 
     /**
@@ -75,6 +94,40 @@ public class MqttStatePublisher {
     public void publishDeviceNow(Device device) {
         if (scheduler != null) {
             scheduler.execute(() -> publishDeviceStateIfChanged(device));
+        }
+    }
+
+    /**
+     * Publikuje zdarzenie przycisku dla encji event HA. Wywoływane z wątku {@code Runners},
+     * więc sama publikacja idzie na osobnym wątku. Bez retained - inaczej HA odtwarzałby
+     * stare kliknięcie po każdym restarcie i odpalał automatyzacje.
+     */
+    public void publishButtonEvent(Button button, ButtonClickType type, int clicks) {
+        Map<String, Object> event = MqttTopics.buttonEventPayload(type, clicks);
+        if (event == null) {
+            logger.debug("Pominięto zdarzenie przycisku id={} ({} x{}) - brak typu zdarzenia w HA", button.getId(),
+                    type, clicks);
+            return;
+        }
+        long createdAt = System.nanoTime();
+        try {
+            buttonEventExecutor.execute(() -> {
+                long ageMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - createdAt);
+                if (ageMs > BUTTON_EVENT_MAX_AGE_MS) {
+                    logger.warn("Pominięto zdarzenie przycisku id={} sprzed {} ms - za stare dla HA", button.getId(), ageMs);
+                    return;
+                }
+                try {
+                    gateway.publish(MqttTopics.buttonEventTopic(gateway.getBaseTopic(), button.getId()),
+                            objectMapper.writeValueAsString(event), false);
+                } catch (Exception e) {
+                    logger.error("Błąd podczas publikacji zdarzenia przycisku id={}: {}", button.getId(), e.getMessage(),
+                            e);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            // zamykanie aplikacji - wyjątek nie może przerwać pętli automatyki w Runners
+            logger.warn("Pominięto zdarzenie przycisku id={} - publisher MQTT jest zatrzymany", button.getId());
         }
     }
 
