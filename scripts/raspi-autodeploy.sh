@@ -13,9 +13,10 @@
 #
 # Opcje:
 #   -b BRANCH    branch do śledzenia (wymagany), np. dev albo master
-#   -r DIR       katalog klonu do budowania       (domyślnie: $HOME/smarthome-build)
+#   -r DIR       katalog klonu do budowania       (domyślnie: /home/pi/smarthome-build)
 #   -u URL       adres repo, gdy klonu jeszcze nie ma (domyślnie: https://github.com/PLPOLAND/SmartHome.git)
-#   -j PATH      docelowa ścieżka jara             (domyślnie: $HOME/smarthome/SmartHome.jar)
+#   -j PATH      docelowa ścieżka jara             (domyślnie: /home/pi/Desktop/SmartHomeWebApp-2.0.1.jar,
+#                                                  czyli jar z ExecStart w smarthome.service)
 #   -s SERVICE   usługa systemd do restartu        (domyślnie: smarthome)
 #   -t           uruchom testy przy budowaniu (domyślnie pomijane - na Pi trwają długo)
 #   -f           wymuś build i deploy, nawet bez nowych commitów
@@ -23,13 +24,16 @@
 #
 # Każdą opcję można też ustawić zmienną środowiskową: BRANCH, BUILD_DIR, REPO_URL,
 # JAR_PATH, SERVICE, RUN_TESTS=1, STATE_DIR (zapamiętany wdrożony commit, domyślnie
-# $HOME/.smarthome-autodeploy), HEALTH_URL (opcjonalny adres HTTP sprawdzany po
-# restarcie, np. http://localhost:8080/), HEALTH_TIMEOUT (sekundy, domyślnie 120),
+# /home/pi/.smarthome-autodeploy), HEALTH_URL (adres HTTP, który po restarcie musi
+# odpowiedzieć - dowolnym kodem; domyślnie http://localhost:8080/, pusty = tylko stan
+# usługi), HEALTH_TIMEOUT (sekundy, domyślnie 300 - Spring na Pi startuje długo),
 # RESTART_CMD (własna komenda restartu zamiast "sudo systemctl restart $SERVICE"),
 # MVN (komenda mavena, domyślnie ./mvnw z repo; np. MVN=mvn dla systemowego).
 #
-# Przykład wpisu w crontab (co 5 minut, branch dev):
+# Przykład wpisu w crontab użytkownika pi (co 5 minut, branch dev):
 #   */5 * * * * /home/pi/raspi-autodeploy.sh -b dev >> /home/pi/smarthome-deploy.log 2>&1
+# Restart wymaga wpisu w sudoers (sudo visudo -f /etc/sudoers.d/smarthome-deploy):
+#   pi ALL=(root) NOPASSWD: /bin/systemctl restart smarthome
 #
 # UWAGA: klon w BUILD_DIR jest wyłącznie do budowania - skrypt robi w nim
 # "git reset --hard". Aplikacja musi działać z innego katalogu (jej dane są
@@ -39,13 +43,13 @@
 set -euo pipefail
 
 BRANCH="${BRANCH:-}"
-BUILD_DIR="${BUILD_DIR:-$HOME/smarthome-build}"
+BUILD_DIR="${BUILD_DIR:-/home/pi/smarthome-build}"
 REPO_URL="${REPO_URL:-https://github.com/PLPOLAND/SmartHome.git}"
-JAR_PATH="${JAR_PATH:-$HOME/smarthome/SmartHome.jar}"
+JAR_PATH="${JAR_PATH:-/home/pi/Desktop/SmartHomeWebApp-2.0.1.jar}"
 SERVICE="${SERVICE:-smarthome}"
 RUN_TESTS="${RUN_TESTS:-0}"
-HEALTH_URL="${HEALTH_URL:-}"
-HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-120}"
+HEALTH_URL="${HEALTH_URL-http://localhost:8080/}"
+HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-300}"
 RESTART_CMD="${RESTART_CMD:-}"
 MVN="${MVN:-./mvnw}"
 FORCE=0
@@ -79,7 +83,12 @@ fi
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
 # stan poza klonem - "git clean" w klonie by go skasował
-STATE_DIR="${STATE_DIR:-$HOME/.smarthome-autodeploy}"
+STATE_DIR="${STATE_DIR:-/home/pi/.smarthome-autodeploy}"
+
+if [[ -n "$HEALTH_URL" ]] && ! command -v curl >/dev/null; then
+    echo "Brak curl - sprawdzam tylko stan usługi (sudo apt install curl, by sprawdzać $HEALTH_URL)" >&2
+    HEALTH_URL=""
+fi
 DEPLOYED_FILE="$STATE_DIR/deployed-$(echo "$BRANCH" | tr '/' '_')"
 FAILED_FILE="$DEPLOYED_FILE.failed"
 LOCK_FILE="$STATE_DIR/lock"
@@ -118,7 +127,8 @@ service_healthy() {
             esac
         fi
         if [[ -n "$HEALTH_URL" ]]; then
-            curl -fs -o /dev/null --max-time 5 "$HEALTH_URL" && return 0
+            # każda odpowiedź HTTP (też 302/404) znaczy, że Spring wystartował
+            curl -s -o /dev/null --max-time 5 "$HEALTH_URL" && return 0
             sleep 5
             continue
         fi
