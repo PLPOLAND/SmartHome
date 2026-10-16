@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,8 @@ import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.Termometr;
+import newsmarthome.mqtt.HaDiscoveryPublisher;
+import newsmarthome.mqtt.MqttStatePublisher;
 
 @Service
 public class Runners {
@@ -50,11 +53,20 @@ public class Runners {
     @Autowired
     BeanFactory beanFactory; //potrzebne do tworzenia nowych obiektów w trakcie działania programu
 
+    @Autowired
+    HaDiscoveryPublisher haDiscoveryPublisher;
+
+    @Autowired
+    MqttStatePublisher mqttStatePublisher;
+
     /** Tymczasowo przechowuje funkcje automatyki */
     ArrayList<AutomationFunction> functions = new ArrayList<>();
 
     /** Zatrzymuje sprawdzanie automatyki*/
-    private boolean stopCheckingAutomation = false;
+    private volatile boolean stopCheckingAutomation = false;
+
+    /** Wyklucza jednoczesne odpytywanie o eventy i wysyłanie konfiguracji na slave-a */
+    private final ReentrantLock slaveConfigLock = new ReentrantLock();
 
     /** Minimalny odstęp pomiędzy kolejnymi reinicjalizacjami tego samego slave'a po błędzie urządzenia [ms] */
     private static final long REINIT_COOLDOWN_MS = 60_000;
@@ -183,7 +195,7 @@ public class Runners {
     }
 
     /**
-     * Sprawdza czy na slave'ie są jakieś komendy do wykonania. Jeśli tak to wykonuje je.
+     * Uruchamia funkcje automatyki. Eventy z przycisków odczytywane są osobno w {@link #pollButtonEvents()}.
      */
     // @Scheduled(fixedDelay = 200)
     void checkAutomationFunctions() {
@@ -200,35 +212,68 @@ public class Runners {
                     logger.error("Error in automation function {}. Error: {}", fun.getId(), e.getMessage());
                 }
             }
-            for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
-                if (slaveSender.isSlaveConnected(slaveAdress)) { // jeśli jest podłączony
-                    try {
-                        int howMany = slaveSender.howManyCommandToRead(slaveAdress); // sprawdź ile komend czeka na odczytanie
-                        if (howMany > 0) { // jeśli są jakieś komendy w kolejce
-                            for (int i = 0; i < howMany; i++) {
-                                byte[] command = slaveSender.readCommandFromSlave(slaveAdress); // odczytaj komendę
-                                if (command != null && command[0] == 'C') { // jeśli komenda jest komendą
-                                    ButtonFunction buttonFunction = beanFactory.getBean(ButtonFunction.class);
-                                    buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
-                                    logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
-
-                                    for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
-                                        if (fun.compare(buttonFunction)) { // sprawdź czy funkcja zapisana w systemie jest taka sama jak ta pobrana z slave-a
-                                            logger.debug("Znaleziono funkcję: {}", fun);
-                                            fun.run();// jeśli tak to wykonaj ją
-                                            break;// i przerwij dalsze sprawdzanie
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } catch (HardwareException e) {
-                        logger.error("Error in checkAutomationFunctions. Error: {}", e.getMessage());
-                    }
-                }
-            }
         } else {
             logger.debug("checkAutomationFunctions is paused");
+        }
+    }
+
+    /**
+     * Odpytuje wszystkie slave-y o eventy z przycisków (niestandardowe kliknięcia) i wykonuje przypisane do nich funkcje.
+     * Działa w osobnym wątku, niezależnie od długiego cyklu sprawdzania stanu urządzeń, dzięki czemu
+     * eventy są odbierane z niewielkim opóźnieniem i nie przepełniają kolejki na slave-ie.
+     */
+    @Scheduled(fixedDelayString = "${i2c.event.poll-interval-ms:5}")
+    void pollButtonEvents() {
+        if (stopCheckingAutomation || !slaveConfigLock.tryLock()) { // w trakcie konfiguracji slave-a nie odpytujemy o eventy
+            return;
+        }
+        try {
+            for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
+                if (!slaveSender.isSlaveConnected(slaveAdress)) { // slave mógł zniknąć po ponownym skanowaniu magistrali
+                    continue;
+                }
+                List<byte[]> events;
+                try {
+                    events = slaveSender.readEventsFromSlave(slaveAdress); // odczytaj wszystkie oczekujące eventy
+                } catch (HardwareException e) {
+                    logger.error("Error in pollButtonEvents. Error: {}", e.getMessage());
+                    continue;
+                }
+                for (byte[] command : events) {
+                    handleButtonEvent(slaveAdress, command); // błąd jednego eventu nie przerywa obsługi pozostałych
+                }
+            }
+        } finally {
+            slaveConfigLock.unlock();
+        }
+    }
+
+    /**
+     * Wykonuje funkcję przypisaną do eventu przycisku odczytanego z slave-a
+     */
+    private void handleButtonEvent(int slaveAdress, byte[] command) {
+        try {
+            ButtonFunction buttonFunction = beanFactory.getBean(ButtonFunction.class);
+            buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
+            if (buttonFunction.getButton() == null) { // przycisk o tym ID nie istnieje (już) w systemie - ramka nieaktualna lub błędna
+                logger.warn("Pominięto event {} z slave-a {}: nie znaleziono przycisku", Arrays.toString(command), slaveAdress);
+                return;
+            }
+            logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
+            mqttStatePublisher.publishButtonEvent(buttonFunction.getButton(),
+                    buttonFunction.getClickType(), buttonFunction.getClicks());
+
+            for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
+                if (fun.compare(buttonFunction)) { // sprawdź czy funkcja zapisana w systemie jest taka sama jak ta pobrana z slave-a
+                    logger.debug("Znaleziono funkcję: {}", fun);
+                    fun.run();// jeśli tak to wykonaj ją
+                    break;// i przerwij dalsze sprawdzanie
+                }
+            }
+        } catch (HardwareException e) {
+            logger.error("Error while handling button event {} from slave {}. Error: {}", Arrays.toString(command), slaveAdress, e.getMessage());
+        } catch (RuntimeException e) { // np. błędna ramka (ClassCastException) - nie może przerwać obsługi pozostałych eventów
+            logger.error("Unexpected error while handling button event {} from slave {}", Arrays.toString(command), slaveAdress, e);
         }
     }
 
@@ -296,7 +341,13 @@ public class Runners {
      * @param slaveAdress - adres slave'a na który ma zostać wysłana konfiguracja
      */
     private void configureSlave(int slaveAdress) {
-        boolean reconfigured = slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
+        boolean reconfigured;
+        slaveConfigLock.lock();
+        try {
+            reconfigured = slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
+        } finally {
+            slaveConfigLock.unlock();
+        }
         if (reconfigured) {
             // zapisz nowe onSlaveID, aby po restarcie programu były zgodne z tymi na slavie
             // (nieudane konfiguracje mają onSlaveID = -1, więc nie zostaną zapisane nieaktualne ID).
@@ -413,8 +464,8 @@ public class Runners {
                         if (tmp != null) {
 
                             termometr.setRoom(tmp.getID());
-                            tmp.addSensor(termometr);
-                            systemDAO.save(tmp);
+                            systemDAO.addSensor(tmp, termometr);
+                            haDiscoveryPublisher.publishSensorAsync(termometr);
                         } else {
                             logger.error("Nie znaleziono pokoju '{}' podczas dodawania nowego termometru  ", "Brak");
                         }

@@ -22,8 +22,7 @@ public class I2CMessage {
     // 0 - low, 1 - high
     private int priority;
     // status of message
-    // volatile - zmieniany przez wątek wysyłający, odczytywany w pętli przez wątek czekający w waitToSend()
-    private volatile I2CMessageStatus status = I2CMessageStatus.WAITING;
+    private I2CMessageStatus status = I2CMessageStatus.WAITING;
 
     /**
      * I2CMessage constructor.

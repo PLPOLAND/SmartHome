@@ -1,0 +1,209 @@
+package newsmarthome.mqtt;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import newsmarthome.database.SystemDAO;
+import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.ButtonClickType;
+import newsmarthome.model.hardware.sensor.Sensor;
+import newsmarthome.model.hardware.sensor.SensorsTypes;
+
+/**
+ * Okresowo publikuje zmieniony stan urządzeń/czujników na MQTT. Działa na własnym,
+ * dedykowanym schedulerze (nie na wspólnej puli używanej przez {@code Runners}, który
+ * odpytuje hardware co ~2ms i nie może być blokowany publikacją sieciową).
+ */
+@Service
+public class MqttStatePublisher {
+
+    /** Stan urządzeń to odczyt z pamięci (hardware odpytuje {@code Runners}), więc może być częsty. */
+    private static final long DEVICE_PUBLISH_INTERVAL_MS = 500;
+    private static final long SENSOR_PUBLISH_INTERVAL_MS = 5000;
+    /**
+     * Kliknięcie dostarczone do HA po zawieszeniu brokera odpaliłoby automatyzację z dużym opóźnieniem
+     * (i kilka zaległych naraz) - starsze zdarzenia pomijamy.
+     */
+    private static final long BUTTON_EVENT_MAX_AGE_MS = 5000;
+
+    private final Logger logger = LoggerFactory.getLogger(MqttStatePublisher.class);
+    private final MqttGateway gateway;
+    private final SystemDAO systemDAO;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Map<Integer, String> lastDeviceState = new ConcurrentHashMap<>();
+    private final Map<Integer, String> lastDevicePosition = new ConcurrentHashMap<>();
+    private final Map<Integer, String> lastSensorState = new ConcurrentHashMap<>();
+    private ThreadPoolTaskScheduler scheduler;
+    /** Kliknięcia nie mogą czekać za okresową publikacją wszystkich stanów - stąd osobny wątek. */
+    private final ExecutorService buttonEventExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "mqtt-button-events");
+        t.setDaemon(true);
+        return t;
+    });
+
+    public MqttStatePublisher(MqttGateway gateway, SystemDAO systemDAO) {
+        this.gateway = gateway;
+        this.systemDAO = systemDAO;
+    }
+
+    @PostConstruct
+    public void start() {
+        scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(1);
+        scheduler.setThreadNamePrefix("mqtt-state-publisher-");
+        scheduler.initialize();
+        // broker bez persystencji traci retained stany po restarcie - czyścimy cache, żeby
+        // po reconnect wysłać pełny stan, a nie tylko to, co zmieniło się od ostatniej publikacji
+        gateway.addConnectListener(() -> {
+            lastDeviceState.clear();
+            lastDevicePosition.clear();
+            lastSensorState.clear();
+        });
+        scheduler.scheduleWithFixedDelay(this::publishChangedDeviceStates, DEVICE_PUBLISH_INTERVAL_MS);
+        scheduler.scheduleWithFixedDelay(this::publishChangedSensorStates, SENSOR_PUBLISH_INTERVAL_MS);
+    }
+
+    @PreDestroy
+    public void stop() {
+        if (scheduler != null) {
+            scheduler.shutdown();
+        }
+        // bez przerywania publikacji w toku - wątek jest daemonem i nie blokuje zamknięcia
+        buttonEventExecutor.shutdown();
+    }
+
+    /**
+     * Publikuje stan urządzenia zaraz po komendzie, bez czekania na pętlę okresową. Publikacja
+     * idzie na wątku schedulera - nie wolno publikować synchronicznie z callbacku Paho.
+     */
+    public void publishDeviceNow(Device device) {
+        if (scheduler != null) {
+            scheduler.execute(() -> publishDeviceStateIfChanged(device));
+        }
+    }
+
+    /**
+     * Publikuje zdarzenie przycisku dla encji event HA. Wywoływane z wątku {@code Runners},
+     * więc sama publikacja idzie na osobnym wątku. Bez retained - inaczej HA odtwarzałby
+     * stare kliknięcie po każdym restarcie i odpalał automatyzacje.
+     */
+    public void publishButtonEvent(Button button, ButtonClickType type, int clicks) {
+        Map<String, Object> event = MqttTopics.buttonEventPayload(type, clicks);
+        if (event == null) {
+            logger.debug("Pominięto zdarzenie przycisku id={} ({} x{}) - brak typu zdarzenia w HA", button.getId(),
+                    type, clicks);
+            return;
+        }
+        long createdAt = System.nanoTime();
+        try {
+            buttonEventExecutor.execute(() -> {
+                long ageMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - createdAt);
+                if (ageMs > BUTTON_EVENT_MAX_AGE_MS) {
+                    logger.warn("Pominięto zdarzenie przycisku id={} sprzed {} ms - za stare dla HA", button.getId(), ageMs);
+                    return;
+                }
+                try {
+                    gateway.publish(MqttTopics.buttonEventTopic(gateway.getBaseTopic(), button.getId()),
+                            objectMapper.writeValueAsString(event), false);
+                } catch (Exception e) {
+                    logger.error("Błąd podczas publikacji zdarzenia przycisku id={}: {}", button.getId(), e.getMessage(),
+                            e);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            // zamykanie aplikacji - wyjątek nie może przerwać pętli automatyki w Runners
+            logger.warn("Pominięto zdarzenie przycisku id={} - publisher MQTT jest zatrzymany", button.getId());
+        }
+    }
+
+    // wyjątek w zadaniu scheduleWithFixedDelay zatrzymałby je na stałe - stąd zewnętrzny catch
+    private void publishChangedDeviceStates() {
+        try {
+            for (Device device : systemDAO.getDevicesSnapshot()) {
+                publishDeviceStateIfChanged(device);
+            }
+        } catch (Exception e) {
+            logger.error("Błąd podczas publikacji stanu urządzeń MQTT: {}", e.getMessage(), e);
+        }
+    }
+
+    private void publishChangedSensorStates() {
+        try {
+            for (Sensor sensor : systemDAO.getSensorsSnapshot()) {
+                publishSensorStateIfChanged(sensor);
+            }
+        } catch (Exception e) {
+            logger.error("Błąd podczas publikacji stanu czujników MQTT: {}", e.getMessage(), e);
+        }
+    }
+
+    private void publishDeviceStateIfChanged(Device device) {
+        try {
+            publishDeviceState(device);
+        } catch (Exception e) {
+            logger.error("Błąd podczas publikacji stanu MQTT urządzenia id={}: {}", device.getId(), e.getMessage(), e);
+        }
+    }
+
+    private void publishDeviceState(Device device) {
+        // pozycja przed stanem, żeby HA miał aktualną pozycję w chwili przyjścia stanu
+        String position = MqttTopics.blindPositionPayload(device);
+        if (position != null && !position.equals(lastDevicePosition.get(device.getId()))
+                && gateway.publish(MqttTopics.devicePositionTopic(gateway.getBaseTopic(), device.getId()), position,
+                        true)) {
+            lastDevicePosition.put(device.getId(), position);
+        }
+        String payload = MqttTopics.deviceStatePayload(device);
+        if (payload == null) {
+            return;
+        }
+        String previous = lastDeviceState.get(device.getId());
+        if (payload.equals(previous)) {
+            return;
+        }
+        boolean published = gateway.publish(MqttTopics.deviceStateTopic(gateway.getBaseTopic(), device.getId()), payload,
+                true);
+        if (published) {
+            lastDeviceState.put(device.getId(), payload);
+        }
+    }
+
+    private void publishSensorStateIfChanged(Sensor sensor) {
+        if (sensor.getTyp() != SensorsTypes.THERMOMETR && sensor.getTyp() != SensorsTypes.THERMOMETR_HYGROMETR) {
+            return;
+        }
+        try {
+            Map<String, Object> state = MqttTopics.sensorStatePayload(sensor);
+            if (state == null) {
+                return;
+            }
+            String payload = objectMapper.writeValueAsString(state);
+            String previous = lastSensorState.get(sensor.getId());
+            if (payload.equals(previous)) {
+                return;
+            }
+            boolean published = gateway.publish(MqttTopics.sensorStateTopic(gateway.getBaseTopic(), sensor.getId()),
+                    payload, true);
+            if (published) {
+                lastSensorState.put(sensor.getId(), payload);
+            }
+        } catch (Exception e) {
+            logger.error("Błąd podczas serializacji stanu czujnika id={}: {}", sensor.getId(), e.getMessage());
+        }
+    }
+}

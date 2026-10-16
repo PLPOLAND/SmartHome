@@ -100,6 +100,11 @@ public abstract class Sensor {
 
     public void setId(int id) {
         this.id = id;
+        // jak w Device.setId - po wczytaniu z dysku nowy czujnik nie może dostać zajętego id
+        // (id wyznacza topici i unique_id encji w Home Assistant)
+        if (id >= nextSensorID) {
+            nextSensorID = id + 1;
+        }
     }
 
     public int getRoom() {

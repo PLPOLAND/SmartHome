@@ -10,7 +10,8 @@ import newsmarthome.exception.SoftwareException;
 @Component
 @Scope("prototype")
 public class Higrometr extends Termometr{
-    Integer humidity;
+    // volatile: czytane też przez publisher MQTT
+    volatile Integer humidity;
     Integer maxHumidity;
     Integer minHumidity;
 
@@ -33,7 +34,7 @@ public class Higrometr extends Termometr{
     }
 
     public Integer getHumidity() {
-        return this.maxHumidity;
+        return this.humidity;
     }
     public void setHumidity(Integer humidity) {
         this.humidity = humidity;

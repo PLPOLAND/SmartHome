@@ -115,8 +115,12 @@ public class SystemDAO {
         if (r == null) {
             return false;
         }
-        this.devices.removeAll(r.getDevices());
-        this.sensors.removeAll(r.getSensors());
+        synchronized (devices) {
+            this.devices.removeAll(r.getDevices());
+        }
+        synchronized (sensors) {
+            this.sensors.removeAll(r.getSensors());
+        }
         r.safeDelete();
 
         if (pokoje.remove(r.getName()) != null) {
@@ -219,23 +223,50 @@ public class SystemDAO {
     }
 
     /**
+     * Spójna kopia listy urządzeń, bezpieczna do iterowania z innych wątków (np. MQTT) -
+     * modyfikacje listy w DAO są synchronizowane na tej samej liście.
+     */
+    public List<Device> getDevicesSnapshot() {
+        synchronized (devices) {
+            return new ArrayList<>(devices);
+        }
+    }
+
+    /** Spójna kopia listy czujników, patrz {@link #getDevicesSnapshot()}. */
+    public List<Sensor> getSensorsSnapshot() {
+        synchronized (sensors) {
+            return new ArrayList<>(sensors);
+        }
+    }
+
+    /**
      * Zwraca sensor o podanym id
      * @param id - id sensora
      * @return znaleziony sensor / null jeśli brak sensora o podanym id
      */
     public Sensor getSensor(int id){
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getId() == id) {
-                return sensor;
+        // wołane też z wątków MQTT - bez blokady add/remove z Runners rzuciłoby ConcurrentModificationException
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor.getId() == id) {
+                    return sensor;
+                }
             }
         }
         return null;
     }
 
-    public Sensor getSensorByOnSlaveID(int slaveAdress, int onSlaveId) {
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getOnSlaveID() == onSlaveId && sensor.getSlaveAdress() == slaveAdress) {
-                return sensor;
+    /**
+     * Przycisk o danym id na slave-ie. Higrometry i przyciski mają na slave-ie osobną numerację,
+     * więc samo onSlaveID może wskazać higrometr.
+     */
+    public Button getButtonByOnSlaveID(int slaveAdress, int onSlaveId) {
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor instanceof Button && sensor.getOnSlaveID() == onSlaveId
+                        && sensor.getSlaveAdress() == slaveAdress) {
+                    return (Button) sensor;
+                }
             }
         }
         return null;
@@ -258,7 +289,9 @@ public class SystemDAO {
      * @throws IllegalArgumentException - jeśli sensor ma błędne ID pokoju
      */
     public void addSensor(Sensor sensor) throws IllegalArgumentException {
-        this.sensors.add(sensor);
+        synchronized (sensors) {
+            this.sensors.add(sensor);
+        }
         Room r ;
         for (Room room : this.pokoje.values()) {
             if(room.getID() == sensor.getRoom()){
@@ -276,7 +309,9 @@ public class SystemDAO {
      * @throws IllegalArgumentException - jeśli urządzenie ma błędne ID pokoju
      */
     public void addDevice(Device device) throws IllegalArgumentException {
-        this.devices.add(device);
+        synchronized (devices) {
+            this.devices.add(device);
+        }
         Room r ;
         for (Room room : this.pokoje.values()) {
             if(room.getID() == device.getRoom()){
@@ -560,21 +595,19 @@ public class SystemDAO {
     }
 
     public Device getDeviceByID(int id) {
-        for (Device device : this.getDevices()) {
-            if (device.getId() == id) {
-                return device;
+        // synchronizacja z mutacjami listy - wołane też z wątku MQTT
+        synchronized (devices) {
+            for (Device device : devices) {
+                if (device.getId() == id) {
+                    return device;
+                }
             }
         }
         return null;
     }
 
     public Sensor getSensorByID(int id) {
-        for (Sensor sensor : this.getSensors()) {
-            if (sensor.getId() == id) {
-                return sensor;
-            }
-        }
-        return null;
+        return getSensor(id);
     }
 
     // public void addDevice(Device device) {
@@ -582,7 +615,9 @@ public class SystemDAO {
     // }
 
     public void addDevice(Room room, Device device) {
-        this.devices.add(device);
+        synchronized (devices) {
+            this.devices.add(device);
+        }
         room.addDevice(device);
         device.configureToSlave();
         save(room);
@@ -624,7 +659,9 @@ public class SystemDAO {
      * @return dodany sensor
      */
     public Sensor addSensor(Room room, Sensor sensor){
-        this.sensors.add(sensor);
+        synchronized (sensors) {
+            this.sensors.add(sensor);
+        }
         room.addSensor(sensor);
         if(sensor.getTyp() == SensorsTypes.BUTTON)
             ((Button) sensor).configure();
@@ -635,11 +672,16 @@ public class SystemDAO {
         return sensor;
     }
 
-    public Button addButton(Room room, String name, int slaveID, int pin){
+    /**
+     * Dodaje przycisk razem z funkcjami kliknięć - muszą być przypięte przed addSensor, który wysyła
+     * konfigurację na slave-a (configure) i zapisuje pokój.
+     */
+    public Button addButton(Room room, String name, int slaveID, int pin, List<ButtonLocalFunction> clickFunctions){
         Button button = (Button) hardwareFactory.createSensor(SensorsTypes.BUTTON);
         button.setSlaveAdress(slaveID);
         button.setNazwa(name);
         button.setPin(pin);
+        button.addFunkcjeKlikniec(clickFunctions);
         button = (Button) addSensor(room, button);
         return button;
     }
@@ -661,7 +703,9 @@ public class SystemDAO {
         Device device = getDeviceByID(devID);
         if(device != null){
             Room room = getRoom(device.getRoom());
-            devices.remove(device);
+            synchronized (devices) {
+                devices.remove(device);
+            }
             room.delDevice(device);
             save(room);
             return true;
@@ -673,7 +717,9 @@ public class SystemDAO {
         Sensor sensor = getSensor(sensorID);
         if(sensor != null){
             Room room = getRoom(sensor.getRoom());
-            sensors.remove(sensor);
+            synchronized (sensors) {
+                sensors.remove(sensor);
+            }
             room.delSensor(sensor);
             save(room);
             return true;
