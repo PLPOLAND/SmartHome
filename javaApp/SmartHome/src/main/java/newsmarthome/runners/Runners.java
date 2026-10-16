@@ -341,36 +341,25 @@ public class Runners {
      * @param slaveAdress - adres slave'a na który ma zostać wysłana konfiguracja
      */
     private void configureSlave(int slaveAdress) {
-        boolean reconfigured;
         slaveConfigLock.lock();
         try {
-            reconfigured = slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
+            slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
         } finally {
             slaveConfigLock.unlock();
-        }
-        if (reconfigured) {
-            // zapisz nowe onSlaveID, aby po restarcie programu były zgodne z tymi na slavie
-            // (nieudane konfiguracje mają onSlaveID = -1, więc nie zostaną zapisane nieaktualne ID).
-            // Zapis poza blokadą I2C, aby nie wstrzymywać innych wątków na czas zapisu plików.
-            systemDAO.save();
         }
     }
 
     /**
      * Właściwa konfiguracja slave'a. Wywoływać tylko przez {@link #configureSlave(int)}.
-     *
-     * @return true jeśli slave został zresetowany i urządzenia/sensory dostały nowe onSlaveID
      */
-    private boolean configureSlaveExclusively(int slaveAdress) {
-        boolean reconfigured = false;
+    private void configureSlaveExclusively(int slaveAdress) {
         this.stopCheckingAutomation = true;
         logger.info("Send configuration to Slave({})", slaveAdress);
         try {
             if (slaveSender.reInitBoard(slaveAdress)) {
-                reconfigured = true;
                 logger.debug("Sending devices configuration to slave {}", slaveAdress);
                 // Slave po resecie nie ma żadnych urządzeń - stare onSlaveID są nieaktualne.
-                // Jeśli dodanie się nie uda, zostaje -1 (a nie stare ID), więc nic nieaktualnego nie zostanie zapisane.
+                // Jeśli dodanie się nie uda, zostaje -1 (a nie stare ID), więc urządzenie nie będzie odpytywane.
                 boolean allConfigured = true;
                 for (Device device : systemDAO.getDevices()) {
                     if (device.getSlaveID() == slaveAdress) {
@@ -477,7 +466,6 @@ public class Runners {
             this.stopCheckingAutomation = false;
         }
         this.stopCheckingAutomation = false;
-        return reconfigured;
     }
      /**
       * Sprawdź czy adres nie jest zawiera samych zer lub samych 255

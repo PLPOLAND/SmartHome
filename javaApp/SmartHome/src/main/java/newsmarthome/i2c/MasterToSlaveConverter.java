@@ -3,7 +3,6 @@ package newsmarthome.i2c;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -121,12 +120,11 @@ public class MasterToSlaveConverter {
      * Blokada magistrali jest wielowejściowa, więc zadanie może wywoływać metody tej klasy,
      * a żaden inny wątek nie wejdzie pomiędzy jego kolejne komendy (np. reset slave'a i wysyłanie konfiguracji).
      * @param task - zadanie do wykonania
-     * @return wynik zadania
      */
-    public <T> T runExclusively(Supplier<T> task) {
+    public void runExclusively(Runnable task) {
         atmega.lockBus();
         try {
-            return task.get();
+            task.run();
         } finally {
             atmega.unlockBus();
         }
