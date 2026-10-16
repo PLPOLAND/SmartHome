@@ -58,8 +58,12 @@ public class Runners {
 
     /** Minimalny odstęp pomiędzy kolejnymi reinicjalizacjami tego samego slave'a po błędzie urządzenia [ms] */
     private static final long REINIT_COOLDOWN_MS = 60_000;
+    /** Maksymalny odstęp pomiędzy reinicjalizacjami, gdy błąd się powtarza mimo reinicjalizacji [ms] */
+    private static final long REINIT_MAX_COOLDOWN_MS = 30 * 60_000L;
     /** Czas ostatniej reinicjalizacji slave'a wywołanej błędem urządzenia (adres slave'a -> czas w ms) */
     private final Map<Integer, Long> lastReinitTime = new HashMap<>();
+    /** Liczba kolejnych reinicjalizacji slave'a, po których błąd nie zniknął (adres slave'a -> liczba) */
+    private final Map<Integer, Integer> consecutiveReinits = new HashMap<>();
 
     @Scheduled(fixedDelay = 2)
     void queue(){
@@ -127,6 +131,8 @@ public class Runners {
                         }
                 }
             }
+            // slave nie zgłosił błędu w tym cyklu -> poprzednia reinicjalizacja pomogła, zeruj odstęp
+            consecutiveReinits.keySet().removeIf(slaveAdress -> !slavesToReinit.contains(slaveAdress));
             for (Integer slaveAdress : slavesToReinit) {
                 reinitSlaveAfterDeviceError(slaveAdress);
             }
@@ -139,6 +145,10 @@ public class Runners {
                 try{
                     if (slaveSender.isSlaveConnected(higrometr.getSlaveAdress())) {
                         if (slaveSender.checkInitOfBoard(higrometr.getSlaveAdress())) {
+                            if (higrometr.getOnSlaveID() < 0) {
+                                logger.debug("Higrometr (id:{}) nie jest dodany na slave {} - pomijam odczyt", higrometr.getId(), higrometr.getSlaveAdress());
+                                continue;
+                            }
                             higrometr.update();
                         }
                         else{
@@ -230,7 +240,10 @@ public class Runners {
                         configureSlave(slaveAdress); // jeśli nie to wyślij mu konfigurację
                     } else{
                         logger.debug("Slave {} is configured", slaveAdress);
-                        systemDAO.getAllDevicesFromSlave(slaveAdress).forEach(Device::setConfigured);
+                        // urządzenia bez onSlaveID nie zostały dodane na slave'a - nie odpytuj ich (slave zwróciłby błąd)
+                        systemDAO.getAllDevicesFromSlave(slaveAdress).stream()
+                                .filter(device -> device.getOnSlaveID() >= 0)
+                                .forEach(Device::setConfigured);
                     }
                 } catch (HardwareException|SoftwareException e) {
                     logger.error("Error in checkInitOfBoards. Error: {}", e.getMessage());
@@ -242,20 +255,37 @@ public class Runners {
 
     /**
      * Reinicjalizuje slave'a, który zwrócił błąd dla urządzenia (np. po restarcie programu onSlaveID
-     * zapisane w bazie nie zgadzają się z tymi na slavie). Nie częściej niż raz na {@link #REINIT_COOLDOWN_MS}.
+     * zapisane w bazie nie zgadzają się z tymi na slavie). Reinicjalizacja resetuje całego slave'a (wszystkie wyjścia),
+     * więc nie częściej niż raz na {@link #REINIT_COOLDOWN_MS}, a jeśli błąd wraca mimo reinicjalizacji,
+     * odstęp rośnie dwukrotnie aż do {@link #REINIT_MAX_COOLDOWN_MS}.
      *
      * @param slaveAdress - adres slave'a do reinicjalizacji
      */
     private void reinitSlaveAfterDeviceError(int slaveAdress) {
         long now = System.currentTimeMillis();
         Long last = lastReinitTime.get(slaveAdress);
-        if (last != null && now - last < REINIT_COOLDOWN_MS) {
-            logger.debug("Pominięto reinicjalizację slave'a {} - ostatnia była {} ms temu", slaveAdress, now - last);
+        int attempts = consecutiveReinits.getOrDefault(slaveAdress, 0);
+        long cooldown = reinitCooldown(attempts);
+        if (last != null && now - last < cooldown) {
+            logger.debug("Pominięto reinicjalizację slave'a {} - ostatnia była {} ms temu (odstęp {} ms)", slaveAdress, now - last, cooldown);
             return;
         }
         lastReinitTime.put(slaveAdress, now);
-        logger.warn("Slave {} zwrócił błąd dla urządzenia (niezgodne onSlaveID?). Reinicjalizacja i ponowne wysłanie konfiguracji.", slaveAdress);
+        consecutiveReinits.put(slaveAdress, attempts + 1);
+        logger.warn("Slave {} zwrócił błąd dla urządzenia (niezgodne onSlaveID?). Reinicjalizacja i ponowne wysłanie konfiguracji (próba {}).", slaveAdress, attempts + 1);
         configureSlave(slaveAdress);
+    }
+
+    /**
+     * @param attempts - liczba kolejnych reinicjalizacji, po których błąd nie zniknął
+     * @return minimalny odstęp do następnej reinicjalizacji [ms]
+     */
+    private static long reinitCooldown(int attempts) {
+        if (attempts <= 1) {
+            return REINIT_COOLDOWN_MS;
+        }
+        int shift = Math.min(attempts - 1, 10);
+        return Math.min(REINIT_COOLDOWN_MS << shift, REINIT_MAX_COOLDOWN_MS);
     }
 
     /**
@@ -266,17 +296,27 @@ public class Runners {
      * @param slaveAdress - adres slave'a na który ma zostać wysłana konfiguracja
      */
     private void configureSlave(int slaveAdress) {
-        slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
+        boolean reconfigured = slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
+        if (reconfigured) {
+            // zapisz nowe onSlaveID, aby po restarcie programu były zgodne z tymi na slavie
+            // (nieudane konfiguracje mają onSlaveID = -1, więc nie zostaną zapisane nieaktualne ID).
+            // Zapis poza blokadą I2C, aby nie wstrzymywać innych wątków na czas zapisu plików.
+            systemDAO.save();
+        }
     }
 
     /**
      * Właściwa konfiguracja slave'a. Wywoływać tylko przez {@link #configureSlave(int)}.
+     *
+     * @return true jeśli slave został zresetowany i urządzenia/sensory dostały nowe onSlaveID
      */
-    private void configureSlaveExclusively(int slaveAdress) {
+    private boolean configureSlaveExclusively(int slaveAdress) {
+        boolean reconfigured = false;
         this.stopCheckingAutomation = true;
         logger.info("Send configuration to Slave({})", slaveAdress);
         try {
             if (slaveSender.reInitBoard(slaveAdress)) {
+                reconfigured = true;
                 logger.debug("Sending devices configuration to slave {}", slaveAdress);
                 // Slave po resecie nie ma żadnych urządzeń - stare onSlaveID są nieaktualne.
                 // Jeśli dodanie się nie uda, zostaje -1 (a nie stare ID), więc nic nieaktualnego nie zostanie zapisane.
@@ -336,11 +376,8 @@ public class Runners {
                     }
 
                 }
-                // zapisz nowe onSlaveID, aby po restarcie programu były zgodne z tymi na slavie
-                // (nieudane konfiguracje mają onSlaveID = -1, więc nie zostaną zapisane nieaktualne ID)
-                systemDAO.save();
                 if (!allConfigured) {
-                    logger.warn("Konfiguracja slave'a {} niepełna - część urządzeń/sensorów nie została dodana (onSlaveID = -1). Urządzenia bez ID wywołają ponowną inicjalizację przy sprawdzaniu stanu.", slaveAdress);
+                    logger.warn("Konfiguracja slave'a {} niepełna - część urządzeń/sensorów nie została dodana (onSlaveID = -1). Nie będą one odpytywane; kolejna próba dodania nastąpi przy następnej konfiguracji slave'a.", slaveAdress);
                 }
             }
             logger.info("Sending Thermometers configuration to slave {}", slaveAdress);
@@ -389,6 +426,7 @@ public class Runners {
             this.stopCheckingAutomation = false;
         }
         this.stopCheckingAutomation = false;
+        return reconfigured;
     }
      /**
       * Sprawdź czy adres nie jest zawiera samych zer lub samych 255

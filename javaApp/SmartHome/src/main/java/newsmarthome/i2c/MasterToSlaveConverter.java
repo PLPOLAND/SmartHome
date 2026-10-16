@@ -3,6 +3,7 @@ package newsmarthome.i2c;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.pi4j.io.i2c.I2CDevice;
 
@@ -94,19 +95,20 @@ public class MasterToSlaveConverter {
     }
 
     /**
-     * Przeprowadza skanowanie magistrali i zapisuje adresy slave-ów do listy
-     */
-    /**
      * Wykonuje podane zadanie z wyłącznym dostępem do magistrali I2C.
      * Metody tej klasy wykonujące transakcje I2C są synchronizowane na tym obiekcie (blokada wielowejściowa),
      * więc zadanie może je wywoływać, a żaden inny wątek nie wejdzie pomiędzy jego kolejne komendy
      * (np. reset slave'a i wysyłanie konfiguracji).
      * @param task - zadanie do wykonania
+     * @return wynik zadania
      */
-    public synchronized void runExclusively(Runnable task) {
-        task.run();
+    public synchronized <T> T runExclusively(Supplier<T> task) {
+        return task.get();
     }
 
+    /**
+     * Przeprowadza skanowanie magistrali i zapisuje adresy slave-ów do listy
+     */
     public synchronized void findSlaves() {
         atmega.findAll();
     }

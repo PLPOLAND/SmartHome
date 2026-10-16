@@ -74,19 +74,30 @@ public class I2CHardware implements I2C{
             msg.setSent();
             queue.remove(msg);
         } catch (HardwareException e) {
-            msg.setError();
+            failMessage(msg);
             logger.error("Error while sending messages", e);
         } catch (SlaveNotFoundException e) {
-            msg.setError();
+            failMessage(msg);
             logger.error("Error while sending messages", e);
             restartSlaves();
         } catch (RuntimeException e) {
             // bez tego wątek czekający w waitToSend() (trzymający blokadę I2C) czekałby w nieskończoność
-            if (msg != null) {
-                msg.setError();
-            }
+            failMessage(msg);
             logger.error("Unexpected error while sending messages", e);
         }
+    }
+
+    /**
+     * Oznacza wiadomość jako błędną i usuwa ją z kolejki. Wiadomość pozostawiona w kolejce blokowałaby kolejne
+     * (peek() zwracałby ją w kółko) lub zostałaby wysłana ponownie, już po tym, jak nadawca dostał błąd
+     * - a wtedy kolejny nadawca odczytałby odpowiedź na nie swoją komendę.
+     */
+    private void failMessage(I2CMessage msg) {
+        if (msg == null) {
+            return;
+        }
+        queue.remove(msg);
+        msg.setError();
     }
     /**
      * Ustawia flagę, że inny proces aktualnie używa interfejsu I2C

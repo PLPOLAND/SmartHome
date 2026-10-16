@@ -48,6 +48,10 @@ public class Button extends Sensor{
         logger.debug("Wysyłanie konfiguracji przycisku na slave-a o id: {}", this.getSlaveAdress());
         try {
             this.setOnSlaveID(slaveSender.addPrzycisk(this));
+            if (this.getOnSlaveID() < 0) {
+                logger.error("Slave nie dodał przycisku (id:{}; slave:{}) - pomijam wysyłanie funkcji kliknięć", this.getId(), this.getSlaveAdress());
+                return;
+            }
             for (ButtonLocalFunction buttonLocalFunction : funkcjeKlikniec) {
                 slaveSender.sendClickFunction(buttonLocalFunction);
             }
