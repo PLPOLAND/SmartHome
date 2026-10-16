@@ -1,6 +1,5 @@
 package newsmarthome.model.hardware.device;
 
-import java.util.Arrays;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -42,7 +41,13 @@ public class Fan extends Device{
     @Override
     public void configureToSlave() {
         try {
-            setOnSlaveID(slaveSender.addUrzadzenie(this));
+            int onSlaveId = slaveSender.addUrzadzenie(this);
+            setOnSlaveID(onSlaveId);
+            if (onSlaveId < 0) {
+                logger.error("Slave nie dodał urządzenia (id:{}; slave:{})!", this.getId(), this.getSlaveID());
+                resetConfigured();
+                return;
+            }
             setConfigured();
             sendStateToSlave(this.getState());
         } catch (HardwareException e) {
@@ -153,8 +158,9 @@ public class Fan extends Device{
                 logger.warn("Urządzenie nie jest skonfigurowane na slave-u!");
             }
         } catch (HardwareException e) {
-            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());logger.error(Arrays.toString(e.getStackTrace()));
-            if (e.getResponse()[0] == 'E') {
+            logger.error("Błąd podczas pobierania stanu urządzenia! -> {}", e.getMessage());
+            logger.debug("Stack trace:", e);
+            if (e.getResponse() != null && e.getResponse()[0] == 'E') {
                 throw e;
             }
         }

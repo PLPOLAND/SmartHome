@@ -116,6 +116,21 @@ public class MasterToSlaveConverter {
     }
 
     /**
+     * Wykonuje podane zadanie z wyłącznym dostępem do magistrali I2C.
+     * Blokada magistrali jest wielowejściowa, więc zadanie może wywoływać metody tej klasy,
+     * a żaden inny wątek nie wejdzie pomiędzy jego kolejne komendy (np. reset slave'a i wysyłanie konfiguracji).
+     * @param task - zadanie do wykonania
+     */
+    public void runExclusively(Runnable task) {
+        atmega.lockBus();
+        try {
+            task.run();
+        } finally {
+            atmega.unlockBus();
+        }
+    }
+
+    /**
      * Przeprowadza skanowanie magistrali i zapisuje adresy slave-ów do listy
      */
     public void findSlaves() {
@@ -471,7 +486,7 @@ public class MasterToSlaveConverter {
         byte[] response = atmega.transaction(slaveID, buffor, STANDARD_DELAY, MAX_ROZMIAR_ODPOWIEDZI);
         if (response == null || response[0] == 'E') {
             logger.error("Something went wrong while checking state of device ( onSlaveDeviceId:{} ). Got answare: {}", onSlaveDeviceId, Arrays.toString(response));
-            throw new HardwareException("Error on checking state of device slaveID = " + slaveID, response);
+            throw new HardwareException("Error on checking state of device slaveID = " + slaveID + ", onSlaveDeviceId = " + onSlaveDeviceId, response);
         }else {
             return response[0];
         }
