@@ -481,9 +481,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             case Command::KOMENDY::RECEIVE_GET:
                 {
                     OUT_LN(F("RECEIVE_GET"));
+                    delete komendaZwrotna; // nie trafia do kolejki - bez tego wyciek pamięci przy każdej takiej komendzie
                 }
                 break;
             default:
+                delete komendaZwrotna; // nieznana komenda - odpowiedź nie trafia do kolejki, zwolnij ją
                 break;
         };
 
@@ -545,7 +547,7 @@ void I2CConverter::RequestEvent()
                 {
                     Wire.write('E');
                 }
-                Wire.end();
+                // Bez Wire.end() - wyłączenie TWI w przerwaniu zostawiało slave'a głuchego na I2C aż do restartu
                 break;
         }
         OUT_LN(freeMemory());
@@ -558,16 +560,8 @@ void I2CConverter::RequestEvent()
         {
             Wire.write('E');
         }
-        Wire.end();
-
-        byte tmp = 1;
-        byte adress = 7;
-        for (byte i = 0; i < PINOW_NA_ADRES; i++)
-        {
-            adress += tmp * (digitalRead(2 + i) == HIGH ? 0 : 1);
-            tmp *= 2;
-        }
-        Wire.begin(adress);
+        // Wcześniej był tu Wire.end() + Wire.begin(adres) - reinicjalizacja TWI w środku obsługi przerwania
+        // (w trakcie transmisji do mastera) potrafiła zawiesić slave'a/magistralę. Odpowiedź 'E' wystarcza.
     }
     if (command != nullptr)
     {
@@ -581,18 +575,37 @@ void I2CConverter::RequestEvent()
 }
 
 void I2CConverter::addToSent(Command *command){
-    if (this->doWyslania.size()<3)
+    // Wywoływane z pętli głównej. Kolejka doWyslania i sterta (malloc/free) są modyfikowane także
+    // w przerwaniach I2C (RecieveEvent/RequestEvent), a ani LinkedList, ani malloc z avr-libc nie są
+    // odporne na przerwania - bez blokady przerwanie w trakcie tej operacji psuło listę/stertę i zawieszało slave'a.
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        this->doWyslania.add(command);
+        if (this->doWyslania.size()<3)
+        {
+            this->doWyslania.add(command);
+        }
+        else
+        {
+            // Kolejka pełna (rozmiar 3, indeksy 0-2) - nadpisz ostatni element zamiast
+            // odwoływać się do nieistniejącego indeksu 3 (powodowało to dereferencję NULL i zawieszenie).
+            delete this->doWyslania.get(2);
+            this->doWyslania.set(2, command);//TODO Pomyśleć nad lepszym rozwiązaniem
+        }
     }
-    else
-    {
-        // Kolejka pełna (rozmiar 3, indeksy 0-2) - nadpisz ostatni element zamiast
-        // odwoływać się do nieistniejącego indeksu 3 (powodowało to dereferencję NULL i zawieszenie).
-        delete this->doWyslania.get(2);
-        this->doWyslania.set(2, command);//TODO Pomyśleć nad lepszym rozwiązaniem
-    }
+}
 
+/**
+ * Tworzy komendę z podanymi parametrami i dodaje ją do kolejki do wysłania.
+ * Do użycia z pętli głównej - alokacja i dodanie do kolejki odbywają się przy wyłączonych przerwaniach.
+ */
+void I2CConverter::addReplyToSent(const byte *params){
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        Command *command = new Command;
+        command->setParams(params);
+        command->setCommandType(Command::KOMENDY::SEND_REPLY);
+        addToSent(command); // ATOMIC_RESTORESTATE - zagnieżdżenie jest bezpieczne
+    }
 }
 
 /*

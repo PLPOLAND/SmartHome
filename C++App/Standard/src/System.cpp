@@ -57,55 +57,57 @@ void System::begin(){
     
     if (!this->getStartUpVariant())
     {
-        Przycisk *p1 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, A3);
-        Przycisk *p2 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, 14);
+        // Handlery I2C są już zarejestrowane - przerwanie I2C (które też alokuje na stercie) nie może
+        // wejść w trakcie tworzenia urządzeń w pętli głównej.
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            Przycisk *p1 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, A3);
+            Przycisk *p2 = (Przycisk *)this->addDevice(Device::TYPE::PRZYCISK, 14);
 
-        Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 15, 16);
-        Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
-        Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
-        // p1->setCzyPominac(true);
-        // p2->setCzyPominac(true);
-        Command *tmp = new Command;
-        tmp->setDevice(r);
-        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
-        byte parametry[8] = {'U', 0, 0, 0, 0, 0, 0, 0};
-        tmp->setParams(parametry);
-        p1->dodajFunkcjeKlikniecia(tmp, 1);
-        tmp = new Command;
-        tmp->setDevice(r);
-        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
-        parametry[0] = 'D';
-        tmp->setParams(parametry);
-        p1->dodajFunkcjeKlikniecia(tmp, 2);
-        tmp = new Command;
-        tmp->setDevice(r);
-        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
-        parametry[0] = 'S';
-        tmp->setParams(parametry);
-        p1->dodajFunkcjeKlikniecia(tmp, 3);
+            Roleta *r = (Roleta *)this->addDevice(Device::TYPE::ROLETA, 15, 16);
+            Przekaznik *s2 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 12);
+            Przekaznik *s1 = (Przekaznik *)this->addDevice(Device::TYPE::PRZEKAZNIK, 13);
+            // p1->setCzyPominac(true);
+            // p2->setCzyPominac(true);
+            Command *tmp = new Command;
+            tmp->setDevice(r);
+            tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+            byte parametry[8] = {'U', 0, 0, 0, 0, 0, 0, 0};
+            tmp->setParams(parametry);
+            p1->dodajFunkcjeKlikniecia(tmp, 1);
+            tmp = new Command;
+            tmp->setDevice(r);
+            tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+            parametry[0] = 'D';
+            tmp->setParams(parametry);
+            p1->dodajFunkcjeKlikniecia(tmp, 2);
+            tmp = new Command;
+            tmp->setDevice(r);
+            tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_ROLETY);
+            parametry[0] = 'S';
+            tmp->setParams(parametry);
+            p1->dodajFunkcjeKlikniecia(tmp, 3);
 
-        tmp = new Command;
-        tmp->setDevice(s1);
-        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
-        parametry[0] = 0;
-        tmp->setParams(parametry);
-        p2->dodajFunkcjeKlikniecia(tmp, 1);
-        tmp = new Command;
-        tmp->setDevice(s2);
-        tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
-        parametry[0] = 0;
-        tmp->setParams(parametry);
-        p2->dodajFunkcjeKlikniecia(tmp, 2);
+            tmp = new Command;
+            tmp->setDevice(s1);
+            tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+            parametry[0] = 0;
+            tmp->setParams(parametry);
+            p2->dodajFunkcjeKlikniecia(tmp, 1);
+            tmp = new Command;
+            tmp->setDevice(s2);
+            tmp->setCommandType(Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA);
+            parametry[0] = 0;
+            tmp->setParams(parametry);
+            p2->dodajFunkcjeKlikniecia(tmp, 2);
+        }
     }
     else
     {
         init_system();
         this->setNextStartupVariant(false);//next startup should be with devices
-        Command * afterInitCommand = new Command;
         byte parametry[8] = {1,0,0,0,0,0,0,0};
-        afterInitCommand->setParams(parametry);
-        afterInitCommand->setCommandType(Command::KOMENDY::SEND_REPLY);
-        comunication->doWyslania.add(afterInitCommand);
+        comunication->addReplyToSent(parametry); // alokacja przy wyłączonych przerwaniach
         pinMode(12, OUTPUT);
         pinMode(13, OUTPUT);
         pinMode(15, OUTPUT);
