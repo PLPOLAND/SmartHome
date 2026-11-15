@@ -217,17 +217,25 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             {
                 OUT_LN(F("REC_GET_TEMPERATURE"));
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                String tmp = String(System::getSystem()->getTermometr(komenda.getParams())->getTemperature(), 2U);
+                Termometr *termometr = System::getSystem()->getTermometr(komenda.getParams());
+                float temperatura = termometr != nullptr ? termometr->getTemperature() : NAN;
+                if (termometr == nullptr || isnan(temperatura) || temperatura < -200.0f || temperatura > 200.0f)
+                {
+                    params[0] = 'E'; // nieznany termometr / nieprawidłowy odczyt - master potraktuje to jako błąd
+                }
+                else
+                {
+                    // dtostrf do bufora na stosie zamiast String - String alokował na stercie w przerwaniu,
+                    // a przy zapełnionym RAM-ie alokacja się nie udawała i odpowiedź była pusta
+                    char tekst[12];
+                    dtostrf(temperatura, 1, 2, tekst); // np. "21.19", "-127.00"
+                    for (byte i = 0; i < 8 && tekst[i] != '\0'; i++)
+                    {
+                        params[i] = tekst[i];
+                    }
+                }
                 OUT(F("temperatura = "))
-                OUT_LN(tmp);
-                for (byte i = 0; i < 8; i++)
-                {
-                    params[i] = 0;
-                }
-                for (byte i = 0; i < tmp.length(); i++)
-                {
-                    params[i] = tmp.charAt(i);
-                }
+                OUT_LN(temperatura);
 
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 komendaZwrotna->setParams(params);
@@ -371,6 +379,7 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                                 break;
                         }
                         przycisk->dodajFunkcjeKlikniecia(funkcja, komenda.getParams()[3]);
+                        delete funkcja; // dodajFunkcjeKlikniecia zapisuje kopię - bez tego każda skonfigurowana funkcja ciekła (15 B)
                     }
                     else
                     {
@@ -473,6 +482,22 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
                     params[0] = doWyslania.size();
                     // OUT(F("Do wysłania: ")) OUT_LN(doWyslania.size());
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->setParams(params);
+                    doWyslania.add(0, komendaZwrotna);
+                }
+                break;
+            case Command::KOMENDY::RECEIVE_MEMORY_INFO:
+                {
+                    // ['M', sterta(2B), nietknięty RAM(2B), wolne bloki(2B), 0] - wartości little-endian
+                    uint16_t heap = heapSize();
+                    uint16_t untouched = untouchedRam();
+                    uint16_t freeList = freeListBytes();
+                    byte params[8] = {'M',
+                                      (byte)(heap & 0xFF), (byte)(heap >> 8),
+                                      (byte)(untouched & 0xFF), (byte)(untouched >> 8),
+                                      (byte)(freeList & 0xFF), (byte)(freeList >> 8),
+                                      0};
                     komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                     komendaZwrotna->setParams(params);
                     doWyslania.add(0, komendaZwrotna);

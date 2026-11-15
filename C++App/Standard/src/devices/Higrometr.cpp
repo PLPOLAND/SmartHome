@@ -61,14 +61,15 @@ bool Higrometr::isCorrect()
 byte* Higrometr::getStateAsByteArray()
 {
     byte* tmp = new byte[8]; // zerowane jest 8 bajtów - przy 7 nadpisywany był bajt sterty za buforem
-    String tmpStr = String (this->temperature, 2U);
+    char tekst[12]; // dtostrf na stosie zamiast String (bez dodatkowej alokacji na stercie)
+    dtostrf(this->temperature, 1, 2, tekst);
     for (byte i = 0; i < 8; i++)
     {
         tmp[i] = 0;
     }
-    for (byte i = 0; i < 5; i++)
+    for (byte i = 0; i < 5 && tekst[i] != '\0'; i++)
     {
-        tmp[i] = tmpStr.charAt(i);
+        tmp[i] = tekst[i];
     }
     tmp[5] = this->humidity;
     return tmp;

@@ -84,6 +84,7 @@
         // Po resecie programowym (resetFunc) watchdog mógł zostać włączony - wyłącz go zanim setup() się wydłuży
         MCUSR = 0;
         wdt_disable();
+        paintFreeRam(); // diagnostyka: pozwala zmierzyć, ile RAM-u nigdy nie zostało użyte (komenda I2C 'M')
         dioda.on();
         Serial.begin(500000);
         // Serial.println(freeMemory());

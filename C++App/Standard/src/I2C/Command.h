@@ -29,6 +29,7 @@ public:
         RECEIVE_REMOVE_PRZYCISK_LOCAL_FUNCTION, // Usuń funkcję przycisku lokalnie wywoływaną
         RECEIVE_ADD_PRZYCISK_GLOBAL_FUNCTION,   // Dodaj funkcję przycisku wywoływaną przez slave
         RECIEVE_DEVICES_STATUS,                 // Pobierz dane o statusie danego urządzenia
+        RECEIVE_MEMORY_INFO,                    // Diagnostyka: zajętość RAM (sterta, nietknięty obszar, wolne bloki)
 
         // Wysylanie
         SEND_REPLY,      // Odpowiedz z zapisanymi danymi w bufforze
