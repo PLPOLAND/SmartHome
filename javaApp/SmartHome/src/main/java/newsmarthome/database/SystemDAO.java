@@ -105,6 +105,23 @@ public class SystemDAO {
         return null;
     }
 
+    /** Zmienia nazwę pokoju - pokoje są indeksowane nazwą, więc trzeba przepiąć klucz. */
+    public void renameRoom(Room room, String newName) {
+        pokoje.remove(room.getName());
+        room.setNazwa(newName);
+        pokoje.put(newName, room);
+        save(room);
+    }
+
+    /** Wolne id dla nowego pokoju (id wyznacza nazwę pliku pokoju, więc nie może się powtórzyć). */
+    public int nextRoomId() {
+        int max = -1;
+        for (Room room : pokoje.values()) {
+            max = Math.max(max, room.getID());
+        }
+        return max + 1;
+    }
+
     /**
      * Usuwa podany pokój z systemu
      * 

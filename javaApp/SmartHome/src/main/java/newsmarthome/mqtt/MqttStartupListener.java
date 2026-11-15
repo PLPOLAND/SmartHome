@@ -15,18 +15,25 @@ public class MqttStartupListener implements ApplicationListener<ApplicationReady
     private final MqttGateway gateway;
     private final HaDiscoveryPublisher discoveryPublisher;
     private final MqttCommandHandler commandHandler;
+    private final MqttConfigHandler configHandler;
+    private final BridgeConfigPublisher bridgeConfigPublisher;
 
     public MqttStartupListener(MqttGateway gateway, HaDiscoveryPublisher discoveryPublisher,
-            MqttCommandHandler commandHandler) {
+            MqttCommandHandler commandHandler, MqttConfigHandler configHandler,
+            BridgeConfigPublisher bridgeConfigPublisher) {
         this.gateway = gateway;
         this.discoveryPublisher = discoveryPublisher;
         this.commandHandler = commandHandler;
+        this.configHandler = configHandler;
+        this.bridgeConfigPublisher = bridgeConfigPublisher;
     }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         gateway.addConnectListener(discoveryPublisher::publishAll);
+        gateway.addConnectListener(bridgeConfigPublisher::publishAfterConnect);
         gateway.connect();
         commandHandler.subscribe();
+        configHandler.subscribe();
     }
 }

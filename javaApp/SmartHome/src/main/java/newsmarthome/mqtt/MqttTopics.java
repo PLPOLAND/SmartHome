@@ -6,11 +6,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import newsmarthome.model.Room;
 import newsmarthome.model.hardware.device.Blind;
 import newsmarthome.model.hardware.device.Device;
 import newsmarthome.model.hardware.device.DeviceState;
 import newsmarthome.model.hardware.device.DeviceTypes;
+import newsmarthome.model.hardware.device.Fan;
+import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.device.Outlet;
+import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonClickType;
+import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
 import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
@@ -39,6 +45,114 @@ public final class MqttTopics {
 
     public static String availabilityTopic(String baseTopic) {
         return baseTopic + "/bridge/status";
+    }
+
+    /** Retained snapshot konfiguracji (pokoje, urządzenia, czujniki, slave'y) dla integracji HA. */
+    public static String bridgeConfigTopic(String baseTopic) {
+        return baseTopic + "/bridge/config";
+    }
+
+    public static String bridgeRequestTopicFilter(String baseTopic) {
+        return baseTopic + "/bridge/request/#";
+    }
+
+    public static String bridgeResponseTopic(String baseTopic, String action) {
+        return baseTopic + "/bridge/response/" + action;
+    }
+
+    /**
+     * Wyciąga akcję (np. {@code device/add}) z topicu żądania konfiguracji.
+     * @return akcja lub null jeśli topic nie pasuje do wzorca.
+     */
+    public static String parseBridgeAction(String baseTopic, String topic) {
+        String prefix = baseTopic + "/bridge/request/";
+        if (topic == null || !topic.startsWith(prefix) || topic.length() == prefix.length()) {
+            return null;
+        }
+        return topic.substring(prefix.length());
+    }
+
+    public static Map<String, Object> roomConfigPayload(Room room) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", room.getID());
+        map.put("name", room.getName());
+        return map;
+    }
+
+    public static Map<String, Object> deviceConfigPayload(Device device) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", device.getId());
+        map.put("name", device.getName());
+        map.put("type", device.getTyp().name());
+        map.put("room", device.getRoom());
+        map.put("slave", device.getSlaveID());
+        if (device instanceof Blind) {
+            map.put("pin", ((Blind) device).getPinUp());
+            map.put("pin2", ((Blind) device).getPinDown());
+        } else if (device instanceof Light) {
+            map.put("pin", ((Light) device).getPin());
+        } else if (device instanceof Fan) {
+            map.put("pin", ((Fan) device).getPin());
+        } else if (device instanceof Outlet) {
+            map.put("pin", ((Outlet) device).getPin());
+        }
+        map.put("configured", device.isConfigured());
+        return map;
+    }
+
+    public static Map<String, Object> sensorConfigPayload(Sensor sensor) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", sensor.getId());
+        map.put("name", sensor.getNazwa());
+        map.put("type", sensor.getTyp().name());
+        map.put("room", sensor.getRoom());
+        map.put("slave", sensor.getSlaveAdress());
+        if (sensor instanceof Button) {
+            Button button = (Button) sensor;
+            map.put("pin", button.getPin());
+            List<Map<String, Object>> functions = new ArrayList<>();
+            for (ButtonLocalFunction function : button.getFunkcjeKlikniec()) {
+                if (function.getDevice() == null) {
+                    continue;
+                }
+                Map<String, Object> fn = new LinkedHashMap<>();
+                fn.put("clicks", function.getClicks());
+                fn.put("device", function.getDevice().getId());
+                fn.put("state", function.getState().name());
+                functions.add(fn);
+            }
+            map.put("click_functions", functions);
+        }
+        return map;
+    }
+
+    /**
+     * Buduje snapshot konfiguracji publikowany na {@link #bridgeConfigTopic}.
+     * @param slaves adres slave'a -> czy jest podłączony
+     */
+    public static Map<String, Object> bridgeConfigPayload(String version, int maxClickFunctions,
+            Map<Integer, Boolean> slaves, List<Room> rooms, List<Device> devices, List<Sensor> sensors) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("version", version);
+        payload.put("max_click_functions", maxClickFunctions);
+        List<Map<String, Object>> slaveList = new ArrayList<>();
+        slaves.forEach((address, connected) -> {
+            Map<String, Object> slave = new LinkedHashMap<>();
+            slave.put("address", address);
+            slave.put("connected", connected);
+            slaveList.add(slave);
+        });
+        payload.put("slaves", slaveList);
+        List<Map<String, Object>> roomList = new ArrayList<>();
+        rooms.forEach(room -> roomList.add(roomConfigPayload(room)));
+        payload.put("rooms", roomList);
+        List<Map<String, Object>> deviceList = new ArrayList<>();
+        devices.forEach(device -> deviceList.add(deviceConfigPayload(device)));
+        payload.put("devices", deviceList);
+        List<Map<String, Object>> sensorList = new ArrayList<>();
+        sensors.forEach(sensor -> sensorList.add(sensorConfigPayload(sensor)));
+        payload.put("sensors", sensorList);
+        return payload;
     }
 
     public static String deviceObjectId(int deviceId) {

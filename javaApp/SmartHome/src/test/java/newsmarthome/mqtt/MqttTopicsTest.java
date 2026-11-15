@@ -229,4 +229,51 @@ class MqttTopicsTest {
             assertEquals("smarthome_sensor_101_room_4", MqttTopics.haDeviceIdentifierOf(sensorConfig));
         }
     }
+
+    @Test
+    void parsesBridgeActionFromRequestTopic() {
+        assertEquals("device/add", MqttTopics.parseBridgeAction("smarthome", "smarthome/bridge/request/device/add"));
+        assertNull(MqttTopics.parseBridgeAction("smarthome", "smarthome/bridge/request/"));
+        assertNull(MqttTopics.parseBridgeAction("smarthome", "smarthome/bridge/response/device/add"));
+        assertNull(MqttTopics.parseBridgeAction("smarthome", null));
+        assertEquals("smarthome/bridge/response/device/add", MqttTopics.bridgeResponseTopic("smarthome", "device/add"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void bridgeConfigSnapshotDescribesRoomsDevicesAndClickFunctions() {
+        newsmarthome.model.Room room = new newsmarthome.model.Room(3, "Salon");
+        newsmarthome.model.hardware.device.Blind blind = new newsmarthome.model.hardware.device.Blind(16, 15);
+        blind.setId(40);
+        blind.setName("Taras");
+        blind.setSlaveID(18);
+        room.addDevice(blind);
+        newsmarthome.model.hardware.sensor.Button button = new newsmarthome.model.hardware.sensor.Button(18, 17);
+        button.setId(123);
+        button.setNazwa("Jadalnia");
+        button.addFunkcjaKilkniecia(new newsmarthome.model.hardware.sensor.ButtonLocalFunction(button, blind,
+                newsmarthome.model.hardware.sensor.ButtonLocalFunction.State.DOWN, 2));
+        room.addSensor(button);
+        Map<Integer, Boolean> slaves = new java.util.LinkedHashMap<>();
+        slaves.put(18, true);
+
+        Map<String, Object> payload = MqttTopics.bridgeConfigPayload("2.0.1", 3, slaves, Arrays.asList(room),
+                Arrays.asList(blind), Arrays.asList(button));
+
+        assertEquals(3, payload.get("max_click_functions"));
+        Map<String, Object> slave = ((List<Map<String, Object>>) payload.get("slaves")).get(0);
+        assertEquals(18, slave.get("address"));
+        assertEquals(true, slave.get("connected"));
+        Map<String, Object> device = ((List<Map<String, Object>>) payload.get("devices")).get(0);
+        assertEquals("BLIND", device.get("type"));
+        assertEquals(3, device.get("room"));
+        assertEquals(16, device.get("pin"));
+        assertEquals(15, device.get("pin2"));
+        Map<String, Object> sensor = ((List<Map<String, Object>>) payload.get("sensors")).get(0);
+        assertEquals(17, sensor.get("pin"));
+        Map<String, Object> function = ((List<Map<String, Object>>) sensor.get("click_functions")).get(0);
+        assertEquals(2, function.get("clicks"));
+        assertEquals(40, function.get("device"));
+        assertEquals("DOWN", function.get("state"));
+    }
 }

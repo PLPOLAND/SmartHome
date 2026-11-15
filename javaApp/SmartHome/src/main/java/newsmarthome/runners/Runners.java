@@ -35,6 +35,7 @@ import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.Termometr;
+import newsmarthome.mqtt.BridgeConfigPublisher;
 import newsmarthome.mqtt.HaDiscoveryPublisher;
 import newsmarthome.mqtt.MqttStatePublisher;
 
@@ -58,6 +59,8 @@ public class Runners {
 
     @Autowired
     MqttStatePublisher mqttStatePublisher;
+    @Autowired
+    BridgeConfigPublisher bridgeConfigPublisher;
 
     /** Tymczasowo przechowuje funkcje automatyki */
     ArrayList<AutomationFunction> functions = new ArrayList<>();
@@ -334,6 +337,21 @@ public class Runners {
     }
 
     /**
+     * Wymusza ponowne wysłanie całej konfiguracji na slave'a po zmianie konfiguracji przez użytkownika
+     * (zmiana pinu, usunięcie urządzenia, funkcje kliknięć) - firmware nie umie zmienić pojedynczego
+     * urządzenia. Resetuje wyjścia slave'a.
+     *
+     * @return false, gdy slave nie jest podłączony (dostanie konfigurację po wykryciu)
+     */
+    public boolean reconfigureSlave(int slaveAdress) {
+        if (!slaveSender.isSlaveConnected(slaveAdress)) {
+            return false;
+        }
+        configureSlave(slaveAdress);
+        return true;
+    }
+
+    /**
      * Wysyła konfigurację slave'owi. Zatrzymuje sprawdzanie automatyki na czas wysyłania konfiguracji.
      * Cała sekwencja (reset + konfiguracja) jest wykonywana z wyłącznym dostępem do I2C,
      * aby inne wątki (np. zapytania z aplikacji) nie przeplatały się z nią.
@@ -468,6 +486,7 @@ public class Runners {
                             termometr.setRoom(tmp.getID());
                             systemDAO.addSensor(tmp, termometr);
                             haDiscoveryPublisher.publishSensorAsync(termometr);
+                            bridgeConfigPublisher.requestPublish();
                         } else {
                             logger.error("Nie znaleziono pokoju '{}' podczas dodawania nowego termometru  ", "Brak");
                         }
