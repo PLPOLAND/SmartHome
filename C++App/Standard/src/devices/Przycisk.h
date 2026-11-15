@@ -32,7 +32,11 @@ private:
     StanPrzycisku stan;
     int klikniecia;
     Timer time;  // okres na kolejne kliknięcia / wykrycie przytrzymania
-    Timer time2; // eliminacja drgań styków przy pierwszym wciśnięciu
+    // Filtr zakłóceń wejścia (patrz odczytajWejscie)
+    bool odczytSurowy;            // ostatni surowy odczyt pinu (true = wciśnięty)
+    bool odczytStabilny;          // stan po filtrze, na nim działa maszyna stanów
+    unsigned long czasZmianySurowego; // millis() ostatniej zmiany surowego odczytu
+    bool odczytajWejscie();
     bool czyPominac = false;
 
     Dioda dioda;

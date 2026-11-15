@@ -14,9 +14,11 @@ Przycisk::Przycisk()
 {
     Device(TYPE::PRZYCISK);
     time.time(STOP);
-    time2.time(STOP);
     stan = BRAK_AKCJI;
     klikniecia = 0;
+    odczytSurowy = false;
+    odczytStabilny = false;
+    czasZmianySurowego = 0;
     for (byte i = 0; i < MAX_NUMBER_OF_BUTTON_FUNCTIONS; i++)
     {
         funkcje_klikniecia[i] = const_cast<Command *>(zapychacz);
@@ -46,8 +48,12 @@ bool Przycisk::begin(byte pin, bool czyPomijacPierwszy = false)
 
     if(this->setPin(pin)){
         time.time(STOP);
-        time2.time(STOP);
         stan = BRAK_AKCJI;
+        klikniecia = 0;
+        // Przycisk wciśnięty przy starcie nie generuje kliknięcia - musi najpierw zostać puszczony.
+        odczytSurowy = digitalRead(this->pin) == LOW;
+        odczytStabilny = odczytSurowy;
+        czasZmianySurowego = millis();
         return true;
     }
     return false;
@@ -76,51 +82,53 @@ Przycisk::StanPrzycisku Przycisk::getStan()
 /**
  * Aktualizuje stan przycisku
  */
+/**
+ * @brief Odczyt pinu z filtrem zakłóceń.
+ *
+ * Nowy stan jest przyjmowany dopiero, gdy surowy odczyt utrzymuje się bez zmian przez
+ * BUTTON_DEBOUNCE_PRESS (wciśnięcie) lub BUTTON_DEBOUNCE_RELEASE (puszczenie) ms. Każda
+ * zmiana surowego odczytu zeruje licznik, więc drgania styków przy puszczaniu i krótkie
+ * szpilki na przewodzie nie są liczone jako kolejne kliknięcia.
+ *
+ * @return true, jeśli przycisk jest (po filtrze) wciśnięty
+ */
+bool Przycisk::odczytajWejscie()
+{
+    bool surowy = digitalRead(pin) == LOW;
+    unsigned long teraz = millis();
+    if (surowy != odczytSurowy)
+    {
+        odczytSurowy = surowy;
+        czasZmianySurowego = teraz;
+    }
+    else if (surowy != odczytStabilny)
+    {
+        unsigned long wymagany = surowy ? BUTTON_DEBOUNCE_PRESS : BUTTON_DEBOUNCE_RELEASE;
+        if (teraz - czasZmianySurowego >= wymagany)
+        {
+            odczytStabilny = surowy;
+        }
+    }
+    return odczytStabilny;
+}
+
 void Przycisk::updateStan(){
-    ///stan wejscia
-    bool tmpStan = 0;
-    if (digitalRead(pin)==LOW)
-    {
-        tmpStan = 1;
-    }
-    else
-    {
-        tmpStan = 0;
-    }
+    ///stan wejscia (po filtrze zakłóceń)
+    bool tmpStan = odczytajWejscie();
 
     if (tmpStan == 1 && stan == PUSZCZONY && !time.available()) //Przyciśniecie po raz kolejny
     {
-
-        //OUT_LN(F("next click "));
         time.begin(BUTTON_CLICK_TIME);
         stan = PRZYCISNIETY;
         klikniecia++;
-        // OUT(F("clicks: "))
-        // OUT_LN(klikniecia);
         this->dioda.on(200);
     }
-    else if (tmpStan == 1 && stan == BRAK_AKCJI) //Przyciśniecie po raz pierwszy
+    else if (tmpStan == 1 && stan == BRAK_AKCJI) //Przyciśniecie po raz pierwszy (filtr już odczekał)
     {
-        //OUT_LN(F("prawiewcisniety"));
-        stan = PRAWIE_WCISNIETY;
-        time2.begin(50);
-        // klikniecia = 1;
-        this->dioda.on(200);
-    }
-    else if (tmpStan == 1 && stan == PRAWIE_WCISNIETY && time2.available()) //Przyciśniecie po raz pierwszy
-    {
-        //OUT_LN(F("first click"));
         stan = PRZYCISNIETY;
         time.begin(BUTTON_CLICK_TIME);
         klikniecia = 1;
-        this->dioda.on();
-    }
-    else if (stan == PRAWIE_WCISNIETY && tmpStan == 0 && !time2.available())
-    {
-        stan = BRAK_AKCJI;
-        //OUT_LN(F("PUSZCZONY P WCISNIETY"));
-        time.time(STOP);
-        time2.time(STOP);
+        this->dioda.on(200); // z czasem - samo on() nie uruchamia timera diody i zostaje zapalona
     }
 
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
