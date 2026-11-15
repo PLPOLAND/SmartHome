@@ -128,7 +128,7 @@ void Przycisk::updateStan(){
         stan = PRZYCISNIETY;
         time.begin(BUTTON_CLICK_TIME);
         klikniecia = 1;
-        this->dioda.on();
+        this->dioda.on(200); // z czasem - samo on() nie uruchamia timera diody i zostaje zapalona
     }
 
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
