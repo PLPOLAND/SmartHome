@@ -13,31 +13,25 @@ const Command *Przycisk::zapychacz = new Command;
 Przycisk::Przycisk()
 {
     Device(TYPE::PRZYCISK);
-    time = new Timer();
-    time->time(STOP);
+    time.time(STOP);
+    time2.time(STOP);
+    stan = BRAK_AKCJI;
+    klikniecia = 0;
+    for (byte i = 0; i < MAX_NUMBER_OF_BUTTON_FUNCTIONS; i++)
+    {
+        funkcje_klikniecia[i] = const_cast<Command *>(zapychacz);
+    }
 }
 
 Przycisk::~Przycisk()
 {
-    delete time;
-
-    for (int i = 0; i < funkcje_klikniecia.size(); i++)
+    for (byte i = 0; i < MAX_NUMBER_OF_BUTTON_FUNCTIONS; i++)
     {
-        delete funkcje_klikniecia.get(i);
+        if (funkcje_klikniecia[i] != zapychacz)
+        {
+            delete funkcje_klikniecia[i];
+        }
     }
-    for (int i = 0; i < funkcje_przytrzymania.size(); i++)
-    {
-        delete funkcje_przytrzymania.get(i);
-    }
-    // for (int i = 0; i < funkcje_klikniecia.size(); i++)
-    // {
-    //     delete funkcje_klikniecia.get(i);
-    // }
-    
-
-    funkcje_klikniecia.clear();
-    funkcje_przytrzymania.clear();
-    // funkcje_przytrzymania.clear();
 }
 
 /**
@@ -48,21 +42,11 @@ Przycisk::~Przycisk()
 bool Przycisk::begin(byte pin, bool czyPomijacPierwszy = false)
 {
     Device(Device::TYPE::PRZYCISK);
-    Command* tmp = new Command;
-    for (size_t i = 0; i < MAX_NUMBER_OF_BUTTON_FUNCTIONS; i++)
-    {
-        funkcje_klikniecia.add(tmp);
-        funkcje_przytrzymania.add(tmp);
-        funkcje_przytrzymania_puszczenie.add(tmp);
-    }
-    
     this->setCzyPominac(czyPomijacPierwszy);
 
     if(this->setPin(pin)){
-        time = new Timer();
-        time2 = new Timer();
-        time->time(STOP);
-        time2->time(STOP);
+        time.time(STOP);
+        time2.time(STOP);
         stan = BRAK_AKCJI;
         return true;
     }
@@ -104,11 +88,11 @@ void Przycisk::updateStan(){
         tmpStan = 0;
     }
 
-    if (tmpStan == 1 && stan == PUSZCZONY && !time->available()) //Przyciśniecie po raz kolejny
+    if (tmpStan == 1 && stan == PUSZCZONY && !time.available()) //Przyciśniecie po raz kolejny
     {
 
         //OUT_LN(F("next click "));
-        time->begin(BUTTON_CLICK_TIME);
+        time.begin(BUTTON_CLICK_TIME);
         stan = PRZYCISNIETY;
         klikniecia++;
         // OUT(F("clicks: "))
@@ -119,24 +103,24 @@ void Przycisk::updateStan(){
     {
         //OUT_LN(F("prawiewcisniety"));
         stan = PRAWIE_WCISNIETY;
-        time2->begin(50);
+        time2.begin(50);
         // klikniecia = 1;
         this->dioda.on(200);
     }
-    else if (tmpStan == 1 && stan == PRAWIE_WCISNIETY && time2->available()) //Przyciśniecie po raz pierwszy
+    else if (tmpStan == 1 && stan == PRAWIE_WCISNIETY && time2.available()) //Przyciśniecie po raz pierwszy
     {
         //OUT_LN(F("first click"));
         stan = PRZYCISNIETY;
-        time->begin(BUTTON_CLICK_TIME);
+        time.begin(BUTTON_CLICK_TIME);
         klikniecia = 1;
         this->dioda.on();
     }
-    else if (stan == PRAWIE_WCISNIETY && tmpStan == 0 && !time2->available())
+    else if (stan == PRAWIE_WCISNIETY && tmpStan == 0 && !time2.available())
     {
         stan = BRAK_AKCJI;
         //OUT_LN(F("PUSZCZONY P WCISNIETY"));
-        time->time(STOP);
-        time2->time(STOP);
+        time.time(STOP);
+        time2.time(STOP);
     }
 
     if (stan == PRZYCISNIETY && tmpStan == 0 )//Zakończenie kliknięcia bez przytrzymania
@@ -150,7 +134,7 @@ void Przycisk::updateStan(){
     }
     
     
-    if (stan == PRZYCISNIETY && tmpStan == 1 && time->available()) //Wykrycie przytrzymania
+    if (stan == PRZYCISNIETY && tmpStan == 1 && time.available()) //Wykrycie przytrzymania
     {
 
         //OUT_LN(F("Wykrycie Przytrzymanie"));
@@ -161,7 +145,7 @@ void Przycisk::updateStan(){
     { 
 
         //OUT_LN(F("Puszczony po przytrzymaniu"));
-        time->time(STOP);
+        time.time(STOP);
         stan = BRAK_AKCJI;
         dioda.off();
         this->wykonaj();//dla BRAK_AKCJI
@@ -175,10 +159,10 @@ void Przycisk::updateStan(){
         //TODO
     }
 
-    if (time->available() && stan == PUSZCZONY) {
+    if (time.available() && stan == PUSZCZONY) {
 
         //OUT_LN(F("Koniec okresu klikniec"));
-        time->time(STOP);
+        time.time(STOP);
         this->wykonaj();//dla PUSZCZONY
         stan = BRAK_AKCJI;
     }
@@ -198,7 +182,7 @@ void Przycisk::tic(){
     // static int i = 0;
     // if(i++>10000){
     //     //OUT_LN(F("TIC"));
-    // OUT_LN(time->time());
+    // OUT_LN(time.time());
     //     OUT_LN(digitalRead(pin)?"LOW":"HIGH");
     //     OUT_LN(stan);
     //     i = 0 ;
@@ -224,10 +208,32 @@ bool Przycisk::wykonaj(){
             //OUT_LN(F("Wykonywanie PUSZCZONY"))
             // OUT(F("klikniec: "))
             // OUT_LN(klikniecia);
-            if (funkcje_klikniecia.size()-1 >= klikniecia && funkcje_klikniecia.get(klikniecia)->getCommandType() != Command::KOMENDY::NIC)
+            // Funkcja może zostać podmieniona/usunięta (delete) w przerwaniu I2C podczas konfiguracji przycisku.
+            // Kopiujemy więc wszystko, czego potrzebuje runCommand, przy wyłączonych przerwaniach,
+            // a samą akcję (rolety używają delay) wykonujemy już na kopii, z włączonymi przerwaniami.
+            bool maFunkcje = false;
+            Command::KOMENDY typ = Command::KOMENDY::NIC;
+            byte idUrzadzenia = 0;
+            Device::TYPE typUrzadzenia = Device::TYPE::BRAK;
+            byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+            if (klikniecia >= 0 && klikniecia < MAX_NUMBER_OF_BUTTON_FUNCTIONS)
             {
-                Command *command = funkcje_klikniecia.get(klikniecia);
-                this->runCommand(command);
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+                {
+                    Command *command = funkcje_klikniecia[klikniecia];
+                    typ = command->getCommandType();
+                    if (typ != Command::KOMENDY::NIC && command->getDevice() != nullptr)
+                    {
+                        idUrzadzenia = command->getDevice()->getId();
+                        typUrzadzenia = command->getDevice()->getType();
+                        memcpy(parametry, command->getParams(), sizeof(parametry));
+                        maFunkcje = true;
+                    }
+                }
+            }
+            if (maFunkcje)
+            {
+                this->runCommand(typ, idUrzadzenia, typUrzadzenia, parametry);
             }
             else
             {
@@ -273,11 +279,17 @@ bool Przycisk::dodajFunkcjeKlikniecia(Command* command, byte klikniec){
     // OUT(F("Device ID: "))
     // OUT_LN(command->getDevice()->getId());
     // OUT_LN();
+    if (klikniec >= MAX_NUMBER_OF_BUTTON_FUNCTIONS)
+    {
+        return false;
+    }
     Command* tmp = new Command;
     tmp->makeCopy(command);
-    if(!this->funkcje_klikniecia.set(klikniec,tmp)){//TODO: Wyciek pamięci!
-        this->funkcje_klikniecia.add(klikniec,tmp); // jeśli komenda dla tylu kliknięć jeszcze nie istnieje to dodaj ją.
+    if (funkcje_klikniecia[klikniec] != zapychacz)
+    {
+        delete funkcje_klikniecia[klikniec]; // nadpisywana funkcja - wcześniej tu ciekła pamięć
     }
+    funkcje_klikniecia[klikniec] = tmp;
     //OUT_LN(F("DODANO KOMENDE"));
 
     return true;
@@ -289,10 +301,15 @@ bool Przycisk::usunFunkcjeKlikniecia(byte klikniec){
     // OUT("Klikniec: ")
     // OUT_LN(klikniec);
     // OUT_LN();
-    delete this->funkcje_klikniecia.get(klikniec);
-    if (!this->funkcje_klikniecia.set(klikniec, const_cast<Command *> (zapychacz))){
-        this->funkcje_klikniecia.add(klikniec, const_cast<Command *>(zapychacz)); // jeśli komenda dla tylu kliknięć jeszcze nie istnieje to dodaj ją.
+    if (klikniec >= MAX_NUMBER_OF_BUTTON_FUNCTIONS)
+    {
+        return false;
     }
+    if (funkcje_klikniecia[klikniec] != zapychacz)
+    {
+        delete funkcje_klikniecia[klikniec];
+    }
+    funkcje_klikniecia[klikniec] = const_cast<Command *>(zapychacz);
     //OUT_LN(F("DODANO KOMENDE"));
 
     return true;
@@ -306,7 +323,7 @@ bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klik
     return true;
 }
 
-bool Przycisk::runCommand(Command *command)
+bool Przycisk::runCommand(Command::KOMENDY typ, byte idUrzadzenia, Device::TYPE typUrzadzenia, const byte *parametry)
 {
     // OUT_LN()
     //OUT_LN(F("RUN_COMMAND:"))
@@ -320,14 +337,14 @@ bool Przycisk::runCommand(Command *command)
     }
     
 
-    switch (command->getCommandType())
+    switch (typ)
     {
     case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
     {
         //OUT_LN(F("REC_ZMIEN_STAN_PRZEKAZNIKA"))
-        if (command->getDevice()->getType() == Device::TYPE::PRZEKAZNIK)
+        if (typUrzadzenia == Device::TYPE::PRZEKAZNIK)
         {
-            Przekaznik *tmp = (Przekaznik *)System::getSystem()->getDevice(command->getDevice()->getId());
+            Przekaznik *tmp = (Przekaznik *)System::getSystem()->getDevice(idUrzadzenia);
             //OUT_LN(F("PRZEKAZNIK"))
             // OUT_LN(tmp->toString());
             if (tmp->getStan())
@@ -358,21 +375,21 @@ bool Przycisk::runCommand(Command *command)
         //OUT_LN(F("REC_ZMIEN_STAN_ROLETY"))
 
 
-        if (command->getDevice()->getType() == Device::TYPE::ROLETA)
+        if (typUrzadzenia == Device::TYPE::ROLETA)
         {
-            Roleta *tmp = (Roleta*) System::getSystem()->getDevice(command->getDevice()->getId());
+            Roleta *tmp = (Roleta*) System::getSystem()->getDevice(idUrzadzenia);
             //OUT_LN(F("ROLETA"))
             OUT_LN(tmp->toString());
-            if (command->getParams()[0] == 'U')
+            if (parametry[0] == 'U')
             {
                 tmp->podnies();
                 
             }
-            else if (command->getParams()[0] == 'D')
+            else if (parametry[0] == 'D')
             {
                 tmp->opusc();
             }
-            else if (command->getParams()[0] == 'S')
+            else if (parametry[0] == 'S')
             {
                 tmp->stop();
             }

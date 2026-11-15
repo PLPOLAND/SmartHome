@@ -70,6 +70,8 @@ void Command::convert(const byte *c, byte size)
             this->komenda = Command::KOMENDY::RECEIVE_GET;
         if (c[0] == 'R')
             this->komenda = Command::KOMENDY::RECEIVE_INIT;
+        if (c[0] == 'M')
+            this->komenda = Command::KOMENDY::RECEIVE_MEMORY_INFO;
         if (c[0] == 0)
             this->komenda = Command::KOMENDY::NIC;
         }

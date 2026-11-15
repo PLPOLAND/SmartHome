@@ -25,7 +25,7 @@ private:
     Przekaznik p_up;
     Przekaznik p_down;
     StanRolety stan;
-    Timer* time;
+    Timer time; // pole zamiast new Timer - wcześniej begin() tworzył drugi timer i pierwszy ciekł
 
     void forcePinUpState(bool stan);
     void forcePinDownState(bool stan);
