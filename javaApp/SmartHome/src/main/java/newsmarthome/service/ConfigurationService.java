@@ -169,6 +169,12 @@ public class ConfigurationService {
         if (newSlave != oldSlave) {
             device.setSlaveID(newSlave);
         }
+        if (hardwareChanged) {
+            // id na płytce jest nieaktualne (na nowym slave wskazywałoby cudze urządzenie) - do czasu
+            // ponownej konfiguracji urządzenie nie może wysyłać komend
+            device.resetConfigured();
+            device.setOnSlaveID(-1);
+        }
         Room oldRoom = systemDAO.getRoom(device.getRoom());
         if (newRoom != null && newRoom != oldRoom) {
             if (oldRoom != null) {
@@ -200,6 +206,10 @@ public class ConfigurationService {
             throw new ConfigurationException("Nie udało się usunąć urządzenia");
         }
         roomsToSave.forEach(systemDAO::save);
+        // obiekt mogą nadal trzymać automatyzacje serwera - po reinicie jego id na płytce należałoby
+        // do innego urządzenia, więc nie może już wysyłać komend
+        device.resetConfigured();
+        device.setOnSlaveID(-1);
         discoveryPublisher.removeDevice(deviceId, device.getTyp());
         reconfigureSlaves(device.getSlaveID());
         bridgeConfigPublisher.requestPublish();
@@ -289,6 +299,10 @@ public class ConfigurationService {
                 button.clearFunkcjeKlikniec();
                 button.addFunkcjeKlikniec(functions);
             }
+            if (hardwareChanged) {
+                // stare id na płytce przypisałoby przyciskowi cudze kliknięcia (zwłaszcza na nowym slave)
+                button.setOnSlaveID(-1);
+            }
         }
         Room oldRoom = systemDAO.getRoom(sensor.getRoom());
         if (newRoom != null && newRoom != oldRoom) {
@@ -312,6 +326,7 @@ public class ConfigurationService {
         if (!systemDAO.removeSensor(sensorId)) {
             throw new ConfigurationException("Nie udało się usunąć czujnika");
         }
+        sensor.setOnSlaveID(-1);
         discoveryPublisher.removeSensor(sensorId, sensor.getTyp());
         // termometr 1-Wire slave wykrywa sam; przycisk/higrometr zostałby na slave do reinitu
         if (sensor.getTyp() == SensorsTypes.BUTTON || sensor.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR) {
@@ -340,7 +355,7 @@ public class ConfigurationService {
         for (int slave : new TreeSet<>(toList(slaves))) {
             try {
                 if (!runners.reconfigureSlave(slave)) {
-                    logger.info("Slave {} nie jest podłączony - konfiguracja zostanie wysłana po jego wykryciu", slave);
+                    logger.info("Slave {} nie jest podłączony - konfiguracja zostanie wysłana, gdy będzie dostępny", slave);
                 }
             } catch (RuntimeException e) {
                 // zmiana jest już zapisana; slave dostanie ją przy następnej konfiguracji

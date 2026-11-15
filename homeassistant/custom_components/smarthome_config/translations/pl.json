@@ -63,7 +63,7 @@
           "pin2": "Pin 2 (w dół)"
         },
         "data_description": {
-          "slave": "Adres I2C płytki. Możesz wpisać adres płytki, która nie jest teraz podłączona.",
+          "slave": "Adres I2C płytki. ✓ = podłączona, ✗ = niepodłączona; możesz też wpisać adres płytki spoza listy.",
           "pin": "Numer pinu na płytce (dla rolety: pin ruchu w górę).",
           "pin2": "Tylko roleta: pin ruchu w dół."
         }
@@ -85,7 +85,7 @@
           "pin2": "Pin 2 (w dół)"
         },
         "data_description": {
-          "slave": "Adres I2C płytki. Możesz wpisać adres płytki, która nie jest teraz podłączona.",
+          "slave": "Adres I2C płytki. ✓ = podłączona, ✗ = niepodłączona; możesz też wpisać adres płytki spoza listy.",
           "pin": "Numer pinu na płytce (dla rolety: pin ruchu w górę).",
           "pin2": "Tylko roleta: pin ruchu w dół."
         }
@@ -114,7 +114,7 @@
           "pin": "Pin przycisku"
         },
         "data_description": {
-          "slave": "Adres I2C płytki. Możesz wpisać adres płytki, która nie jest teraz podłączona."
+          "slave": "Adres I2C płytki. ✓ = podłączona, ✗ = niepodłączona; możesz też wpisać adres płytki spoza listy."
         }
       },
       "edit_sensor": {

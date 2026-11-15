@@ -31,6 +31,7 @@ import newsmarthome.i2c.MasterToSlaveConverter;
 public class BridgeConfigPublisher {
 
     private static final long REFRESH_INTERVAL_SECONDS = 30;
+    private static final long RETRY_DELAY_SECONDS = 1;
 
     private final Logger logger = LoggerFactory.getLogger(BridgeConfigPublisher.class);
     private final MqttGateway gateway;
@@ -98,6 +99,10 @@ public class BridgeConfigPublisher {
     }
 
     private void publishIfChanged(boolean force) {
+        publishIfChanged(force, true);
+    }
+
+    private void publishIfChanged(boolean force, boolean retryOnError) {
         try {
             String payload = buildPayload();
             if (!force && payload.equals(lastPublished)) {
@@ -107,7 +112,15 @@ public class BridgeConfigPublisher {
                 lastPublished = payload;
             }
         } catch (Exception e) {
+            // np. równoległa zmiana listy pokoi w trakcie budowania - ponawiamy raz zamiast czekać na cykl
             logger.error("Błąd podczas publikacji snapshotu konfiguracji: {}", e.getMessage(), e);
+            if (retryOnError) {
+                try {
+                    executor.schedule(() -> publishIfChanged(force, false), RETRY_DELAY_SECONDS, TimeUnit.SECONDS);
+                } catch (RejectedExecutionException rejected) {
+                    logger.debug("Pominięto ponowienie publikacji snapshotu - publisher jest zatrzymany");
+                }
+            }
         }
     }
 }

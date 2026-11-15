@@ -36,6 +36,8 @@ import newsmarthome.service.ConfigurationService;
 @Service
 public class MqttConfigHandler {
 
+    private static final int RECENT_RESPONSES = 32;
+
     private final Logger logger = LoggerFactory.getLogger(MqttConfigHandler.class);
     private final MqttGateway gateway;
     private final ConfigurationService configurationService;
@@ -48,6 +50,16 @@ public class MqttConfigHandler {
         t.setDaemon(true);
         return t;
     });
+
+    /** Ostatnie odpowiedzi wg "akcja request_id" - do rozpoznania powtórnej dostawy żądania. */
+    private final Map<String, String> recentResponses = new LinkedHashMap<String, String>() {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+            return size() > RECENT_RESPONSES;
+        }
+    };
 
     public MqttConfigHandler(MqttGateway gateway, ConfigurationService configurationService,
             BridgeConfigPublisher bridgeConfigPublisher) {
@@ -81,8 +93,12 @@ public class MqttConfigHandler {
         }
     }
 
-    /** Wykonuje żądanie i zwraca odpowiedź JSON. */
-    String handle(String action, String payload) {
+    /**
+     * Wykonuje żądanie i zwraca odpowiedź JSON. Żądanie z request_id widzianym już dla tej akcji
+     * (powtórna dostawa QoS 1) nie jest wykonywane drugi raz - dostaje zapamiętaną odpowiedź.
+     */
+    synchronized String handle(String action, String payload) {
+        String requestKey = null;
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             JsonNode request = payload == null || payload.trim().isEmpty() ? objectMapper.createObjectNode()
@@ -93,6 +109,12 @@ public class MqttConfigHandler {
             // osobne pole - "id" w żądaniu to id pokoju/urządzenia/czujnika
             if (request.has("request_id")) {
                 response.put("request_id", request.get("request_id"));
+                requestKey = action + " " + request.get("request_id");
+                String previous = recentResponses.get(requestKey);
+                if (previous != null) {
+                    logger.info("Powtórzone żądanie konfiguracji {} - zwracam poprzednią odpowiedź", requestKey);
+                    return previous;
+                }
             }
             logger.info("Żądanie konfiguracji z MQTT: {} {}", action, payload);
             Object data = execute(action, request);
@@ -112,7 +134,11 @@ public class MqttConfigHandler {
             response.put("error", "Błąd serwera: " + e.getMessage());
         }
         try {
-            return objectMapper.writeValueAsString(response);
+            String json = objectMapper.writeValueAsString(response);
+            if (requestKey != null) {
+                recentResponses.put(requestKey, json);
+            }
+            return json;
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             return "{\"status\":\"error\",\"error\":\"Błąd serializacji odpowiedzi\"}";
         }

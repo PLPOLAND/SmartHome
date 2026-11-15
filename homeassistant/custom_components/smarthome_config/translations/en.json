@@ -63,7 +63,7 @@
           "pin2": "Pin 2 (down)"
         },
         "data_description": {
-          "slave": "I2C address of the board. You can type the address of a board that is not connected right now.",
+          "slave": "I2C address of the board. ✓ = connected, ✗ = not connected; you can also type the address of a board that is not listed.",
           "pin": "Pin number on the board (for a blind: the up pin).",
           "pin2": "Blind only: the down pin."
         }
@@ -85,7 +85,7 @@
           "pin2": "Pin 2 (down)"
         },
         "data_description": {
-          "slave": "I2C address of the board. You can type the address of a board that is not connected right now.",
+          "slave": "I2C address of the board. ✓ = connected, ✗ = not connected; you can also type the address of a board that is not listed.",
           "pin": "Pin number on the board (for a blind: the up pin).",
           "pin2": "Blind only: the down pin."
         }
@@ -114,7 +114,7 @@
           "pin": "Button pin"
         },
         "data_description": {
-          "slave": "I2C address of the board. You can type the address of a board that is not connected right now."
+          "slave": "I2C address of the board. ✓ = connected, ✗ = not connected; you can also type the address of a board that is not listed."
         }
       },
       "edit_sensor": {

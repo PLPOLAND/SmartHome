@@ -166,7 +166,7 @@ class SmartHomeOptionsFlow(OptionsFlow):
         return _select(
             [
                 SelectOptionDict(
-                    value=str(address), label=f"{address} ({'online' if connected else 'offline'})"
+                    value=str(address), label=f"{address} {'✓' if connected else '✗'}"
                 )
                 for address, connected in sorted(slaves.items())
                 if address >= 0

@@ -1,6 +1,7 @@
 package newsmarthome.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -130,6 +131,41 @@ class ConfigurationServiceTest {
     }
 
     @Test
+    void movedDeviceForgetsItsSlotOnTheOldSlave() {
+        // slot 3 na nowej płytce należy do innego urządzenia - nie wolno nim sterować
+        light.setOnSlaveID(3);
+        light.setConfigured();
+
+        service.updateDevice(7, null, null, OTHER_SLAVE, null, null);
+
+        assertEquals(-1, light.getOnSlaveID());
+        assertFalse(light.isConfigured());
+    }
+
+    @Test
+    void movedButtonForgetsItsSlotOnTheOldSlave() {
+        button.setOnSlaveID(2);
+
+        service.updateSensor(12, null, null, OTHER_SLAVE, null, null);
+
+        assertEquals(OTHER_SLAVE, button.getSlaveAdress());
+        assertEquals(-1, button.getOnSlaveID());
+        verify(runners).reconfigureSlave(SLAVE);
+        verify(runners).reconfigureSlave(OTHER_SLAVE);
+    }
+
+    @Test
+    void renamingKeepsTheSlot() {
+        light.setOnSlaveID(3);
+        light.setConfigured();
+
+        service.updateDevice(7, "Żyrandol", 2, null, null, null);
+
+        assertEquals(3, light.getOnSlaveID());
+        assertTrue(light.isConfigured());
+    }
+
+    @Test
     void invalidUpdateLeavesDeviceUntouched() {
         assertThrows(ConfigurationException.class, () -> service.updateDevice(7, "Nowa nazwa", 99, null, 6, null));
         assertThrows(ConfigurationException.class, () -> service.updateDevice(7, "Nowa nazwa", null, null, 9, null));
@@ -142,12 +178,17 @@ class ConfigurationServiceTest {
 
     @Test
     void removingDeviceDropsClickFunctionsThatControlledIt() {
+        light.setOnSlaveID(3);
+        light.setConfigured();
         button.addFunkcjaKilkniecia(new ButtonLocalFunction(button, light, ButtonLocalFunction.State.NONE, 1));
 
         service.removeDevice(7);
 
         assertTrue(button.getFunkcjeKlikniec().isEmpty());
         verify(systemDAO).save(salon);
+        // automatyzacje serwera mogą dalej trzymać ten obiekt - nie może już wysyłać komend
+        assertEquals(-1, light.getOnSlaveID());
+        assertFalse(light.isConfigured());
         verify(discovery).removeDevice(7, DeviceTypes.LIGHT);
         verify(runners).reconfigureSlave(SLAVE);
     }

@@ -1,5 +1,10 @@
 package newsmarthome.runners;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,12 +12,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -79,6 +88,15 @@ public class Runners {
     private final Map<Integer, Long> lastReinitTime = new HashMap<>();
     /** Liczba kolejnych reinicjalizacji slave'a, po których błąd nie zniknął (adres slave'a -> liczba) */
     private final Map<Integer, Integer> consecutiveReinits = new HashMap<>();
+    /**
+     * Slave'y, których konfiguracja zmieniła się, gdy były niedostępne - po powrocie na magistralę
+     * (bez restartu) miałyby starą. Zapisywane do pliku, żeby zaległość przetrwała restart programu.
+     */
+    private final Set<Integer> pendingReconfigure = ConcurrentHashMap.newKeySet();
+    @Value("${slave.pending-reconfigure-file:smarthome/database/pending_slave_reconfigure.txt}")
+    private String pendingReconfigureFile;
+    /** Wynik ostatniego resetu slave'a w configureSlaveExclusively (pod slaveConfigLock). */
+    private boolean lastReinitSucceeded;
 
     @Scheduled(fixedDelay = 2)
     void queue(){
@@ -284,7 +302,13 @@ public class Runners {
         for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
             if (slaveSender.isSlaveConnected(slaveAdress)) { // jeśli jest podłączony
                 try {
-                    if (!slaveSender.checkInitOfBoard(slaveAdress)){// sprawdź czy jest skonfigurowany
+                    if (pendingReconfigure.contains(slaveAdress)) {
+                        // zmiana konfiguracji zrobiona, gdy slave był niedostępny - ma jeszcze starą
+                        logger.info("Slave {} ma zaległą zmianę konfiguracji - wysyłam ją od nowa", slaveAdress);
+                        if (configureSlave(slaveAdress)) {
+                            clearPendingReconfigure(slaveAdress);
+                        }
+                    } else if (!slaveSender.checkInitOfBoard(slaveAdress)){// sprawdź czy jest skonfigurowany
                         configureSlave(slaveAdress); // jeśli nie to wyślij mu konfigurację
                     } else{
                         logger.debug("Slave {} is configured", slaveAdress);
@@ -344,11 +368,57 @@ public class Runners {
      * @return false, gdy slave nie jest podłączony (dostanie konfigurację po wykryciu)
      */
     public boolean reconfigureSlave(int slaveAdress) {
+        // najpierw zaległość: jeśli slave zniknie w trakcie albo reset się nie uda, konfiguracja
+        // zostanie wysłana, gdy tylko slave znów będzie dostępny (także po restarcie programu)
+        if (pendingReconfigure.add(slaveAdress)) {
+            savePendingReconfigure();
+        }
         if (!slaveSender.isSlaveConnected(slaveAdress)) {
             return false;
         }
-        configureSlave(slaveAdress);
+        if (configureSlave(slaveAdress)) {
+            clearPendingReconfigure(slaveAdress);
+        }
         return true;
+    }
+
+    private void clearPendingReconfigure(int slaveAdress) {
+        if (pendingReconfigure.remove(slaveAdress)) {
+            savePendingReconfigure();
+        }
+    }
+
+    @PostConstruct
+    void loadPendingReconfigure() {
+        Path path = Paths.get(pendingReconfigureFile);
+        if (!Files.exists(path)) {
+            return;
+        }
+        try {
+            for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+                if (!line.trim().isEmpty()) {
+                    pendingReconfigure.add(Integer.valueOf(line.trim()));
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            logger.error("Nie udało się wczytać zaległych konfiguracji slave'ów z {}: {}", pendingReconfigureFile, e.getMessage());
+        }
+    }
+
+    private void savePendingReconfigure() {
+        Path path = Paths.get(pendingReconfigureFile);
+        try {
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
+            List<String> lines = new ArrayList<>();
+            for (Integer slave : pendingReconfigure) {
+                lines.add(String.valueOf(slave));
+            }
+            Files.write(path, lines, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            logger.error("Nie udało się zapisać zaległych konfiguracji slave'ów do {}: {}", pendingReconfigureFile, e.getMessage());
+        }
     }
 
     /**
@@ -357,11 +427,14 @@ public class Runners {
      * aby inne wątki (np. zapytania z aplikacji) nie przeplatały się z nią.
      * 
      * @param slaveAdress - adres slave'a na który ma zostać wysłana konfiguracja
+     * @return czy slave został zresetowany i dostał konfigurację
      */
-    private void configureSlave(int slaveAdress) {
+    private boolean configureSlave(int slaveAdress) {
         slaveConfigLock.lock();
         try {
+            lastReinitSucceeded = false;
             slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
+            return lastReinitSucceeded;
         } finally {
             slaveConfigLock.unlock();
         }
@@ -374,7 +447,8 @@ public class Runners {
         this.stopCheckingAutomation = true;
         logger.info("Send configuration to Slave({})", slaveAdress);
         try {
-            if (slaveSender.reInitBoard(slaveAdress)) {
+            lastReinitSucceeded = slaveSender.reInitBoard(slaveAdress);
+            if (lastReinitSucceeded) {
                 logger.debug("Sending devices configuration to slave {}", slaveAdress);
                 // Slave po resecie nie ma żadnych urządzeń - stare onSlaveID są nieaktualne.
                 // Jeśli dodanie się nie uda, zostaje -1 (a nie stare ID), więc urządzenie nie będzie odpytywane.

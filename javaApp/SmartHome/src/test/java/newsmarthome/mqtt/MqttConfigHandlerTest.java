@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,6 +63,25 @@ class MqttConfigHandlerTest {
         assertEquals(7, response.get("data").get("id").asInt());
         assertEquals(5, response.get("data").get("pin").asInt());
         assertFalse(response.get("data").has("pin2"));
+    }
+
+    @Test
+    void redeliveredRequestIsNotExecutedTwice() throws Exception {
+        when(service.addRoom("Biuro")).thenReturn(new Room(3, "Biuro"));
+        String request = "{\"request_id\":\"dup\",\"name\":\"Biuro\"}";
+
+        String first = handler.handle("room/add", request);
+        String second = handler.handle("room/add", request);
+
+        assertEquals(first, second);
+        assertEquals("ok", mapper.readTree(second).get("status").asText());
+        verify(service, times(1)).addRoom("Biuro");
+
+        // inne request_id albo jego brak to nowe żądanie
+        handler.handle("room/add", "{\"request_id\":\"other\",\"name\":\"Biuro\"}");
+        handler.handle("room/add", "{\"name\":\"Biuro\"}");
+        handler.handle("room/add", "{\"name\":\"Biuro\"}");
+        verify(service, times(4)).addRoom("Biuro");
     }
 
     @Test

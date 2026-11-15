@@ -38,11 +38,25 @@ jako błąd w formularzu.
 lub pinu, usunięcie urządzenia/przycisku i zmiana funkcji kliknięć wysyłają na płytkę całą
 konfigurację od nowa, co na chwilę resetuje jej wyjścia. Samo dodanie urządzenia tego nie robi.
 
+Zmiana zrobiona, gdy płytka jest niedostępna, jest zapamiętywana i wysyłana, gdy tylko płytka
+znów odpowiada (także po restarcie serwera).
+
+## Ograniczenia
+
+- Usunięty termometr 1-Wire wróci przy następnej konfiguracji płytki — serwer wykrywa termometry sam.
+  Żeby się go pozbyć, trzeba go odłączyć.
+- Zmiana nazwy pokoju zmienia nazwę obszaru HA tylko wtedy, gdy obszar o nowej nazwie jeszcze nie
+  istnieje; w przeciwnym razie urządzenia zostają w starym obszarze i trzeba je przenieść ręcznie.
+- Automatyzacje serwera (`*_Function.json`) nie są dostępne z HA. Usunięte urządzenie przestaje
+  reagować na automatyzację, która nim sterowała.
+
 ## Protokół MQTT
 
 Integracja korzysta z API serwera, którego można też używać bezpośrednio (np. `mqtt.publish`):
 
-- żądanie: `<base>/bridge/request/<akcja>` — JSON z parametrami i opcjonalnym `request_id`,
+- żądanie: `<base>/bridge/request/<akcja>` — JSON z parametrami i opcjonalnym `request_id`
+  (musi być unikalne: żądanie z `request_id` użytym już dla tej akcji nie jest wykonywane
+  drugi raz, tylko dostaje poprzednią odpowiedź),
 - odpowiedź: `<base>/bridge/response/<akcja>` —
   `{"request_id": …, "status": "ok" | "error", "error": "…", "data": {…}}`,
 - retained snapshot konfiguracji: `<base>/bridge/config` (pokoje, urządzenia, czujniki, slave'y).
