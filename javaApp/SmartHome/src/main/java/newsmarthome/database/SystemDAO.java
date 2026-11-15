@@ -444,8 +444,11 @@ public class SystemDAO {
                             Higrometr higrometr = (Higrometr) sensor;
                             higrometr.setTemperatura( (float) jsonNode2.get("temperatura").asDouble());
                             higrometr.setHumidity(jsonNode2.get("humidity").asInt());
-
-                            //TODO                            
+                            // bez tego po restarcie programu higrometr ma onSlaveID -1 i nie jest odpytywany
+                            JsonNode higrometrOnSlaveId = jsonNode2.get("onSlaveID");
+                            if (higrometrOnSlaveId != null) {
+                                higrometr.setOnSlaveID(higrometrOnSlaveId.asInt());
+                            }
 
                             break;
                         //TODO dodać pozostałe sensory
