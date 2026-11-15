@@ -55,9 +55,9 @@ class MqttConfigHandlerTest {
         when(service.addDevice("Lampa", DeviceTypes.LIGHT, 1, 18, 5, null)).thenReturn(light);
 
         JsonNode response = mapper.readTree(handler.handle("device/add",
-                "{\"id\":\"abc\",\"name\":\"Lampa\",\"type\":\"LIGHT\",\"room\":1,\"slave\":18,\"pin\":5}"));
+                "{\"request_id\":\"abc\",\"name\":\"Lampa\",\"type\":\"LIGHT\",\"room\":1,\"slave\":18,\"pin\":5}"));
 
-        assertEquals("abc", response.get("id").asText());
+        assertEquals("abc", response.get("request_id").asText());
         assertEquals("ok", response.get("status").asText());
         assertEquals(7, response.get("data").get("id").asInt());
         assertEquals(5, response.get("data").get("pin").asInt());
@@ -68,9 +68,9 @@ class MqttConfigHandlerTest {
     void serviceRejectionBecomesErrorResponse() throws Exception {
         when(service.addRoom("Salon")).thenThrow(new ConfigurationException("Pokój o nazwie 'Salon' już istnieje"));
 
-        JsonNode response = mapper.readTree(handler.handle("room/add", "{\"id\":1,\"name\":\"Salon\"}"));
+        JsonNode response = mapper.readTree(handler.handle("room/add", "{\"request_id\":1,\"name\":\"Salon\"}"));
 
-        assertEquals(1, response.get("id").asInt());
+        assertEquals(1, response.get("request_id").asInt());
         assertEquals("error", response.get("status").asText());
         assertEquals("Pokój o nazwie 'Salon' już istnieje", response.get("error").asText());
     }
@@ -82,9 +82,9 @@ class MqttConfigHandlerTest {
         assertEquals("error", mapper.readTree(handler.handle("room/add", "{}")).get("status").asText());
         assertEquals("error",
                 mapper.readTree(handler.handle("device/remove", "{\"id\":\"7\"}")).get("status").asText());
-        JsonNode unknown = mapper.readTree(handler.handle("device/explode", "{\"id\":\"x\"}"));
+        JsonNode unknown = mapper.readTree(handler.handle("device/explode", "{\"request_id\":\"x\"}"));
         assertEquals("error", unknown.get("status").asText());
-        assertEquals("x", unknown.get("id").asText());
+        assertEquals("x", unknown.get("request_id").asText());
         verify(service, never()).addRoom(any());
         verify(service, never()).removeDevice(anyInt());
     }

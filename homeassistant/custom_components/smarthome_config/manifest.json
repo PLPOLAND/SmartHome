@@ -1,0 +1,14 @@
+{
+  "domain": "smarthome_config",
+  "name": "SmartHome Config",
+  "codeowners": ["@PLPOLAND"],
+  "config_flow": true,
+  "dependencies": ["mqtt"],
+  "documentation": "https://github.com/PLPOLAND/SmartHome/tree/dev/homeassistant",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/PLPOLAND/SmartHome/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "1.0.0"
+}

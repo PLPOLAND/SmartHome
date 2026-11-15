@@ -1,0 +1,256 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SmartHome",
+        "description": "Konfiguracja serwera SmartHome przez MQTT. Serwer musi być uruchomiony i połączony z tym samym brokerem co Home Assistant.",
+        "data": {
+          "base_topic": "Bazowy topic MQTT"
+        },
+        "data_description": {
+          "base_topic": "Wartość mqtt.base-topic serwera (domyślnie smarthome)."
+        }
+      }
+    },
+    "error": {
+      "invalid_topic": "Podaj bazowy topic.",
+      "mqtt_unavailable": "Integracja MQTT nie jest skonfigurowana lub nie ma połączenia z brokerem.",
+      "no_server": "Serwer SmartHome nie odpowiada na tym topicu (brak konfiguracji na <topic>/bridge/config)."
+    },
+    "abort": {
+      "single_instance_allowed": "Integracja jest już skonfigurowana."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SmartHome",
+        "description": "Co chcesz zrobić?",
+        "menu_options": {
+          "add_device": "Dodaj urządzenie",
+          "edit_device": "Edytuj urządzenie",
+          "remove_device": "Usuń urządzenie",
+          "add_sensor": "Dodaj czujnik lub przycisk",
+          "edit_sensor": "Edytuj czujnik lub przycisk",
+          "remove_sensor": "Usuń czujnik lub przycisk",
+          "click_functions": "Funkcje kliknięć przycisku",
+          "rooms": "Pokoje",
+          "maintenance": "Serwis"
+        }
+      },
+      "done": {
+        "title": "Zapisano",
+        "description": "Zmiana została zapisana: {result}",
+        "menu_options": {
+          "init": "Wróć do menu",
+          "finish": "Zakończ"
+        }
+      },
+      "add_device": {
+        "title": "Dodaj urządzenie",
+        "data": {
+          "type": "Typ"
+        }
+      },
+      "add_device_details": {
+        "title": "Dodaj urządzenie",
+        "description": "Urządzenie zostanie od razu dodane na płytce.",
+        "data": {
+          "name": "Nazwa",
+          "room": "Pokój",
+          "slave": "Slave",
+          "pin": "Pin",
+          "pin2": "Pin 2 (w dół)"
+        },
+        "data_description": {
+          "slave": "Adres I2C płytki. Możesz wpisać adres płytki, która nie jest teraz podłączona.",
+          "pin": "Numer pinu na płytce (dla rolety: pin ruchu w górę).",
+          "pin2": "Tylko roleta: pin ruchu w dół."
+        }
+      },
+      "edit_device": {
+        "title": "Edytuj urządzenie",
+        "data": {
+          "device": "Urządzenie"
+        }
+      },
+      "edit_device_details": {
+        "title": "Edycja: {name}",
+        "description": "Zmiana slave'a lub pinu wysyła na płytkę całą konfigurację od nowa - jej wyjścia zostaną na chwilę zresetowane.",
+        "data": {
+          "name": "Nazwa",
+          "room": "Pokój",
+          "slave": "Slave",
+          "pin": "Pin",
+          "pin2": "Pin 2 (w dół)"
+        },
+        "data_description": {
+          "slave": "Adres I2C płytki. Możesz wpisać adres płytki, która nie jest teraz podłączona.",
+          "pin": "Numer pinu na płytce (dla rolety: pin ruchu w górę).",
+          "pin2": "Tylko roleta: pin ruchu w dół."
+        }
+      },
+      "remove_device": {
+        "title": "Usuń urządzenie",
+        "description": "Urządzenie zniknie z Home Assistant, a lokalne funkcje przycisków, które nim sterowały, zostaną usunięte. Konfiguracja płytki zostanie wysłana od nowa (chwilowy reset wyjść).",
+        "data": {
+          "device": "Urządzenie",
+          "confirm": "Potwierdzam"
+        }
+      },
+      "add_sensor": {
+        "title": "Dodaj czujnik lub przycisk",
+        "description": "Termometry 1-Wire są wykrywane automatycznie i trafiają do pokoju „Brak”.",
+        "data": {
+          "type": "Typ"
+        }
+      },
+      "add_sensor_details": {
+        "title": "Dodaj czujnik lub przycisk",
+        "data": {
+          "name": "Nazwa",
+          "room": "Pokój",
+          "slave": "Slave",
+          "pin": "Pin przycisku"
+        },
+        "data_description": {
+          "slave": "Adres I2C płytki. Możesz wpisać adres płytki, która nie jest teraz podłączona."
+        }
+      },
+      "edit_sensor": {
+        "title": "Edytuj czujnik lub przycisk",
+        "data": {
+          "sensor": "Czujnik / przycisk"
+        }
+      },
+      "edit_sensor_details": {
+        "title": "Edycja: {name}",
+        "description": "Zmiana slave'a lub pinu wysyła na płytkę całą konfigurację od nowa - jej wyjścia zostaną na chwilę zresetowane.",
+        "data": {
+          "name": "Nazwa",
+          "room": "Pokój",
+          "slave": "Slave",
+          "pin": "Pin przycisku"
+        }
+      },
+      "remove_sensor": {
+        "title": "Usuń czujnik lub przycisk",
+        "description": "Czujnik zniknie z Home Assistant. Przy usunięciu przycisku lub higrometru konfiguracja płytki zostanie wysłana od nowa (chwilowy reset wyjść).",
+        "data": {
+          "sensor": "Czujnik / przycisk",
+          "confirm": "Potwierdzam"
+        }
+      },
+      "click_functions": {
+        "title": "Funkcje kliknięć przycisku",
+        "data": {
+          "sensor": "Przycisk"
+        }
+      },
+      "click_functions_details": {
+        "title": "Funkcje kliknięć: {name}",
+        "description": "Funkcje działają lokalnie na płytce (slave {slave}), także gdy serwer nie działa - dlatego do wyboru są tylko urządzenia z tej samej płytki. Rolety: góra / dół / stop, pozostałe urządzenia: przełącz. Zapis wysyła konfigurację płytki od nowa (chwilowy reset wyjść).",
+        "data": {
+          "device_1": "1 × klik: urządzenie",
+          "action_1": "1 × klik: akcja",
+          "device_2": "2 × klik: urządzenie",
+          "action_2": "2 × klik: akcja",
+          "device_3": "3 × klik: urządzenie",
+          "action_3": "3 × klik: akcja",
+          "device_4": "4 × klik: urządzenie",
+          "action_4": "4 × klik: akcja"
+        }
+      },
+      "rooms": {
+        "title": "Pokoje",
+        "menu_options": {
+          "add_room": "Dodaj pokój",
+          "rename_room": "Zmień nazwę pokoju",
+          "remove_room": "Usuń pokój",
+          "init": "Wróć do menu"
+        }
+      },
+      "add_room": {
+        "title": "Dodaj pokój",
+        "data": {
+          "name": "Nazwa"
+        }
+      },
+      "rename_room": {
+        "title": "Zmień nazwę pokoju",
+        "description": "Obszar Home Assistant o tej samej nazwie również zmieni nazwę.",
+        "data": {
+          "room": "Pokój",
+          "name": "Nowa nazwa"
+        }
+      },
+      "remove_room": {
+        "title": "Usuń pokój",
+        "description": "Usunąć można tylko pusty pokój.",
+        "data": {
+          "room": "Pokój"
+        }
+      },
+      "maintenance": {
+        "title": "Serwis",
+        "menu_options": {
+          "restart_slaves": "Zrestartuj wszystkie płytki",
+          "reinit_slave": "Wyślij konfigurację na płytkę od nowa",
+          "init": "Wróć do menu"
+        }
+      },
+      "restart_slaves": {
+        "title": "Zrestartuj wszystkie płytki",
+        "description": "Wszystkie płytki zostaną zrestartowane, a ich wyjścia na chwilę wyłączone.",
+        "data": {
+          "confirm": "Potwierdzam"
+        }
+      },
+      "reinit_slave": {
+        "title": "Wyślij konfigurację na płytkę od nowa",
+        "description": "Płytka zostanie zresetowana i dostanie całą konfigurację od nowa.",
+        "data": {
+          "slave": "Slave"
+        }
+      }
+    },
+    "error": {
+      "server_error": "Serwer odrzucił zmianę: {error}",
+      "timeout": "Serwer SmartHome nie odpowiedział.",
+      "invalid_slave": "Adres slave'a musi być liczbą nieujemną.",
+      "confirm_required": "Zaznacz potwierdzenie.",
+      "invalid_action": "Roleta wymaga akcji góra / dół / stop, pozostałe urządzenia - przełącz."
+    },
+    "abort": {
+      "not_loaded": "Integracja nie jest załadowana.",
+      "no_server": "Serwer SmartHome nie odpowiada na tym topicu (brak konfiguracji na <topic>/bridge/config).",
+      "no_devices": "Brak urządzeń.",
+      "no_sensors": "Brak czujników.",
+      "no_buttons": "Brak przycisków."
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "LIGHT": "Światło",
+        "GNIAZDKO": "Gniazdko",
+        "WENTYLATOR": "Wentylator",
+        "BLIND": "Roleta"
+      }
+    },
+    "sensor_type": {
+      "options": {
+        "BUTTON": "Przycisk",
+        "THERMOMETR_HYGROMETR": "Higrometr (temperatura + wilgotność)"
+      }
+    },
+    "click_action": {
+      "options": {
+        "toggle": "Przełącz",
+        "up": "Góra",
+        "down": "Dół",
+        "stop": "Stop"
+      }
+    }
+  }
+}

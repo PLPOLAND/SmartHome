@@ -29,7 +29,7 @@ import newsmarthome.service.ConfigurationService;
 /**
  * API konfiguracji po MQTT dla integracji Home Assistant. Żądanie JSON na
  * {@code <base>/bridge/request/<akcja>}, odpowiedź na {@code <base>/bridge/response/<akcja>}:
- * {@code {"id": <id z żądania>, "status": "ok"|"error", "error": "...", "data": {...}}}.
+ * {@code {"request_id": <z żądania>, "status": "ok"|"error", "error": "...", "data": {...}}}.
  * Akcje: room/add|rename|remove, device/add|update|remove, sensor/add|update|remove,
  * bridge/restart_slaves, bridge/reinit_slave.
  */
@@ -90,8 +90,9 @@ public class MqttConfigHandler {
             if (request == null || !request.isObject()) {
                 throw new ConfigurationException("Żądanie musi być obiektem JSON");
             }
-            if (request.has("id")) {
-                response.put("id", request.get("id"));
+            // osobne pole - "id" w żądaniu to id pokoju/urządzenia/czujnika
+            if (request.has("request_id")) {
+                response.put("request_id", request.get("request_id"));
             }
             logger.info("Żądanie konfiguracji z MQTT: {} {}", action, payload);
             Object data = execute(action, request);

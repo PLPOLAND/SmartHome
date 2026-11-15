@@ -19,6 +19,7 @@ public enum SensorsTypes {
             case "THERMOMETR":
                 return THERMOMETR;
             case "HYGROTHERMOMETER":
+            case "THERMOMETR_HYGROMETR":
                 return THERMOMETR_HYGROMETR;
             case "TWILIGHT":
                 return TWILIGHT;
