@@ -361,8 +361,10 @@ public class Runners {
                 // Slave po resecie nie ma żadnych urządzeń - stare onSlaveID są nieaktualne.
                 // Jeśli dodanie się nie uda, zostaje -1 (a nie stare ID), więc urządzenie nie będzie odpytywane.
                 boolean allConfigured = true;
+                Set<Integer> roomsToSave = new HashSet<>();
                 for (Device device : systemDAO.getDevices()) {
                     if (device.getSlaveID() == slaveAdress) {
+                        roomsToSave.add(device.getRoom());
                         device.resetConfigured();
                         device.setOnSlaveID(-1);
                         device.configureToSlave();
@@ -384,6 +386,7 @@ public class Runners {
                     // na slave'a
                     if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
                         Button button = (Button) sensor;
+                        roomsToSave.add(button.getRoom());
                         logger.debug("Sending button (id:{}) configuration to slave {}",button.getId(), slaveAdress);
                         button.setOnSlaveID(-1);
                         button.configure();
@@ -400,6 +403,7 @@ public class Runners {
                     }
                     else if(sensor.getSlaveAdress() == slaveAdress && sensor instanceof Higrometr){
                         Higrometr higrometr = (Higrometr) sensor;
+                        roomsToSave.add(higrometr.getRoom());
                         logger.debug("Sending higrometr (id:{}) configuration to slave {}",higrometr.getId(), slaveAdress);
                         higrometr.setOnSlaveID(-1);
                         higrometr.configure();
@@ -415,6 +419,10 @@ public class Runners {
                         }
                     }
 
+                }
+                // zapisz nowe onSlaveID do plików - inaczej po restarcie programu zostałyby stare (lub -1)
+                for (int roomId : roomsToSave) {
+                    systemDAO.save(systemDAO.getRoom(roomId));
                 }
                 if (!allConfigured) {
                     logger.warn("Konfiguracja slave'a {} niepełna - część urządzeń/sensorów nie została dodana (onSlaveID = -1). Nie będą one odpytywane; kolejna próba dodania nastąpi przy następnej konfiguracji slave'a.", slaveAdress);
