@@ -231,15 +231,12 @@ bool Przycisk::wykonaj(){
             }
             else
             {
-                Command *command = new Command;
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = 'C';
                 params[1] = this->getId(); // Button ID
                 params[2] = klikniecia;    // ilość kliknięć przed przytrzymaniem
                 params[3] = 'C';           // kliknięcie
-                command->setParams(params);
-                command->setCommandType(Command::KOMENDY::SEND_REPLY);
-                I2CConverter::getInstance()->addToSent(command);
+                I2CConverter::getInstance()->addReplyToSent(params); // alokacja przy wyłączonych przerwaniach
             }
             
             
@@ -251,15 +248,12 @@ bool Przycisk::wykonaj(){
             // OUT_LN(F("Po przytrzymaniu"))
             // OUT(F("klikniec: "))
             // OUT_LN(klikniecia);
-            Command* command = new Command;
             byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
             params[0] = 'C';
             params[1] = this->getId();  //Button ID
             params[2] = klikniecia;     //ilość kliknięć przed przytrzymaniem
             params[3] = 'P';            //po przytrzymaniu
-            command->setParams(params);
-            command->setCommandType(Command::KOMENDY::SEND_REPLY);
-            I2CConverter::getInstance()->addToSent(command);
+            I2CConverter::getInstance()->addReplyToSent(params); // alokacja przy wyłączonych przerwaniach
 
         }
         break;

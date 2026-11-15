@@ -2,6 +2,7 @@
 #define I2CCONVERTER_H
 
 #include "Arduino.h"
+#include <util/atomic.h>
 #include "Wire.h"
 #include "Command.h"
 #include "devices/Termometr.h"
@@ -55,6 +56,7 @@ public:
     /// Wysyła temperaturę z termometru
     void printTemperature(byte id);
     void addToSent(Command* command);
+    void addReplyToSent(const byte *params);
 
 
 

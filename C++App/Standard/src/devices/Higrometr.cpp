@@ -60,7 +60,7 @@ bool Higrometr::isCorrect()
 
 byte* Higrometr::getStateAsByteArray()
 {
-    byte* tmp = new byte[7];
+    byte* tmp = new byte[8]; // zerowane jest 8 bajtów - przy 7 nadpisywany był bajt sterty za buforem
     String tmpStr = String (this->temperature, 2U);
     for (byte i = 0; i < 8; i++)
     {

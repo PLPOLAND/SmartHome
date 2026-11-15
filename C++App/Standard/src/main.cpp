@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <avr/wdt.h>
 
 // #define TEST
 // #define END
@@ -80,6 +81,9 @@
     System* sys;
     void setup()
     {
+        // Po resecie programowym (resetFunc) watchdog mógł zostać włączony - wyłącz go zanim setup() się wydłuży
+        MCUSR = 0;
+        wdt_disable();
         dioda.on();
         Serial.begin(500000);
         // Serial.println(freeMemory());
@@ -130,10 +134,14 @@
         OUT_LN(freeMemory());
         dioda.off();
         // resetFunc();
+        // Watchdog: jeśli slave się zawiesi (pętla główna albo przerwanie I2C), sam zrestartuje się po ~2 s,
+        // a master wyśle mu konfigurację - zamiast odcinać zasilanie wszystkim slave-om.
+        wdt_enable(WDTO_2S);
     }
 
     void loop()
     {
+        wdt_reset();
         dioda.tic();
         sys->tic();
     }
