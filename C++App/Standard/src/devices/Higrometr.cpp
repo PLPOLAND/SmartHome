@@ -3,6 +3,8 @@
 
 Higrometr::Higrometr() : Device(TYPE::HIGROMETR)
 {
+    temperature = NAN; // do pierwszego odczytu (po 15 s) wartość jest nieznana
+    humidity = 0;
 
     dht = new DHT(DHTPIN, DHTTYPE);
     timer = new Timer();
@@ -61,12 +63,17 @@ bool Higrometr::isCorrect()
 byte* Higrometr::getStateAsByteArray()
 {
     byte* tmp = new byte[8]; // zerowane jest 8 bajtów - przy 7 nadpisywany był bajt sterty za buforem
-    char tekst[12]; // dtostrf na stosie zamiast String (bez dodatkowej alokacji na stercie)
-    dtostrf(this->temperature, 1, 2, tekst);
     for (byte i = 0; i < 8; i++)
     {
         tmp[i] = 0;
     }
+    if (isnan(this->temperature) || this->temperature < -200.0f || this->temperature > 200.0f)
+    {
+        tmp[0] = 'E'; // brak/nieprawidłowy odczyt - dtostrf dużej liczby przepełniłby bufor
+        return tmp;
+    }
+    char tekst[12]; // dtostrf na stosie zamiast String (bez dodatkowej alokacji na stercie)
+    dtostrf(this->temperature, 1, 2, tekst); // w zakresie +-200 najwyżej "-200.00" (7 znaków)
     for (byte i = 0; i < 5 && tekst[i] != '\0'; i++)
     {
         tmp[i] = tekst[i];

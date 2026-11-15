@@ -73,13 +73,15 @@ public:
     bool isCzyPominac();
 
         /**
-         * @brief Wykonuje komendę dostarczoną w argumencie.
+         * @brief Wykonuje funkcję przycisku na podstawie kopii jej danych (nie wskaźnika na Command,
+         * który może zostać zwolniony w przerwaniu I2C w trakcie wykonywania).
          *
-         * @param command komenda do wykonania
-         * @return true
-         * @return false
+         * @param typ typ komendy (zmiana stanu przekaźnika / rolety)
+         * @param idUrzadzenia id urządzenia docelowego na slave-ie
+         * @param typUrzadzenia typ urządzenia docelowego
+         * @param parametry parametry komendy (8 bajtów)
          */
-        bool runCommand(Command *command);
+        bool runCommand(Command::KOMENDY typ, byte idUrzadzenia, Device::TYPE typUrzadzenia, const byte *parametry);
 };
 
 #endif // !Wylacznik_h

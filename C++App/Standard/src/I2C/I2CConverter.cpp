@@ -378,7 +378,10 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                             default:
                                 break;
                         }
-                        przycisk->dodajFunkcjeKlikniecia(funkcja, komenda.getParams()[3]);
+                        if (!przycisk->dodajFunkcjeKlikniecia(funkcja, komenda.getParams()[3]))
+                        {
+                            params[0] = 'E'; // np. liczba kliknięć >= MAX_NUMBER_OF_BUTTON_FUNCTIONS - funkcja nie została zapisana
+                        }
                         delete funkcja; // dodajFunkcjeKlikniecia zapisuje kopię - bez tego każda skonfigurowana funkcja ciekła (15 B)
                     }
                     else

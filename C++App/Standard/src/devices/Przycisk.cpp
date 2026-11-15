@@ -208,18 +208,32 @@ bool Przycisk::wykonaj(){
             //OUT_LN(F("Wykonywanie PUSZCZONY"))
             // OUT(F("klikniec: "))
             // OUT_LN(klikniecia);
-            Command *command = nullptr;
+            // Funkcja może zostać podmieniona/usunięta (delete) w przerwaniu I2C podczas konfiguracji przycisku.
+            // Kopiujemy więc wszystko, czego potrzebuje runCommand, przy wyłączonych przerwaniach,
+            // a samą akcję (rolety używają delay) wykonujemy już na kopii, z włączonymi przerwaniami.
+            bool maFunkcje = false;
+            Command::KOMENDY typ = Command::KOMENDY::NIC;
+            byte idUrzadzenia = 0;
+            Device::TYPE typUrzadzenia = Device::TYPE::BRAK;
+            byte parametry[8] = {0, 0, 0, 0, 0, 0, 0, 0};
             if (klikniecia >= 0 && klikniecia < MAX_NUMBER_OF_BUTTON_FUNCTIONS)
             {
-                // wskaźnik może być podmieniany w przerwaniu I2C (konfiguracja funkcji) - odczyt 2 bajtów niepodzielnie
                 ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                 {
-                    command = funkcje_klikniecia[klikniecia];
+                    Command *command = funkcje_klikniecia[klikniecia];
+                    typ = command->getCommandType();
+                    if (typ != Command::KOMENDY::NIC && command->getDevice() != nullptr)
+                    {
+                        idUrzadzenia = command->getDevice()->getId();
+                        typUrzadzenia = command->getDevice()->getType();
+                        memcpy(parametry, command->getParams(), sizeof(parametry));
+                        maFunkcje = true;
+                    }
                 }
             }
-            if (command != nullptr && command->getCommandType() != Command::KOMENDY::NIC)
+            if (maFunkcje)
             {
-                this->runCommand(command);
+                this->runCommand(typ, idUrzadzenia, typUrzadzenia, parametry);
             }
             else
             {
@@ -309,7 +323,7 @@ bool Przycisk::dodajFunkcjePuszczeniaPoPrzytrzymaniu(Command* command, byte klik
     return true;
 }
 
-bool Przycisk::runCommand(Command *command)
+bool Przycisk::runCommand(Command::KOMENDY typ, byte idUrzadzenia, Device::TYPE typUrzadzenia, const byte *parametry)
 {
     // OUT_LN()
     //OUT_LN(F("RUN_COMMAND:"))
@@ -323,14 +337,14 @@ bool Przycisk::runCommand(Command *command)
     }
     
 
-    switch (command->getCommandType())
+    switch (typ)
     {
     case Command::KOMENDY::RECEIVE_ZMIEN_STAN_PRZEKAZNIKA:
     {
         //OUT_LN(F("REC_ZMIEN_STAN_PRZEKAZNIKA"))
-        if (command->getDevice()->getType() == Device::TYPE::PRZEKAZNIK)
+        if (typUrzadzenia == Device::TYPE::PRZEKAZNIK)
         {
-            Przekaznik *tmp = (Przekaznik *)System::getSystem()->getDevice(command->getDevice()->getId());
+            Przekaznik *tmp = (Przekaznik *)System::getSystem()->getDevice(idUrzadzenia);
             //OUT_LN(F("PRZEKAZNIK"))
             // OUT_LN(tmp->toString());
             if (tmp->getStan())
@@ -361,21 +375,21 @@ bool Przycisk::runCommand(Command *command)
         //OUT_LN(F("REC_ZMIEN_STAN_ROLETY"))
 
 
-        if (command->getDevice()->getType() == Device::TYPE::ROLETA)
+        if (typUrzadzenia == Device::TYPE::ROLETA)
         {
-            Roleta *tmp = (Roleta*) System::getSystem()->getDevice(command->getDevice()->getId());
+            Roleta *tmp = (Roleta*) System::getSystem()->getDevice(idUrzadzenia);
             //OUT_LN(F("ROLETA"))
             OUT_LN(tmp->toString());
-            if (command->getParams()[0] == 'U')
+            if (parametry[0] == 'U')
             {
                 tmp->podnies();
                 
             }
-            else if (command->getParams()[0] == 'D')
+            else if (parametry[0] == 'D')
             {
                 tmp->opusc();
             }
-            else if (command->getParams()[0] == 'S')
+            else if (parametry[0] == 'S')
             {
                 tmp->stop();
             }
