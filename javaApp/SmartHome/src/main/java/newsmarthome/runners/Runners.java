@@ -420,9 +420,14 @@ public class Runners {
                     }
 
                 }
-                // zapisz nowe onSlaveID do plików - inaczej po restarcie programu zostałyby stare (lub -1)
-                for (int roomId : roomsToSave) {
-                    systemDAO.save(systemDAO.getRoom(roomId));
+                // Zapisz nowe onSlaveID do plików, aby po restarcie programu były zgodne ze slave'em
+                // (higrometr z -1 nie jest odpytywany, więc sam by się nie naprawił).
+                // Tylko przy pełnej konfiguracji: nieudane dodanie ma -1, a zapisane -1 wyłączyłoby
+                // odpytywanie po restarcie. Bez zapisu zostaje stare ID -> 'E' -> reinicjalizacja.
+                if (allConfigured) {
+                    for (int roomId : roomsToSave) {
+                        systemDAO.save(systemDAO.getRoom(roomId));
+                    }
                 }
                 if (!allConfigured) {
                     logger.warn("Konfiguracja slave'a {} niepełna - część urządzeń/sensorów nie została dodana (onSlaveID = -1). Nie będą one odpytywane; kolejna próba dodania nastąpi przy następnej konfiguracji slave'a.", slaveAdress);
