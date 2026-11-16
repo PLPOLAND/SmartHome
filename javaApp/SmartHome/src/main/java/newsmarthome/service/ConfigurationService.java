@@ -21,6 +21,7 @@ import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.device.Outlet;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.Sensor;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
 import newsmarthome.mqtt.BridgeConfigPublisher;
@@ -42,6 +43,9 @@ public class ConfigurationService {
 
     /** Pokój techniczny: trafiają do niego automatycznie wykryte termometry, musi istnieć pod tą nazwą. */
     public static final String DEFAULT_ROOM_NAME = "Brak";
+
+    /** Pin czujnika DHT higrometru - stały w firmware ({@code DHTPIN} w Higrometr.h). */
+    public static final int HIGROMETR_PIN = 10;
 
     private final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
     private final SystemDAO systemDAO;
@@ -239,6 +243,12 @@ public class ConfigurationService {
             List<ButtonLocalFunction> functions = toFunctions(clickFunctions, slaveId);
             sensor = systemDAO.addButton(room, sensorName, slaveId, pin, functions);
         } else {
+            if (hasHigrometr(slaveId)) {
+                throw new ConfigurationException("Slave " + slaveId + " ma już higrometr");
+            }
+            List<Integer> pins = new ArrayList<>();
+            pins.add(HIGROMETR_PIN);
+            validatePins(slaveId, pins, null, null, true);
             sensor = systemDAO.addHigrometr(room, sensorName, slaveId);
         }
         discoveryPublisher.publishSensor(sensor);
@@ -443,12 +453,22 @@ public class ConfigurationService {
 
     /** Odrzuca piny ujemne, powtórzone albo zajęte przez inne urządzenie/przycisk tego slave'a. */
     private void validatePins(int slaveId, List<Integer> pins, Device ignoredDevice, Button ignoredButton) {
+        validatePins(slaveId, pins, ignoredDevice, ignoredButton, false);
+    }
+
+    /** @param forHigrometr sprawdzany jest pin samego higrometru (nie koliduje sam ze sobą) */
+    private void validatePins(int slaveId, List<Integer> pins, Device ignoredDevice, Button ignoredButton,
+            boolean forHigrometr) {
         if (new HashSet<>(pins).size() != pins.size()) {
             throw new ConfigurationException("Piny urządzenia muszą być różne");
         }
         for (int pin : pins) {
             if (pin < 0) {
                 throw new ConfigurationException("Pin nie może być ujemny");
+            }
+            if (!forHigrometr && pin == HIGROMETR_PIN && hasHigrometr(slaveId)) {
+                throw new ConfigurationException(
+                        "Pin " + pin + " na slave " + slaveId + " jest zajęty przez higrometr");
             }
             for (Device other : systemDAO.getDevicesSnapshot()) {
                 if (other != ignoredDevice && other.getSlaveID() == slaveId && pinsOf(other).contains(pin)) {
@@ -468,6 +488,15 @@ public class ConfigurationService {
     /** Po id - funkcje wczytane z pliku mogą trzymać własną kopię obiektu urządzenia. */
     private static boolean isDevice(ButtonLocalFunction function, Device device) {
         return function.getDevice() != null && function.getDevice().getId() == device.getId();
+    }
+
+    private boolean hasHigrometr(int slaveId) {
+        for (Higrometr higrometr : systemDAO.getAllHigrometers()) {
+            if (higrometr.getSlaveAdress() == slaveId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isUsedByClickFunction(Device device) {

@@ -29,6 +29,7 @@ import newsmarthome.model.hardware.device.DeviceTypes;
 import newsmarthome.model.hardware.device.Light;
 import newsmarthome.model.hardware.sensor.Button;
 import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
+import newsmarthome.model.hardware.sensor.Higrometr;
 import newsmarthome.model.hardware.sensor.SensorsTypes;
 import newsmarthome.mqtt.BridgeConfigPublisher;
 import newsmarthome.mqtt.HaDiscoveryPublisher;
@@ -221,6 +222,27 @@ class ConfigurationServiceTest {
 
         service.updateSensor(12, "Nowa nazwa", null, null, null, functions);
         verify(runners).reconfigureSlave(SLAVE); // nadal tylko raz
+    }
+
+    @Test
+    void hygrometerReservesItsFixedPin() {
+        Higrometr higrometr = new Higrometr();
+        higrometr.setSlaveAdress(OTHER_SLAVE);
+        when(systemDAO.getAllHigrometers()).thenReturn(Collections.singletonList(higrometr));
+
+        // pin DHT jest zajęty na płytce z higrometrem, ale wolny na pozostałych
+        assertThrows(ConfigurationException.class,
+                () -> service.addDevice("Nowa", DeviceTypes.LIGHT, 1, OTHER_SLAVE, ConfigurationService.HIGROMETR_PIN, null));
+        assertThrows(ConfigurationException.class, () -> service.addSensor(SensorsTypes.BUTTON, "P", 1, OTHER_SLAVE,
+                ConfigurationService.HIGROMETR_PIN, null));
+        assertThrows(ConfigurationException.class,
+                () -> service.addSensor(SensorsTypes.THERMOMETR_HYGROMETR, "Drugi", 1, OTHER_SLAVE, null, null));
+
+        // i odwrotnie: higrometr nie może trafić na płytkę, gdzie jego pin ma urządzenie
+        service.updateDevice(7, null, null, null, ConfigurationService.HIGROMETR_PIN, null);
+        assertThrows(ConfigurationException.class,
+                () -> service.addSensor(SensorsTypes.THERMOMETR_HYGROMETR, "H", 1, SLAVE, null, null));
+        verify(systemDAO, never()).addHigrometr(any(), any(), anyInt());
     }
 
     @Test

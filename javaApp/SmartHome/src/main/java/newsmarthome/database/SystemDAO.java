@@ -1,6 +1,9 @@
 package newsmarthome.database;
 
 
+import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.lang.Nullable;
@@ -44,7 +47,10 @@ import org.slf4j.LoggerFactory;
 @DependsOn("hardwareFactory")
 public class SystemDAO {
 
-    private static final String ROOMS_FILES_LOCALISATION = "smarthome/database/rooms/";
+    private static final String DEFAULT_ROOMS_FILES_LOCALISATION = "smarthome/database/rooms/";
+    private static final Pattern ROOM_FILE_PATTERN = Pattern.compile("(\\d+)_Room\\.json");
+    /** Katalog z plikami pokoi (zakończony separatorem). */
+    private final String roomsFilesLocalisation;
     TreeMap<String, Room> pokoje; // Pokoje w systemie
     Logger logger;
 
@@ -55,7 +61,14 @@ public class SystemDAO {
     HardwareFactory hardwareFactory;
 
     // @Autowired
+    @Autowired
     public SystemDAO( HardwareFactory hardwareFactory) {
+        this(hardwareFactory, DEFAULT_ROOMS_FILES_LOCALISATION);
+    }
+
+    /** @param roomsFilesLocalisation katalog z plikami pokoi, zakończony separatorem */
+    public SystemDAO(HardwareFactory hardwareFactory, String roomsFilesLocalisation) {
+        this.roomsFilesLocalisation = roomsFilesLocalisation;
         this.hardwareFactory = hardwareFactory;
         logger = LoggerFactory.getLogger(SystemDAO.class);
         logger.info("Init System DAO");
@@ -358,19 +371,20 @@ public class SystemDAO {
     public void readDatabase() {
         ObjectMapper obj = new ObjectMapper();
         obj.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-        int i = 0;
-        File f = new File(ROOMS_FILES_LOCALISATION);
+        File f = new File(roomsFilesLocalisation);
         logger.debug("Lokalizacja plików z pokojami: {}", f.getAbsolutePath());
-        while (i < Integer.MAX_VALUE) {
+        // po id z nazw istniejących plików, a nie 0,1,2... do pierwszego braku - usunięcie pokoju
+        // zostawia lukę w id, za którą pozostałe pokoje przestałyby się wczytywać
+        for (int i : roomFileIds(f)) {
             Room room = new Room(i, "Brak");
             try {
-                JsonNode jsonNode = obj.readTree(new File(ROOMS_FILES_LOCALISATION + i + "_Room.json"));
+                JsonNode jsonNode = obj.readTree(new File(roomsFilesLocalisation + i + "_Room.json"));
                 JsonNode roomNameNode = jsonNode.get("nazwa");
                 if (roomNameNode == null) {
                     roomNameNode = jsonNode.get("name");
                     if (roomNameNode == null) {
-                        logger.error("Błąd podczas wczytywania pokoji, brak nazwy pokoju");
-                        break;
+                        logger.error("Błąd podczas wczytywania pokoju {}, brak nazwy pokoju", i);
+                        continue;
                     }
                 }
                 room.setNazwa(roomNameNode.asText());
@@ -481,21 +495,35 @@ public class SystemDAO {
                 pokoje.put(room.getName(), room);
                 sensors.addAll(room.getSensors());
                 room.setLoaded();
-
-                i++;
-            } catch (JsonGenerationException | JsonMappingException e) {
-                logger.error("Błąd podczas wczytywania pokoji", e);
-                break;
-            }
-            catch (IOException e) {
-                logger.info("Wczytano {} pokoi", i);
-
-                break;
             } catch (Exception e) {
-                logger.error("Błąd podczas wczytywania pokoji", e);
-                break;
+                // uszkodzony plik nie może zablokować pozostałych pokoi; sam zostaje nietknięty
+                // (Room.save nie zapisuje pokoju w trakcie wczytywania), a jego urządzenia nie
+                // mogą zostać w systemie bez pokoju
+                logger.error("Błąd podczas wczytywania pokoju {} - pomijam go", i, e);
+                devices.removeAll(room.getDevices());
             }
         }
+        logger.info("Wczytano {} pokoi", pokoje.size());
+    }
+
+    /** Id pokoi z nazw plików {@code <id>_Room.json} w katalogu, rosnąco. */
+    private static List<Integer> roomFileIds(File directory) {
+        List<Integer> ids = new ArrayList<>();
+        String[] names = directory.list();
+        if (names != null) {
+            for (String name : names) {
+                Matcher matcher = ROOM_FILE_PATTERN.matcher(name);
+                if (matcher.matches()) {
+                    try {
+                        ids.add(Integer.valueOf(matcher.group(1)));
+                    } catch (NumberFormatException e) {
+                        // id poza zakresem int - to nie jest plik pokoju
+                    }
+                }
+            }
+        }
+        Collections.sort(ids);
+        return ids;
     }
 
     /**
@@ -518,7 +546,7 @@ public class SystemDAO {
             try {// tworzenie plików w plikach src
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-                File projFile = new File(ROOMS_FILES_LOCALISATION + pokoj.getID() + "_Room.json");
+                File projFile = new File(roomsFilesLocalisation + pokoj.getID() + "_Room.json");
                 projFile.getParentFile().mkdirs();
                 projFile.createNewFile();// utworzenie pliku jeśli nie istnieje
                 objectMapper.writeValue(projFile, pokoj);// plik projektu (src)
@@ -565,7 +593,7 @@ public class SystemDAO {
             try {// tworzenie plików w plikach src
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-                File projFile = new File(ROOMS_FILES_LOCALISATION + pokoj.getID() + "_Room.json");
+                File projFile = new File(roomsFilesLocalisation + pokoj.getID() + "_Room.json");
                 projFile.getParentFile().mkdirs();
                 projFile.delete();// usuń plik
             } catch (Exception e) {

@@ -32,8 +32,10 @@ public class MqttStartupListener implements ApplicationListener<ApplicationReady
     public void onApplicationEvent(ApplicationReadyEvent event) {
         gateway.addConnectListener(discoveryPublisher::publishAll);
         gateway.addConnectListener(bridgeConfigPublisher::publishAfterConnect);
-        gateway.connect();
+        // subskrypcje przed połączeniem: connectComplete odtwarza je z listy, zanim ogłosi "online" -
+        // zarejestrowane później nie zdążyłyby przed pierwszą komendą z HA
         commandHandler.subscribe();
         configHandler.subscribe();
+        gateway.connect();
     }
 }

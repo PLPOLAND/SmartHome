@@ -144,7 +144,9 @@ public class Room {
     }
 
     public void save() {
-        if (systemDAO != null) {
+        // w trakcie wczytywania z pliku pokój jest niepełny - zapis nadpisałby plik częściową
+        // zawartością, a błąd dalszego elementu zostawiłby go bez reszty urządzeń
+        if (systemDAO != null && isLoaded) {
             systemDAO.save(this);
         }
     }

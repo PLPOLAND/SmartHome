@@ -50,6 +50,9 @@ znów odpowiada (także po restarcie serwera).
 - Automatyzacje serwera (`*_Function.json`) nie są dostępne z HA. Usunięte urządzenie przestaje
   reagować na automatyzację, która nim sterowała.
 
+- Higrometr (DHT) ma w firmware stały pin 10: na płytce z higrometrem pin 10 nie może być użyty
+  przez urządzenie ani przycisk, a płytka może mieć jeden higrometr.
+
 ## Protokół MQTT
 
 Integracja korzysta z API serwera, którego można też używać bezpośrednio (np. `mqtt.publish`):

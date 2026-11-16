@@ -16,8 +16,9 @@ SENSOR_TYPE_BUTTON = "BUTTON"
 SENSOR_TYPE_HYGROMETER = "THERMOMETR_HYGROMETR"
 ADDABLE_SENSOR_TYPES = [SENSOR_TYPE_BUTTON, SENSOR_TYPE_HYGROMETER]
 
-# Firmware limit (MAX_NUMBER_OF_BUTTON_FUNCTIONS); the server reports the configured one.
-MAX_CLICK_FUNCTIONS = 4
+# Firmware limit: its MAX_NUMBER_OF_BUTTON_FUNCTIONS (4) is an array length whose index 0 is
+# unused, so at most 3 clicks can be stored. The server reports its configured limit.
+MAX_CLICK_FUNCTIONS = 3
 # Click function actions -> ButtonLocalFunction.State on the server.
 ACTION_TOGGLE = "toggle"
 CLICK_ACTIONS = {ACTION_TOGGLE: "NONE", "up": "UP", "down": "DOWN", "stop": "STOP"}

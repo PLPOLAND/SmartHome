@@ -51,6 +51,11 @@ public class MqttCommandHandler {
     }
 
     private void handleMessage(String topic, MqttMessage message) {
+        if (message.isRetained()) {
+            // retained komenda wykonywałaby się po każdym połączeniu, nadpisując późniejszy stan
+            logger.warn("Pominięto retained komendę na topicu {}", topic);
+            return;
+        }
         Integer deviceId = MqttTopics.parseDeviceIdFromCommandTopic(gateway.getBaseTopic(), topic);
         if (deviceId == null) {
             logger.warn("Nie udało się odczytać id urządzenia z topicu {}", topic);

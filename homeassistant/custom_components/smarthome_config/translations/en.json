@@ -156,9 +156,7 @@
           "device_2": "2 × click: device",
           "action_2": "2 × click: action",
           "device_3": "3 × click: device",
-          "action_3": "3 × click: action",
-          "device_4": "4 × click: device",
-          "action_4": "4 × click: action"
+          "action_3": "3 × click: action"
         }
       },
       "rooms": {
