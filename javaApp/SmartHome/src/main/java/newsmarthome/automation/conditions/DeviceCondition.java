@@ -2,8 +2,8 @@ package newsmarthome.automation.conditions;
 
 import org.springframework.stereotype.Component;
 
-import smarthome.model.hardware.Device;
-import smarthome.model.hardware.DeviceState;
+import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.device.DeviceState;
 
 @Component
 public class DeviceCondition implements Condition{
