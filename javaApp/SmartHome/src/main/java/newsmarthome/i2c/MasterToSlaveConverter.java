@@ -215,6 +215,7 @@ public class MasterToSlaveConverter {
      * Sprawdz i zaaktualizuj temperaturę dla podanego termometra
      *
      * @param termometr - termometr docelowy
+     * @return temperatura albo null, gdy odczyt się nie powiódł (błąd I2C, błąd slave'a, odłączony czujnik)
      */
     public Float checkTemperature(Termometr termometr) {
         byte[] buffor = new byte [9];
@@ -231,27 +232,21 @@ public class MasterToSlaveConverter {
             logger.debug("Got response temperature from {}: {}", termometr.getSlaveAdress(), Arrays.toString(response));
             if (response[0] == 'E') {
                 logger.error("Error in response from {}", termometr.getSlaveAdress());
-                return -127.0f;
+                return null;
             }
-            String tmp ="";
-            for (byte b : response) {
-                if (b >= 48 && b<= 57 || b == '.') {
-                    tmp += (char) b;
-                }
-            }
-            if (!tmp.equals("")) {
-                Float temperatura = Float.parseFloat(tmp);
-                logger.debug("Got temperature from {}. Temperature = {} *C",Arrays.toString(termometr.getAddres()),temperatura);
-                // termometr.setTemperatura(temperatura);
-                return temperatura;
-            }
-            else{
+            Float temperatura = Termometr.parseTemperature(response, response.length);
+            if (temperatura == null) {
                 throw new HardwareException("Got empty response from " + termometr.getSlaveAdress());
             }
-
+            if (temperatura <= Termometr.DISCONNECTED_TEMPERATURE) {
+                logger.error("Termometr {} na slave {} jest odłączony", Arrays.toString(termometr.getAddres()), termometr.getSlaveAdress());
+                return null;
+            }
+            logger.debug("Got temperature from {}. Temperature = {} *C", Arrays.toString(termometr.getAddres()), temperatura);
+            return temperatura;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return -128.f;
+            return null;
         }
 
     }

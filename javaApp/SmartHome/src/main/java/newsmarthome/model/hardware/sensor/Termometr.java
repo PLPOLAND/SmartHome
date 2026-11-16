@@ -24,6 +24,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     })
 public class Termometr extends Sensor{
 
+    /** Wartość zwracana przez DS18B20, gdy czujnik jest odłączony (DEVICE_DISCONNECTED_C) */
+    public static final float DISCONNECTED_TEMPERATURE = -127.0f;
+
     /**Aktualna Temperatura; volatile - czytana też przez publisher MQTT */
     volatile Float temperatura;
     /**Maxymalna Temperatura */
@@ -35,7 +38,7 @@ public class Termometr extends Sensor{
     public Termometr(){
         super(SensorsTypes.THERMOMETR);
         this.temperatura = Float.MAX_VALUE;
-        this.maxTemperatura = Float.MIN_VALUE;
+        this.maxTemperatura = -Float.MAX_VALUE;
         this.minTemperatura = Float.MAX_VALUE;
         logger = LoggerFactory.getLogger(Termometr.class);
     }
@@ -43,7 +46,7 @@ public class Termometr extends Sensor{
     public Termometr(int slaveID){
         super(slaveID, SensorsTypes.THERMOMETR);
         this.temperatura = Float.MAX_VALUE;
-        this.maxTemperatura = Float.MIN_VALUE;
+        this.maxTemperatura = -Float.MAX_VALUE;
         this.minTemperatura = Float.MAX_VALUE;
         logger = LoggerFactory.getLogger(Termometr.class);
     }
@@ -70,19 +73,43 @@ public class Termometr extends Sensor{
     }
 
     public void setTemperatura(Float temperatura) {
-        this.temperatura = temperatura;
-        if (this.maxTemperatura < temperatura) {
-            setMinTemperatura(temperatura); // ustaw minimalną temperaturę 
+        if (temperatura == null) {
+            return; // brak odczytu - zostaje ostatnia poprawna wartość
         }
-        if (this.minTemperatura > temperatura) {
-            setMaxTemperatura(temperatura); // ustaw maxymalną temperaturę
+        this.temperatura = temperatura;
+        if (this.maxTemperatura == null || this.maxTemperatura < temperatura) {
+            setMaxTemperatura(temperatura);
+        }
+        if (this.minTemperatura == null || this.minTemperatura > temperatura) {
+            setMinTemperatura(temperatura);
+        }
+    }
+
+    /**
+     * Zamienia tekst temperatury wysłany przez slave'a (np. "21.19", "-3.50") na liczbę.
+     * @param bytes odpowiedź slave'a
+     * @param length liczba bajtów odpowiedzi zawierających temperaturę
+     * @return temperatura albo null, gdy odpowiedź nie zawiera liczby
+     */
+    public static Float parseTemperature(byte[] bytes, int length) {
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < length && i < bytes.length; i++) {
+            byte b = bytes[i];
+            if (b >= '0' && b <= '9' || b == '.' || (b == '-' && text.length() == 0)) {
+                text.append((char) b);
+            }
+        }
+        try {
+            return Float.parseFloat(text.toString());
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
     public Float getMaxTemperatura() {
         return this.maxTemperatura;
     }
     public void clearMax(){
-        this.maxTemperatura=Float.MIN_VALUE;
+        this.maxTemperatura = -Float.MAX_VALUE;
     }
 
     public Float getMinTemperatura() {
@@ -106,7 +133,12 @@ public class Termometr extends Sensor{
      *  Aktualizuje temperaturę, pobierając ją z slave'a
      */
     public void update(){
-        this.setTemperatura(slaveSender.checkTemperature(this));
+        Float odczyt = slaveSender.checkTemperature(this);
+        if (odczyt == null) {
+            logger.warn("Brak odczytu temperatury z termometru {} - zostaje poprzednia wartość", getId());
+            return;
+        }
+        this.setTemperatura(odczyt);
     }
 
     @Override

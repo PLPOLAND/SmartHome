@@ -68,19 +68,15 @@ public class Higrometr extends Termometr{
         try {
             byte[] response = slaveSender.checkHighrometr(this);
             
-            String tmp ="";
-            for (int i = 0; i < 5; i++) {
-                byte b = response[i];
-                if (b >= 48 && b<= 57 || b == '.') {
-                    tmp += (char) b;
-                }
+            Float odczyt = parseTemperature(response, 5);
+            if (odczyt == null) {
+                logger.error("Wartość temperatury z higrometru {} nie jest liczbą", getId());
+                return;
             }
-            this.setTemperatura(Float.parseFloat(tmp));
+            this.setTemperatura(odczyt);
             this.setHumidity((int) response[5]);
         } catch (HardwareException|SoftwareException e) {
             logger.error("Nie udało się zaktualizować higrometru: {}", e.getMessage());
-        } catch (NumberFormatException e) {
-            logger.error("Wartość temperatury nie jest liczbą: {}", e.getMessage());
         }
 
     }

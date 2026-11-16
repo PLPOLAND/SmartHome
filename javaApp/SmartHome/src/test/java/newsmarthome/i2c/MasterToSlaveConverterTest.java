@@ -118,4 +118,30 @@ class MasterToSlaveConverterTest {
         verify(hardware, times(2)).transaction(eq(SLAVE), aryEq(G), anyLong(), anyInt());
         verify(hardware).unlockBus();
     }
+
+    private newsmarthome.model.hardware.sensor.Termometr termometr() {
+        newsmarthome.model.hardware.sensor.Termometr termometr = new newsmarthome.model.hardware.sensor.Termometr(SLAVE);
+        termometr.setAddres(new int[] { 40, 1, 2, 3, 4, 5, 6, 7 });
+        return termometr;
+    }
+
+    @Test
+    void checkTemperature_readsNegativeTemperature() throws HardwareException {
+        when(hardware.transaction(eq(SLAVE), any(byte[].class), anyLong(), anyInt()))
+                .thenReturn(new byte[] { '-', '3', '.', '5', '0', 0, 0, 0 });
+
+        assertEquals(-3.5f, converter.checkTemperature(termometr()));
+    }
+
+    @Test
+    void checkTemperature_returnsNullInsteadOfSentinelOnFailure() throws HardwareException {
+        when(hardware.transaction(eq(SLAVE), any(byte[].class), anyLong(), anyInt()))
+                .thenReturn(new byte[] { 'E', 0, 0, 0, 0, 0, 0, 0 })
+                .thenReturn(new byte[] { '-', '1', '2', '7', '.', '0', '0', 0 })
+                .thenThrow(new HardwareException("brak odpowiedzi"));
+
+        assertNull(converter.checkTemperature(termometr()));
+        assertNull(converter.checkTemperature(termometr()));
+        assertNull(converter.checkTemperature(termometr()));
+    }
 }
