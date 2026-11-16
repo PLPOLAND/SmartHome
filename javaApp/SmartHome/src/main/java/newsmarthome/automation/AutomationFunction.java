@@ -1,5 +1,6 @@
 package newsmarthome.automation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,7 +30,7 @@ public class AutomationFunction extends Function {
     public AutomationFunction() {
         super( FunctionType.AUTOMATION );
         oneWay = false;
-        conditions = null;
+        conditions = new ArrayList<>();
         on = true;
     }
 
@@ -39,7 +40,7 @@ public class AutomationFunction extends Function {
     }
 
     public void setCondition(List<Condition> conditions) {
-        this.conditions = conditions;
+        this.conditions = conditions != null ? conditions : new ArrayList<>();
     }
 
     public void addCondition(Condition condition) {
