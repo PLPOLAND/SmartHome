@@ -1,7 +1,6 @@
 package newsmarthome.model.user;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -268,22 +267,12 @@ public class User {
     public String toJSON(){
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        OutputStream stream = new OutputStream() {
-            private StringBuilder string = new StringBuilder();
-            @Override
-            public void write(int b) {
-                this.string.append((char) b );
-            }
-            public String toString(){
-                return this.string.toString();
-            }
-        };
         try {
-            objectMapper.writeValue(stream, this);
+            return objectMapper.writeValueAsString(this);
         } catch (IOException e) {
             e.printStackTrace();
+            return "";
         }
-        return stream.toString();
     }
 
     @Override

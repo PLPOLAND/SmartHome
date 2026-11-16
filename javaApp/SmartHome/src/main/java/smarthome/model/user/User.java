@@ -1,7 +1,6 @@
 package smarthome.model.user;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.springframework.stereotype.Component;
 
@@ -152,24 +151,12 @@ public class User {
     public String toJSON(){
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        String json = "";
-        OutputStream stream = new OutputStream() {
-            private StringBuilder string = new StringBuilder();
-            @Override
-            public void write(int b) {
-                this.string.append((char) b );
-            }
-            public String toString(){
-                return this.string.toString();
-            }
-        };
         try {
-            objectMapper.writeValue(stream, this);
+            return objectMapper.writeValueAsString(this);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            return "";
         }
-        return stream.toString();
     }
 
     @Override
