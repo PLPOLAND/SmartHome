@@ -53,10 +53,10 @@ public class MobileSecurity {
         String nickname;
         String pass;
 
-        nickname = request.getParameter("nick").toString();
-        pass = request.getParameter("pass").toString();
+        nickname = request.getParameter("nick");
+        pass = request.getParameter("pass");
 
-        if (nickname == null || nickname.isEmpty()) {
+        if (nickname == null || nickname.isEmpty() || pass == null) {
             return "";
         }
 
