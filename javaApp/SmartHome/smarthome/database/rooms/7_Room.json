@@ -1,5 +1,6 @@
 {
   "id" : 7,
+  "name" : "Kotłownia",
   "devices" : [ {
     "@type" : "Light",
     "id" : 37,
@@ -8,20 +9,16 @@
     "onSlaveID" : 2,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 10
-    },
-    "pin" : 10,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 10
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 110,
     "room" : 7,
     "onSlaveID" : 5,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Światło",
+    "addres" : null,
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 9,
     "funkcjeKlikniec" : [ {
@@ -36,15 +33,23 @@
         "onSlaveID" : 2,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 10
-        },
-        "pin" : 10,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 10
       }
     } ],
     "slaveAdress" : 8
+  }, {
+    "@type" : "Termometr",
+    "id" : 100,
+    "room" : 7,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 141, 245, 237, 83 ],
+    "nazwa" : "Kotłownia",
+    "typ" : "THERMOMETR",
+    "temperatura" : 20.5,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 20.5,
+    "slaveAdress" : -1
   } ],
-  "nazwa" : "Kotłownia"
+  "loaded" : false
 }

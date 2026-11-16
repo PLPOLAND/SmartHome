@@ -1,6 +1,13 @@
 package smarthome.model.user;
 
+import java.io.IOException;
+
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import smarthome.model.Uprawnienia;
 
 /**
@@ -19,6 +26,8 @@ public class User {
     String email;
     String password;
     String oldPassword;
+    String token;
+    //TODO dodać czas ważności tokenu
     Uprawnienia uprawnienia;
     Opcje opcje;
 
@@ -31,6 +40,7 @@ public class User {
         email = "";
         password = "";
         oldPassword = "";
+        token = "";
     }
 
     /**
@@ -55,6 +65,7 @@ public class User {
         this.oldPassword = oldPassword;
         this.uprawnienia = uprawnienia;
         this.opcje = opcje;
+        this.token = "";
     }
 
     public Long getId() {
@@ -129,5 +140,28 @@ public class User {
         this.opcje = opcje;
     }
 
-    
+    public String getToken() {
+        return this.token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String toJSON(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        try {
+            return objectMapper.writeValueAsString(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    @Override
+    public String toString() {
+        return this.toJSON();
+    }
+
 }

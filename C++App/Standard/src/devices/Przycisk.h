@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <Timers.h>
 #include <Stale.h>
-#include "LinkedList.h"
 #include "devices/Device.h"
 #include "I2C/Command.h"
 #include "Przekaznik.h"
@@ -32,25 +31,21 @@ private:
     byte pin;
     StanPrzycisku stan;
     int klikniecia;
-    Timer* time;
-    Timer* time2;
+    Timer time;  // okres na kolejne kliknięcia / wykrycie przytrzymania
+    // Filtr zakłóceń wejścia (patrz odczytajWejscie)
+    bool odczytSurowy;            // ostatni surowy odczyt pinu (true = wciśnięty)
+    bool odczytStabilny;          // stan po filtrze, na nim działa maszyna stanów
+    unsigned long czasZmianySurowego; // millis() ostatniej zmiany surowego odczytu
+    bool odczytajWejscie();
     bool czyPominac = false;
 
     Dioda dioda;
     /**
-     *  Przechowuje Komendy wykonywane po odpowiedniej liczbie klikniec
+     *  Przechowuje Komendy wykonywane po odpowiedniej liczbie klikniec (indeks = liczba kliknięć).
+     *  Nieużywane pozycje wskazują na zapychacz. Stała tablica zamiast LinkedList - lista alokowała
+     *  osobny węzeł na każdą pozycję, a RAM-u na slave-ach z kilkoma przyciskami brakowało.
      */
-    LinkedList<Command*> funkcje_klikniecia;
-    /**
-     * Przechowuje Komendy wykonywane po przytrzymaniach. 
-     * 
-     */
-    LinkedList<Command*> funkcje_przytrzymania;
-    /**
-     * Przechowuje Komendy wykonywane po puszczeniu przycisku po przytrzymaniu.
-     * 
-     */
-    LinkedList<Command*> funkcje_przytrzymania_puszczenie;
+    Command *funkcje_klikniecia[MAX_NUMBER_OF_BUTTON_FUNCTIONS];
 
     /**
      * @brief obiekt używany do zapychania niezdefiniowanych funkcji w przycisku
@@ -82,13 +77,15 @@ public:
     bool isCzyPominac();
 
         /**
-         * @brief Wykonuje komendę dostarczoną w argumencie.
+         * @brief Wykonuje funkcję przycisku na podstawie kopii jej danych (nie wskaźnika na Command,
+         * który może zostać zwolniony w przerwaniu I2C w trakcie wykonywania).
          *
-         * @param command komenda do wykonania
-         * @return true
-         * @return false
+         * @param typ typ komendy (zmiana stanu przekaźnika / rolety)
+         * @param idUrzadzenia id urządzenia docelowego na slave-ie
+         * @param typUrzadzenia typ urządzenia docelowego
+         * @param parametry parametry komendy (8 bajtów)
          */
-        bool runCommand(Command *command);
+        bool runCommand(Command::KOMENDY typ, byte idUrzadzenia, Device::TYPE typUrzadzenia, const byte *parametry);
 };
 
 #endif // !Wylacznik_h

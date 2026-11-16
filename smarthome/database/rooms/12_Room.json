@@ -1,0 +1,83 @@
+{
+  "id" : 12,
+  "devices" : [ {
+    "@type" : "Light",
+    "id" : 48,
+    "room" : 12,
+    "slaveID" : 20,
+    "onSlaveID" : 0,
+    "name" : "Boczne",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 13
+    },
+    "pin" : 13,
+    "state" : "OFF"
+  }, {
+    "@type" : "Light",
+    "id" : 49,
+    "room" : 12,
+    "slaveID" : 20,
+    "onSlaveID" : 1,
+    "name" : "Górne ",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 12
+    },
+    "pin" : 12,
+    "state" : "OFF"
+  } ],
+  "sensors" : [ {
+    "@type" : "Button",
+    "id" : 124,
+    "room" : 12,
+    "onSlaveID" : 2,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 48,
+        "room" : 12,
+        "slaveID" : 20,
+        "onSlaveID" : 0,
+        "name" : "Boczne",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 49,
+        "room" : 12,
+        "slaveID" : 20,
+        "onSlaveID" : 1,
+        "name" : "Górne ",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 12
+        },
+        "pin" : 12,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 20
+  } ],
+  "nazwa" : "Taras"
+}

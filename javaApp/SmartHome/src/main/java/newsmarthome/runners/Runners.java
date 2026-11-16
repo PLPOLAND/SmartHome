@@ -1,0 +1,590 @@
+package newsmarthome.runners;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import newsmarthome.automation.AutomationFunction;
+import newsmarthome.automation.ButtonFunction;
+import newsmarthome.database.AutomationDAO;
+import newsmarthome.database.SystemDAO;
+import newsmarthome.exception.HardwareException;
+import newsmarthome.exception.SoftwareException;
+import newsmarthome.i2c.MasterToSlaveConverter;
+import newsmarthome.model.Room;
+import newsmarthome.model.hardware.device.Blind;
+import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.device.DeviceState;
+import newsmarthome.model.hardware.device.DeviceTypes;
+import newsmarthome.model.hardware.device.Fan;
+import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.device.Outlet;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.Higrometr;
+import newsmarthome.model.hardware.sensor.Sensor;
+import newsmarthome.model.hardware.sensor.Termometr;
+import newsmarthome.mqtt.BridgeConfigPublisher;
+import newsmarthome.mqtt.HaDiscoveryPublisher;
+import newsmarthome.mqtt.MqttStatePublisher;
+
+@Service
+public class Runners {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    SystemDAO systemDAO;
+    @Autowired
+    MasterToSlaveConverter slaveSender;
+
+    @Autowired
+    AutomationDAO automationDAO;
+
+    @Autowired
+    BeanFactory beanFactory; //potrzebne do tworzenia nowych obiektów w trakcie działania programu
+
+    @Autowired
+    HaDiscoveryPublisher haDiscoveryPublisher;
+
+    @Autowired
+    MqttStatePublisher mqttStatePublisher;
+    @Autowired
+    BridgeConfigPublisher bridgeConfigPublisher;
+
+    /** Tymczasowo przechowuje funkcje automatyki */
+    ArrayList<AutomationFunction> functions = new ArrayList<>();
+
+    /** Zatrzymuje sprawdzanie automatyki*/
+    private volatile boolean stopCheckingAutomation = false;
+
+    /** Wyklucza jednoczesne odpytywanie o eventy i wysyłanie konfiguracji na slave-a */
+    private final ReentrantLock slaveConfigLock = new ReentrantLock();
+
+    /** Minimalny odstęp pomiędzy kolejnymi reinicjalizacjami tego samego slave'a po błędzie urządzenia [ms] */
+    private static final long REINIT_COOLDOWN_MS = 60_000;
+    /** Maksymalny odstęp pomiędzy reinicjalizacjami, gdy błąd się powtarza mimo reinicjalizacji [ms] */
+    private static final long REINIT_MAX_COOLDOWN_MS = 30 * 60_000L;
+    /** Czas ostatniej reinicjalizacji slave'a wywołanej błędem urządzenia (adres slave'a -> czas w ms) */
+    private final Map<Integer, Long> lastReinitTime = new HashMap<>();
+    /** Liczba kolejnych reinicjalizacji slave'a, po których błąd nie zniknął (adres slave'a -> liczba) */
+    private final Map<Integer, Integer> consecutiveReinits = new HashMap<>();
+    /**
+     * Slave'y, których konfiguracja zmieniła się, gdy były niedostępne - po powrocie na magistralę
+     * (bez restartu) miałyby starą. Zapisywane do pliku, żeby zaległość przetrwała restart programu.
+     */
+    private final Set<Integer> pendingReconfigure = ConcurrentHashMap.newKeySet();
+    @Value("${slave.pending-reconfigure-file:smarthome/database/pending_slave_reconfigure.txt}")
+    private String pendingReconfigureFile;
+    /** Wynik ostatniego resetu slave'a w configureSlaveExclusively (pod slaveConfigLock). */
+    private boolean lastReinitSucceeded;
+
+    @Scheduled(fixedDelay = 2)
+    void queue(){
+        // long time = System.currentTimeMillis();
+        // long sumTime = 0;
+        checkAutomationFunctions();
+        // logger.info("autmations RunTime: {}", System.currentTimeMillis() - time);
+        // sumTime += System.currentTimeMillis() - time;
+        // time = System.currentTimeMillis();
+        statusCheck();
+        // logger.info("status RunTime: {}", System.currentTimeMillis() - time);
+        // sumTime += System.currentTimeMillis() - time;
+        // time = System.currentTimeMillis();
+        checkAutomationFunctions();
+        // logger.info("autmations RunTime: {}", System.currentTimeMillis() - time);
+        // sumTime += System.currentTimeMillis() - time;
+        // time = System.currentTimeMillis();
+        checkInitOfBoards();
+        // logger.info("checkInit RunTime: {}", System.currentTimeMillis() - time);
+        // sumTime += System.currentTimeMillis() - time;
+        // logger.info("all RunTime: {}", sumTime);
+    }
+
+    /**
+     * Sprawdza czy slave jest podłączony i czy jest skonfigurowany. Jeśli tak to sprawdza stan urządzeń i sensorów
+     */
+    // @Scheduled(fixedDelay = 500)
+    void statusCheck(){
+        
+        List<Integer> slaves = slaveSender.getSlavesAdresses();
+        if (!slaves.isEmpty()){
+            Set<Integer> slavesToReinit = new HashSet<>();
+            for(Device device : systemDAO.getDevices()){
+                try {
+                    if (slaveSender.isSlaveConnected(device.getSlaveID())){
+                        // logger.debug("Slave {} is connected", device.getSlaveID());
+                        logger.debug("Checking status of device (id: {}, name:{}, type: {}, configured: {}) ", device.getId(), device.getName(), device.getTyp(), device.isConfigured());
+                        device.updateDeviceState();
+                    }
+                    else{
+                        logger.debug("Slave {} is not connected", device.getSlaveID());
+                        device.resetConfigured();//jako, że slave nie jest podłączony, to urządznie nie jest na nim skonfigurowane
+                    }
+                } catch (HardwareException e) {
+                    logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
+                    // Slave nie zna urządzenia o tym onSlaveID -> konfiguracja w systemie rozjechała się ze slave'em
+                    if (e.getResponse() != null && e.getResponse()[0] == 'E') {
+                        slavesToReinit.add(device.getSlaveID());
+                    }
+                }
+                catch(SoftwareException e){
+                    logger.error("Bład podczas sprawdzania stanu urządzenia o id: {}: {}", device.getId(), e.getMessage());
+                        if (e.getExpected() != null ) {
+                            if (device instanceof Light || device instanceof Fan || device instanceof Outlet){
+                                logger.debug("Trying to turn off device");
+                                device.changeState(device.getState());
+                            } 
+                            else if (device instanceof Blind){
+                                logger.debug("Trying to stop blind");
+                                device.changeState(device.getState());
+                            }
+                        }
+                        else{
+                            logger.warn("Brak oczekiwanych odpowiedzi od slave'a. Zgłoś błąd do administratora. Error: {}", Arrays.toString(e.getStackTrace()));
+                        }
+                }
+            }
+            // slave nie zgłosił błędu w tym cyklu -> poprzednia reinicjalizacja pomogła, zeruj odstęp
+            consecutiveReinits.keySet().removeIf(slaveAdress -> !slavesToReinit.contains(slaveAdress));
+            for (Integer slaveAdress : slavesToReinit) {
+                reinitSlaveAfterDeviceError(slaveAdress);
+            }
+            for (Termometr termometr : systemDAO.getAllTermometers()) {
+                if (slaveSender.isSlaveConnected(termometr.getSlaveAdress())) {
+                    termometr.update();
+                }
+            }
+            for (Higrometr higrometr : systemDAO.getAllHigrometers()) {
+                try{
+                    if (slaveSender.isSlaveConnected(higrometr.getSlaveAdress())) {
+                        if (slaveSender.checkInitOfBoard(higrometr.getSlaveAdress())) {
+                            if (higrometr.getOnSlaveID() < 0) {
+                                logger.debug("Higrometr (id:{}) nie jest dodany na slave {} - pomijam odczyt", higrometr.getId(), higrometr.getSlaveAdress());
+                                continue;
+                            }
+                            higrometr.update();
+                        }
+                        else{
+                            configureSlave(higrometr.getSlaveAdress());
+                        }
+                    }
+
+                }
+                catch (HardwareException|SoftwareException e) {
+                    logger.error("Bład podczas sprawdzania stanu higrometru o id: {}: {}", higrometr.getId(), e.getMessage());
+                }
+            }
+        }
+        else{
+            logger.warn("No slaves detected");
+            int time = 1000;
+            while (slaves.isEmpty()){
+                try {
+                    Thread.sleep(time);
+                    if (time <60000) {
+                        time += 1000;
+                    }
+                    logger.info("Searching for slaves...");
+                    slaveSender.findSlaves();
+                    
+                } catch (InterruptedException e) {
+                    logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                }
+                slaves = slaveSender.getSlavesAdresses();
+            }
+        }
+    }
+
+    /**
+     * Uruchamia funkcje automatyki. Eventy z przycisków odczytywane są osobno w {@link #pollButtonEvents()}.
+     */
+    // @Scheduled(fixedDelay = 200)
+    void checkAutomationFunctions() {
+        if (!stopCheckingAutomation) {
+            logger.debug("checkAutomationFunctions");
+            if (functions.size() != automationDAO.getAutomationFunctions().size()) { // jeśli liczba funkcji zapisanych w systemie się zmieniła
+                functions.clear(); // wyczyść listę funkcji
+                functions.addAll(automationDAO.getAutomationFunctions()); // dodaj wszystkie funkcje z systemu do lokalnej listy
+            }
+            for (AutomationFunction fun : functions) { // dla każdej funkcji
+                try {
+                    fun.run(); // sprawdź czy jej warunki są spełnione i wykonaj ją
+                } catch (HardwareException e) {
+                    logger.error("Error in automation function {}. Error: {}", fun.getId(), e.getMessage());
+                }
+            }
+        } else {
+            logger.debug("checkAutomationFunctions is paused");
+        }
+    }
+
+    /**
+     * Odpytuje wszystkie slave-y o eventy z przycisków (niestandardowe kliknięcia) i wykonuje przypisane do nich funkcje.
+     * Działa w osobnym wątku, niezależnie od długiego cyklu sprawdzania stanu urządzeń, dzięki czemu
+     * eventy są odbierane z niewielkim opóźnieniem i nie przepełniają kolejki na slave-ie.
+     */
+    @Scheduled(fixedDelayString = "${i2c.event.poll-interval-ms:5}")
+    void pollButtonEvents() {
+        if (stopCheckingAutomation || !slaveConfigLock.tryLock()) { // w trakcie konfiguracji slave-a nie odpytujemy o eventy
+            return;
+        }
+        try {
+            for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
+                if (!slaveSender.isSlaveConnected(slaveAdress)) { // slave mógł zniknąć po ponownym skanowaniu magistrali
+                    continue;
+                }
+                List<byte[]> events;
+                try {
+                    events = slaveSender.readEventsFromSlave(slaveAdress); // odczytaj wszystkie oczekujące eventy
+                } catch (HardwareException e) {
+                    logger.error("Error in pollButtonEvents. Error: {}", e.getMessage());
+                    continue;
+                }
+                for (byte[] command : events) {
+                    handleButtonEvent(slaveAdress, command); // błąd jednego eventu nie przerywa obsługi pozostałych
+                }
+            }
+        } finally {
+            slaveConfigLock.unlock();
+        }
+    }
+
+    /**
+     * Wykonuje funkcję przypisaną do eventu przycisku odczytanego z slave-a
+     */
+    private void handleButtonEvent(int slaveAdress, byte[] command) {
+        try {
+            ButtonFunction buttonFunction = beanFactory.getBean(ButtonFunction.class);
+            buttonFunction.fromCommand(slaveAdress, command); // zainicjuj funkcję z danych z slave-a
+            if (buttonFunction.getButton() == null) { // przycisk o tym ID nie istnieje (już) w systemie - ramka nieaktualna lub błędna
+                logger.warn("Pominięto event {} z slave-a {}: nie znaleziono przycisku", Arrays.toString(command), slaveAdress);
+                return;
+            }
+            logger.debug("Pobrano z slave-a funkcję przycisku: {}", buttonFunction);
+            mqttStatePublisher.publishButtonEvent(buttonFunction.getButton(),
+                    buttonFunction.getClickType(), buttonFunction.getClicks());
+
+            for (ButtonFunction fun : automationDAO.getButtonFunctions()) { // dla każdej automatyki funkcji przycisku
+                if (fun.compare(buttonFunction)) { // sprawdź czy funkcja zapisana w systemie jest taka sama jak ta pobrana z slave-a
+                    logger.debug("Znaleziono funkcję: {}", fun);
+                    fun.run();// jeśli tak to wykonaj ją
+                    break;// i przerwij dalsze sprawdzanie
+                }
+            }
+        } catch (HardwareException e) {
+            logger.error("Error while handling button event {} from slave {}. Error: {}", Arrays.toString(command), slaveAdress, e.getMessage());
+        } catch (RuntimeException e) { // np. błędna ramka (ClassCastException) - nie może przerwać obsługi pozostałych eventów
+            logger.error("Unexpected error while handling button event {} from slave {}", Arrays.toString(command), slaveAdress, e);
+        }
+    }
+
+    private void checkInitOfBoards(){
+        for (Integer slaveAdress : slaveSender.getSlavesAdresses()) {// dla każdego slave-a
+            if (slaveSender.isSlaveConnected(slaveAdress)) { // jeśli jest podłączony
+                try {
+                    if (pendingReconfigure.contains(slaveAdress)) {
+                        // zmiana konfiguracji zrobiona, gdy slave był niedostępny - ma jeszcze starą
+                        logger.info("Slave {} ma zaległą zmianę konfiguracji - wysyłam ją od nowa", slaveAdress);
+                        if (configureSlave(slaveAdress)) {
+                            clearPendingReconfigure(slaveAdress);
+                        }
+                    } else if (!slaveSender.checkInitOfBoard(slaveAdress)){// sprawdź czy jest skonfigurowany
+                        configureSlave(slaveAdress); // jeśli nie to wyślij mu konfigurację
+                    } else{
+                        logger.debug("Slave {} is configured", slaveAdress);
+                        // urządzenia bez onSlaveID nie zostały dodane na slave'a - nie odpytuj ich (slave zwróciłby błąd)
+                        systemDAO.getAllDevicesFromSlave(slaveAdress).stream()
+                                .filter(device -> device.getOnSlaveID() >= 0)
+                                .forEach(Device::setConfigured);
+                    }
+                } catch (HardwareException|SoftwareException e) {
+                    logger.error("Error in checkInitOfBoards. Error: {}", e.getMessage());
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Reinicjalizuje slave'a, który zwrócił błąd dla urządzenia (np. po restarcie programu onSlaveID
+     * zapisane w bazie nie zgadzają się z tymi na slavie). Reinicjalizacja resetuje całego slave'a (wszystkie wyjścia),
+     * więc nie częściej niż raz na {@link #REINIT_COOLDOWN_MS}, a jeśli błąd wraca mimo reinicjalizacji,
+     * odstęp rośnie dwukrotnie aż do {@link #REINIT_MAX_COOLDOWN_MS}.
+     *
+     * @param slaveAdress - adres slave'a do reinicjalizacji
+     */
+    private void reinitSlaveAfterDeviceError(int slaveAdress) {
+        long now = System.currentTimeMillis();
+        Long last = lastReinitTime.get(slaveAdress);
+        int attempts = consecutiveReinits.getOrDefault(slaveAdress, 0);
+        long cooldown = reinitCooldown(attempts);
+        if (last != null && now - last < cooldown) {
+            logger.debug("Pominięto reinicjalizację slave'a {} - ostatnia była {} ms temu (odstęp {} ms)", slaveAdress, now - last, cooldown);
+            return;
+        }
+        lastReinitTime.put(slaveAdress, now);
+        consecutiveReinits.put(slaveAdress, attempts + 1);
+        logger.warn("Slave {} zwrócił błąd dla urządzenia (niezgodne onSlaveID?). Reinicjalizacja i ponowne wysłanie konfiguracji (próba {}).", slaveAdress, attempts + 1);
+        configureSlave(slaveAdress);
+    }
+
+    /**
+     * @param attempts - liczba kolejnych reinicjalizacji, po których błąd nie zniknął
+     * @return minimalny odstęp do następnej reinicjalizacji [ms]
+     */
+    private static long reinitCooldown(int attempts) {
+        if (attempts <= 1) {
+            return REINIT_COOLDOWN_MS;
+        }
+        int shift = Math.min(attempts - 1, 10);
+        return Math.min(REINIT_COOLDOWN_MS << shift, REINIT_MAX_COOLDOWN_MS);
+    }
+
+    /**
+     * Wymusza ponowne wysłanie całej konfiguracji na slave'a po zmianie konfiguracji przez użytkownika
+     * (zmiana pinu, usunięcie urządzenia, funkcje kliknięć) - firmware nie umie zmienić pojedynczego
+     * urządzenia. Resetuje wyjścia slave'a.
+     *
+     * @return false, gdy slave nie jest podłączony (dostanie konfigurację po wykryciu)
+     */
+    public boolean reconfigureSlave(int slaveAdress) {
+        // najpierw zaległość: jeśli slave zniknie w trakcie albo reset się nie uda, konfiguracja
+        // zostanie wysłana, gdy tylko slave znów będzie dostępny (także po restarcie programu)
+        if (pendingReconfigure.add(slaveAdress)) {
+            savePendingReconfigure();
+        }
+        if (!slaveSender.isSlaveConnected(slaveAdress)) {
+            return false;
+        }
+        if (configureSlave(slaveAdress)) {
+            clearPendingReconfigure(slaveAdress);
+        }
+        return true;
+    }
+
+    private void clearPendingReconfigure(int slaveAdress) {
+        if (pendingReconfigure.remove(slaveAdress)) {
+            savePendingReconfigure();
+        }
+    }
+
+    @PostConstruct
+    void loadPendingReconfigure() {
+        Path path = Paths.get(pendingReconfigureFile);
+        if (!Files.exists(path)) {
+            return;
+        }
+        try {
+            for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+                if (!line.trim().isEmpty()) {
+                    pendingReconfigure.add(Integer.valueOf(line.trim()));
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            logger.error("Nie udało się wczytać zaległych konfiguracji slave'ów z {}: {}", pendingReconfigureFile, e.getMessage());
+        }
+    }
+
+    private void savePendingReconfigure() {
+        Path path = Paths.get(pendingReconfigureFile);
+        try {
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
+            List<String> lines = new ArrayList<>();
+            for (Integer slave : pendingReconfigure) {
+                lines.add(String.valueOf(slave));
+            }
+            Files.write(path, lines, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            logger.error("Nie udało się zapisać zaległych konfiguracji slave'ów do {}: {}", pendingReconfigureFile, e.getMessage());
+        }
+    }
+
+    /**
+     * Wysyła konfigurację slave'owi. Zatrzymuje sprawdzanie automatyki na czas wysyłania konfiguracji.
+     * Cała sekwencja (reset + konfiguracja) jest wykonywana z wyłącznym dostępem do I2C,
+     * aby inne wątki (np. zapytania z aplikacji) nie przeplatały się z nią.
+     * 
+     * @param slaveAdress - adres slave'a na który ma zostać wysłana konfiguracja
+     * @return czy slave został zresetowany i dostał konfigurację
+     */
+    private boolean configureSlave(int slaveAdress) {
+        slaveConfigLock.lock();
+        try {
+            lastReinitSucceeded = false;
+            slaveSender.runExclusively(() -> configureSlaveExclusively(slaveAdress));
+            return lastReinitSucceeded;
+        } finally {
+            slaveConfigLock.unlock();
+        }
+    }
+
+    /**
+     * Właściwa konfiguracja slave'a. Wywoływać tylko przez {@link #configureSlave(int)}.
+     */
+    private void configureSlaveExclusively(int slaveAdress) {
+        this.stopCheckingAutomation = true;
+        logger.info("Send configuration to Slave({})", slaveAdress);
+        try {
+            lastReinitSucceeded = slaveSender.reInitBoard(slaveAdress);
+            if (lastReinitSucceeded) {
+                logger.debug("Sending devices configuration to slave {}", slaveAdress);
+                // Slave po resecie nie ma żadnych urządzeń - stare onSlaveID są nieaktualne.
+                // Jeśli dodanie się nie uda, zostaje -1 (a nie stare ID), więc urządzenie nie będzie odpytywane.
+                boolean allConfigured = true;
+                Set<Integer> roomsToSave = new HashSet<>();
+                for (Device device : systemDAO.getDevices()) {
+                    if (device.getSlaveID() == slaveAdress) {
+                        roomsToSave.add(device.getRoom());
+                        device.resetConfigured();
+                        device.setOnSlaveID(-1);
+                        device.configureToSlave();
+                        if (!device.isConfigured() || device.getOnSlaveID() < 0) {
+                            allConfigured = false;
+                            logger.error("Nie udało się skonfigurować urządzenia (id:{}) na slave {}", device.getId(), slaveAdress);
+                        }
+                        try{
+                            Thread.sleep(10);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
+                    }
+                }
+                logger.debug("Sending sensors configuration to slave {}", slaveAdress);
+                for (Sensor sensor : systemDAO.getSensors()) {
+                    // jeśli sensor jest przyciskiem lub higrometrem i jest na tym slave to wyślij jego konfigurację
+                    // na slave'a
+                    if (sensor.getSlaveAdress() == slaveAdress && sensor instanceof Button) {
+                        Button button = (Button) sensor;
+                        roomsToSave.add(button.getRoom());
+                        logger.debug("Sending button (id:{}) configuration to slave {}",button.getId(), slaveAdress);
+                        button.setOnSlaveID(-1);
+                        button.configure();
+                        if (button.getOnSlaveID() < 0) {
+                            allConfigured = false;
+                            logger.error("Nie udało się skonfigurować przycisku (id:{}) na slave {}", button.getId(), slaveAdress);
+                        }
+                        try{
+                            Thread.sleep(10);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
+                    }
+                    else if(sensor.getSlaveAdress() == slaveAdress && sensor instanceof Higrometr){
+                        Higrometr higrometr = (Higrometr) sensor;
+                        roomsToSave.add(higrometr.getRoom());
+                        logger.debug("Sending higrometr (id:{}) configuration to slave {}",higrometr.getId(), slaveAdress);
+                        higrometr.setOnSlaveID(-1);
+                        higrometr.configure();
+                        if (higrometr.getOnSlaveID() < 0) {
+                            allConfigured = false;
+                            logger.error("Nie udało się skonfigurować higrometru (id:{}) na slave {}", higrometr.getId(), slaveAdress);
+                        }
+                        try{
+                            Thread.sleep(10);
+                        }
+                        catch(InterruptedException e){
+                            logger.error("Błąd podczas usypiania wątku: {}", e.getMessage());
+                        }
+                    }
+
+                }
+                // Zapisz nowe onSlaveID do plików, aby po restarcie programu były zgodne ze slave'em
+                // (higrometr z -1 nie jest odpytywany, więc sam by się nie naprawił).
+                // Tylko przy pełnej konfiguracji: nieudane dodanie ma -1, a zapisane -1 wyłączyłoby
+                // odpytywanie po restarcie. Bez zapisu zostaje stare ID -> 'E' -> reinicjalizacja.
+                if (allConfigured) {
+                    for (int roomId : roomsToSave) {
+                        systemDAO.save(systemDAO.getRoom(roomId));
+                    }
+                }
+                if (!allConfigured) {
+                    logger.warn("Konfiguracja slave'a {} niepełna - część urządzeń/sensorów nie została dodana (onSlaveID = -1). Nie będą one odpytywane; kolejna próba dodania nastąpi przy następnej konfiguracji slave'a.", slaveAdress);
+                }
+            }
+            logger.info("Sending Thermometers configuration to slave {}", slaveAdress);
+            // sprawdź i dodaj termometry
+            int howManyTermometersAreOnSlave = slaveSender.howManyThermometersOnSlave(slaveAdress);
+            ArrayList<Termometr> termometry = systemDAO.getAllTermometers();
+            if (howManyTermometersAreOnSlave > 0) {
+                for (int i = 0; i < howManyTermometersAreOnSlave; i++) {
+                    int[] addres;
+                    addres = slaveSender.addTermometr(slaveAdress);// dodaj termometr na slavie
+                    logger.info("Otrzymano adres termometru: {}", Arrays.toString(addres));
+                    //Sprawdź czy adres nie jest zawiera samych zer lub samych 255
+                    if (!checkAdress(addres)) {
+                        logger.error("Niepoprawny adres termometru: {}", Arrays.toString(addres));
+                        continue;
+                    }
+                    boolean existed = false;// czy ten termometr był już dodany w systemie
+
+                    for (Termometr t : termometry) {// wśród wszystkich dodanych w systemie
+                        if (Arrays.equals(t.getAddres(), addres)) {// znajdź ten który został właśnie dodany
+                            t.setSlaveAdress(slaveAdress);// zmień mu adres slave-a
+                            logger.info("Termometr {} jest już w systemie. Zmieniono mu adres slave-a na {}", t, slaveAdress);
+                            existed = true;
+                            break;
+                        }
+                    }
+                    if (!existed) {
+                        logger.info("Dodano nowy termometr do systemu: slave -> {}; adres -> {}", slaveAdress, Arrays.toString(addres));
+                        Termometr termometr = new Termometr(slaveAdress);
+                        termometr.setAddres(addres);
+                        termometr.setNazwa("Dodany automatycznie, slave=" + slaveAdress);
+                        Room tmp = systemDAO.getRoom("Brak");
+                        if (tmp != null) {
+
+                            termometr.setRoom(tmp.getID());
+                            systemDAO.addSensor(tmp, termometr);
+                            haDiscoveryPublisher.publishSensorAsync(termometr);
+                            bridgeConfigPublisher.requestPublish();
+                        } else {
+                            logger.error("Nie znaleziono pokoju '{}' podczas dodawania nowego termometru  ", "Brak");
+                        }
+                    }
+                }
+            }
+        } catch (HardwareException e) {
+            logger.error("Błąd podczas wysyłania konfiguracji na slave-a ({})! Error: {}", slaveAdress, e.getMessage());
+            this.stopCheckingAutomation = false;
+        }
+        this.stopCheckingAutomation = false;
+    }
+     /**
+      * Sprawdź czy adres nie jest zawiera samych zer lub samych 255
+      */
+    private boolean checkAdress(int[] addres) {
+        boolean isCorrect= false;
+        for (int adr : addres) {
+            if (adr != 0 && adr != 255) {
+                isCorrect = true;
+                break;
+            }
+        }
+        return isCorrect;
+    }
+
+}

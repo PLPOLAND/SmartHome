@@ -1,0 +1,128 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 3,
+  "name" : "łazienkaD rol + Św",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 2,
+      "room" : 6,
+      "slaveID" : 11,
+      "onSlaveID" : 0,
+      "name" : "Poziom 1",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 13
+      },
+      "pin" : 13,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  }, {
+    "device" : {
+      "@type" : "Blind",
+      "id" : 3,
+      "room" : 6,
+      "slaveID" : 11,
+      "onSlaveID" : 1,
+      "name" : "Łazienka Duża",
+      "typ" : "BLIND",
+      "switchUp" : {
+        "stan" : "OFF",
+        "pin" : 15
+      },
+      "switchDown" : {
+        "stan" : "ON",
+        "pin" : 16
+      },
+      "state" : "DOWN"
+    },
+    "activeDeviceState" : "DOWN",
+    "allowReverse" : true
+  } ],
+  "reversState" : true,
+  "type" : "BUTTON",
+  "button" : {
+    "@type" : "Button",
+    "id" : 119,
+    "room" : 6,
+    "onSlaveID" : 3,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Rolety",
+    "typ" : "BUTTON",
+    "pin" : 17,
+    "funkcjeKlikniec" : [ {
+      "state" : "UP",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 3,
+        "room" : 6,
+        "slaveID" : 11,
+        "onSlaveID" : 1,
+        "name" : "Łazienka Duża",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "DOWN",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 3,
+        "room" : 6,
+        "slaveID" : 11,
+        "onSlaveID" : 1,
+        "name" : "Łazienka Duża",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "STOP",
+      "type" : "CLICKED",
+      "clicks" : 3,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 3,
+        "room" : 6,
+        "slaveID" : 11,
+        "onSlaveID" : 1,
+        "name" : "Łazienka Duża",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    } ],
+    "slaveAdress" : 11
+  },
+  "clicks" : 2,
+  "clickType" : "HOLDED",
+  "active" : false
+}

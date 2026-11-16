@@ -1,5 +1,6 @@
 {
   "id" : 3,
+  "name" : "Marek",
   "devices" : [ {
     "@type" : "Blind",
     "id" : 8,
@@ -8,15 +9,15 @@
     "onSlaveID" : 0,
     "name" : "Marek",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 15
-    },
-    "switchDown" : {
-      "stan" : "ON",
-      "pin" : 16
-    },
-    "state" : "DOWN"
+    }
   }, {
     "@type" : "Light",
     "id" : 9,
@@ -25,12 +26,8 @@
     "onSlaveID" : 1,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Light",
     "id" : 10,
@@ -39,76 +36,66 @@
     "onSlaveID" : 2,
     "name" : "Poziom 2",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 12
   }, {
-    "@type" : "Light",
-    "id" : 46,
-    "room" : 3,
-    "slaveID" : 14,
-    "onSlaveID" : 0,
-    "name" : "Gnd TV",
-    "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 15
-    },
-    "pin" : 15,
-    "state" : "OFF"
-  }, {
-    "@type" : "Light",
-    "id" : 47,
-    "room" : 3,
-    "slaveID" : 14,
-    "onSlaveID" : 1,
-    "name" : "Gnd koło łóżka 1",
-    "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "ON",
-      "pin" : 16
-    },
-    "pin" : 16,
-    "state" : "ON"
-  }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 56,
     "room" : 3,
     "slaveID" : 14,
-    "onSlaveID" : 2,
+    "onSlaveID" : 0,
     "name" : "Gniazdko Biurko L",
-    "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "ON",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "ON"
+    "typ" : "GNIAZDKO",
+    "state" : "OFF",
+    "pin" : 16
   }, {
-    "@type" : "Light",
+    "@type" : "Outlet",
     "id" : 57,
     "room" : 3,
     "slaveID" : 14,
-    "onSlaveID" : 3,
+    "onSlaveID" : 1,
     "name" : "Gniazdko Biurko P",
-    "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "OFF"
+    "typ" : "GNIAZDKO",
+    "state" : "OFF",
+    "pin" : 15
+  }, {
+    "@type" : "Outlet",
+    "id" : 47,
+    "room" : 3,
+    "slaveID" : 14,
+    "onSlaveID" : 2,
+    "name" : "Gnd koło łóżka 1",
+    "typ" : "GNIAZDKO",
+    "state" : "OFF",
+    "pin" : 13
+  }, {
+    "@type" : "Outlet",
+    "id" : 59,
+    "room" : 3,
+    "slaveID" : 14,
+    "onSlaveID" : 3,
+    "name" : "Ładowarka",
+    "typ" : "GNIAZDKO",
+    "state" : "OFF",
+    "pin" : 14
+  }, {
+    "@type" : "Outlet",
+    "id" : 46,
+    "room" : 3,
+    "slaveID" : 14,
+    "onSlaveID" : 4,
+    "name" : "TV",
+    "typ" : "GNIAZDKO",
+    "state" : "OFF",
+    "pin" : 12
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 117,
     "room" : 3,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Rolety",
+    "addres" : null,
+    "nazwa" : "Rolety",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -123,15 +110,15 @@
         "onSlaveID" : 0,
         "name" : "Marek",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        }
       }
     }, {
       "state" : "DOWN",
@@ -145,15 +132,15 @@
         "onSlaveID" : 0,
         "name" : "Marek",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        }
       }
     }, {
       "state" : "STOP",
@@ -167,15 +154,15 @@
         "onSlaveID" : 0,
         "name" : "Marek",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        }
       }
     } ],
     "slaveAdress" : 15
@@ -184,8 +171,8 @@
     "id" : 106,
     "room" : 3,
     "onSlaveID" : 4,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Światło",
+    "addres" : null,
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -200,12 +187,8 @@
         "onSlaveID" : 1,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     }, {
       "state" : "NONE",
@@ -219,15 +202,23 @@
         "onSlaveID" : 2,
         "name" : "Poziom 2",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
-        "pin" : 12,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 12
       }
     } ],
     "slaveAdress" : 15
+  }, {
+    "@type" : "Termometr",
+    "id" : 102,
+    "room" : 3,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 144, 126, 153, 156 ],
+    "nazwa" : "Marek",
+    "typ" : "THERMOMETR",
+    "temperatura" : 0.0,
+    "maxTemperatura" : 0.0,
+    "minTemperatura" : 3.4028235E38,
+    "slaveAdress" : -1
   } ],
-  "nazwa" : "Marek"
+  "loaded" : false
 }

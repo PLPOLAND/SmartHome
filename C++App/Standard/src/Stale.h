@@ -27,6 +27,10 @@
 
 
     #define BUTTON_CLICK_TIME 500
+    // Filtr zakłóceń przycisku: zmiana stanu wejścia jest przyjmowana dopiero, gdy nowy stan
+    // utrzymuje się bez przerwy przez tyle ms (drgania styków, szpilki indukowane w długich przewodach).
+    #define BUTTON_DEBOUNCE_PRESS 30
+    #define BUTTON_DEBOUNCE_RELEASE 40
     // #define BUTTON_CLICK_TIME SECS(1)
 
     //BUFFORY

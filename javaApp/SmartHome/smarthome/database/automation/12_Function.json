@@ -1,0 +1,60 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 12,
+  "name" : "Salon z korytarza hold",
+  "actions" : [ {
+    "device" : {
+      "@type" : "Light",
+      "id" : 52,
+      "room" : 11,
+      "slaveID" : 10,
+      "onSlaveID" : 2,
+      "name" : "Jadalnia",
+      "typ" : "LIGHT",
+      "swt" : {
+        "stan" : "OFF",
+        "pin" : 12
+      },
+      "pin" : 12,
+      "state" : "OFF"
+    },
+    "activeDeviceState" : "ON",
+    "allowReverse" : true
+  } ],
+  "reversState" : true,
+  "type" : "BUTTON",
+  "button" : {
+    "@type" : "Button",
+    "id" : 111,
+    "room" : 8,
+    "onSlaveID" : 1,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 11,
+        "room" : 8,
+        "slaveID" : 9,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 9
+  },
+  "clicks" : 1,
+  "clickType" : "HOLDED",
+  "active" : false
+}

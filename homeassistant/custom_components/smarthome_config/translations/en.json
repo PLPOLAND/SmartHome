@@ -1,0 +1,254 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SmartHome",
+        "description": "Configure the SmartHome server over MQTT. The server must be running and connected to the same broker as Home Assistant.",
+        "data": {
+          "base_topic": "MQTT base topic"
+        },
+        "data_description": {
+          "base_topic": "The server's mqtt.base-topic (smarthome by default)."
+        }
+      }
+    },
+    "error": {
+      "invalid_topic": "Enter the base topic.",
+      "mqtt_unavailable": "The MQTT integration is not set up or not connected to the broker.",
+      "no_server": "The SmartHome server does not answer on this topic (no configuration on <topic>/bridge/config)."
+    },
+    "abort": {
+      "single_instance_allowed": "Already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SmartHome",
+        "description": "What do you want to do?",
+        "menu_options": {
+          "add_device": "Add a device",
+          "edit_device": "Edit a device",
+          "remove_device": "Remove a device",
+          "add_sensor": "Add a sensor or button",
+          "edit_sensor": "Edit a sensor or button",
+          "remove_sensor": "Remove a sensor or button",
+          "click_functions": "Button click functions",
+          "rooms": "Rooms",
+          "maintenance": "Maintenance"
+        }
+      },
+      "done": {
+        "title": "Saved",
+        "description": "The change was saved: {result}",
+        "menu_options": {
+          "init": "Back to menu",
+          "finish": "Finish"
+        }
+      },
+      "add_device": {
+        "title": "Add a device",
+        "data": {
+          "type": "Type"
+        }
+      },
+      "add_device_details": {
+        "title": "Add a device",
+        "description": "The device is added on the board right away.",
+        "data": {
+          "name": "Name",
+          "room": "Room",
+          "slave": "Slave",
+          "pin": "Pin",
+          "pin2": "Pin 2 (down)"
+        },
+        "data_description": {
+          "slave": "I2C address of the board. ✓ = connected, ✗ = not connected; you can also type the address of a board that is not listed.",
+          "pin": "Pin number on the board (for a blind: the up pin).",
+          "pin2": "Blind only: the down pin."
+        }
+      },
+      "edit_device": {
+        "title": "Edit a device",
+        "data": {
+          "device": "Device"
+        }
+      },
+      "edit_device_details": {
+        "title": "Edit: {name}",
+        "description": "Changing the slave or a pin re-sends the whole configuration to the board - its outputs are reset for a moment.",
+        "data": {
+          "name": "Name",
+          "room": "Room",
+          "slave": "Slave",
+          "pin": "Pin",
+          "pin2": "Pin 2 (down)"
+        },
+        "data_description": {
+          "slave": "I2C address of the board. ✓ = connected, ✗ = not connected; you can also type the address of a board that is not listed.",
+          "pin": "Pin number on the board (for a blind: the up pin).",
+          "pin2": "Blind only: the down pin."
+        }
+      },
+      "remove_device": {
+        "title": "Remove a device",
+        "description": "The device disappears from Home Assistant and local button functions that controlled it are removed. The board's configuration is sent again (outputs are reset for a moment).",
+        "data": {
+          "device": "Device",
+          "confirm": "I confirm"
+        }
+      },
+      "add_sensor": {
+        "title": "Add a sensor or button",
+        "description": "1-Wire thermometers are detected automatically and placed in the room \"Brak\".",
+        "data": {
+          "type": "Type"
+        }
+      },
+      "add_sensor_details": {
+        "title": "Add a sensor or button",
+        "data": {
+          "name": "Name",
+          "room": "Room",
+          "slave": "Slave",
+          "pin": "Button pin"
+        },
+        "data_description": {
+          "slave": "I2C address of the board. ✓ = connected, ✗ = not connected; you can also type the address of a board that is not listed."
+        }
+      },
+      "edit_sensor": {
+        "title": "Edit a sensor or button",
+        "data": {
+          "sensor": "Sensor / button"
+        }
+      },
+      "edit_sensor_details": {
+        "title": "Edit: {name}",
+        "description": "Changing the slave or a pin re-sends the whole configuration to the board - its outputs are reset for a moment.",
+        "data": {
+          "name": "Name",
+          "room": "Room",
+          "slave": "Slave",
+          "pin": "Button pin"
+        }
+      },
+      "remove_sensor": {
+        "title": "Remove a sensor or button",
+        "description": "The sensor disappears from Home Assistant. Removing a button or hygrometer re-sends the board's configuration (outputs are reset for a moment).",
+        "data": {
+          "sensor": "Sensor / button",
+          "confirm": "I confirm"
+        }
+      },
+      "click_functions": {
+        "title": "Button click functions",
+        "data": {
+          "sensor": "Button"
+        }
+      },
+      "click_functions_details": {
+        "title": "Click functions: {name}",
+        "description": "Functions run locally on the board (slave {slave}), even when the server is down - so only devices of the same board can be chosen. Blinds: up / down / stop, other devices: toggle. Saving re-sends the board's configuration (outputs are reset for a moment).",
+        "data": {
+          "device_1": "1 × click: device",
+          "action_1": "1 × click: action",
+          "device_2": "2 × click: device",
+          "action_2": "2 × click: action",
+          "device_3": "3 × click: device",
+          "action_3": "3 × click: action"
+        }
+      },
+      "rooms": {
+        "title": "Rooms",
+        "menu_options": {
+          "add_room": "Add a room",
+          "rename_room": "Rename a room",
+          "remove_room": "Remove a room",
+          "init": "Back to menu"
+        }
+      },
+      "add_room": {
+        "title": "Add a room",
+        "data": {
+          "name": "Name"
+        }
+      },
+      "rename_room": {
+        "title": "Rename a room",
+        "description": "The Home Assistant area with the same name is renamed as well.",
+        "data": {
+          "room": "Room",
+          "name": "New name"
+        }
+      },
+      "remove_room": {
+        "title": "Remove a room",
+        "description": "Only an empty room can be removed.",
+        "data": {
+          "room": "Room"
+        }
+      },
+      "maintenance": {
+        "title": "Maintenance",
+        "menu_options": {
+          "restart_slaves": "Restart all boards",
+          "reinit_slave": "Re-send configuration to a board",
+          "init": "Back to menu"
+        }
+      },
+      "restart_slaves": {
+        "title": "Restart all boards",
+        "description": "All boards are restarted and their outputs switched off for a moment.",
+        "data": {
+          "confirm": "I confirm"
+        }
+      },
+      "reinit_slave": {
+        "title": "Re-send configuration to a board",
+        "description": "The board is reset and receives its whole configuration again.",
+        "data": {
+          "slave": "Slave"
+        }
+      }
+    },
+    "error": {
+      "server_error": "The server rejected the change: {error}",
+      "timeout": "The SmartHome server did not answer.",
+      "invalid_slave": "The slave address must be a non-negative number.",
+      "confirm_required": "Tick the confirmation.",
+      "invalid_action": "A blind needs up / down / stop, other devices - toggle."
+    },
+    "abort": {
+      "not_loaded": "The integration is not loaded.",
+      "no_server": "The SmartHome server does not answer on this topic (no configuration on <topic>/bridge/config).",
+      "no_devices": "No devices.",
+      "no_sensors": "No sensors.",
+      "no_buttons": "No buttons."
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "LIGHT": "Light",
+        "GNIAZDKO": "Outlet",
+        "WENTYLATOR": "Fan",
+        "BLIND": "Blind"
+      }
+    },
+    "sensor_type": {
+      "options": {
+        "BUTTON": "Button",
+        "THERMOMETR_HYGROMETR": "Hygrometer (temperature + humidity)"
+      }
+    },
+    "click_action": {
+      "options": {
+        "toggle": "Toggle",
+        "up": "Up",
+        "down": "Down",
+        "stop": "Stop"
+      }
+    }
+  }
+}
