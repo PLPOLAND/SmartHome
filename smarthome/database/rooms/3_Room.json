@@ -103,6 +103,18 @@
     "state" : "OFF"
   } ],
   "sensors" : [ {
+    "@type" : "Termometr",
+    "id" : 102,
+    "room" : 3,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 144, 126, 153, 156 ],
+    "name" : "Marek",
+    "typ" : "THERMOMETR",
+    "temperatura" : 24.06,
+    "max" : 3541565.0,
+    "min" : 0.0,
+    "slaveAdress" : 15
+  }, {
     "@type" : "Button",
     "id" : 117,
     "room" : 3,
