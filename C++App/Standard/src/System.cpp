@@ -108,10 +108,14 @@ void System::begin(){
         this->setNextStartupVariant(false);//next startup should be with devices
         byte parametry[8] = {1,0,0,0,0,0,0,0};
         comunication->addReplyToSent(parametry); // alokacja przy wyłączonych przerwaniach
-        pinMode(12, OUTPUT);
-        pinMode(13, OUTPUT);
-        pinMode(15, OUTPUT);
-        pinMode(16, OUTPUT);
+        // Przekaźniki i rolety są aktywne stanem niskim: HIGH przed OUTPUT, żeby do czasu
+        // konfiguracji przez mastera wszystkie wyjścia były wyłączone (bez krótkiego LOW).
+        const byte piny_wyjsc[] = {12, 13, 15, 16};
+        for (byte i = 0; i < sizeof(piny_wyjsc); i++)
+        {
+            digitalWrite(piny_wyjsc[i], HIGH);
+            pinMode(piny_wyjsc[i], OUTPUT);
+        }
     }
     
     Termometr::init();

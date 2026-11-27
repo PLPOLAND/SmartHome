@@ -1,10 +1,14 @@
 #include <devices/Przekaznik.h>
 Przekaznik::Przekaznik(){
     Device(TYPE::PRZEKAZNIK);
+    pin = 0;
+    stan = false;
 }
 Przekaznik::~Przekaznik()
 {
-    digitalWrite(pin, LOW);
+    // Przekaźniki są aktywne stanem niskim - HIGH = wyłączony
+    if (pin >= PINOW_NA_ADRES + 2 && pin <= 16)
+        digitalWrite(pin, HIGH);
 }
 bool Przekaznik::begin(byte pin, bool stan)
 {
@@ -15,14 +19,15 @@ bool Przekaznik::begin(byte pin, bool stan)
         // OUT(F("PIN: "))
         // OUT((int)pin)
         // OUT_LN(F(" PIN OUTPUT"))
+        this->stan = stan;
+        // Najpierw poziom (aktywny stan niski), dopiero potem OUTPUT - bez impulsu załączenia
+        digitalWrite(pin, stan ? LOW : HIGH);
         pinMode(pin, OUTPUT);
     }
     else
     {
         return false;
     }
-    this->stan = stan;
-    setStan(stan);
     return true;
 }
 
@@ -36,10 +41,10 @@ void Przekaznik::setPin(byte pin)
 {
     if (pin >= PINOW_NA_ADRES+2 && pin <= 16)
     {
-        digitalWrite(pin, LOW); //resetowanie poprzedniego stanu wyjscia
         this->pin = pin;
+        // Aktywny stan niski (jak w setStan): ustaw poziom przed OUTPUT, żeby nie załączyć przekaźnika
+        digitalWrite(pin, stan ? LOW : HIGH);
         pinMode(pin, OUTPUT);
-        digitalWrite(pin, stan == false ? LOW : HIGH);
     }
 };
 
