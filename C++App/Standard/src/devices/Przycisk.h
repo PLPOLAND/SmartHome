@@ -36,6 +36,7 @@ private:
     bool odczytSurowy;            // ostatni surowy odczyt pinu (true = wciśnięty)
     bool odczytStabilny;          // stan po filtrze, na nim działa maszyna stanów
     unsigned long czasZmianySurowego; // millis() ostatniej zmiany surowego odczytu
+    bool czekaNaPuszczenie;       // po starcie: wejście ignorowane, aż filtr potwierdzi puszczenie
     bool odczytajWejscie();
     bool czyPominac = false;
 
