@@ -78,9 +78,10 @@ HEX_MD5=$(md5sum "$HEX" | cut -c1-8)
 #                          wypisuje "heap=... nietknięty RAM=... freelist=..." albo kończy się błędem
 #   scan OD DO           - wypisuje adresy z zakresu, które odpowiadają na 'M'
 #   probe PORT ADRESY... - resetuje slave-a pod kablem i sprawdza, czy odpowiada bootloader (STK500).
-#                          Jeśli tak, trzyma go ~2,5 s w bootloaderze i odpytuje podane adresy:
-#                          ten, który przez cały czas milczy, to slave pod kablem. Wypisuje adres
-#                          albo "?" (kod 0); kod 2 = nic nie jest podłączone.
+#                          Jeśli tak, trzyma go ~2,5 s w bootloaderze i odpytuje podane adresy.
+#                          Wypisuje adresy, które przez cały czas milczały (slave pod kablem, ale też
+#                          np. sąsiad z tej samej płytki, którego zresetowało podłączenie kabla),
+#                          albo "-", gdy żaden (kod 0); kod 2 = nic nie jest podłączone.
 PY_HELPER=$(cat <<'EOF'
 import ctypes, fcntl, os, struct, sys, termios, time
 I2C_RDWR, I2C_M_RD = 0x0707, 0x0001
@@ -173,7 +174,7 @@ def cmd_probe(port, addrs):
         if not found:
             return 2
         if not addrs:
-            print("?")
+            print("-")
             return 0
 
         # Bootloader nie obsługuje I2C - slave pod kablem milczy, dopóki dostaje komendy.
@@ -186,8 +187,8 @@ def cmd_probe(port, addrs):
                 if query(i2c, a) is None:
                     fails[a] += 1
             rounds += 1
-        silent = [a for a in addrs if fails[a] == rounds]
-        print(silent[0] if len(silent) == 1 else "?")
+        silent = [str(a) for a in addrs if fails[a] == rounds]
+        print(" ".join(silent) or "-")
         return 0
     finally:
         os.close(fd)
@@ -249,7 +250,12 @@ restore_app() {
     [ -n "$ON_EXIT_SUMMARY" ] && eval "$ON_EXIT_SUMMARY"
     if [ "$APP_WAS_ACTIVE" -eq 1 ]; then
         echo ">> Uruchamiam $SERVICE"
-        sudo -n systemctl start "$SERVICE" || echo "!! Nie udało się uruchomić $SERVICE - zrób to ręcznie: sudo systemctl start $SERVICE" >&2
+        if sudo -n systemctl start "$SERVICE"; then
+            [ -n "$NOTIFY_URL" ] && notify "Aplikacja $SERVICE uruchomiona."
+        else
+            echo "!! Nie udało się uruchomić $SERVICE - zrób to ręcznie: sudo systemctl start $SERVICE" >&2
+            [ -n "$NOTIFY_URL" ] && notify "UWAGA: nie udało się uruchomić $SERVICE - uruchom ręcznie."
+        fi
     fi
 }
 trap restore_app EXIT
@@ -310,7 +316,7 @@ summary() {
     local left; left=$(remaining)
     [ -n "$left" ] && msg+="; NIE obsłużone: $left"
     [ "$UNKNOWN" -gt 0 ] && msg+="; o nieznanym adresie: $UNKNOWN"
-    [ "$APP_WAS_ACTIVE" -eq 1 ] && msg+=". Uruchamiam aplikację."
+    [ "$APP_WAS_ACTIVE" -eq 1 ] && msg+=". Uruchamiam aplikację..."
     notify "$msg"
 }
 ON_EXIT_SUMMARY=summary
@@ -319,29 +325,41 @@ notify "Tryb seryjny: $HEX_NAME (md5 $HEX_MD5), ${#ALL[@]} slave-ów: ${ALL[*]}.
 PORT_WARNED=0
 while [ -n "$(remaining)" ]; do
     if [ ! -e "$PORT" ]; then
-        [ "$PORT_WARNED" -eq 0 ] && echo "!! Brak portu $PORT - czekam na Uno..." >&2
+        [ "$PORT_WARNED" -eq 0 ] && notify "Brak portu $PORT - czekam na Uno (podłącz USB)."
         PORT_WARNED=1
         sleep 2
         continue
     fi
     PORT_WARNED=0
 
-    SLAVE=$(py probe "$PORT" "${ALL[@]}") || { sleep 1; continue; }
+    SILENT=$(py probe "$PORT" "${ALL[@]}") || { sleep 1; continue; }
+    # Podłączenie kabla może zresetować też drugiego slave-a z tej samej płytki - wtedy milczą
+    # oba adresy. Już obsłużone odrzucamy: pod kablem jest ten jedyny nieobsłużony.
+    SLAVE="?"
+    CAND=()
+    for a in $SILENT; do
+        [ "$a" = "-" ] && continue
+        [ -z "${DONE[$a]:-}" ] && CAND+=("$a")
+    done
+    if [ "${#CAND[@]}" -eq 1 ]; then
+        SLAVE=${CAND[0]}
+    elif [ "${#CAND[@]}" -eq 0 ] && [ "$SILENT" != "-" ]; then
+        sleep 1; continue # milczą tylko obsłużone - kabel jeszcze nie przepięty
+    fi
     if [ "$SLAVE" = "?" ]; then
         # Nie wiadomo, czy to ten sam slave co poprzednio - nie wgrywaj w kółko.
         [ "$LAST_UNKNOWN" -eq 1 ] && { sleep 2; continue; }
     else
         LAST_UNKNOWN=0
-        [ -n "${DONE[$SLAVE]:-}" ] && { sleep 1; continue; } # kabel jeszcze nie przepięty
     fi
     LABEL="Slave $SLAVE"
     [ "$SLAVE" = "?" ] && LABEL="Slave o nieznanym adresie"
-    echo ">> $LABEL pod kablem, porównuję firmware..."
+    notify "$LABEL pod kablem - porównuję firmware..."
 
     avr_verify
     case $? in
         0)  STATUS=same ;;
-        1)  echo ">> Firmware się różni, wgrywam..."
+        1)  notify "$LABEL: firmware się różni - wgrywam..."
             if avr_write; then STATUS=written; else STATUS=error; fi ;;
         *)  STATUS=error ;;
     esac
@@ -356,6 +374,7 @@ while [ -n "$(remaining)" ]; do
         continue
     fi
 
+    [ "$STATUS" = written ] && notify "$LABEL: wgrane i zweryfikowane - sprawdzam start slave-a..."
     sleep 3 # bootloader + setup()
     if [ "$SLAVE" = "?" ]; then
         LAST_UNKNOWN=1
