@@ -41,6 +41,13 @@ void Przekaznik::setPin(byte pin)
 {
     if (pin >= PINOW_NA_ADRES+2 && pin <= 16)
     {
+        // Zwolnij poprzedni pin: wyłącz przekaźnik (HIGH) i zostaw wejście z podciąganiem,
+        // żeby stary pin nie trzymał załączonego przekaźnika ani nie pływał.
+        if (this->pin != pin && this->pin >= PINOW_NA_ADRES + 2 && this->pin <= 16)
+        {
+            digitalWrite(this->pin, HIGH);
+            pinMode(this->pin, INPUT_PULLUP);
+        }
         this->pin = pin;
         // Aktywny stan niski (jak w setStan): ustaw poziom przed OUTPUT, żeby nie załączyć przekaźnika
         digitalWrite(pin, stan ? LOW : HIGH);
