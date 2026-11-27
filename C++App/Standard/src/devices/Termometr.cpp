@@ -30,7 +30,7 @@ Termometr::~Termometr(){}
 
 Termometr::Termometr(const Termometr &t) : Device((Device)t)
 {
-    OUT_LN(F("COPY TERMO"))
+    // OUT_LN(F("COPY TERMO"))
     memcpy(this->adress,t.adress,8);
     this->temperatura = t.temperatura;
     timer.restart();
@@ -122,7 +122,7 @@ bool Termometr::begin()
         else
         {
             copyAdress(tmpAdress,this->adress);
-            OUT_LN(F("therm added ok"))
+            // OUT_LN(F("therm added ok"))
             return true;
         }
         
@@ -142,7 +142,7 @@ void Termometr::updateTemperature(){
         sensors.setWaitForConversion(false); // makes it async
         sensors.requestTemperatures();
         sensors.setWaitForConversion(true);
-        OUT_LN(F("updatingTemperature"))
+        // OUT_LN(F("updatingTemperature"))
         // for (byte i = 0; i < 8; i++)
         // {
         //     OUT(" ");

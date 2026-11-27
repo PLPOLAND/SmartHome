@@ -1,5 +1,6 @@
 {
   "id" : 8,
+  "name" : "Korytarz",
   "devices" : [ {
     "@type" : "Light",
     "id" : 11,
@@ -8,20 +9,16 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 111,
     "room" : 8,
     "onSlaveID" : 1,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Światło",
+    "addres" : null,
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -36,15 +33,23 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     } ],
     "slaveAdress" : 9
+  }, {
+    "@type" : "Termometr",
+    "id" : 103,
+    "room" : 8,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 137, 24, 112, 13, 0, 0, 152 ],
+    "nazwa" : "Korytarz",
+    "typ" : "THERMOMETR",
+    "temperatura" : 21.0,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 21.0,
+    "slaveAdress" : -1
   } ],
-  "nazwa" : "Korytarz"
+  "loaded" : false
 }

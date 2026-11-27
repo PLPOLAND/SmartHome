@@ -1,0 +1,777 @@
+package newsmarthome.database;
+
+
+import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Repository;
+
+import newsmarthome.model.Room;
+import newsmarthome.model.hardware.HardwareFactory;
+import newsmarthome.model.hardware.device.Blind;
+import newsmarthome.model.hardware.device.Device;
+import newsmarthome.model.hardware.device.DeviceState;
+import newsmarthome.model.hardware.device.DeviceTypes;
+import newsmarthome.model.hardware.device.Fan;
+import newsmarthome.model.hardware.device.Light;
+import newsmarthome.model.hardware.device.Outlet;
+import newsmarthome.model.hardware.sensor.Button;
+import newsmarthome.model.hardware.sensor.ButtonClickType;
+import newsmarthome.model.hardware.sensor.ButtonLocalFunction;
+import newsmarthome.model.hardware.sensor.Higrometr;
+import newsmarthome.model.hardware.sensor.Sensor;
+import newsmarthome.model.hardware.sensor.SensorsTypes;
+import newsmarthome.model.hardware.sensor.Termometr;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Repository("systemDAO")
+@DependsOn("hardwareFactory")
+public class SystemDAO {
+
+    private static final String DEFAULT_ROOMS_FILES_LOCALISATION = "smarthome/database/rooms/";
+    private static final Pattern ROOM_FILE_PATTERN = Pattern.compile("(\\d+)_Room\\.json");
+    /** Katalog z plikami pokoi (zakończony separatorem). */
+    private final String roomsFilesLocalisation;
+    TreeMap<String, Room> pokoje; // Pokoje w systemie
+    Logger logger;
+
+    ArrayList<Device> devices;
+    ArrayList<Sensor> sensors;
+
+    @Autowired
+    HardwareFactory hardwareFactory;
+
+    // @Autowired
+    @Autowired
+    public SystemDAO( HardwareFactory hardwareFactory) {
+        this(hardwareFactory, DEFAULT_ROOMS_FILES_LOCALISATION);
+    }
+
+    /** @param roomsFilesLocalisation katalog z plikami pokoi, zakończony separatorem */
+    public SystemDAO(HardwareFactory hardwareFactory, String roomsFilesLocalisation) {
+        this.roomsFilesLocalisation = roomsFilesLocalisation;
+        this.hardwareFactory = hardwareFactory;
+        logger = LoggerFactory.getLogger(SystemDAO.class);
+        logger.info("Init System DAO");
+        pokoje = new TreeMap<>();
+        devices = new ArrayList<>();
+        sensors = new ArrayList<>();
+        this.readDatabase();
+        if (pokoje.isEmpty()) {
+            addRoom(new Room(0, "Brak"));
+        }
+    }
+
+    /**
+     * Dodaje pokój do systemu
+     * 
+     * @param pokoj - pokój do dodania
+     */
+    public void addRoom(Room pokoj) {
+        pokoj.setSystemDAO(this);
+        this.pokoje.put(pokoj.getName(), pokoj);
+        save(pokoj);
+        pokoj.setLoaded();
+    }
+
+    /**
+     * Zwraca pokoj o podanej nazwie
+     * 
+     * @param name - nazwa pokoju
+     * @return znaleziony pokoj / null jeśli takiego brak
+     */
+    public Room getRoom(String name) {
+        return this.pokoje.get(name);
+    }
+
+    /**
+     * Zwraca pokoj o podanym ID
+     * 
+     * @param id - id pokoju
+     * @return znaleziony pokoj / null jeśli takiego brak
+     */
+    public Room getRoom(int id) {
+        for (Room room : this.pokoje.values()) {
+            if (room.getID() == id) {
+                return room;
+            }
+        }
+        return null;
+    }
+
+    /** Zmienia nazwę pokoju - pokoje są indeksowane nazwą, więc trzeba przepiąć klucz. */
+    public void renameRoom(Room room, String newName) {
+        pokoje.remove(room.getName());
+        room.setNazwa(newName);
+        pokoje.put(newName, room);
+        save(room);
+    }
+
+    /** Wolne id dla nowego pokoju (id wyznacza nazwę pliku pokoju, więc nie może się powtórzyć). */
+    public int nextRoomId() {
+        int max = -1;
+        for (Room room : pokoje.values()) {
+            max = Math.max(max, room.getID());
+        }
+        return max + 1;
+    }
+
+    /**
+     * Usuwa podany pokój z systemu
+     * 
+     * @param r pokój do usunięcia
+     * @return true jeśli taki pokój istniał
+     */
+    public boolean removeRoom(Room r) {
+        if (r == null) {
+            return false;
+        }
+        synchronized (devices) {
+            this.devices.removeAll(r.getDevices());
+        }
+        synchronized (sensors) {
+            this.sensors.removeAll(r.getSensors());
+        }
+        r.safeDelete();
+
+        if (pokoje.remove(r.getName()) != null) {
+            delete(r);
+            return true;
+        } else
+            return false;
+    }
+
+    /**
+     * Usuwa podany pokój z systemu
+     * 
+     * @param r nazwa pokoju do usunieca
+     * @return true jeśli taki pokój istniał
+     */
+    public boolean removeRoom(String r) {
+        Room id = pokoje.get(r);// znajdź pokój
+        if (id != null) {
+            return removeRoom(id);// usuń go
+        }
+        return false;
+    }
+
+    /**
+     * Zwraca pokoje w systemie w postaci ArrayList
+     * 
+     * @return ArrayList<Room>
+     */
+    public ArrayList<Room> getRoomsArrayList() {
+        ArrayList<Room> tmp = new ArrayList<>(pokoje.values());
+        tmp.sort((a, b) -> (a.getID() < b.getID()) ? -1 : 1);
+        return tmp;
+    }
+
+    /**
+     * Zwraca nazwy pokoi w systemie w postaci ArrayList
+     * 
+     * @return ArrayList<Room>
+     */
+    public ArrayList<String> getRoomsNames() {
+        ArrayList<Room> tmp = getRoomsArrayList();
+        ArrayList<String> names = new ArrayList<>();
+        for (Room room : tmp) {
+            names.add(room.getName());
+        }
+        return names;
+    }
+
+    /**
+     * Zwraca listę wszystkich termometrów
+     * 
+     * @return  lista termometrów
+     */
+    public ArrayList<Termometr> getAllTermometers() {// TODO pomyśleć jak można to usprawnić np. przez robienie od razu
+                                                     // takiej listy w momencie dodawania termometrów do systemu
+        ArrayList<Termometr> termometry = new ArrayList<>();
+        for (Room room : this.getRoomsArrayList()) {
+            for (Sensor termometr : room.getSensors()) {
+                if (termometr.getTyp() == SensorsTypes.THERMOMETR)
+                    termometry.add((Termometr) termometr);
+            }
+        }
+        return termometry;
+    }
+
+    /**
+     * Zwraca listę wszystkich higrometrów
+     * @return lista higrometrów
+     */
+    public List<Higrometr> getAllHigrometers() {
+        ArrayList<Higrometr> higrometry = new ArrayList<>();
+        for (Room room : this.getRoomsArrayList()) {
+            for (Sensor higrometr : room.getSensors()) {
+                if (higrometr.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR)
+                    higrometry.add((Higrometr) higrometr);
+            }
+        }
+        return higrometry;
+    }
+
+
+    public ArrayList<Device> getDevices() {
+        return this.devices;
+    }
+
+    public String getDevicesJSON(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        try {
+            return objectMapper.writeValueAsString(this.devices);
+        } catch (Exception e) {
+            logger.error("Błąd podczas zapisywania urządzeń do JSON", e);
+            return "[]";
+        }
+
+    }
+
+    public ArrayList<Sensor> getSensors() {
+        return this.sensors;
+    }
+
+    /**
+     * Spójna kopia listy urządzeń, bezpieczna do iterowania z innych wątków (np. MQTT) -
+     * modyfikacje listy w DAO są synchronizowane na tej samej liście.
+     */
+    public List<Device> getDevicesSnapshot() {
+        synchronized (devices) {
+            return new ArrayList<>(devices);
+        }
+    }
+
+    /** Spójna kopia listy czujników, patrz {@link #getDevicesSnapshot()}. */
+    public List<Sensor> getSensorsSnapshot() {
+        synchronized (sensors) {
+            return new ArrayList<>(sensors);
+        }
+    }
+
+    /**
+     * Zwraca sensor o podanym id
+     * @param id - id sensora
+     * @return znaleziony sensor / null jeśli brak sensora o podanym id
+     */
+    public Sensor getSensor(int id){
+        // wołane też z wątków MQTT - bez blokady add/remove z Runners rzuciłoby ConcurrentModificationException
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor.getId() == id) {
+                    return sensor;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Przycisk o danym id na slave-ie. Higrometry i przyciski mają na slave-ie osobną numerację,
+     * więc samo onSlaveID może wskazać higrometr.
+     */
+    public Button getButtonByOnSlaveID(int slaveAdress, int onSlaveId) {
+        synchronized (sensors) {
+            for (Sensor sensor : sensors) {
+                if (sensor instanceof Button && sensor.getOnSlaveID() == onSlaveId
+                        && sensor.getSlaveAdress() == slaveAdress) {
+                    return (Button) sensor;
+                }
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<Button> getAllButtons() {
+        ArrayList<Button> buttons = new ArrayList<>();
+        for (Room room : this.getRoomsArrayList()) {
+            for (Sensor przycisk : room.getSensors()) {
+                if (przycisk.getTyp() == SensorsTypes.BUTTON)
+                    buttons.add((Button) przycisk);
+            }
+        }
+        return buttons;
+    }
+
+    /**
+     * Dodaje sensor do systemu i zapisuje go 
+     * @param sensor - sensor do dodania
+     * @throws IllegalArgumentException - jeśli sensor ma błędne ID pokoju
+     */
+    public void addSensor(Sensor sensor) throws IllegalArgumentException {
+        synchronized (sensors) {
+            this.sensors.add(sensor);
+        }
+        Room r ;
+        for (Room room : this.pokoje.values()) {
+            if(room.getID() == sensor.getRoom()){
+                r = room;
+                r.addSensor(sensor);
+                save(r);
+                logger.debug("Dodano sensor do pokoju i zapisano");
+                return;
+            }
+        }
+    }
+    /**
+     * Dodaje urządzenie do systemu i zapisuje go
+     * @param device - urządzenie do dodania
+     * @throws IllegalArgumentException - jeśli urządzenie ma błędne ID pokoju
+     */
+    public void addDevice(Device device) throws IllegalArgumentException {
+        synchronized (devices) {
+            this.devices.add(device);
+        }
+        Room r ;
+        for (Room room : this.pokoje.values()) {
+            if(room.getID() == device.getRoom()){
+                r = room;
+                r.addDevice(device);
+                save(r);
+                logger.debug("Dodano urzadzenie do pokoju i zapisano");
+                return;
+            }
+        }
+    }
+
+    /**
+     * 
+     * @return true jeśli w systemie zarejestrowane są pokoje/pokój
+     */
+    public boolean haveAnyRoom() {
+        if (pokoje != null && !pokoje.isEmpty())
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * Czyta bazę danych z plików
+     */
+    public void readDatabase() {
+        ObjectMapper obj = new ObjectMapper();
+        obj.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+        File f = new File(roomsFilesLocalisation);
+        logger.debug("Lokalizacja plików z pokojami: {}", f.getAbsolutePath());
+        // po id z nazw istniejących plików, a nie 0,1,2... do pierwszego braku - usunięcie pokoju
+        // zostawia lukę w id, za którą pozostałe pokoje przestałyby się wczytywać
+        for (int i : roomFileIds(f)) {
+            Room room = new Room(i, "Brak");
+            try {
+                JsonNode jsonNode = obj.readTree(new File(roomsFilesLocalisation + i + "_Room.json"));
+                JsonNode roomNameNode = jsonNode.get("nazwa");
+                if (roomNameNode == null) {
+                    roomNameNode = jsonNode.get("name");
+                    if (roomNameNode == null) {
+                        logger.error("Błąd podczas wczytywania pokoju {}, brak nazwy pokoju", i);
+                        continue;
+                    }
+                }
+                room.setNazwa(roomNameNode.asText());
+                room.setSystemDAO(this);
+                for (JsonNode jsonNode2 : jsonNode.get("devices")) {
+                    Device device = hardwareFactory.createDevice(DeviceTypes.valueOf( jsonNode2.get("typ").asText()));
+                    device.setId(jsonNode2.get("id").asInt());
+                    device.setSlaveID(jsonNode2.get("slaveID").asInt());
+                    device.setOnSlaveID(jsonNode2.get("onSlaveID").asInt());
+                    device.setRoom(jsonNode2.get("room").asInt());
+                    device.setName(jsonNode2.get("name").asText());
+                    switch (device.getTyp()) {
+                        case LIGHT:
+                        Light light = (Light) device;
+                        light.setPin(jsonNode2.get("pin").asInt());
+                        light.setState(DeviceState.valueOf(jsonNode2.get("state").asText()));
+                            
+                            break;
+                        case BLIND:
+                        Blind blind = (Blind) device;
+                        blind.setPinUp(jsonNode2.get("switchUp").get("pin").asInt());
+                        blind.setPinDown(jsonNode2.get("switchDown").get("pin").asInt());
+                        blind.setState(DeviceState.valueOf(jsonNode2.get("state").asText()));
+                            break;
+                        case WENTYLATOR:
+                        Fan fan = (Fan) device;
+                        fan.setPin(jsonNode2.get("pin").asInt());
+                        fan.setState(DeviceState.valueOf(jsonNode2.get("state").asText()));
+
+                            break;
+                        case GNIAZDKO:
+                        Outlet outlet = (Outlet) device;
+                        outlet.setPin(jsonNode2.get("pin").asInt());
+                        outlet.setState(DeviceState.valueOf(jsonNode2.get("state").asText()));
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    room.addDevice(device);
+                    devices.add(device);
+                }
+                for (JsonNode jsonNode2 : jsonNode.get("sensors")) {
+                    Sensor sensor = hardwareFactory.createSensor(SensorsTypes.valueOf( jsonNode2.get("typ").asText()));
+                    JsonNode sensorNameNode = jsonNode2.get("nazwa");
+                    if (sensorNameNode == null) {
+                        sensorNameNode = jsonNode2.get("name");
+                        if (sensorNameNode == null) {
+                            logger.error("Błąd podczas wczytywania pokoji, brak nazwy sensora");
+                            break;
+                        }
+                    }
+                    sensor.setId(jsonNode2.get("id").asInt());
+                    sensor.setSlaveAdress(jsonNode2.get("slaveAdress").asInt());
+                    sensor.setRoom(jsonNode2.get("room").asInt());
+                    sensor.setNazwa(sensorNameNode.asText());
+                    switch (sensor.getTyp()) {
+                        case BUTTON:
+                            Button button = (Button) sensor;
+                            button.setPin(jsonNode2.get("pin").asInt());
+                            button.setOnSlaveID(jsonNode2.get("onSlaveID").asInt());
+                            button.setSlaveAdress(jsonNode2.get("slaveAdress").asInt());
+                            for (JsonNode funkcjeKlikniecJson : jsonNode2.get("funkcjeKlikniec")) {
+                                ButtonLocalFunction funkcjaKlikniec = new ButtonLocalFunction();
+                                funkcjaKlikniec.setButton(button);
+                                funkcjaKlikniec.setClicks(funkcjeKlikniecJson.get("clicks").asInt());
+                                funkcjaKlikniec.setType(ButtonClickType.valueOf(funkcjeKlikniecJson.get("type").asText()));
+                                funkcjaKlikniec.setDevice(getDeviceByID(funkcjeKlikniecJson.get("device").get("id").asInt()));
+                                funkcjaKlikniec.setState(ButtonLocalFunction.State.valueOf(funkcjeKlikniecJson.get("state").asText()));
+                                button.addFunkcjaKilkniecia(funkcjaKlikniec);
+                            }
+                            break;
+                        case THERMOMETR:
+                            Termometr termometr = (Termometr) sensor;
+                            int[] addres = new int[8];
+                            int j =0;
+                            for (JsonNode adrJsonNode : jsonNode2.get("addres")) {
+                                addres[j++] = adrJsonNode.asInt();
+                            }
+                            termometr.setAddres(addres);
+                            termometr.setTemperatura( (float) jsonNode2.get("temperatura").asDouble());
+                            // termometr.setMaxTemperatura((float) jsonNode2.get("max").asDouble());
+                            // termometr.setMinTemperatura((float) jsonNode2.get("min").asDouble());
+                            termometr.setSlaveAdress(jsonNode2.get("slaveAdress").asInt());
+                            break;
+                        case THERMOMETR_HYGROMETR:
+                            Higrometr higrometr = (Higrometr) sensor;
+                            higrometr.setTemperatura( (float) jsonNode2.get("temperatura").asDouble());
+                            higrometr.setHumidity(jsonNode2.get("humidity").asInt());
+                            // bez tego po restarcie programu higrometr ma onSlaveID -1 i nie jest odpytywany
+                            JsonNode higrometrOnSlaveId = jsonNode2.get("onSlaveID");
+                            if (higrometrOnSlaveId != null) {
+                                higrometr.setOnSlaveID(higrometrOnSlaveId.asInt());
+                            }
+
+                            break;
+                        //TODO dodać pozostałe sensory
+                        default:
+                            break;
+                    }
+
+                    room.addSensor(sensor);
+                    // sensors.add(sensor);
+                }
+
+                logger.debug("Wczytano pokój: {}", jsonNode);
+                pokoje.put(room.getName(), room);
+                sensors.addAll(room.getSensors());
+                room.setLoaded();
+            } catch (Exception e) {
+                // uszkodzony plik nie może zablokować pozostałych pokoi; sam zostaje nietknięty
+                // (Room.save nie zapisuje pokoju w trakcie wczytywania), a jego urządzenia nie
+                // mogą zostać w systemie bez pokoju
+                logger.error("Błąd podczas wczytywania pokoju {} - pomijam go", i, e);
+                devices.removeAll(room.getDevices());
+            }
+        }
+        logger.info("Wczytano {} pokoi", pokoje.size());
+    }
+
+    /** Id pokoi z nazw plików {@code <id>_Room.json} w katalogu, rosnąco. */
+    private static List<Integer> roomFileIds(File directory) {
+        List<Integer> ids = new ArrayList<>();
+        String[] names = directory.list();
+        if (names != null) {
+            for (String name : names) {
+                Matcher matcher = ROOM_FILE_PATTERN.matcher(name);
+                if (matcher.matches()) {
+                    try {
+                        ids.add(Integer.valueOf(matcher.group(1)));
+                    } catch (NumberFormatException e) {
+                        // id poza zakresem int - to nie jest plik pokoju
+                    }
+                }
+            }
+        }
+        Collections.sort(ids);
+        return ids;
+    }
+
+    /**
+     * Zapisuje całą bazę danych do plików
+     */
+    public void save() {
+        for (Room pokoj : this.getRoomsArrayList()) {
+            this.save(pokoj);
+        }
+    }
+
+    /**
+     * Zapisuje podany pokoj do pliku
+     * 
+     * @param pokoj - pokoj do zapisania
+     */
+    public boolean save(Room pokoj) {
+        if (pokoj != null) {
+
+            try {// tworzenie plików w plikach src
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+                File projFile = new File(roomsFilesLocalisation + pokoj.getID() + "_Room.json");
+                projFile.getParentFile().mkdirs();
+                projFile.createNewFile();// utworzenie pliku jeśli nie istnieje
+                objectMapper.writeValue(projFile, pokoj);// plik projektu (src)
+            } catch (JsonGenerationException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // TODO Czy potrzebne???
+            // try {//towrzenie plików w plikach programu
+
+            // ObjectMapper objectMapper = new ObjectMapper();
+            // objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+            // File appFile = new
+            // File(TypeReference.class.getResource("/static/database/rooms/").getPath()
+            // + pokoj.getID() + "_Room.json");
+
+            // appFile.getParentFile().mkdirs();
+            // appFile.createNewFile();// utworzenie pliku jeśli nie istnieje
+            // objectMapper.writeValue(appFile, pokoj);// plik aplikacji (target)
+            // } catch (JsonGenerationException e) {
+            // e.printStackTrace();
+            // } catch (JsonMappingException e) {
+            // e.printStackTrace();
+            // } catch (IOException e) {
+            // e.printStackTrace();
+            // }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Zapisuje podany pokoj do pliku
+     * 
+     * @param pokoj - pokoj do zapisania
+     */
+    public boolean delete(Room pokoj) {
+        if (pokoj != null) {
+
+            try {// tworzenie plików w plikach src
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+                File projFile = new File(roomsFilesLocalisation + pokoj.getID() + "_Room.json");
+                projFile.getParentFile().mkdirs();
+                projFile.delete();// usuń plik
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            // TODO Czy potrzebne???
+            // try {//towrzenie plików w plikach programu
+
+            // ObjectMapper objectMapper = new ObjectMapper();
+            // objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+            // File appFile = new
+            // File(TypeReference.class.getResource("/static/database/rooms/").getPath()
+            // + pokoj.getID() + "_Room.json");
+
+            // appFile.getParentFile().mkdirs();
+            // appFile.createNewFile();// utworzenie pliku jeśli nie istnieje
+            // objectMapper.writeValue(appFile, pokoj);// plik aplikacji (target)
+            // } catch (JsonGenerationException e) {
+            // e.printStackTrace();
+            // } catch (JsonMappingException e) {
+            // e.printStackTrace();
+            // } catch (IOException e) {
+            // e.printStackTrace();
+            // }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Zwraca listę zawierającą urządzenia przypisane do slave-a o podanym id
+     * 
+     * @param id - slaveId
+     * @return lista urzdządzeń
+     */
+    public List<Device> getAllDevicesFromSlave(int id) {
+        ArrayList<Device> list = new ArrayList<>();
+
+        for (Device device : devices) {
+            if (device.getSlaveID() == id) {
+                list.add(device);
+            }
+        }
+
+        return list;
+    }
+
+    public Device getDeviceByID(int id) {
+        // synchronizacja z mutacjami listy - wołane też z wątku MQTT
+        synchronized (devices) {
+            for (Device device : devices) {
+                if (device.getId() == id) {
+                    return device;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Sensor getSensorByID(int id) {
+        return getSensor(id);
+    }
+
+    // public void addDevice(Device device) {
+    //     this.devices.add(device);
+    // }
+
+    public void addDevice(Room room, Device device) {
+        synchronized (devices) {
+            this.devices.add(device);
+        }
+        room.addDevice(device);
+        device.configureToSlave();
+        save(room);
+    }
+
+    public Device addDevice(Room room, String name, DeviceTypes type, int slaveID, Integer pin, Integer pin2){
+        Device device = hardwareFactory.createDevice(type, slaveID);
+        device.setName(name);
+        switch (type) {
+            case LIGHT:
+                Light light = (Light) device;
+                light.setPin(pin);
+                break;
+            case BLIND:
+                Blind blind = (Blind) device;
+                blind.setPinUp(pin);
+                blind.setPinDown(pin2);
+                break;
+            case WENTYLATOR:
+                Fan fan = (Fan) device;
+                fan.setPin(pin);
+                break;
+            case GNIAZDKO:
+                Outlet outlet = (Outlet) device;
+                outlet.setPin(pin);
+                break;
+            default:
+                logger.error("Nieznany typ urządzenia");
+                break;
+        }
+        addDevice(room, device);
+        return device;
+    }
+
+    /**
+     * Dodaje sensor do systemu i pokoju. Zapisuje pokój do pliku. Konfiguruje sensor jeśli sensor obsługuje konfigurację ręczną na slave-ie
+     * @param room - pokój do którego ma być dodany sensor
+     * @param sensor - sensor do dodania
+     * @return dodany sensor
+     */
+    public Sensor addSensor(Room room, Sensor sensor){
+        synchronized (sensors) {
+            this.sensors.add(sensor);
+        }
+        room.addSensor(sensor);
+        if(sensor.getTyp() == SensorsTypes.BUTTON)
+            ((Button) sensor).configure();
+        else if(sensor.getTyp() == SensorsTypes.THERMOMETR_HYGROMETR){
+            ((Higrometr) sensor).configure();
+        }
+        save(room);
+        return sensor;
+    }
+
+    /**
+     * Dodaje przycisk razem z funkcjami kliknięć - muszą być przypięte przed addSensor, który wysyła
+     * konfigurację na slave-a (configure) i zapisuje pokój.
+     */
+    public Button addButton(Room room, String name, int slaveID, int pin, List<ButtonLocalFunction> clickFunctions){
+        Button button = (Button) hardwareFactory.createSensor(SensorsTypes.BUTTON);
+        button.setSlaveAdress(slaveID);
+        button.setNazwa(name);
+        button.setPin(pin);
+        button.addFunkcjeKlikniec(clickFunctions);
+        button = (Button) addSensor(room, button);
+        return button;
+    }
+    public Higrometr addHigrometr(Room room, String name, int slaveID){
+        Higrometr higrometr = (Higrometr) hardwareFactory.createSensor(SensorsTypes.THERMOMETR_HYGROMETR);
+        higrometr.setSlaveAdress(slaveID);
+        higrometr.setNazwa(name);
+        higrometr = (Higrometr) addSensor(room, higrometr);
+        return higrometr;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + '\n' + " pokoje='" + pokoje + "'" + "\n\n" + ", devices='" + devices + "'" + "\n\n" + ", sensors='"
+                + sensors + "'" + "\n\n}";
+    }
+
+	public boolean removeDevice(int devID) {
+        Device device = getDeviceByID(devID);
+        if(device != null){
+            Room room = getRoom(device.getRoom());
+            synchronized (devices) {
+                devices.remove(device);
+            }
+            room.delDevice(device);
+            save(room);
+            return true;
+        }
+        return false;
+	}
+
+    public boolean removeSensor(int sensorID) {
+        Sensor sensor = getSensor(sensorID);
+        if(sensor != null){
+            Room room = getRoom(sensor.getRoom());
+            synchronized (sensors) {
+                sensors.remove(sensor);
+            }
+            room.delSensor(sensor);
+            save(room);
+            return true;
+        }
+        return false;
+    }
+}

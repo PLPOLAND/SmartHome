@@ -61,6 +61,7 @@ void I2CConverter::onRequestEvent() {
 
 void I2CConverter::RecieveEvent(int howManyBytes)
 {
+    OUT_LN(F("RECIEVE_EVENT START"));
     byte buffReadSize = 0;
     OUT(F("howmanybytes: "));
     OUT_LN(howManyBytes);
@@ -135,27 +136,49 @@ void I2CConverter::RecieveEvent(int howManyBytes)
 
             }
             break;
+            case Command::KOMENDY::RECEIVE_ADD_HIGROMETR:
+            {
+                OUT_LN(F("REC_ADD_HIGROMETR"));
+                Higrometr *tmpDev = (Higrometr*)System::getSystem()->addDevice(Device::TYPE::HIGROMETR);
+                if (tmpDev == nullptr)
+                {
+                    byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
+                    komendaZwrotna->setParams(params);
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->printParametry();
+                }
+                else
+                {
+                    byte params[8] = { 'O', tmpDev->getId() , 0, 0, 0, 0, 0, 0 };//"O", "ID", "0", "0", "0", "0", "0", "0
+                    // OUT_LN()
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->setParams(params);
+                    komendaZwrotna->printParametry();
+                }
+                doWyslania.add(0, komendaZwrotna);
+            }
+            break;
             case Command::KOMENDY::RECEIVE_HOW_MANY_THERMOMETR:
             {
                 OUT_LN(F("REC_HOW_MANY_THER"))
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
 
-                OUT_LN(F("BEFORE"))
+                // OUT_LN(F("BEFORE"))
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0] = Termometr::howManyThermometers();
-                OUT_LN(F("AFTER"))
+                // OUT_LN(F("AFTER"))
                 komendaZwrotna->setParams(params);
                 doWyslania.add(0, komendaZwrotna);
-                OUT_LN(F("END"))
+                // OUT_LN(F("END"))
             }
             break;
             case Command::KOMENDY::RECEIVE_ADD_ROLETA:
             {
                 OUT_LN(F("REC_ADD_ROLETA"));
-                OUT(F("pinUp: "))
-                OUT_LN(komenda.getParams()[0]);
-                OUT(F("pinDown: "))
-                OUT_LN(komenda.getParams()[1]);
+                // OUT(F("pinUp: "))
+                // OUT_LN(komenda.getParams()[0]);
+                // OUT(F("pinDown: "))
+                // OUT_LN(komenda.getParams()[1]);
                 Roleta* tmp = (Roleta*)System::getSystem()->addDevice(Device::TYPE::ROLETA, komenda.getParams()[0], komenda.getParams()[1]);
                 komendaZwrotna->setDevice(tmp);
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
@@ -194,22 +217,55 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             {
                 OUT_LN(F("REC_GET_TEMPERATURE"));
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                String tmp = String(System::getSystem()->getTermometr(komenda.getParams())->getTemperature(), 2U);
+                Termometr *termometr = System::getSystem()->getTermometr(komenda.getParams());
+                float temperatura = termometr != nullptr ? termometr->getTemperature() : NAN;
+                if (termometr == nullptr || isnan(temperatura) || temperatura < -200.0f || temperatura > 200.0f)
+                {
+                    params[0] = 'E'; // nieznany termometr / nieprawidłowy odczyt - master potraktuje to jako błąd
+                }
+                else
+                {
+                    // dtostrf do bufora na stosie zamiast String - String alokował na stercie w przerwaniu,
+                    // a przy zapełnionym RAM-ie alokacja się nie udawała i odpowiedź była pusta
+                    char tekst[12];
+                    dtostrf(temperatura, 1, 2, tekst); // np. "21.19", "-127.00"
+                    for (byte i = 0; i < 8 && tekst[i] != '\0'; i++)
+                    {
+                        params[i] = tekst[i];
+                    }
+                }
                 OUT(F("temperatura = "))
-                OUT_LN(tmp);
-                for (byte i = 0; i < 8; i++)
-                {
-                    params[i] = 0;
-                }
-                for (byte i = 0; i < tmp.length(); i++)
-                {
-                    params[i] = tmp.charAt(i);
-                }
+                OUT_LN(temperatura);
 
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                 komendaZwrotna->setParams(params);
 
                 
+                doWyslania.add(0, komendaZwrotna);
+            }
+            break;
+            case Command::KOMENDY::RECEIVE_GET_HUMIDITY_AND_TEMPERATURE:
+            {
+                OUT_LN(F("REC_GET_HUM_AND_TEMP"))
+                komenda.printParametry();
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                byte params[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+                Higrometr* higrometr = (Higrometr*) System::getSystem()->getDevice(komenda.getParams()[1]);
+                if (higrometr == nullptr)
+                {
+                    params[0] = 'E';
+                }
+                else
+                {
+                    byte* tmp = higrometr->getStateAsByteArray();
+                    for (byte i = 0; i < 6; i++)
+                    {
+                        params[i] = tmp[i];
+                    }
+                    delete[] tmp;
+                }
+                komendaZwrotna->setParams(params);
+                komendaZwrotna->printParametry();
                 doWyslania.add(0, komendaZwrotna);
             }
             break;
@@ -219,8 +275,8 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
 
                 Przekaznik* p = (Przekaznik*) System::getSystem()->getDevice(komenda.getParams()[0]);
-                OUT_LN(F("Przekaznik: "))
-                OUT_LN(p->toString())
+                // OUT_LN(F("Przekaznik: "))
+                // OUT_LN(p->toString())
                 p->setStan(komenda.getParams()[1] == 1 ? true : false);
                 byte params[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                 params[0]= 'O';
@@ -243,6 +299,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                 else if (komenda.getParams()[1]== 'D')
                 {
                     r->opusc();
+                    params[0] = 'O';
+                }
+                else if (komenda.getParams()[1] == 'S')
+                {
+                    r->stop();
                     params[0] = 'O';
                 }
                 else
@@ -295,9 +356,9 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     {
                         Command* funkcja = new Command;
                         funkcja->setDevice(dev);
-                        OUT(F("device type: "))
-                        OUT_LN(dev->getType())
-                        OUT_LN(funkcja->getDevice()->getType())
+                        // OUT(F("device type: "))
+                        // OUT_LN(dev->getType())
+                        // OUT_LN(funkcja->getDevice()->getType())
                         switch (dev->getType())
                         {
                             case Device::PRZEKAZNIK:
@@ -317,7 +378,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                             default:
                                 break;
                         }
-                        przycisk->dodajFunkcjeKlikniecia(funkcja, komenda.getParams()[3]);
+                        if (!przycisk->dodajFunkcjeKlikniecia(funkcja, komenda.getParams()[3]))
+                        {
+                            params[0] = 'E'; // np. liczba kliknięć >= MAX_NUMBER_OF_BUTTON_FUNCTIONS - funkcja nie została zapisana
+                        }
+                        delete funkcja; // dodajFunkcjeKlikniecia zapisuje kopię - bez tego każda skonfigurowana funkcja ciekła (15 B)
                     }
                     else
                     {
@@ -387,6 +452,10 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                             {
                                 params[0] = 'D';
                             }
+                            else if (tmp == StanRolety::PORUSZANIE)
+                            {
+                                params[0] = 'R';
+                            }
                             
                             komendaZwrotna->setParams(params);
                             doWyslania.add(0, komendaZwrotna);
@@ -415,7 +484,23 @@ void I2CConverter::RecieveEvent(int howManyBytes)
                     OUT_LN(F("RECEIVE_CHECK_HOW_MANY_TO_SENT"));
                     byte params[8] = {'E', 0, 0, 0, 0, 0, 0, 0};
                     params[0] = doWyslania.size();
-                    OUT(F("Do wysłania: ")) OUT_LN(doWyslania.size());
+                    // OUT(F("Do wysłania: ")) OUT_LN(doWyslania.size());
+                    komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
+                    komendaZwrotna->setParams(params);
+                    doWyslania.add(0, komendaZwrotna);
+                }
+                break;
+            case Command::KOMENDY::RECEIVE_MEMORY_INFO:
+                {
+                    // ['M', sterta(2B), nietknięty RAM(2B), wolne bloki(2B), 0] - wartości little-endian
+                    uint16_t heap = heapSize();
+                    uint16_t untouched = untouchedRam();
+                    uint16_t freeList = freeListBytes();
+                    byte params[8] = {'M',
+                                      (byte)(heap & 0xFF), (byte)(heap >> 8),
+                                      (byte)(untouched & 0xFF), (byte)(untouched >> 8),
+                                      (byte)(freeList & 0xFF), (byte)(freeList >> 8),
+                                      0};
                     komendaZwrotna->setCommandType(Command::KOMENDY::SEND_REPLY);
                     komendaZwrotna->setParams(params);
                     doWyslania.add(0, komendaZwrotna);
@@ -424,9 +509,11 @@ void I2CConverter::RecieveEvent(int howManyBytes)
             case Command::KOMENDY::RECEIVE_GET:
                 {
                     OUT_LN(F("RECEIVE_GET"));
+                    delete komendaZwrotna; // nie trafia do kolejki - bez tego wyciek pamięci przy każdej takiej komendzie
                 }
                 break;
             default:
+                delete komendaZwrotna; // nieznana komenda - odpowiedź nie trafia do kolejki, zwolnij ją
                 break;
         };
 
@@ -436,10 +523,12 @@ void I2CConverter::RecieveEvent(int howManyBytes)
         OUT_LN(freeMemory());
     }
     
+    OUT_LN(F("END OF RECIEVE EVENT"));
 }
 //TODO kolejka komend
 void I2CConverter::RequestEvent()
 {
+    OUT_LN(F("REQUEST_EVENT START"));
     Command* command = nullptr;
     if (doWyslania.size()>0)
     {
@@ -481,12 +570,12 @@ void I2CConverter::RequestEvent()
             case Command::KOMENDY::SEND_STATUS:
                 break;
             default:
-                OUT_LN(F("ERROR - Nieznana komenda"));
+                // OUT_LN(F("ERROR - Nieznana komenda"));
                 for (byte i = 0; i < 8; i++)
                 {
                     Wire.write('E');
                 }
-                Wire.end();
+                // Bez Wire.end() - wyłączenie TWI w przerwaniu zostawiało slave'a głuchego na I2C aż do restartu
                 break;
         }
         OUT_LN(freeMemory());
@@ -499,16 +588,8 @@ void I2CConverter::RequestEvent()
         {
             Wire.write('E');
         }
-        Wire.end();
-
-        byte tmp = 1;
-        byte adress = 7;
-        for (byte i = 0; i < PINOW_NA_ADRES; i++)
-        {
-            adress += tmp * (digitalRead(2 + i) == HIGH ? 0 : 1);
-            tmp *= 2;
-        }
-        Wire.begin(adress);
+        // Wcześniej był tu Wire.end() + Wire.begin(adres) - reinicjalizacja TWI w środku obsługi przerwania
+        // (w trakcie transmisji do mastera) potrafiła zawiesić slave'a/magistralę. Odpowiedź 'E' wystarcza.
     }
     if (command != nullptr)
     {
@@ -516,21 +597,43 @@ void I2CConverter::RequestEvent()
         delete command;
     }
     
-    OUT_LN(F("SENDING DONE"));
-    
+    // OUT_LN(F("SENDING DONE"));
+    OUT_LN(freeMemory());
+    OUT_LN(F("REQUEST_EVENT END"));
 }
 
 void I2CConverter::addToSent(Command *command){
-    if (this->doWyslania.size()<3)
+    // Wywoływane z pętli głównej. Kolejka doWyslania i sterta (malloc/free) są modyfikowane także
+    // w przerwaniach I2C (RecieveEvent/RequestEvent), a ani LinkedList, ani malloc z avr-libc nie są
+    // odporne na przerwania - bez blokady przerwanie w trakcie tej operacji psuło listę/stertę i zawieszało slave'a.
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        this->doWyslania.add(command);
+        if (this->doWyslania.size()<3)
+        {
+            this->doWyslania.add(command);
+        }
+        else
+        {
+            // Kolejka pełna (rozmiar 3, indeksy 0-2) - nadpisz ostatni element zamiast
+            // odwoływać się do nieistniejącego indeksu 3 (powodowało to dereferencję NULL i zawieszenie).
+            delete this->doWyslania.get(2);
+            this->doWyslania.set(2, command);//TODO Pomyśleć nad lepszym rozwiązaniem
+        }
     }
-    else
+}
+
+/**
+ * Tworzy komendę z podanymi parametrami i dodaje ją do kolejki do wysłania.
+ * Do użycia z pętli głównej - alokacja i dodanie do kolejki odbywają się przy wyłączonych przerwaniach.
+ */
+void I2CConverter::addReplyToSent(const byte *params){
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        delete this->doWyslania.get(3);
-        this->doWyslania.set(3, command);//TODO Pomyśleć nad lepszym rozwiązaniem 
+        Command *command = new Command;
+        command->setParams(params);
+        command->setCommandType(Command::KOMENDY::SEND_REPLY);
+        addToSent(command); // ATOMIC_RESTORESTATE - zagnieżdżenie jest bezpieczne
     }
-    
 }
 
 /*

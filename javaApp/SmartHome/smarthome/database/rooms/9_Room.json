@@ -1,5 +1,6 @@
 {
   "id" : 9,
+  "name" : "Rodzice",
   "devices" : [ {
     "@type" : "Light",
     "id" : 41,
@@ -8,12 +9,8 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Light",
     "id" : 42,
@@ -22,12 +19,8 @@
     "onSlaveID" : 1,
     "name" : "Poziom 2",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 12
   }, {
     "@type" : "Blind",
     "id" : 43,
@@ -36,23 +29,23 @@
     "onSlaveID" : 2,
     "name" : "Rodzice",
     "typ" : "BLIND",
-    "switchUp" : {
-      "stan" : "ON",
-      "pin" : 15
-    },
+    "state" : "UP",
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
     },
-    "state" : "NOTKNOW"
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
+    }
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 112,
     "room" : 9,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Światło",
+    "addres" : null,
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -67,12 +60,23 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 42,
+        "room" : 9,
+        "slaveID" : 17,
+        "onSlaveID" : 1,
+        "name" : "Poziom 2",
+        "typ" : "LIGHT",
+        "state" : "OFF",
+        "pin" : 12
       }
     } ],
     "slaveAdress" : 17
@@ -81,8 +85,8 @@
     "id" : 120,
     "room" : 9,
     "onSlaveID" : 4,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Taras",
+    "addres" : null,
+    "nazwa" : "Taras",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -97,15 +101,15 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        }
       }
     }, {
       "state" : "DOWN",
@@ -119,15 +123,15 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        }
       }
     }, {
       "state" : "STOP",
@@ -141,18 +145,30 @@
         "onSlaveID" : 2,
         "name" : "Rodzice",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        }
       }
     } ],
     "slaveAdress" : 17
+  }, {
+    "@type" : "Termometr",
+    "id" : 53,
+    "room" : 9,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 255, 100, 14, 123, 124, 117, 65 ],
+    "nazwa" : "Rodzice",
+    "typ" : "THERMOMETR",
+    "temperatura" : 0.0,
+    "maxTemperatura" : 0.0,
+    "minTemperatura" : 3.4028235E38,
+    "slaveAdress" : 17
   } ],
-  "nazwa" : "Rodzice"
+  "loaded" : false
 }

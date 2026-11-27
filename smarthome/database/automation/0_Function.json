@@ -1,0 +1,23 @@
+{
+  "@type" : "ButtonFunction",
+  "id" : 0,
+  "name" : "",
+  "actions" : [ ],
+  "reversState" : true,
+  "type" : "NOTKNOWN",
+  "button" : {
+    "@type" : "Button",
+    "id" : 1,
+    "room" : 0,
+    "onSlaveID" : -1,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "",
+    "typ" : "BUTTON",
+    "pin" : 0,
+    "funkcjeKlikniec" : [ ],
+    "slaveAdress" : 0
+  },
+  "clicks" : 1,
+  "clickType" : "CLICKED",
+  "active" : true
+}

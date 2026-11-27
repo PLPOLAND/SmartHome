@@ -70,6 +70,8 @@ void Command::convert(const byte *c, byte size)
             this->komenda = Command::KOMENDY::RECEIVE_GET;
         if (c[0] == 'R')
             this->komenda = Command::KOMENDY::RECEIVE_INIT;
+        if (c[0] == 'M')
+            this->komenda = Command::KOMENDY::RECEIVE_MEMORY_INFO;
         if (c[0] == 0)
             this->komenda = Command::KOMENDY::NIC;
         }
@@ -81,6 +83,25 @@ void Command::convert(const byte *c, byte size)
             {
                 this->komenda = Command::KOMENDY::RECEIVE_ADD_THERMOMETR;
             }
+            if (c[1] == 'H')//Add Higrometr
+            {
+                this->komenda = Command::KOMENDY::RECEIVE_ADD_HIGROMETR;
+            }
+            
+        }
+        if (c[0] == 'H')
+        {
+            this->komenda = Command::KOMENDY::RECEIVE_GET_HUMIDITY_AND_TEMPERATURE;
+            for (byte i = 0; i < size; i++)
+            {
+                this->parametry[i] = c[i];
+            }
+            for (byte i = size; i < 8; i++)
+            {
+                this->parametry[i] = 0;
+            }
+            
+                
         }
 
         break;
@@ -261,7 +282,7 @@ void Command::printParametry(){
         OUT(this->parametry[i]);
         OUT(" ")
     }
-    OUT_LN(F(""))
+    // OUT_LN(F(""))
     
 }
 

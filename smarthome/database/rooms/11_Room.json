@@ -1,0 +1,177 @@
+{
+  "id" : 11,
+  "devices" : [ {
+    "@type" : "Light",
+    "id" : 44,
+    "room" : 11,
+    "slaveID" : 10,
+    "onSlaveID" : 0,
+    "name" : "Poziom 1",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 13
+    },
+    "pin" : 13,
+    "state" : "OFF"
+  }, {
+    "@type" : "Blind",
+    "id" : 45,
+    "room" : 11,
+    "slaveID" : 10,
+    "onSlaveID" : 1,
+    "name" : "Kuchnia",
+    "typ" : "BLIND",
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
+    "state" : "NOTKNOW"
+  }, {
+    "@type" : "Light",
+    "id" : 52,
+    "room" : 11,
+    "slaveID" : 10,
+    "onSlaveID" : 2,
+    "name" : "Jadalnia",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 12
+    },
+    "pin" : 12,
+    "state" : "OFF"
+  } ],
+  "sensors" : [ {
+    "@type" : "Button",
+    "id" : 113,
+    "room" : 11,
+    "onSlaveID" : 3,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 44,
+        "room" : 11,
+        "slaveID" : 10,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    }, {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Light",
+        "id" : 52,
+        "room" : 11,
+        "slaveID" : 10,
+        "onSlaveID" : 2,
+        "name" : "Jadalnia",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "ON",
+          "pin" : 12
+        },
+        "pin" : 12,
+        "state" : "ON"
+      }
+    } ],
+    "slaveAdress" : 10
+  }, {
+    "@type" : "Button",
+    "id" : 114,
+    "room" : 11,
+    "onSlaveID" : 4,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Rolety",
+    "typ" : "BUTTON",
+    "pin" : 17,
+    "funkcjeKlikniec" : [ {
+      "state" : "UP",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 45,
+        "room" : 11,
+        "slaveID" : 10,
+        "onSlaveID" : 1,
+        "name" : "Kuchnia",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "DOWN",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 45,
+        "room" : 11,
+        "slaveID" : 10,
+        "onSlaveID" : 1,
+        "name" : "Kuchnia",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "STOP",
+      "type" : "CLICKED",
+      "clicks" : 3,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 45,
+        "room" : 11,
+        "slaveID" : 10,
+        "onSlaveID" : 1,
+        "name" : "Kuchnia",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "state" : "NOTKNOW"
+      }
+    } ],
+    "slaveAdress" : 10
+  } ],
+  "nazwa" : "Kuchnia"
+}

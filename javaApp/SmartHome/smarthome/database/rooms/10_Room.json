@@ -1,5 +1,6 @@
 {
   "id" : 10,
+  "name" : "Salon",
   "devices" : [ {
     "@type" : "Blind",
     "id" : 40,
@@ -8,15 +9,15 @@
     "onSlaveID" : 0,
     "name" : "Taras",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 15
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 16
-    },
-    "switchDown" : {
-      "stan" : "ON",
-      "pin" : 15
-    },
-    "state" : "NOTKNOW"
+    }
   }, {
     "@type" : "Blind",
     "id" : 38,
@@ -25,15 +26,15 @@
     "onSlaveID" : 0,
     "name" : "Jadalnia",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 15
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 16
-    },
-    "switchDown" : {
-      "stan" : "ON",
-      "pin" : 15
-    },
-    "state" : "NOTKNOW"
+    }
   }, {
     "@type" : "Blind",
     "id" : 39,
@@ -42,15 +43,15 @@
     "onSlaveID" : 1,
     "name" : "Przy Tarasie",
     "typ" : "BLIND",
+    "state" : "NOTKNOW",
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 12
+    },
     "switchUp" : {
       "stan" : "OFF",
       "pin" : 13
-    },
-    "switchDown" : {
-      "stan" : "ON",
-      "pin" : 12
-    },
-    "state" : "NOTKNOW"
+    }
   }, {
     "@type" : "Light",
     "id" : 50,
@@ -59,12 +60,8 @@
     "onSlaveID" : 0,
     "name" : "Przedpokój",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Light",
     "id" : 51,
@@ -73,20 +70,16 @@
     "onSlaveID" : 1,
     "name" : "Przedpokój/Jadalnia",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 12
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 123,
     "room" : 10,
     "onSlaveID" : 1,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Jadalnia",
+    "addres" : null,
+    "nazwa" : "Jadalnia",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -101,15 +94,15 @@
         "onSlaveID" : 0,
         "name" : "Jadalnia",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     }, {
       "state" : "DOWN",
@@ -123,15 +116,15 @@
         "onSlaveID" : 0,
         "name" : "Jadalnia",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     }, {
       "state" : "STOP",
@@ -145,15 +138,15 @@
         "onSlaveID" : 0,
         "name" : "Jadalnia",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     } ],
     "slaveAdress" : 19
@@ -162,8 +155,8 @@
     "id" : 121,
     "room" : 10,
     "onSlaveID" : 2,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Taras",
+    "addres" : null,
+    "nazwa" : "Taras",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -178,15 +171,15 @@
         "onSlaveID" : 0,
         "name" : "Taras",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     }, {
       "state" : "UP",
@@ -200,15 +193,15 @@
         "onSlaveID" : 0,
         "name" : "Taras",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     }, {
       "state" : "STOP",
@@ -222,15 +215,15 @@
         "onSlaveID" : 0,
         "name" : "Taras",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 16
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 15
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 16
+        }
       }
     } ],
     "slaveAdress" : 18
@@ -239,8 +232,8 @@
     "id" : 122,
     "room" : 10,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Przy Tarasie",
+    "addres" : null,
+    "nazwa" : "Przy Tarasie",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -255,15 +248,15 @@
         "onSlaveID" : 1,
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 13
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 12
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 13
+        }
       }
     }, {
       "state" : "DOWN",
@@ -277,15 +270,15 @@
         "onSlaveID" : 1,
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 13
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 12
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 13
+        }
       }
     }, {
       "state" : "STOP",
@@ -299,15 +292,15 @@
         "onSlaveID" : 1,
         "name" : "Przy Tarasie",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "ON",
-          "pin" : 13
-        },
+        "state" : "NOTKNOW",
         "switchDown" : {
           "stan" : "OFF",
           "pin" : 12
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 13
+        }
       }
     } ],
     "slaveAdress" : 18
@@ -315,9 +308,9 @@
     "@type" : "Button",
     "id" : 125,
     "room" : 10,
-    "onSlaveID" : 2,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Światło Przedsionek",
+    "onSlaveID" : 3,
+    "addres" : null,
+    "nazwa" : "Światło Przedsionek",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -332,12 +325,8 @@
         "onSlaveID" : 0,
         "name" : "Przedpokój",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     }, {
       "state" : "NONE",
@@ -351,15 +340,23 @@
         "onSlaveID" : 1,
         "name" : "Przedpokój/Jadalnia",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
-        "pin" : 12,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 12
       }
     } ],
     "slaveAdress" : 21
+  }, {
+    "@type" : "Termometr",
+    "id" : 51,
+    "room" : 10,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 141, 245, 235, 142 ],
+    "nazwa" : "Salon",
+    "typ" : "THERMOMETR",
+    "temperatura" : 3.4028235E38,
+    "maxTemperatura" : 1.4E-45,
+    "minTemperatura" : 3.4028235E38,
+    "slaveAdress" : 18
   } ],
-  "nazwa" : "Salon"
+  "loaded" : false
 }

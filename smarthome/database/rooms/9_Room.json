@@ -1,0 +1,158 @@
+{
+  "id" : 9,
+  "devices" : [ {
+    "@type" : "Light",
+    "id" : 41,
+    "room" : 9,
+    "slaveID" : 17,
+    "onSlaveID" : 0,
+    "name" : "Poziom 1",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 13
+    },
+    "pin" : 13,
+    "state" : "OFF"
+  }, {
+    "@type" : "Light",
+    "id" : 42,
+    "room" : 9,
+    "slaveID" : 17,
+    "onSlaveID" : 1,
+    "name" : "Poziom 2",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 12
+    },
+    "pin" : 12,
+    "state" : "OFF"
+  }, {
+    "@type" : "Blind",
+    "id" : 43,
+    "room" : 9,
+    "slaveID" : 17,
+    "onSlaveID" : 2,
+    "name" : "Rodzice",
+    "typ" : "BLIND",
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
+    "state" : "NOTKNOW"
+  } ],
+  "sensors" : [ {
+    "@type" : "Button",
+    "id" : 112,
+    "room" : 9,
+    "onSlaveID" : 3,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 41,
+        "room" : 9,
+        "slaveID" : 17,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 17
+  }, {
+    "@type" : "Button",
+    "id" : 120,
+    "room" : 9,
+    "onSlaveID" : 4,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Taras",
+    "typ" : "BUTTON",
+    "pin" : 17,
+    "funkcjeKlikniec" : [ {
+      "state" : "UP",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 43,
+        "room" : 9,
+        "slaveID" : 17,
+        "onSlaveID" : 2,
+        "name" : "Rodzice",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "DOWN",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 43,
+        "room" : 9,
+        "slaveID" : 17,
+        "onSlaveID" : 2,
+        "name" : "Rodzice",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "STOP",
+      "type" : "CLICKED",
+      "clicks" : 3,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 43,
+        "room" : 9,
+        "slaveID" : 17,
+        "onSlaveID" : 2,
+        "name" : "Rodzice",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "OFF",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    } ],
+    "slaveAdress" : 17
+  } ],
+  "nazwa" : "Rodzice"
+}

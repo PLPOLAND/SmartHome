@@ -1,0 +1,144 @@
+{
+  "id" : 1,
+  "devices" : [ {
+    "@type" : "Light",
+    "id" : 0,
+    "room" : 1,
+    "slaveID" : 8,
+    "onSlaveID" : 0,
+    "name" : "Poziom 1",
+    "typ" : "LIGHT",
+    "swt" : {
+      "stan" : "OFF",
+      "pin" : 13
+    },
+    "pin" : 13,
+    "state" : "OFF"
+  }, {
+    "@type" : "Blind",
+    "id" : 1,
+    "room" : 1,
+    "slaveID" : 8,
+    "onSlaveID" : 1,
+    "name" : "Garderoba",
+    "typ" : "BLIND",
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
+    },
+    "switchDown" : {
+      "stan" : "OFF",
+      "pin" : 16
+    },
+    "state" : "NOTKNOW"
+  } ],
+  "sensors" : [ {
+    "@type" : "Button",
+    "id" : 104,
+    "room" : 1,
+    "onSlaveID" : 3,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Światło",
+    "typ" : "BUTTON",
+    "pin" : 14,
+    "funkcjeKlikniec" : [ {
+      "state" : "NONE",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Light",
+        "id" : 0,
+        "room" : 1,
+        "slaveID" : 8,
+        "onSlaveID" : 0,
+        "name" : "Poziom 1",
+        "typ" : "LIGHT",
+        "swt" : {
+          "stan" : "OFF",
+          "pin" : 13
+        },
+        "pin" : 13,
+        "state" : "OFF"
+      }
+    } ],
+    "slaveAdress" : 8
+  }, {
+    "@type" : "Button",
+    "id" : 115,
+    "room" : 1,
+    "onSlaveID" : 4,
+    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    "name" : "Rolety",
+    "typ" : "BUTTON",
+    "pin" : 17,
+    "funkcjeKlikniec" : [ {
+      "state" : "UP",
+      "type" : "CLICKED",
+      "clicks" : 1,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 1,
+        "room" : 1,
+        "slaveID" : 8,
+        "onSlaveID" : 1,
+        "name" : "Garderoba",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "DOWN",
+      "type" : "CLICKED",
+      "clicks" : 2,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 1,
+        "room" : 1,
+        "slaveID" : 8,
+        "onSlaveID" : 1,
+        "name" : "Garderoba",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    }, {
+      "state" : "STOP",
+      "type" : "CLICKED",
+      "clicks" : 3,
+      "device" : {
+        "@type" : "Blind",
+        "id" : 1,
+        "room" : 1,
+        "slaveID" : 8,
+        "onSlaveID" : 1,
+        "name" : "Garderoba",
+        "typ" : "BLIND",
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        },
+        "switchDown" : {
+          "stan" : "ON",
+          "pin" : 16
+        },
+        "state" : "NOTKNOW"
+      }
+    } ],
+    "slaveAdress" : 8
+  } ],
+  "nazwa" : "Garderoba"
+}

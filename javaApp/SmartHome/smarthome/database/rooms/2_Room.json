@@ -1,5 +1,6 @@
 {
   "id" : 2,
+  "name" : "Marcin",
   "devices" : [ {
     "@type" : "Light",
     "id" : 4,
@@ -8,12 +9,8 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "ON",
+    "pin" : 13
   }, {
     "@type" : "Light",
     "id" : 5,
@@ -22,12 +19,8 @@
     "onSlaveID" : 1,
     "name" : "Poziom 2",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "ON",
-      "pin" : 12
-    },
-    "pin" : 12,
-    "state" : "ON"
+    "state" : "OFF",
+    "pin" : 12
   }, {
     "@type" : "Blind",
     "id" : 6,
@@ -36,23 +29,23 @@
     "onSlaveID" : 2,
     "name" : "Marcin",
     "typ" : "BLIND",
-    "switchUp" : {
-      "stan" : "ON",
-      "pin" : 15
-    },
+    "state" : "DOWN",
     "switchDown" : {
-      "stan" : "OFF",
+      "stan" : "ON",
       "pin" : 16
     },
-    "state" : "UP"
+    "switchUp" : {
+      "stan" : "OFF",
+      "pin" : 15
+    }
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 105,
     "room" : 2,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Światło",
+    "addres" : null,
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -67,12 +60,8 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "ON",
+        "pin" : 13
       }
     }, {
       "state" : "NONE",
@@ -86,12 +75,8 @@
         "onSlaveID" : 1,
         "name" : "Poziom 2",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 12
-        },
-        "pin" : 12,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 12
       }
     } ],
     "slaveAdress" : 13
@@ -100,8 +85,8 @@
     "id" : 116,
     "room" : 2,
     "onSlaveID" : 4,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Rolety",
+    "addres" : null,
+    "nazwa" : "Rolety",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -116,15 +101,15 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "DOWN",
         "switchDown" : {
           "stan" : "ON",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        }
       }
     }, {
       "state" : "DOWN",
@@ -138,15 +123,15 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "DOWN",
         "switchDown" : {
           "stan" : "ON",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        }
       }
     }, {
       "state" : "STOP",
@@ -160,18 +145,30 @@
         "onSlaveID" : 2,
         "name" : "Marcin",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "DOWN",
         "switchDown" : {
           "stan" : "ON",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "OFF",
+          "pin" : 15
+        }
       }
     } ],
     "slaveAdress" : 13
+  }, {
+    "@type" : "Termometr",
+    "id" : 101,
+    "room" : 2,
+    "onSlaveID" : -1,
+    "addres" : [ 40, 97, 100, 17, 141, 241, 21, 222 ],
+    "nazwa" : "Marcin",
+    "typ" : "THERMOMETR",
+    "temperatura" : 0.0,
+    "maxTemperatura" : 0.0,
+    "minTemperatura" : 3.4028235E38,
+    "slaveAdress" : -1
   } ],
-  "nazwa" : "Marcin"
+  "loaded" : false
 }

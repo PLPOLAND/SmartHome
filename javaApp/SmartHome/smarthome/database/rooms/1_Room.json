@@ -1,5 +1,6 @@
 {
   "id" : 1,
+  "name" : "Garderoba",
   "devices" : [ {
     "@type" : "Light",
     "id" : 0,
@@ -8,12 +9,8 @@
     "onSlaveID" : 0,
     "name" : "Poziom 1",
     "typ" : "LIGHT",
-    "swt" : {
-      "stan" : "OFF",
-      "pin" : 13
-    },
-    "pin" : 13,
-    "state" : "OFF"
+    "state" : "OFF",
+    "pin" : 13
   }, {
     "@type" : "Blind",
     "id" : 1,
@@ -22,23 +19,23 @@
     "onSlaveID" : 1,
     "name" : "Garderoba",
     "typ" : "BLIND",
-    "switchUp" : {
-      "stan" : "ON",
-      "pin" : 15
-    },
+    "state" : "UP",
     "switchDown" : {
       "stan" : "OFF",
       "pin" : 16
     },
-    "state" : "NOTKNOW"
+    "switchUp" : {
+      "stan" : "ON",
+      "pin" : 15
+    }
   } ],
   "sensors" : [ {
     "@type" : "Button",
     "id" : 104,
     "room" : 1,
     "onSlaveID" : 3,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Światło",
+    "addres" : null,
+    "nazwa" : "Światło",
     "typ" : "BUTTON",
     "pin" : 14,
     "funkcjeKlikniec" : [ {
@@ -53,22 +50,18 @@
         "onSlaveID" : 0,
         "name" : "Poziom 1",
         "typ" : "LIGHT",
-        "swt" : {
-          "stan" : "OFF",
-          "pin" : 13
-        },
-        "pin" : 13,
-        "state" : "OFF"
+        "state" : "OFF",
+        "pin" : 13
       }
     } ],
     "slaveAdress" : 8
   }, {
     "@type" : "Button",
-    "id" : 115,
+    "id" : 550,
     "room" : 1,
-    "onSlaveID" : 4,
-    "addres" : [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    "name" : "Rolety",
+    "onSlaveID" : -1,
+    "addres" : null,
+    "nazwa" : "Rolety",
     "typ" : "BUTTON",
     "pin" : 17,
     "funkcjeKlikniec" : [ {
@@ -83,15 +76,15 @@
         "onSlaveID" : 1,
         "name" : "Garderoba",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        }
       }
     }, {
       "state" : "DOWN",
@@ -105,15 +98,15 @@
         "onSlaveID" : 1,
         "name" : "Garderoba",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        }
       }
     }, {
       "state" : "STOP",
@@ -127,18 +120,18 @@
         "onSlaveID" : 1,
         "name" : "Garderoba",
         "typ" : "BLIND",
-        "switchUp" : {
-          "stan" : "OFF",
-          "pin" : 15
-        },
+        "state" : "UP",
         "switchDown" : {
-          "stan" : "ON",
+          "stan" : "OFF",
           "pin" : 16
         },
-        "state" : "NOTKNOW"
+        "switchUp" : {
+          "stan" : "ON",
+          "pin" : 15
+        }
       }
     } ],
     "slaveAdress" : 8
   } ],
-  "nazwa" : "Garderoba"
+  "loaded" : false
 }

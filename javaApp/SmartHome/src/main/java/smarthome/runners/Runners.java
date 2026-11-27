@@ -77,9 +77,9 @@ public class Runners {
                             system.updateTemperature(termometr);
                         }
                     }
-                    for (I2CDevice device : system.getArduino().atmega.getDevices()) {
-                        if (system.isSlaveConnected(device.getAddress())) {
-                            system.checkGetAndExecuteCommandsFromSlave(device.getAddress());
+                    for (Integer device : system.getArduino().atmega.getDevices()) {
+                        if (system.isSlaveConnected(device)) {
+                            system.checkGetAndExecuteCommandsFromSlave(device);
                         }
                     }
                     isCheckDevicesStatusDone = true;
