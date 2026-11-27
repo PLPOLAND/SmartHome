@@ -19,6 +19,7 @@ Przycisk::Przycisk()
     odczytSurowy = false;
     odczytStabilny = false;
     czasZmianySurowego = 0;
+    czekaNaPuszczenie = true;
     for (byte i = 0; i < MAX_NUMBER_OF_BUTTON_FUNCTIONS; i++)
     {
         funkcje_klikniecia[i] = const_cast<Command *>(zapychacz);
@@ -50,10 +51,16 @@ bool Przycisk::begin(byte pin, bool czyPomijacPierwszy = false)
         time.time(STOP);
         stan = BRAK_AKCJI;
         klikniecia = 0;
-        // Przycisk wciśnięty przy starcie nie generuje kliknięcia - musi najpierw zostać puszczony.
-        odczytSurowy = digitalRead(this->pin) == LOW;
-        odczytStabilny = odczytSurowy;
+        // Start: zakładamy "wciśnięty" i czekamy, aż filtr potwierdzi puszczenie
+        // (BUTTON_DEBOUNCE_RELEASE ms stabilnego stanu wysokiego). Bez tego odczyt zaraz po włączeniu
+        // INPUT_PULLUP (długi przewód jeszcze się nie naładował i czyta LOW) omijał filtr i dawał
+        // fałszywe kliknięcie przy każdym starcie slave-a - np. po zaniku zasilania przełączały się
+        // przekaźniki i ruszały rolety z lokalnych funkcji przycisków.
+        // Przycisk naprawdę wciśnięty przy starcie też nie generuje kliknięcia - musi najpierw zostać puszczony.
+        odczytSurowy = true;
+        odczytStabilny = true;
         czasZmianySurowego = millis();
+        czekaNaPuszczenie = true;
         return true;
     }
     return false;
@@ -115,6 +122,15 @@ bool Przycisk::odczytajWejscie()
 void Przycisk::updateStan(){
     ///stan wejscia (po filtrze zakłóceń)
     bool tmpStan = odczytajWejscie();
+
+    if (czekaNaPuszczenie) // po starcie: ignoruj wejście, dopóki filtr nie potwierdzi puszczenia
+    {
+        if (tmpStan == 0)
+        {
+            czekaNaPuszczenie = false;
+        }
+        return;
+    }
 
     if (tmpStan == 1 && stan == PUSZCZONY && !time.available()) //Przyciśniecie po raz kolejny
     {
